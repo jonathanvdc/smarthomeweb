@@ -1,4 +1,4 @@
-# Programming Project Databases: SmartHome website
+# SmartHome website
 Project for the 2015–2016 *Programming Project Databases* course at the University of Antwerp.
 
 ## Team
