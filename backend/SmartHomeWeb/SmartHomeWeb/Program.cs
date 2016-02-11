@@ -17,24 +17,33 @@ namespace SmartHomeWeb
             Console.WriteLine("Running.");
             while (true)
             {
+                IndexModule.PlatDuJour = Console.ReadLine();
             }
         }
     }
 
     public class IndexModule : Nancy.NancyModule
     {
+        public static string PlatDuJour = "Yep. The server is running";
+
         public IndexModule()
         {
             Get["/"] = parameter => IndexPage;
             Get["/test/{x}"] =
-                parameter => "<blink>" + parameter["x"] * 2;
+                parameter => "<blink>" + parameter["x"] * 2.0;
         }
 
-        const string IndexPage = @"
-            <html><body>
-            <h1>Yep. The server is running</h1>
-            </body></html>
-            ";
+        public string IndexPage
+        {
+            get
+            {
+                return @"
+                <html><body>
+                <h1>" + PlatDuJour + @"</h1>
+                </body></html>
+                ";
+            }
+        }
     }
 
 
