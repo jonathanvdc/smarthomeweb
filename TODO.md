@@ -26,7 +26,7 @@
 
 * **17 maart**: 1e rapport
 * **21 maart**: 1e presentatie: taakverdeling, database, design-beslissingen
-* **25 april**: 2e rapport
+* **25 april**: 2e rappor
 * **ergens vlak daarna**: 2e presentatie: werkende demo
 * **17 mei**: indienen project + eindrapport
 * **19 mei**: eindpresentatie
