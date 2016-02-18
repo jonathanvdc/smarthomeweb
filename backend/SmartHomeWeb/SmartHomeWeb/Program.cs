@@ -13,12 +13,19 @@ namespace SmartHomeWeb
 
         static void Main(string[] args)
         {
+            /*
             var nancyHost = new Nancy.Hosting.Self.NancyHost(new Uri(Domain));
             nancyHost.Start();
             Console.WriteLine("Running.");
             while (true)
             {
                 IndexModule.PlatDuJour = Console.ReadLine();
+            }
+            */
+
+            using (var dc = new DataConnection())
+            {
+                dc.Testy().Wait();
             }
         }
     }
@@ -39,7 +46,7 @@ namespace SmartHomeWeb
                 {
                     Pages[parameter["x"]] = await textReader.ReadToEndAsync();
                 }
-                return "";
+                return "<h1>u did it";
             };
         }
 
