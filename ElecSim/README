@@ -1,0 +1,23 @@
+USAGE:
+
+>> python3 main.py --mode=configure --no_house_holds=10 --output=MY_CONFIGURE.json
+Does:
+   Generates 10 households configure in output file
+   For each house we 'randomly' assign a number of residents (between 1-5)
+   For each of possible 32 appliances we globally enable/disable them
+   We also generates 144 datapoint, i.e. each 10 min/day the number of people present
+   We also randomly define two parameters, that controls simulation of lightbulbs power usage
+
+>> python3 main.py --mode=generate --config_file=MY_CONFIGURE.json --household=1 --from=yyyy-MM-ddTHH:mm --to=yyyy-MM-ddTHH:mm --output=MY_FILE.csv
+Does:
+   Generates data, e.g. for each device, every minute the power usage, for every timestamp within from/to range in household X. Input can be generated using mode=configure, Household is integer between 1 and 10 (depending on no_house_holds). Power usage depends on the household, the month, and if it’s a week or weekend. Always generates 1440 data points (Kw), one for each minute of the day. First column is timestamp, than total usage, then total light bulbs, then details for each appliance.
+
+
+>> python3 main.py --mode=generate --config_file=MY_CONFIGURE.json --household=1 --output=MY_FILE.csv
+Does:
+  If from/to is empty, assuming today, e.g. -from 2016-02-04T00:00 -to 2016-02-04T23:59
+
+
+About code:
+- Originally coded in excel, adapted by Floris Geerts and Len Feremans to python
+- MIGHT CONTAIN BUGS…

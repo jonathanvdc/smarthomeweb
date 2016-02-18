@@ -1,0 +1,16 @@
+Transition Probability Matrix
+
+wex =weekend max x residents
+
+Current model only allows for up to 5 Residents.
+
+columns
+1 Ten minute period number
+2 Active occupant count in time period
+3 Probability of transition to zero active occupants in next time period
+4 Probability of transition to one active occupant in next time period
+5 Probability of transition to two active occupants in next time period
+6 Probability of transition to three active occupants in next time period
+7 Probability of transition to four active occupants in next time period
+8 Probability of transition to five active occupants in next time period
+9 Probability of transition to six active occupants in next time period
