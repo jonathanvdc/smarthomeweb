@@ -1,8 +1,0 @@
-Exception: STATUS_ACCESS_VIOLATION at eip=611298D5
-eax=5F363878 ebx=000001D8 ecx=5F363878 edx=63686590 esi=B0000000 edi=63686590
-ebp=2004CF60 esp=0081B9F0 program=C:\minghc-7.10.1-x86_64\git-2.4.0.1\usr\bin\sh.exe, pid 9768, thread main
-cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
-Stack trace:
-Frame     Function  Args
-2004CF60  611298D5 (312E372D, 2D312E30, 5F363878, 675C3436)
-End of stack trace
