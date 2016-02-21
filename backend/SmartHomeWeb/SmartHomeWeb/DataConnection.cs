@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Mono.Data.Sqlite;
 using System.Threading.Tasks;
 using AsyncPoco;
@@ -10,8 +11,15 @@ namespace SmartHomeWeb
 {
     public class DataConnection : IDisposable
     {
+		public const string PersonTableKey = "Person";
+		public const string LocationTableKey = "Location";
+		public const string HasLocationTableKey = "HasLocation";
+		public const string SensorTableKey = "Sensor";
+
         const string DatabasePath = "../../../../database/smarthomeweb.db";
         const string ConnectionString = "Data Source=" + DatabasePath;
+
+
         private SqliteConnection sqlite;
         private Database db;
 
@@ -20,12 +28,6 @@ namespace SmartHomeWeb
 			sqlite = new SqliteConnection(ConnectionString);
             sqlite.Open();
             db = new Database(sqlite);
-        }
-
-        public async Task Testy()
-        {
-            var count = await db.ExecuteScalarAsync<long>("SELECT count(*) FROM Person");
-            Console.WriteLine(count);
         }
 
 		/// <summary>
@@ -39,11 +41,25 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
+		/// Creates a task that eagerly fetches all elements from 
+		/// the table with the given name. The given key function is
+		/// then used to construct a dictionary that maps these keys
+		/// to the items they belong to.
+		/// </summary>
+		/// <param name="TableName">The table to fetch items from.</param>
+		/// <param name="GetKey">A function that extracts primary keys from tuples.</param>
+		public async Task<IReadOnlyDictionary<TKey, TItem>> GetTableMapAsync<TItem, TKey>(string TableName, Func<TItem, TKey> GetKey)
+		{
+			var items = await GetTableAsync<TItem>(TableName);
+			return items.ToDictionary(GetKey);
+		}
+
+		/// <summary>
 		/// Creates a task that fetches all persons in the database.
 		/// </summary>
 		public Task<IEnumerable<Person>> GetPersonsAsync()
         {
-			return GetTableAsync<Person>("Person");
+			return GetTableAsync<Person>(PersonTableKey);
         }
 
 		/// <summary>
@@ -51,16 +67,46 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Location>> GetLocationsAsync()
 		{
-			return GetTableAsync<Location>("Location");
+			return GetTableAsync<Location>(LocationTableKey);
 		}
 
 		/// <summary>
 		/// Creates a task that fetches all person-location pairs
 		/// from the has-location table.
 		/// </summary>
-		public Task<IEnumerable<PersonLocationPair>> GetPersonLocationMapAsync()
+		public Task<IEnumerable<PersonLocationPair>> GetHasLocationPairsAsync()
 		{
-			return GetTableAsync<PersonLocationPair>("HasLocation");
+			return GetTableAsync<PersonLocationPair>(HasLocationTableKey);
+		}
+
+		/// <summary>
+		/// Creates a dictionary maps persons to their associated locations.
+		/// </summary>
+		public async Task<IReadOnlyDictionary<Person, IReadOnlyList<Location>>> GetPersonToLocationsMapAsync()
+		{
+			// First, retrieve all locations, persons and person-location pairs.
+			var locTask = GetTableMapAsync<Location, int>(LocationTableKey, item => item.Id);
+			var personTask = GetTableMapAsync<Person, int>(PersonTableKey, item => item.Id);
+			var pairs = await GetHasLocationPairsAsync();
+			var locs = await locTask;
+			var persons = await personTask;
+
+			// Then construct a dictionary.
+			var results = new Dictionary<Person, IReadOnlyList<Location>>();
+			foreach (var person in persons.Values)
+			{
+				// Create one location list per person.
+				results[person] = new List<Location>();
+			}
+			foreach (var pair in pairs)
+			{
+				// Convert every person-location pair to a location
+				// list item.
+				var list = (List<Location>)results[persons[pair.PersonId]];
+				list.Add(locs[pair.LocationId]);
+			}
+
+			return results;
 		}
 
 		/// <summary>
@@ -80,7 +126,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Sensor>> GetSensorsAsync()
 		{
-			return GetTableAsync<Sensor>("Sensor");
+			return GetTableAsync<Sensor>(SensorTableKey);
 		}
 
         public void Dispose()

@@ -18,12 +18,12 @@ namespace SmartHomeWeb
 		/// Gets or sets the person's unique identifier.
 		/// </summary>
 		[Column("personId")]
-		public string PersonId { get; set; }
+		public int PersonId { get; set; }
 
 		/// <summary>
 		/// Gets or sets the location's unique identifier.
 		/// </summary>
 		[Column("locationId")]
-		public string LocationId { get; set; }
+		public int LocationId { get; set; }
 	}
 }
