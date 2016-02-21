@@ -70,8 +70,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\Person.cs" />
     <Compile Include="Model\Location.cs" />
-    <Compile Include="Model\HasLocation.cs" />
     <Compile Include="Model\Sensor.cs" />
+    <Compile Include="Model\PersonLocationPair.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
