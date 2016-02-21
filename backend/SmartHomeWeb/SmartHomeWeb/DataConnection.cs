@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Data.SQLite;
+using Mono.Data.Sqlite;
 using System.Threading.Tasks;
 using AsyncPoco;
 
@@ -10,12 +10,12 @@ namespace SmartHomeWeb
     {
         const string DatabasePath = "../../../../database/smarthomeweb.db";
         const string ConnectionString = "Data Source=" + DatabasePath;
-        private SQLiteConnection sqlite;
+        private SqliteConnection sqlite;
         private Database db;
 
         public DataConnection()
         {
-            sqlite = new SQLiteConnection(ConnectionString);
+			sqlite = new SqliteConnection(ConnectionString);
             sqlite.Open();
             db = new Database(sqlite);
         }
