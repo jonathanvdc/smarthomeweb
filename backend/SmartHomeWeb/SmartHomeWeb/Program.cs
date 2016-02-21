@@ -32,6 +32,7 @@ namespace SmartHomeWeb
         public IndexModule()
         {
             Dc = new DataConnection();
+
             Get["/"] = parameter => IndexPage;
             Get["/test/{x}"] = parameter => "<blink>" + parameter["x"] * 2.0;
             Get["/pages/{x}"] = parameter => Pages[parameter["x"]];
@@ -46,7 +47,7 @@ namespace SmartHomeWeb
 
             Get["/testview", true] = async (parameters, ct) =>
             {
-                var persons = await Dc.GetAllPersons();
+                var persons = await Dc.GetPersonsAsync();
                 return View["../../../../../frontend/views/testy.sshtml", persons];
             };
         }

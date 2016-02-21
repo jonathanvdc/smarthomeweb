@@ -5,10 +5,9 @@ namespace SmartHomeWeb
 {
 	/// <summary>
 	/// A class that describes a person-location pair in the
-	/// database. This can be used to tie a person to a 
+	/// database. This can be used to tie a person to a
 	/// specific location.
 	/// </summary>
-	[PrimaryKey("personId,locationId", autoIncrement = false)]
 	public class PersonLocationPair
 	{
 		public PersonLocationPair()
@@ -28,4 +27,3 @@ namespace SmartHomeWeb
 		public string LocationId { get; set; }
 	}
 }
-
