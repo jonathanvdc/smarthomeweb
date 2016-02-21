@@ -33,7 +33,7 @@ namespace SmartHomeWeb
 		/// the table with the given name.
 		/// </summary>
 		/// <param name="TableName">The table to fetch items from.</param>
-		public async Task<IEnumerable<T>> GetAllAsync<T>(string TableName)
+		public async Task<IEnumerable<T>> GetTableAsync<T>(string TableName)
 		{
 			return await db.FetchAsync<T>("SELECT * FROM " + TableName);
 		}
@@ -43,7 +43,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Person>> GetPersonsAsync()
         {
-			return GetAllAsync<Person>("Person");
+			return GetTableAsync<Person>("Person");
         }
 
 		/// <summary>
@@ -51,7 +51,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Location>> GetLocationsAsync()
 		{
-			return GetAllAsync<Location>("Location");
+			return GetTableAsync<Location>("Location");
 		}
 
 		/// <summary>
@@ -60,7 +60,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<PersonLocationPair>> GetPersonLocationMapAsync()
 		{
-			return GetAllAsync<PersonLocationPair>("HasLocation");
+			return GetTableAsync<PersonLocationPair>("HasLocation");
 		}
 
 		/// <summary>
@@ -80,7 +80,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Sensor>> GetSensorsAsync()
 		{
-			return GetAllAsync<Sensor>("Sensor");
+			return GetTableAsync<Sensor>("Sensor");
 		}
 
         public void Dispose()
