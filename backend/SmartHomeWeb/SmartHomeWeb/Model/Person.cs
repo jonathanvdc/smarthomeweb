@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using AsyncPoco;
 
 namespace SmartHomeWeb.Model
 {
 	[PrimaryKey("id", autoIncrement = true)]
-	public class Location
+	public class Person
 	{
-		public Location()
+		public Person()
 		{ }
 
 		[Column("id")]

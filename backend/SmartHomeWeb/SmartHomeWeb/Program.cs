@@ -13,6 +13,7 @@ namespace SmartHomeWeb
         
         static void Main(string[] args)
         {
+			Nancy.StaticConfiguration.DisableErrorTraces = false;
             var nancyHost = new Nancy.Hosting.Self.NancyHost(new Uri(Domain));
             nancyHost.Start();
             Console.WriteLine("Running.");
