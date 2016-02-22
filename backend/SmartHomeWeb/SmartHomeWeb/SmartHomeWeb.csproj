@@ -63,15 +63,14 @@
       <HintPath>..\packages\Mono.Data.Sqlite.Portable.1.0.3.5\lib\net4\System.Transactions.Portable.dll</HintPath>
     </Reference>
     <Reference Include="System.Transactions" />
+    <Reference Include="CsvHelper">
+      <HintPath>..\packages\CsvHelper.2.13.5.0\lib\net40-client\CsvHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataConnection.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Model\Person.cs" />
-    <Compile Include="Model\Location.cs" />
-    <Compile Include="Model\Sensor.cs" />
-    <Compile Include="Model\PersonLocationPair.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -86,6 +85,9 @@
   </Target>
   -->
   <ItemGroup>
-    <Folder Include="Model\" />
+    <ProjectReference Include="..\libsmarthomeweb\libsmarthomeweb.csproj">
+      <Project>{62607A90-10FF-4EFB-B715-EB340BC1F99A}</Project>
+      <Name>libsmarthomeweb</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

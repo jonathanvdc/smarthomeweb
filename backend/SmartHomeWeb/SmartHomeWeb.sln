@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
+# Visual Studio 2012
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartHomeWeb", "SmartHomeWeb\SmartHomeWeb.csproj", "{5182CB23-36D6-43D3-BFD1-975CC492151B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libsmarthomeweb", "libsmarthomeweb\libsmarthomeweb.csproj", "{62607A90-10FF-4EFB-B715-EB340BC1F99A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{5182CB23-36D6-43D3-BFD1-975CC492151B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5182CB23-36D6-43D3-BFD1-975CC492151B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5182CB23-36D6-43D3-BFD1-975CC492151B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62607A90-10FF-4EFB-B715-EB340BC1F99A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62607A90-10FF-4EFB-B715-EB340BC1F99A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62607A90-10FF-4EFB-B715-EB340BC1F99A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62607A90-10FF-4EFB-B715-EB340BC1F99A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
