@@ -1,7 +1,7 @@
 ﻿using System;
 using AsyncPoco;
 
-namespace SmartHomeWeb
+namespace SmartHomeWeb.Model
 {
 	/// <summary>
 	/// A class that describes a person-location pair in the
