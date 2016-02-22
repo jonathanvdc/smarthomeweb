@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using SmartHomeWeb.Model;
+using Newtonsoft.Json;
 
 namespace SmartHomeWeb
 {
@@ -50,6 +52,22 @@ namespace SmartHomeWeb
                 var persons = await Dc.GetPersonsAsync();
                 return View["../../../../../frontend/views/testy.sshtml", persons];
             };
+
+			Get["/persons", true] = async (parameters, ct) =>
+			{
+				return "<html><body><table>" + string.Join("\n", (await Dc.GetPersonsAsync()).OrderBy(item => item.Id).Select(item => "<tr><td>" + item.Id + "</td><td>" + item.Name + "</td></tr>")) + "</table></body></html>";
+			};
+
+			Post["/register_persons", true] = async (parameter, ct) =>
+			{
+				using (var textReader = new StreamReader(this.Request.Body))
+				{
+					string data = await textReader.ReadToEndAsync();
+					var items = JsonConvert.DeserializeObject<List<PersonData>>(data);
+					var results = await Dc.InsertPersonsAsync(items);
+					return JsonConvert.SerializeObject(results.ToList());
+				}
+			};
         }
 
         public string IndexPage

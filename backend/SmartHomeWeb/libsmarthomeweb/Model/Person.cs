@@ -10,22 +10,45 @@ namespace SmartHomeWeb.Model
 	[PrimaryKey("id", autoIncrement = true)]
 	public class Person : IEquatable<Person>
 	{
-		public Person()
+		// AsyncPoco demands a parameterless constructor.
+		private Person()
 		{ }
 
 		/// <summary>
-		/// Gets or sets the person's unique identifier.
+		/// Initializes a new instance of the <see cref="SmartHomeWeb.Model.Person"/> class.
+		/// </summary>
+		/// <param name="Id">The person's unique identifier.</param>
+		/// <param name="Data">A data structure that describes the person.</param>
+		public Person(int Id, PersonData Data)
+		{ 
+			this.Id = Id;
+			this.Data = Data;
+		}
+
+		/// <summary>
+		/// Gets the person's unique identifier.
 		/// </summary>
 		[Column("id")]
 		[JsonProperty("id")]
-		public int Id { get; set; }
+		public int Id { get; private set; }
 
 		/// <summary>
-		/// Gets or sets the person's name.
+		/// Gets the person's data.
+		/// </summary>
+		[Ignore]
+		[JsonProperty("data")]
+		public PersonData Data { get; private set; }
+
+		/// <summary>
+		/// Gets the person's name.
 		/// </summary>
 		[Column("name")]
-		[JsonProperty("name")]
-		public string Name { get; set; }
+		[JsonIgnore]
+		public string Name 
+		{ 
+			get { return Data.Name; } 
+			private set { this.Data = new PersonData(value); }
+		}
 
 		public bool Equals(Person Other)
 		{

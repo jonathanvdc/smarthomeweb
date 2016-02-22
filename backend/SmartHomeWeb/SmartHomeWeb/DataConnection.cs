@@ -129,6 +129,45 @@ namespace SmartHomeWeb
 			return GetTableAsync<Sensor>(SensorTableKey);
 		}
 
+		/// <summary>
+		/// Asynchronously inserts the given sequence of items 
+		/// into the specified table.
+		/// </summary>
+		public Task<IEnumerable<T>> InsertTableAsync<T>(
+			IEnumerable<T> Items,
+			string TableName, string PrimaryKeyName)
+		{
+			var tasks = new List<Task<object>>();
+			foreach (var item in Items)
+			{
+				tasks.Add(db.InsertAsync(TableName, PrimaryKeyName, true, item));
+			}
+			return Task.WhenAll(tasks).ContinueWith(task => task.Result.Cast<T>());
+		}
+
+		/// <summary>
+		/// Asynchronously inserts the given sequence of items 
+		/// into the specified table.
+		/// </summary>
+		public Task<IEnumerable<TResult>> InsertTableAsync<TResult, TData>(
+			IEnumerable<TData> Items, Func<TData, TResult> ToResult,
+			string TableName, string PrimaryKeyName)
+		{
+			return InsertTableAsync<TResult>(
+				Items.Select(ToResult), TableName, PrimaryKeyName);
+		}
+
+		/// <summary>
+		/// Asynchronously creates new persons in the database.
+		/// </summary>
+		public Task<IEnumerable<Person>> InsertPersonsAsync(
+			IEnumerable<PersonData> Items)
+		{
+			return InsertTableAsync<Person, PersonData>(
+				Items, item => new Person(0, item), 
+				PersonTableKey, "id");
+		}
+
         public void Dispose()
         {
             sqlite.Close();
