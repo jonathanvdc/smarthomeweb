@@ -1,5 +1,6 @@
 ﻿using System;
 using AsyncPoco;
+using Newtonsoft.Json;
 
 namespace SmartHomeWeb.Model
 {
@@ -17,12 +18,14 @@ namespace SmartHomeWeb.Model
 		/// Gets or sets the sensor's unique identifier.
 		/// </summary>
 		[Column("id")]
+		[JsonProperty("id")]
 		public int Id { get; set; }
 
 		/// <summary>
 		/// Gets or sets the sensor's name.
 		/// </summary>
 		[Column("name")]
+		[JsonProperty("name")]
 		public string Name { get; set; }
 
 		/// <summary>
@@ -30,6 +33,7 @@ namespace SmartHomeWeb.Model
 		/// of this sensor's location.
 		/// </summary>
 		[Column("locationId")]
+		[JsonProperty("locationId")]
 		public string LocationId { get; set; }
 	}
 }
