@@ -8,7 +8,7 @@ namespace SmartHomeWeb.Model
 	/// A class that describes a sensor in the database.
 	/// </summary>
 	[PrimaryKey("id", autoIncrement = true)]
-	public class Sensor
+	public class Sensor : IEquatable<Sensor>
 	{
 		public Sensor()
 		{
@@ -35,6 +35,21 @@ namespace SmartHomeWeb.Model
 		[Column("locationId")]
 		[JsonProperty("locationId")]
 		public string LocationId { get; set; }
+
+		public bool Equals(Sensor Other)
+		{
+			return Id == Other.Id;
+		}
+
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is Sensor && Equals((Sensor)obj);
+		}
 	}
 }
 

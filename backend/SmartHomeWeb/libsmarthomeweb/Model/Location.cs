@@ -8,7 +8,7 @@ namespace SmartHomeWeb.Model
 	/// A class that describes a location in the database.
 	/// </summary>
 	[PrimaryKey("id", autoIncrement = true)]
-	public class Location
+	public class Location : IEquatable<Location>
 	{
 		public Location()
 		{ }
@@ -26,5 +26,20 @@ namespace SmartHomeWeb.Model
 		[Column("name")]
 		[JsonProperty("name")]
 		public string Name { get; set; }
+
+		public bool Equals(Location Other)
+		{
+			return Id == Other.Id;
+		}
+
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is Location && Equals((Location)obj);
+		}
 	}
 }

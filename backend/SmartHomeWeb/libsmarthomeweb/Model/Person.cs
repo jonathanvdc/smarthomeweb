@@ -8,7 +8,7 @@ namespace SmartHomeWeb.Model
 	/// A class that describes a person in the database.
 	/// </summary>
 	[PrimaryKey("id", autoIncrement = true)]
-	public class Person
+	public class Person : IEquatable<Person>
 	{
 		public Person()
 		{ }
@@ -26,5 +26,20 @@ namespace SmartHomeWeb.Model
 		[Column("name")]
 		[JsonProperty("name")]
 		public string Name { get; set; }
+
+		public bool Equals(Person Other)
+		{
+			return Id == Other.Id;
+		}
+
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is Person && Equals((Person)obj);
+		}
 	}
 }
