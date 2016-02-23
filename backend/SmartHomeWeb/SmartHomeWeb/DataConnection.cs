@@ -6,6 +6,7 @@ using Mono.Data.Sqlite;
 using System.Threading.Tasks;
 using AsyncPoco;
 using SmartHomeWeb.Model;
+using System.Text;
 
 namespace SmartHomeWeb
 {
@@ -160,12 +161,23 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Asynchronously creates new persons in the database.
 		/// </summary>
-		public Task<IEnumerable<Person>> InsertPersonsAsync(
+		public Task InsertPersonsAsync(
 			IEnumerable<PersonData> Items)
 		{
-			return InsertTableAsync<Person, PersonData>(
+			/* return InsertTableAsync<Person, PersonData>(
 				Items, item => new Person(0, item), 
-				PersonTableKey, "id");
+				PersonTableKey, "id"); */
+
+			var results = new List<Task>();
+			foreach (var item in Items)
+			{
+				var query = new StringBuilder();
+				query.Append("INSERT INTO Person(name) VALUES ('");
+				query.Append(item.Name);
+				query.Append("');");
+				results.Add(db.ExecuteAsync(query.ToString()));
+			}
+			return Task.WhenAll(results);
 		}
 
         public void Dispose()

@@ -64,8 +64,9 @@ namespace SmartHomeWeb
 				{
 					string data = await textReader.ReadToEndAsync();
 					var items = JsonConvert.DeserializeObject<List<PersonData>>(data);
-					var results = await Dc.InsertPersonsAsync(items);
-					return JsonConvert.SerializeObject(results.ToList());
+					await Dc.InsertPersonsAsync(items);
+					// return JsonConvert.SerializeObject(results.ToList());
+					return "";
 				}
 			};
         }
