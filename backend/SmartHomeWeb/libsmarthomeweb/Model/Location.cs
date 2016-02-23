@@ -26,14 +26,14 @@ namespace SmartHomeWeb.Model
 		}
 
 		/// <summary>
-		/// Gets or sets the location's unique identifier.
+		/// Gets the location's unique identifier.
 		/// </summary>
 		[Column("id")]
 		[JsonProperty("id")]
 		public int Id { get; private set; }
 
 		/// <summary>
-		/// Gets or sets the location's name.
+		/// Gets the location's name.
 		/// </summary>
 		[Column("name")]
 		[JsonProperty("name")]

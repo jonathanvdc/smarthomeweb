@@ -26,14 +26,14 @@ namespace SmartHomeWeb.Model
 		}
 
 		/// <summary>
-		/// Gets or sets the sensor's unique identifier.
+		/// Gets the sensor's unique identifier.
 		/// </summary>
 		[Column("id")]
 		[JsonProperty("id")]
 		public int Id { get; set; }
 
 		/// <summary>
-		/// Gets or sets the sensor's name.
+		/// Gets the sensor's name.
 		/// </summary>
 		[Column("name")]
 		[JsonIgnore]
@@ -44,8 +44,7 @@ namespace SmartHomeWeb.Model
 		}
 
 		/// <summary>
-		/// Gets or sets the unique identifier 
-		/// of this sensor's location.
+		/// Gets the unique identifier belonging to this sensor's location.
 		/// </summary>
 		[Column("locationId")]
 		[JsonIgnore]
