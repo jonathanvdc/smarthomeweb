@@ -12,7 +12,11 @@ namespace SmartHomeWeb.Model
 	{
 		// AsyncPoco demands a parameterless constructor.
 		private Sensor()
-		{ }
+		{
+			// Initialize this to keep AsyncPoco from running
+			// into trouble.
+			this.Data = new SensorData(null, 0);
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="SmartHomeWeb.Model.Sensor"/> class.
