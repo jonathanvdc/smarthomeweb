@@ -4,18 +4,18 @@ using Newtonsoft.Json;
 namespace SmartHomeWeb
 {
 	/// <summary>
-	/// A data structure that contains a person's data, 
-	/// but does not capture their unique identifier.
+	/// A data structure that contains a location's data, 
+	/// but does not capture its unique identifier.
 	/// </summary>
-	public class PersonData
+	public class LocationData
 	{
-		public PersonData(string Name)
+		public LocationData(string Name)
 		{
 			this.Name = Name;
 		}
 
 		/// <summary>
-		/// Gets the person's name.
+		/// Gets the location's name.
 		/// </summary>
 		[JsonProperty("name")]
 		public string Name { get; private set; }
