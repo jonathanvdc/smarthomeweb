@@ -19,14 +19,14 @@ namespace SmartHomeWeb
 		/// Gets or sets the sensor's name.
 		/// </summary>
 		[JsonProperty("name")]
-		public string Name { get; set; }
+		public string Name { get; private set; }
 
 		/// <summary>
 		/// Gets or sets the unique identifier 
 		/// of this sensor's location.
 		/// </summary>
 		[JsonProperty("locationId")]
-		public int LocationId { get; set; }
+		public int LocationId { get; private set; }
 	}
 }
 
