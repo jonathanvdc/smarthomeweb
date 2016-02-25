@@ -1,8 +1,10 @@
 # Wamoetewijallemaaldoen?
 
-## Skelet
+## Up next
+* AsyncPoco-gedoe totaal verwijderen.
+* Geen .db meer in de repo zetten.
 
-* PetaPoco-gedoe in orde brengen.
+## Skelet
 * Klassen die communiceren met de database?
 * CSV files laden in database (+ cronnig scriptje)
 * REST API maken
