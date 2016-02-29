@@ -29,11 +29,12 @@ namespace SmartHomeWeb
     public class IndexModule : Nancy.NancyModule
     {
         public static string PlatDuJour = "Yep. The server is running";
+		const string DatabasePath = "../../../../database/smarthomeweb.db";
         private DataConnection Dc;
 
         public IndexModule()
         {
-            Dc = new DataConnection();
+			Dc = DataConnection.CreateAsync(DatabasePath).Result;
 
             Get["/"] = parameter => IndexPage;
             Get["/test/{x}"] = parameter => "<blink>" + parameter["x"] * 2.0;
@@ -55,7 +56,7 @@ namespace SmartHomeWeb
 
 			Get["/persons", true] = async (parameters, ct) =>
 			{
-				return "<html><body><table>" + string.Join("\n", (await Dc.GetPersonsAsync()).OrderBy(item => item.Id).Select(item => "<tr><td>" + item.Id + "</td><td>" + item.Name + "</td></tr>")) + "</table></body></html>";
+				return "<html><body><table>" + string.Join("\n", (await Dc.GetPersonsAsync()).OrderBy(item => item.Id).Select(item => "<tr><td>" + item.Id + "</td><td>" + item.Data.Name + "</td></tr>")) + "</table></body></html>";
 			};
 
 			Post["/register_persons", true] = async (parameter, ct) =>

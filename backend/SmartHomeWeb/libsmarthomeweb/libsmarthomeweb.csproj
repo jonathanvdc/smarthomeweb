@@ -29,9 +29,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="AsyncPoco">
-      <HintPath>..\packages\AsyncPoco.1.1.2\lib\net45\AsyncPoco.dll</HintPath>
-    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Configuration" />
     <Reference Include="Newtonsoft.Json">

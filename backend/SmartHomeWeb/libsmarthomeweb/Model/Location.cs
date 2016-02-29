@@ -1,5 +1,4 @@
 ﻿using System;
-using AsyncPoco;
 using Newtonsoft.Json;
 
 namespace SmartHomeWeb.Model
@@ -7,7 +6,6 @@ namespace SmartHomeWeb.Model
 	/// <summary>
 	/// A class that describes a location in the database.
 	/// </summary>
-	[PrimaryKey("id", autoIncrement = true)]
 	public class Location : IEquatable<Location>
 	{
 		// AsyncPoco demands a parameterless constructor.
@@ -28,25 +26,12 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the location's unique identifier.
 		/// </summary>
-		[Column("id")]
 		[JsonProperty("id")]
 		public int Id { get; private set; }
 
 		/// <summary>
-		/// Gets the location's name.
-		/// </summary>
-		[Column("name")]
-		[JsonProperty("name")]
-		public string Name 
-		{ 
-			get { return Data.Name; } 
-			private set { this.Data = new LocationData(value); }
-		}
-
-		/// <summary>
 		/// Gets the location's data.
 		/// </summary>
-		[Ignore]
 		[JsonProperty("data")]
 		public LocationData Data { get; private set; }
 

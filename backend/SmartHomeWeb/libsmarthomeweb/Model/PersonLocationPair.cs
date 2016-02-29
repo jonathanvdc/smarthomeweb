@@ -1,5 +1,4 @@
 ﻿using System;
-using AsyncPoco;
 using Newtonsoft.Json;
 
 namespace SmartHomeWeb.Model
@@ -11,22 +10,26 @@ namespace SmartHomeWeb.Model
 	/// </summary>
 	public class PersonLocationPair
 	{
-		public PersonLocationPair()
+		private PersonLocationPair()
 		{
 		}
 
-		/// <summary>
-		/// Gets or sets the person's unique identifier.
-		/// </summary>
-		[Column("personId")]
-		[JsonProperty("personId")]
-		public int PersonId { get; set; }
+		public PersonLocationPair(int PersonId, int LocationId)
+		{
+			this.PersonId = PersonId;
+			this.LocationId = LocationId;
+		}
 
 		/// <summary>
-		/// Gets or sets the location's unique identifier.
+		/// Gets the person's unique identifier.
 		/// </summary>
-		[Column("locationId")]
+		[JsonProperty("personId")]
+		public int PersonId { get; private set; }
+
+		/// <summary>
+		/// Gets the location's unique identifier.
+		/// </summary>
 		[JsonProperty("locationId")]
-		public int LocationId { get; set; }
+		public int LocationId { get; private set; }
 	}
 }
