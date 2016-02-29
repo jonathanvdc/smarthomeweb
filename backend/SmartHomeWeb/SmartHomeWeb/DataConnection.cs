@@ -167,8 +167,8 @@ namespace SmartHomeWeb
 		/// Inserts the given item into the given table specification.
 		/// </summary>
 		/// <param name="TableSpec">A specification of a table, which may include its field names</param>
-		/// <param name="Item">The item to insert.</param>
-		/// <param name="EncodeItem">The item to insert into the table.</param>
+		/// <param name="Item">The item to insert into the table.</param>
+		/// <param name="EncodeItem">A function that encodes the item as a SQL tuple.</param>
 		public Task InsertTableAsync<T>(
 			string TableSpec, T Item, Func<T, string> EncodeItem)
 		{
