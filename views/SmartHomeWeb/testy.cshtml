@@ -1,23 +1,18 @@
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @using System.Collections.Generic
-
 @inherits NancyRazorViewBase<IEnumerable<Person>>
-@*                           ~~~~~~~~~~~~~~~~~~~
-                          (This is the @model type)
-*@
-
+@*                           ^^^^^^^^^^^^^^^^^^^    *@
+@*                         This is the @model type  *@
 <!DOCTYPE html5>
 <html>
 <head>
-<style type="text/css">
-body {
-    background: linear-gradient(30deg, red, yellow);
-}
-</style>
+    <title>Test view!</title>
+    <link href="content/test.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 
+<h1>Test view</h1>
 <ul>
 	@foreach (var p in @Model)
 	{

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Nancy;
-using Nancy.ViewEngines.Razor;
 using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
@@ -18,8 +16,7 @@ namespace SmartHomeWeb
             Nancy.StaticConfiguration.DisableErrorTraces = false;
             var nancyHost = new Nancy.Hosting.Self.NancyHost(new Uri(Domain), new Bootstrapper());
             nancyHost.Start();
-            Console.WriteLine("Running from:");
-            Console.WriteLine(Directory.GetCurrentDirectory());
+            Console.WriteLine("Running from: " + Directory.GetCurrentDirectory());
             while (true)
             {
                 SmartHomeWebModule.PlatDuJour = Console.ReadLine();
@@ -27,17 +24,21 @@ namespace SmartHomeWeb
         }
     }
 
+    // We need a custom bootstrapper, because we want to modify Nancy's root path:
     public class Bootstrapper : Nancy.DefaultNancyBootstrapper
     {
-        protected override IRootPathProvider RootPathProvider => new CurrentDirectoryRootPathProvider();
+        protected override Nancy.IRootPathProvider RootPathProvider
+            => new CurrentDirectoryRootPathProvider();
     }
 
+    // Namely, we want to use the working directory specified in Visual Studio. 
     public class CurrentDirectoryRootPathProvider : Nancy.IRootPathProvider
     {
         public string GetRootPath() => Directory.GetCurrentDirectory();
     }
 
-    public class RazorConfig : IRazorConfiguration
+    // We also want our views to know about the assembly containing our model.
+    public class RazorConfig : Nancy.ViewEngines.Razor.IRazorConfiguration
     {
         public IEnumerable<string> GetAssemblyNames()
         {
