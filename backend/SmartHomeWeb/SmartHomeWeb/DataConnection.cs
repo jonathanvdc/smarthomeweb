@@ -112,19 +112,6 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Creates a task that fetches a single person from the database.
-        /// </summary>
-        public Task<Person> GetPersonByIdAsync(int Id)
-        {
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = @"SELECT * FROM Person WHERE id = @id";
-                cmd.Parameters.AddWithValue("@id", Id);
-                return ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadPerson);
-            }
-        }
-
-        /// <summary>
         /// Creates a task that fetches all locations in the database.
         /// </summary>
         public Task<IEnumerable<Location>> GetLocationsAsync()
@@ -149,7 +136,35 @@ namespace SmartHomeWeb
 			return GetTableAsync<Sensor>(SensorTableKey, DatabaseHelpers.ReadSensor);
 		}
 
-		/// <summary>
+        /// <summary>
+        /// Creates a task that fetches a single row from the database, by
+        /// looking up one of its keys.
+        /// </summary>
+        public Task<TItem> GetSingleByKeyAsync<TKey, TItem>(string TableName, string KeyName, TKey KeyValue, Func<IDataRecord, TItem> ReadTuple)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"SELECT * FROM {TableName} WHERE {KeyName} = @v LIMIT 1";
+                cmd.Parameters.AddWithValue("@v", KeyValue);
+                return ExecuteCommandSingleAsync(cmd, ReadTuple);
+            }
+        }
+
+        /// <summary>
+        /// Creates a task that fetches a single person from the database.
+        /// </summary>
+        public Task<Person> GetPersonByIdAsync(int id) =>
+            GetSingleByKeyAsync(PersonTableKey, "id", id,
+                DatabaseHelpers.ReadPerson);
+
+        /// <summary>
+        /// Creates a task that fetches a single location from the database.
+        /// </summary>
+        public Task<Location> GetLocationByIdAsync(int id) =>
+            GetSingleByKeyAsync(LocationTableKey, "id", id,
+                DatabaseHelpers.ReadLocation);
+
+        /// <summary>
 		/// Creates a dictionary maps persons to their associated locations.
 		/// </summary>
 		public async Task<IReadOnlyDictionary<Person, IReadOnlyList<Location>>> GetPersonToLocationsMapAsync()
