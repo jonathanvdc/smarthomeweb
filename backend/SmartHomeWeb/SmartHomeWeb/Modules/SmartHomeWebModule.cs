@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Nancy;
 using Newtonsoft.Json;
+using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
 {
@@ -48,7 +48,7 @@ namespace SmartHomeWeb
                     string data = await textReader.ReadToEndAsync();
                     var items = JsonConvert.DeserializeObject<List<PersonData>>(data);
                     await DataConnection.Ask(x => x.InsertPersonsAsync(items));
-                    return HttpStatusCode.Created;
+                    return Nancy.HttpStatusCode.Created;
                 }
             };
         }
