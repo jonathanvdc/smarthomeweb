@@ -16,6 +16,10 @@ namespace SmartHomeWeb.Modules.API
     {
         protected ApiModule(string modulePath) : base(modulePath) { }
 
+        // Operation types:
+        //
+        //   ApiGet, ApiPost : (Path, (Params, Connection) → Task<T>) → Handler
+
         /// <summary>
         /// Turn an operation on a parameter list and a data connection (which
         /// queries a value of type <typeparamref name="T"/> from the database)
@@ -25,7 +29,7 @@ namespace SmartHomeWeb.Modules.API
         /// <typeparam name="T">The query's result type.</typeparam>
         /// <param name="operation">The operation to wrap around.</param>
         /// <returns>A route handler.</returns>
-        protected Func<dynamic, CancellationToken, Task<dynamic>> Ask<T>(
+        protected static Func<dynamic, CancellationToken, Task<dynamic>> Ask<T>(
             Func<dynamic, DataConnection, Task<T>> operation)
         {
             return async (parameters, ct) =>
@@ -55,5 +59,7 @@ namespace SmartHomeWeb.Modules.API
         {
             Get[path, true] = Ask(operation);
         }
+
+
     }
 }
