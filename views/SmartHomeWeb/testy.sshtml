@@ -11,7 +11,7 @@ body {
 
 <ul>
 @Each
-<li>@Current.Name</li>
+<li>@Current.Data.Name</li>
 @EndEach
 </ul>
 
