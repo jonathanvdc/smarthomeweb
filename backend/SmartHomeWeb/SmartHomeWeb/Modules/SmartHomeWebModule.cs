@@ -47,7 +47,7 @@ namespace SmartHomeWeb
                 {
                     string data = await textReader.ReadToEndAsync();
                     var items = JsonConvert.DeserializeObject<List<PersonData>>(data);
-                    await DataConnection.Ask(x => x.InsertPersonsAsync(items));
+                    await DataConnection.Ask(x => x.InsertPersonAsync(items));
                     return Nancy.HttpStatusCode.Created;
                 }
             };

@@ -37,40 +37,55 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Creates a task that executes a query, and interprets the results.
+		/// Creates a task that executes an SqliteCommand, and interprets the results.
 		/// </summary>
-		/// <param name="Sql">The query to execute.</param>
+		/// <param name="Command">The command to execute.</param>
 		/// <param name="ReadTuple">A function that reads a single tuple.</param>
-		public async Task<IEnumerable<T>> ExecuteQueryAsync<T>(
-			string Sql, 
+		public async Task<IEnumerable<T>> ExecuteCommandAsync<T>(
+			SqliteCommand Command, 
 			Func<IDataRecord, T> ReadTuple)
 		{
 			var results = new List<T>();
-			using (var cmd = sqlite.CreateCommand())
+			using (var reader = await Command.ExecuteReaderAsync())
 			{
-				cmd.CommandText = Sql;
-				using (var reader = await cmd.ExecuteReaderAsync())
+				while (await reader.ReadAsync())
 				{
-					while (await reader.ReadAsync())
-					{
-						results.Add(ReadTuple(reader));
-					}
+					results.Add(ReadTuple(reader));
 				}
 			}
 			return results;
 		}
 
-		/// <summary>
-		/// Creates a task that eagerly fetches all elements from 
-		/// the table with the given name.
-		/// </summary>
-		/// <param name="TableName">The table to fetch items from.</param>
-		/// <param name="ReadTuple">A function that reads a single tuple.</param>
-		public Task<IEnumerable<T>> GetTableAsync<T>(
+        /// <summary>
+        /// Like <see cref="ExecuteCommandAsync{T}"/>, but expects a single result.
+        /// If no result at all is found, the result is <value>null</value>.
+        /// </summary>
+        /// <param name="Command">The command to execute.</param>
+        /// <param name="ReadTuple">A function that reads a single tuple.</param>
+        public async Task<T> ExecuteCommandSingleAsync<T>(
+            SqliteCommand Command,
+            Func<IDataRecord, T> ReadTuple)
+        {
+            var result = await ExecuteCommandAsync(Command, ReadTuple);
+            return result.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Creates a task that eagerly fetches all elements from 
+        /// the table with the given name.
+        /// </summary>
+        /// <param name="TableName">The table to fetch items from.</param>
+        /// <param name="ReadTuple">A function that reads a single tuple.</param>
+        public Task<IEnumerable<T>> GetTableAsync<T>(
 			string TableName, 
 			Func<IDataRecord, T> ReadTuple)
 		{
-			return ExecuteQueryAsync<T>("SELECT * FROM " + TableName, ReadTuple);
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM " + TableName;
+                cmd.ExecuteNonQueryAsync();
+                return ExecuteCommandAsync(cmd, ReadTuple);
+            }
 		}
 
 		/// <summary>
@@ -88,19 +103,31 @@ namespace SmartHomeWeb
 			return items.ToDictionary(GetKey);
 		}
 
-		/// <summary>
-		/// Creates a task that fetches all persons in the database.
-		/// </summary>
-		public Task<IEnumerable<Person>> GetPersonsAsync()
-		{
-		    Console.WriteLine("GetPersonsAsync");
-			return GetTableAsync<Person>(PersonTableKey, DatabaseHelpers.ReadPerson);
+        /// <summary>
+        /// Creates a task that fetches all persons in the database.
+        /// </summary>
+        public Task<IEnumerable<Person>> GetPersonsAsync()
+        {
+            return GetTableAsync<Person>(PersonTableKey, DatabaseHelpers.ReadPerson);
         }
 
-		/// <summary>
-		/// Creates a task that fetches all locations in the database.
-		/// </summary>
-		public Task<IEnumerable<Location>> GetLocationsAsync()
+        /// <summary>
+        /// Creates a task that fetches a single person from the database.
+        /// </summary>
+        public Task<Person> GetPersonByIdAsync(int Id)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM Person WHERE id = @id";
+                cmd.Parameters.AddWithValue("@id", Id);
+                return ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadPerson);
+            }
+        }
+
+        /// <summary>
+        /// Creates a task that fetches all locations in the database.
+        /// </summary>
+        public Task<IEnumerable<Location>> GetLocationsAsync()
 		{
 			return GetTableAsync<Location>(LocationTableKey, DatabaseHelpers.ReadLocation);
 		}
@@ -158,52 +185,40 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Location>> GetPersonLocationsAsync(Person Item)
 		{
-			return ExecuteQueryAsync<Location>(
-				@"SELECT loc.id, loc.name
+		    using (var cmd = sqlite.CreateCommand())
+		    {
+		        cmd.CommandText = @"
+                  SELECT loc.id, loc.name
 				  FROM HasLocation as hasLoc, Location as loc 
-				  WHERE loc.id = hasLoc.locationId AND hasLoc.personId = " + Item.Id,
-				DatabaseHelpers.ReadLocation);
+				  WHERE loc.id = hasLoc.locationId AND hasLoc.personId = @id";
+		        cmd.Parameters.AddWithValue("@id", Item.Id);
+		        return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadLocation);
+		    }
 		}
 
-		/// <summary>
-		/// Inserts the given item into the given table specification.
-		/// </summary>
-		/// <param name="TableSpec">A specification of a table, which may include its field names</param>
-		/// <param name="Item">The item to insert into the table.</param>
-		/// <param name="EncodeItem">A function that encodes the item as a SQL tuple.</param>
-		public Task InsertTableAsync<T>(
-			string TableSpec, T Item, Func<T, string> EncodeItem)
-		{
-			using (var cmd = sqlite.CreateCommand())
-			{
-				cmd.CommandText = "INSERT INTO " + TableSpec + " VALUES (" + EncodeItem(Item) + ")";
-				return cmd.ExecuteNonQueryAsync();
-			}
-		}
+        /// <summary>
+        /// Inserts the given person data into the Persons table.
+        /// </summary>
+        /// <param name="Data">The person data to insert into the table.</param>
+        public Task InsertPersonAsync(PersonData Data)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "INSERT INTO Person(name) VALUES (@name)";
+                cmd.Parameters.AddWithValue("@name", Data.Name);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
 
-		/// <summary>
-		/// Asynchronously inserts the given sequence of items 
-		/// into the specified table.
-		/// </summary>
-		public Task InsertTableAsync<T>(
-			string TableSpec, IEnumerable<T> Items, Func<T, string> EncodeItem)
-		{
-			var tasks = new List<Task>();
-			foreach (var item in Items)
-			{
-				tasks.Add(InsertTableAsync<T>(TableSpec, item, EncodeItem));
-			}
-			return Task.WhenAll(tasks);
-		}
+        /// <summary>
+        /// Inserts all person data in the given list into the Persons table.
+        /// </summary>
+        /// <param name="Data">The list of person data to insert into the table.</param>
+        public Task InsertPersonAsync(IEnumerable<PersonData> Data)
+        {
+            return Task.WhenAll(Data.Select(InsertPersonAsync));
+        }
 
-		/// <summary>
-		/// Asynchronously creates new persons in the database.
-		/// </summary>
-		public Task InsertPersonsAsync(
-			IEnumerable<PersonData> Items)
-		{
-			return InsertTableAsync<PersonData>("Person(name)", Items, DatabaseHelpers.EncodePersonData);
-		}
 
         public void Dispose()
         {

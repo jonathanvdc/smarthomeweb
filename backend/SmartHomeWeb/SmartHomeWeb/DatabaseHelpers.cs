@@ -42,22 +42,6 @@ namespace SmartHomeWeb
 		{
 			return new PersonLocationPair(Record.GetInt32(0), Record.GetInt32(1));
 		}
-
-		/// <summary>
-		/// Quotes a string.
-		/// </summary>
-		public static string EncodeString(string Data)
-		{
-			return "'" + Data + "'";
-		}
-
-		/// <summary>
-		/// Encodes a person's data as a SQL tuple.
-		/// </summary>
-		public static string EncodePersonData(PersonData Data)
-		{
-			return EncodeString(Data.Name);
-		}
 	}
 }
 
