@@ -1,7 +1,6 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace SmartHomeWeb
+namespace SmartHomeWeb.Model
 {
 	/// <summary>
 	/// A data structure that contains a person's data, 
