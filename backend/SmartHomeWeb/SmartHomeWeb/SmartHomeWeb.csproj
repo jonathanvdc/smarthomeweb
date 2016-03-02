@@ -75,7 +75,7 @@
   <ItemGroup>
     <Compile Include="DataConnection.cs" />
     <Compile Include="Modules\API\ApiPersonsModule.cs" />
-    <Compile Include="Modules\Program.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DatabaseHelpers.cs" />
     <Compile Include="Modules\SmartHomeWebModule.cs" />
