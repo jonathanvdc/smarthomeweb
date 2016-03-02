@@ -5,8 +5,6 @@ using System.Linq;
 using Mono.Data.Sqlite;
 using System.Threading.Tasks;
 using SmartHomeWeb.Model;
-using System.Text;
-using System.Data.Common;
 
 namespace SmartHomeWeb
 {
@@ -17,22 +15,25 @@ namespace SmartHomeWeb
 		public const string HasLocationTableKey = "HasLocation";
 		public const string SensorTableKey = "Sensor";
 
-        const string ConnectionPrefix = "Data Source=";
+        // TODO: put this in some kind of configuration file.
+        private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
 
-        private SqliteConnection sqlite;
+        private readonly SqliteConnection sqlite;
 
-		private DataConnection(string Path)
+		private DataConnection()
 		{
-			sqlite = new SqliteConnection(ConnectionPrefix + Path);
+            sqlite = new SqliteConnection(ConnectionString);
 		}
 
 		/// <summary>
 		/// Asynchronously creates a database connection.
 		/// </summary>
-		public static Task<DataConnection> CreateAsync(string Path)
+		public static async Task<DataConnection> CreateAsync()
 		{
-			var result = new DataConnection(Path);
-			return result.sqlite.OpenAsync().ContinueWith(_ => result);
+            var result = new DataConnection();
+		    await result.sqlite.OpenAsync();
+		    await Console.Out.WriteLineAsync("Opened database.");
+		    return result;
 		}
 
 		/// <summary>
@@ -91,7 +92,8 @@ namespace SmartHomeWeb
 		/// Creates a task that fetches all persons in the database.
 		/// </summary>
 		public Task<IEnumerable<Person>> GetPersonsAsync()
-        {
+		{
+		    Console.WriteLine("GetPersonsAsync");
 			return GetTableAsync<Person>(PersonTableKey, DatabaseHelpers.ReadPerson);
         }
 
@@ -205,7 +207,30 @@ namespace SmartHomeWeb
 
         public void Dispose()
         {
+            Console.WriteLine("Closed database.");
             sqlite.Close();
+        }
+
+        /// <summary>
+		/// Open a database connection, perform a single operation, and close it,
+		/// asynchronously retrieving the result.
+		/// </summary>
+		public static async Task<T> Ask<T>(Func<DataConnection, Task<T>> operation)
+        {
+            using (var dc = await CreateAsync())
+            {
+                await Console.Out.WriteLineAsync("Doing the thing.");
+                return await operation(dc);
+            }
+        }
+
+        /// <summary>
+        /// Open a database connection, perform a single operation, and close it.
+        /// </summary>
+        public static async Task Ask(Func<DataConnection, Task> operation)
+        {
+            using (var dc = await CreateAsync())
+                await operation(dc);
         }
     }
 }
