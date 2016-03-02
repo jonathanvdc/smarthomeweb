@@ -1,0 +1,29 @@
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@using System.Collections.Generic
+
+@inherits NancyRazorViewBase<IEnumerable<Person>>
+@*                           ~~~~~~~~~~~~~~~~~~~
+                          (This is the @model type)
+*@
+
+<!DOCTYPE html5>
+<html>
+<head>
+<style type="text/css">
+body {
+    background: linear-gradient(30deg, red, yellow);
+}
+</style>
+</head>
+<body>
+
+<ul>
+	@foreach (var p in @Model)
+	{
+	    <li>@p.Data.Name</li>
+	}
+</ul>
+
+</body>
+</html>

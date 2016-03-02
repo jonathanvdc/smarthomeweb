@@ -27,7 +27,7 @@ namespace SmartHomeWeb
             Get["/testview", true] = async (parameters, ct) =>
             {
                 var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
-                return View["testy.sshtml", persons];
+                return View["testy.cshtml", persons];
             };
 
             Get["/persons", true] = async (parameters, ct) =>

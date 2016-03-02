@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Nancy;
-using Nancy.TinyIoc;
+using Nancy.ViewEngines.Razor;
 using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
@@ -11,7 +12,6 @@ namespace SmartHomeWeb
     class Program
     {
         private const string Domain = "http://localhost:8088";
-        private const string DatabasePath = "backend/database/smarthomeweb.db";
 
         static void Main(string[] args)
         {
@@ -35,5 +35,17 @@ namespace SmartHomeWeb
     public class CurrentDirectoryRootPathProvider : Nancy.IRootPathProvider
     {
         public string GetRootPath() => Directory.GetCurrentDirectory();
+    }
+
+    public class RazorConfig : IRazorConfiguration
+    {
+        public IEnumerable<string> GetAssemblyNames()
+        {
+            yield return "libsmarthomeweb";
+        }
+
+        public IEnumerable<string> GetDefaultNamespaces() => null;
+
+        public bool AutoIncludeModelNamespace => true;
     }
 }
