@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Net.Security;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static Nancy.NegotiatorExtensions;
 using Newtonsoft.Json;
 
 namespace SmartHomeWeb.Modules.API
@@ -36,7 +30,7 @@ namespace SmartHomeWeb.Modules.API
             {
                 T result = await DataConnection.Ask<T>(dc => operation(parameters, dc));
                 var json = JsonConvert.SerializeObject(result);
-            
+
                 var statusCode = result == null
                     ? Nancy.HttpStatusCode.NotFound
                     : Nancy.HttpStatusCode.Accepted;

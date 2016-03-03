@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using SmartHomeWeb.Model;
+using SmartHomeWeb.Modules;
 
 namespace SmartHomeWeb
 {
