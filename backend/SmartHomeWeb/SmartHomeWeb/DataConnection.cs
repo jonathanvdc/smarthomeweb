@@ -8,12 +8,13 @@ using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
 {
+
     public class DataConnection : IDisposable
     {
-		public const string PersonTableKey = "Person";
-		public const string LocationTableKey = "Location";
-		public const string HasLocationTableKey = "HasLocation";
-		public const string SensorTableKey = "Sensor";
+		public const string PersonTableName = "Person";
+		public const string LocationTableName = "Location";
+		public const string HasLocationTableName = "HasLocation";
+		public const string SensorTableName = "Sensor";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -108,7 +109,7 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<IEnumerable<Person>> GetPersonsAsync()
         {
-            return GetTableAsync<Person>(PersonTableKey, DatabaseHelpers.ReadPerson);
+            return GetTableAsync<Person>(PersonTableName, DatabaseHelpers.ReadPerson);
         }
 
         /// <summary>
@@ -116,7 +117,7 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<IEnumerable<Location>> GetLocationsAsync()
 		{
-			return GetTableAsync<Location>(LocationTableKey, DatabaseHelpers.ReadLocation);
+			return GetTableAsync<Location>(LocationTableName, DatabaseHelpers.ReadLocation);
 		}
 
 		/// <summary>
@@ -125,7 +126,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<PersonLocationPair>> GetHasLocationPairsAsync()
 		{
-			return GetTableAsync<PersonLocationPair>(HasLocationTableKey, DatabaseHelpers.ReadPersonLocationPair);
+			return GetTableAsync<PersonLocationPair>(HasLocationTableName, DatabaseHelpers.ReadPersonLocationPair);
 		}
 
 		/// <summary>
@@ -133,7 +134,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Sensor>> GetSensorsAsync()
 		{
-			return GetTableAsync<Sensor>(SensorTableKey, DatabaseHelpers.ReadSensor);
+			return GetTableAsync<Sensor>(SensorTableName, DatabaseHelpers.ReadSensor);
 		}
 
         /// <summary>
@@ -154,15 +155,13 @@ namespace SmartHomeWeb
         /// Creates a task that fetches a single person from the database.
         /// </summary>
         public Task<Person> GetPersonByIdAsync(int id) =>
-            GetSingleByKeyAsync(PersonTableKey, "id", id,
-                DatabaseHelpers.ReadPerson);
+            GetSingleByKeyAsync(PersonTableName, "id", id, DatabaseHelpers.ReadPerson);
 
         /// <summary>
         /// Creates a task that fetches a single location from the database.
         /// </summary>
         public Task<Location> GetLocationByIdAsync(int id) =>
-            GetSingleByKeyAsync(LocationTableKey, "id", id,
-                DatabaseHelpers.ReadLocation);
+            GetSingleByKeyAsync(LocationTableName, "id", id, DatabaseHelpers.ReadLocation);
 
         /// <summary>
 		/// Creates a dictionary maps persons to their associated locations.
@@ -170,8 +169,8 @@ namespace SmartHomeWeb
 		public async Task<IReadOnlyDictionary<Person, IReadOnlyList<Location>>> GetPersonToLocationsMapAsync()
 		{
 			// First, retrieve all locations, persons and person-location pairs.
-			var locTask = GetTableMapAsync<Location, int>(LocationTableKey, DatabaseHelpers.ReadLocation, item => item.Id);
-			var personTask = GetTableMapAsync<Person, int>(PersonTableKey, DatabaseHelpers.ReadPerson, item => item.Id);
+			var locTask = GetTableMapAsync<Location, int>(LocationTableName, DatabaseHelpers.ReadLocation, item => item.Id);
+			var personTask = GetTableMapAsync<Person, int>(PersonTableName, DatabaseHelpers.ReadPerson, item => item.Id);
 			var pairs = await GetHasLocationPairsAsync();
 			var locs = await locTask;
 			var persons = await personTask;
@@ -219,7 +218,7 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = "INSERT INTO Person(name) VALUES (@name)";
+                cmd.CommandText = $"INSERT INTO {PersonTableName}(name) VALUES (@name)";
                 cmd.Parameters.AddWithValue("@name", Data.Name);
                 return cmd.ExecuteNonQueryAsync();
             }
