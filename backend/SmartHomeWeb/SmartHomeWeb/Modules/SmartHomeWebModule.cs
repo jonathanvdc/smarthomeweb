@@ -82,11 +82,6 @@ namespace SmartHomeWeb.Modules
     {
        
         public static string PlatDuJour = "Yep. The server is running";
-        private string SecureTest()
-        {
-            this.RequiresAuthentication();
-            return SecuredPage;
-        }
         public SmartHomeWebModule()
         {
             
@@ -111,8 +106,9 @@ namespace SmartHomeWeb.Modules
             /*
                 +Authentication
             */
-            Get["/login"] = parameter => SmartHomeWebModule.EmptyPage; //Display an empty page on get, extension allows post, form will be implemented later.
+            Get["/login"] = parameter => SmartHomeWebModule.LoginPage; //Display an empty page on get, extension allows post, form will be implemented later.
             Get["/logout"] = parameter => SmartHomeWebModule.ComingSoonPage; //No implementation yet.
+            Post["/login"] = parameter => SmartHomeWebModule.ComingSoonPage;
             /*
                 -Authentication
             */
@@ -192,6 +188,26 @@ namespace SmartHomeWeb.Modules
                 </body></html>
                 ";
             }
+        }
+        public static string LoginPage
+        {
+            get
+            {
+                return @"
+                <html>
+                    <body>
+                        <form method=""post"">
+                            Username:<br>
+                            <input type=""text"" name=""username""><br>
+                            Password:<br>
+                            <input type=""text"" name=""password""><br><br>
+                            <input type=""submit"" value=""Submit"">
+                        </form>
+                    </body>
+                </html>
+                ";
+            }
+
         }
 
         private static Dictionary<string, string> Pages = new Dictionary<string, string>();
