@@ -7,7 +7,7 @@ namespace SmartHomeWeb.Model
 	/// A data structure that contains a person's data, 
 	/// but does not capture their unique identifier.
 	/// </summary>
-	public class PersonData
+	public sealed class PersonData
 	{
         // Empty constructor is required for serialization.
         private PersonData()

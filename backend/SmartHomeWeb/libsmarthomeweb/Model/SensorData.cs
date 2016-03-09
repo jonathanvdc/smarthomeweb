@@ -6,8 +6,12 @@ namespace SmartHomeWeb.Model
 	/// A data structure that contains a sensor's data, 
 	/// but does not capture their unique identifier.
 	/// </summary>
-	public class SensorData
+	public sealed class SensorData
 	{
+        // Empty constructor for serialization.
+        private SensorData()
+        { }
+
 		public SensorData(string Name, string Description, string Notes, int LocationId)
 		{
 			this.Name = Name;

@@ -6,7 +6,7 @@ namespace SmartHomeWeb.Model
 	/// A data structure that contains a location's data, 
 	/// but does not capture its unique identifier.
 	/// </summary>
-	public class LocationData
+	public sealed class LocationData
 	{
 		public LocationData(string Name)
 		{

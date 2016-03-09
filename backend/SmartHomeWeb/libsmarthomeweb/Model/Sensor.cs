@@ -6,7 +6,7 @@ namespace SmartHomeWeb.Model
 	/// <summary>
 	/// A class that describes a sensor in the database.
 	/// </summary>
-	public class Sensor : IEquatable<Sensor>
+	public sealed class Sensor : IEquatable<Sensor>
 	{
 		// AsyncPoco demands a parameterless constructor.
 		private Sensor()

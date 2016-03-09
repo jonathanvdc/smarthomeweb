@@ -6,7 +6,7 @@ namespace SmartHomeWeb.Model
 	/// <summary>
 	/// A class that describes a person in the database.
 	/// </summary>
-	public class Person : IEquatable<Person>
+	public sealed class Person : IEquatable<Person>
 	{
 		// AsyncPoco demands a parameterless constructor.
 		private Person()
