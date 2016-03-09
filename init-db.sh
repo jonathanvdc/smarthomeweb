@@ -12,7 +12,7 @@ serverid=$!
 
 sleep 1
 
-# Post some same data
+# Post some sample data
 curl -X POST -d @example-files/personData.json localhost:8088/api/persons
 
 kill $serverid
