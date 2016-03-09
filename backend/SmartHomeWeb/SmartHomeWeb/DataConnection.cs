@@ -227,8 +227,15 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"INSERT INTO {PersonTableName}(name) VALUES (@name)";
+                cmd.CommandText = $"INSERT INTO {PersonTableName}(username, name, password, birthdate, address, city, zipcode) " +
+                    "VALUES (@username, @name, @password, @birthdate, @address, @city, @zipcode)";
+                cmd.Parameters.AddWithValue("@username", Data.UserName);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
+                cmd.Parameters.AddWithValue("@password", Data.Password);
+                cmd.Parameters.AddWithValue("@birthdate", DatabaseHelpers.CreateUnixTimeStamp(Data.Birthdate));
+                cmd.Parameters.AddWithValue("@address", Data.Address);
+                cmd.Parameters.AddWithValue("@city", Data.City);
+                cmd.Parameters.AddWithValue("@zipcode", Data.ZipCode);
                 return cmd.ExecuteNonQueryAsync();
             }
         }
