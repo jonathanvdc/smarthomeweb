@@ -15,21 +15,25 @@ namespace SmartHomeWeb.Modules
     */
     public class UserMapper : IUserMapper
     {
-        //List<User> users; //Was bitching about unassigned list, commented to remove underline. Underlines are bad for my sanity.
+        public List<User> users; 
         public IUserIdentity GetUserFromIdentifier(Guid id, NancyContext context)
         {
             //Example code, would need to fill in user list and implement Guid saving within User.
             IUserIdentity ret = null;
-            /*foreach (User u in users)
+            foreach (User u in users)
             {
                 if (u.id == id)
                 {
                     ret = u;
                 }
-            }*/
+            }
             return ret;
         }
-
+        public UserMapper()
+        {
+            users = new List<User>();
+            users.Add(new User());
+        }
     }
     //For testing purposes, we define our user class in this file, this needs moving as well as just better integration.
     public class User : IUserIdentity
@@ -37,43 +41,95 @@ namespace SmartHomeWeb.Modules
         public Guid id
         {
             get;
+            private set;
         }
         public string UserName
         {
-            get; set;
+            get; 
+            private set;
+        }
+        public string password
+        {
+            get;
+            private set;
         }
         public IEnumerable<string> Claims
-        {
-            get; set;
+        {   
+            get; 
+            private set;
         }
+        public User()
+        {
+            //Default construct a single user; for testing purposes.
+            UserName = "admin";
+            password = "admin";
+            id = Guid.Parse("00000000000000000000000000000000");
+        }
+
     }
 
     public class SecureModule : NancyModule
     {
+        public static SecureModule theOne;
+        private static UserMapper UM = new UserMapper();
         public static FormsAuthenticationConfiguration authenticationConfiguration = new FormsAuthenticationConfiguration() {
             RedirectUrl = "~/login",
-            UserMapper = new UserMapper()
-        }; //UserMapper needs to be implemented decently, but works as an example template.
+            UserMapper = UM
+        }; //UserMapper needs to be implemented decently, but works as an example.
         public SecureModule() : base("/secure")
         {
-            
+            theOne = this;
             FormsAuthentication.Enable(this, authenticationConfiguration); //Enables form auth.
             Get["/"] = parameters =>
             {
-                Console.WriteLine("secure!");
                 this.RequiresAuthentication();
-                Console.WriteLine("auth passed!");
-                return SmartHomeWebModule.SecuredPage;
+                return this.SecuredPage;
             };
-            
-           
-            /*Post["/login", true] = async (parameters, ct) => //Post for login, chrome extension allows us to login. 
+        }
+        public static SecureModule getRef()
+        {
+            if (theOne == null)
             {
-                
-                return "yay";
-            };*/
+                throw new System.Exception("Not working");
+            }
+            return theOne;
+        }
+        public bool FindUser(string name, string pass, out User user)
+        {
+            foreach (User u in UM.users)
+            {
+                if (u.UserName == name)
+                {
+                    if (u.password == pass)
+                    {
+                        user = u;
+                        return true;
+                    }
+                }
+            }
+            user = null;
+            return false;
+            
             
         }
+        public string SecuredPage
+        {
+            get
+            {
+                return @"
+                    <html>
+                        <body>
+                            <center><h1>You have accessed the secure portion of our site, " + this.Context.CurrentUser.UserName + @"!</h1></center>
+                        </body>
+                    </html>";
+            }
+        }
+        /*Post["/login", true] = async (parameters, ct) => //Post for login, chrome extension allows us to login. 
+        {
+
+            return "yay";
+        };*/
+
     }
     /*
         -Authentication
@@ -106,9 +162,28 @@ namespace SmartHomeWeb.Modules
             /*
                 +Authentication
             */
-            Get["/login"] = parameter => SmartHomeWebModule.LoginPage; //Display an empty page on get, extension allows post, form will be implemented later.
+            Get["/login"] = parameter => SmartHomeWebModule.LoginPage; //Displays a simple login page
             Get["/logout"] = parameter => SmartHomeWebModule.ComingSoonPage; //No implementation yet.
-            Post["/login"] = parameter => SmartHomeWebModule.ComingSoonPage;
+            Get["/nopass"] = parameter => SmartHomeWebModule.NotAuthorizedPage;
+            Post["/login"] = parameter =>
+            {
+                string redirectPath;
+                string name = Request.Form.username;
+                string pass = Request.Form.password;
+                User user;
+                bool userFound = SecureModule.getRef().FindUser(name, pass, out user);
+
+                if (userFound)
+                {
+                    Context.CurrentUser = user;
+                    redirectPath = "/secure";
+                }
+                else
+                {
+                    redirectPath = "/nopass";
+                }
+                return Response.AsRedirect(redirectPath);
+            };
             /*
                 -Authentication
             */
@@ -143,18 +218,6 @@ namespace SmartHomeWeb.Modules
                 <html>
                     <body>
                         <h1>You shall not pass.</h1>
-                    </body>
-                </html>";
-            }
-        }
-        public static string SecuredPage
-        {
-            get
-            {
-                return @"
-                <html>
-                    <body>
-                        <center><h1>You have accessed the secure portion of our site!</h1></center>
                     </body>
                 </html>";
             }
