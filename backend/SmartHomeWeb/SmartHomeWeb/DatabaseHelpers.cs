@@ -1,6 +1,7 @@
 ﻿using System;
 using SmartHomeWeb.Model;
 using System.Data;
+using System.Linq.Expressions;
 
 namespace SmartHomeWeb
 {
@@ -52,6 +53,18 @@ namespace SmartHomeWeb
                     GetString(Record, "address"), GetString(Record, "city"), 
                     GetString(Record, "zipcode")));
 		}
+
+        /// <summary>
+        /// Reads a message entity from the given record.
+        /// </summary>
+        public static Message ReadMessage(IDataRecord Record)
+        {
+            return new Message(
+                GetInt32(Record, "id"),
+                new MessageData(
+                    GetInt32(Record, "sender"), GetInt32(Record, "recipient"),
+                    GetString(Record, "message")));
+        }
 
 		/// <summary>
 		/// Reads a location entity from the given record.
