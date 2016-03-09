@@ -7,7 +7,7 @@ chmod +x ./create-db.sh
 popd
 
 # Start the server (assuming that it has been compiled already)
-./backend/SmartHomeWeb/SmartHomeWeb/bin/Debug/SmartHomeWeb.exe &
+mono ./backend/SmartHomeWeb/SmartHomeWeb/bin/Debug/SmartHomeWeb.exe &
 serverid=$!
 
 sleep 1
