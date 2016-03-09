@@ -54,8 +54,8 @@ namespace SmartHomeWeb
 			return new Person(
                 GetInt32(Record, "id"), 
                 new PersonData(
-                    GetString(Record, "username"), GetString(Record, "name"),
-                    GetString(Record, "password"), GetDateTime(Record, "birthdate"),
+                    GetString(Record, "username"), GetString(Record, "password"),
+                    GetString(Record, "name"), GetDateTime(Record, "birthdate"),
                     GetString(Record, "address"), GetString(Record, "city"), 
                     GetString(Record, "zipcode")));
 		}
