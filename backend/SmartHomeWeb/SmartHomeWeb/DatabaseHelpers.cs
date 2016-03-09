@@ -2,6 +2,7 @@
 using SmartHomeWeb.Model;
 using System.Data;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace SmartHomeWeb
 {
@@ -35,6 +36,11 @@ namespace SmartHomeWeb
             return Record.GetInt64(Record.GetOrdinal(Name));
         }
 
+        public static double GetFloat64(IDataRecord Record, string Name)
+        {
+            return Record.GetDouble(Record.GetOrdinal(Name));
+        }
+
         public static DateTime GetDateTime(IDataRecord Record, string Name)
         {
             return ParseUnixTimeStamp(GetInt64(Record, Name));
@@ -64,6 +70,16 @@ namespace SmartHomeWeb
                 new MessageData(
                     GetInt32(Record, "sender"), GetInt32(Record, "recipient"),
                     GetString(Record, "message")));
+        }
+
+        /// <summary>
+        /// Reads a measurement entity from the given record.
+        /// </summary>
+        public static Measurement ReadMeasurement(IDataRecord Record)
+        {
+            return new Measurement(
+                GetInt32(Record, "sensorId"), GetDateTime(Record, "unixtime"),
+                GetFloat64(Record, "measure"), GetString(Record, "notes"));
         }
 
 		/// <summary>

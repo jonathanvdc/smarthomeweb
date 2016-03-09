@@ -46,6 +46,7 @@
     <Compile Include="Model\SensorData.cs" />
     <Compile Include="Model\MessageData.cs" />
     <Compile Include="Model\Message.cs" />
+    <Compile Include="Model\Measurement.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
