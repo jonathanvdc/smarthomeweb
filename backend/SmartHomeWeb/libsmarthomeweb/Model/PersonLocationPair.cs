@@ -8,7 +8,7 @@ namespace SmartHomeWeb.Model
 	/// database. This can be used to tie a person to a
 	/// specific location.
 	/// </summary>
-	public class PersonLocationPair
+	public sealed class PersonLocationPair
 	{
 		private PersonLocationPair()
 		{

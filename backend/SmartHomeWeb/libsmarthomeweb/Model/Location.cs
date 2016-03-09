@@ -6,7 +6,7 @@ namespace SmartHomeWeb.Model
 	/// <summary>
 	/// A class that describes a location in the database.
 	/// </summary>
-	public class Location : IEquatable<Location>
+	public sealed class Location : IEquatable<Location>
 	{
 		// AsyncPoco demands a parameterless constructor.
 		private Location()
