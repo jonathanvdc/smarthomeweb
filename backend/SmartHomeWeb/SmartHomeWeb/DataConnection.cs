@@ -15,6 +15,7 @@ namespace SmartHomeWeb
 		public const string LocationTableName = "Location";
 		public const string HasLocationTableName = "HasLocation";
 		public const string SensorTableName = "Sensor";
+        public const string MessageTableName = "Message";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -136,6 +137,14 @@ namespace SmartHomeWeb
 		{
 			return GetTableAsync<Sensor>(SensorTableName, DatabaseHelpers.ReadSensor);
 		}
+
+        /// <summary>
+        /// Creates a task that fetches all messages in the database.
+        /// </summary>
+        public Task<IEnumerable<Message>> GetMessagesAsync()
+        {
+            return GetTableAsync<Message>(MessageTableName, DatabaseHelpers.ReadMessage);
+        }
 
         /// <summary>
         /// Creates a task that fetches a single row from the database, by
