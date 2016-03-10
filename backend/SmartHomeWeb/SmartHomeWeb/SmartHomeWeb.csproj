@@ -81,6 +81,7 @@
     <Compile Include="Modules\API\ApiLocationsModule.cs" />
     <Compile Include="Modules\API\ApiModule.cs" />
     <Compile Include="Modules\API\ApiPersonsModule.cs" />
+    <Compile Include="Modules\SecureModule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DatabaseHelpers.cs" />
