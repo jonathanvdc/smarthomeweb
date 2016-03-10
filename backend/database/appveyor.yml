@@ -1,3 +1,6 @@
+before_build:
+    nuget restore backend/SmartHomeWeb/SmartHomeWeb.sln 
+
 build:
     project: backend/SmartHomeWeb/SmartHomeWeb.sln
 
