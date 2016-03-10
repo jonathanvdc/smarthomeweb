@@ -4,5 +4,10 @@ before_build:
 build:
     project: backend/SmartHomeWeb/SmartHomeWeb.sln
 
+after_build:
+    # Install sqlite3
+    - curl -L http://www.sqlite.org/2016/sqlite-dll-win32-x86-3110100.zip > sqlite-dll.zip
+    - 7z x sqlite-dll.zip -obackend/SmartHomeWeb/SmartHomeWeb/bin/Release
+
 test_script:
     - ps: ./init-db.ps1
