@@ -9,7 +9,7 @@ after_build:
     - curl -L http://www.sqlite.org/2016/sqlite-dll-win32-x86-3110100.zip > sqlite-dll.zip
     - 7z x sqlite-dll.zip -obackend/SmartHomeWeb/SmartHomeWeb/bin/Release
     - curl -L http://www.sqlite.org/2016/sqlite-tools-win32-x86-3110100.zip > sqlite-exe.zip
-    - 7z x sqlite-dll.zip -obackend/database
+    - 7z x sqlite-exe.zip -obackend/database
 
 test_script:
     - ps: ./init-db.ps1
