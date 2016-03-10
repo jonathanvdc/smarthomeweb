@@ -30,8 +30,7 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the person's username.
         /// </summary>
-        [JsonProperty("username")]
-        [JsonRequired]
+        [JsonProperty("username", Required = Required.Always)]
         public string UserName { get; private set; }
 
         /// <summary>
@@ -39,8 +38,7 @@ namespace SmartHomeWeb.Model
         /// </summary>
         /// <value>The password.</value>
         /// <remarks>Obviously not plaintext</remarks>
-        [JsonProperty("password")]
-        [JsonRequired]
+        [JsonProperty("password", Required = Required.Always)]
         public string Password { get; private set; }
 
         /// <summary>

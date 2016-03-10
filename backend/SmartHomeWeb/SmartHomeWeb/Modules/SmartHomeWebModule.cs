@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using SmartHomeWeb.Model;
 using Nancy;
+using Nancy.Authentication.Forms;
 
 namespace SmartHomeWeb.Modules
 {

@@ -26,22 +26,19 @@ namespace SmartHomeWeb.Model
         /// Gets this identifier of the sensor 
         /// this measurement belongs to.
         /// </summary>
-        [JsonProperty("sensorId")]
-        [JsonRequired]
+        [JsonProperty("sensorId", Required = Required.Always)]
         public int SensorId { get; private set; }
 
         /// <summary>
         /// Gets the time at which this measurement was made.
         /// </summary>
-        [JsonProperty("unixtime")]
-        [JsonRequired]
+        [JsonProperty("unixtime", Required = Required.Always)]
         public DateTime Time { get; private set; }
 
         /// <summary>
         /// Gets the measurement's data.
         /// </summary>
-        [JsonProperty("measure")]
-        [JsonRequired]
+        [JsonProperty("measure", Required = Required.Always)]
         public double MeasuredData { get; private set; }
 
         /// <summary>
