@@ -1,20 +1,14 @@
 # Wamoetewijallemaaldoen?
 
 ## Up next
-* AsyncPoco-gedoe totaal verwijderen.
-* Geen .db meer in de repo zetten.
-
-## Skelet
-* Klassen die communiceren met de database?
 * CSV files laden in database (+ cronnig scriptje)
-* REST API maken
-* Views
-* Admin frontend is waarschijnlijk simpeler? Gewoon HTML tabelletjes met CRUD
-* Logins
-* User frontend
+* Logins met database integreren
+* Iets “toonbaar” krijgen: inloggen als user, bijbehorende data zien??
+  * “Als ge da in een grafiekske ziet, da’s ook, een ureke werk hé.” – ik
 
 ## Moetjes
 
+* REST API verder maken
 * Grafieken
 * Sociaal gedoe
 * Analytics over verbruik
