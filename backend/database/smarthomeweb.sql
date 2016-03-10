@@ -6,16 +6,16 @@ create table Person (
 	--users require logging in, non-user persons shouldn't be stored so password and username are required.
 	--username can differ from actual name, actual name can be null.
 	--If no name is specified, username will be displayed in social aspects.
-	
+
 	--Assignment describes selecting users through address and such, so we will store additional info:
 	birthdate integer not null, --in unixtime
 	address text not null, --Street and number
 	city text not null,
 	zipcode text not null --Not all countries have number-only zip codes.
-	
-	
+
+
 	--Can probably be expanded further, I don't know what other details would be useful though.
-	
+
 );
 create table Friends (
 	personOne integer not null references Person(id),
@@ -24,7 +24,7 @@ create table Friends (
 );
 
 create table Message (
-	id integer primary key not null autoincrement,
+	id integer primary key autoincrement,
 	sender integer not null references Person(id),
 	recipient integer not null references Person(id),
 	message text not null
@@ -42,14 +42,14 @@ create table Location (
 
 create table HasLocation (
 	personId integer not null references Person(id),
-	locationId integer not null references Location(id)
+	locationId integer not null references Location(id),
 	primary key (personId, locationId)
 );
 
 create table Sensor (
 	id integer primary key autoincrement,
 	locationid integer not null references Location(id),
-	title text not null, 
+	title text not null,
 	description text not null,
 	notes text
 );
@@ -86,10 +86,10 @@ create table hourAverage (
 	sensorId integer not null references Sensor(id),
 	unixtime integer not null, --unix time for the hour, YYYY-MM-DD XX:00:00, where xx in 0-23 (inclusive).
 	average real not null,
-	notes text, --Notes carry over from measurements, will become CSV in case of multiple. 
-	--Each comment will be enclosed in double quotes for clear seperation in case commas are present. 
-	--Double quotes should become illegal characters in the comment though, 
-	--to ensure no double quotes are present any place but begin and end of a note. 
+	notes text, --Notes carry over from measurements, will become CSV in case of multiple.
+	--Each comment will be enclosed in double quotes for clear seperation in case commas are present.
+	--Double quotes should become illegal characters in the comment though,
+	--to ensure no double quotes are present any place but begin and end of a note.
 	--Important for parsing the notes back into the frontend.
 	--Enclosing in quotes is unnecessary  in the Measurements table they are listed per minute and every user
 	--that writes multiple notes in a minute is just being unreasonable.
@@ -108,7 +108,7 @@ create table dayAverages (
 );
 
 
---Adding extra for the longer time periods might be advisable though, to save on computing time. 
+--Adding extra for the longer time periods might be advisable though, to save on computing time.
 --Requires extra storage, but seems reasonable to include yearly, for example.
 
 create table yearAverages (
@@ -118,5 +118,3 @@ create table yearAverages (
 	notes text,
 	primary key (sensorId, unixtime)
 );
-
-

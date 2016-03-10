@@ -3,88 +3,17 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using SmartHomeWeb.Model;
-using Nancy.Security;
-using Nancy.Authentication.Forms;
 using Nancy;
-using System;
 
 namespace SmartHomeWeb.Modules
 {
-    /*
-        +Authentication
-    */
-    public class UserMapper : IUserMapper
-    {
-        //List<User> users; //Was complaining about unassigned list, commented to remove underline. Underlines are bad for my sanity.
-        public IUserIdentity GetUserFromIdentifier(Guid id, NancyContext context)
-        {
-            //Example code, would need to fill in user list and implement Guid saving within User.
-            IUserIdentity ret = null;
-            /*foreach (User u in users)
-            {
-                if (u.id == id)
-                {
-                    ret = u;
-                }
-            }*/
-            return ret;
-        }
-
-    }
-    //For testing purposes, we define our user class in this file, this needs moving as well as just better integration.
-    public class User : IUserIdentity
-    {
-        public Guid id
-        {
-            get;
-        }
-        public string UserName
-        {
-            get; set;
-        }
-        public IEnumerable<string> Claims
-        {
-            get; set;
-        }
-    }
-
-    public class SecureModule : NancyModule
-    {
-        public static FormsAuthenticationConfiguration authenticationConfiguration = new FormsAuthenticationConfiguration() {
-            RedirectUrl = "~/login",
-            UserMapper = new UserMapper()
-        }; //UserMapper needs to be implemented decently, but works as an example template.
-        public SecureModule() : base("/secure")
-        {
-            
-            FormsAuthentication.Enable(this, authenticationConfiguration); //Enables form auth.
-            Get["/"] = parameters =>
-            {
-                Console.WriteLine("secure!");
-                this.RequiresAuthentication();
-                Console.WriteLine("auth passed!");
-                return SmartHomeWebModule.SecuredPage;
-            };
-            
-           
-            /*Post["/login", true] = async (parameters, ct) => //Post for login, chrome extension allows us to login. 
-            {
-                
-                return "yay";
-            };*/
-            
-        }
-    }
-    /*
-        -Authentication
-    */
     public class SmartHomeWebModule : Nancy.NancyModule
     {
        
         public static string PlatDuJour = "Yep. The server is running";
         public SmartHomeWebModule()
         {
-            
+            StaticConfiguration.EnableHeadRouting = true;
 
             Get["/"] = parameter => IndexPage;
             Get["/test/{x}"] = parameter => "<blink>" + parameter["x"] * 2.0;
@@ -103,15 +32,28 @@ namespace SmartHomeWeb.Modules
                 var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
                 return View["testy.cshtml", persons];
             };
-            /*
-                +Authentication
-            */
-            Get["/login"] = parameter => SmartHomeWebModule.LoginPage; //Display an empty page on get, extension allows post, form will be implemented later.
+
+            Get["/login"] = parameter => SmartHomeWebModule.LoginPage; //Displays a simple login page
+            Post["/login"] = parameter => //Process the post on /login
+            {
+                string name = Request.Form.username;
+                string pass = Request.Form.password;
+                User user;
+                bool userFound = SecureModule.FindUser(name, pass, out user);
+
+                if (userFound)
+                {
+                    return this.LoginAndRedirect(user.id, System.DateTime.Now.AddYears(1), "/");
+                }
+                else
+                {
+                    return Response.AsRedirect("/nopass");
+                }
+            };
             Get["/logout"] = parameter => SmartHomeWebModule.ComingSoonPage; //No implementation yet.
-            Post["/login"] = parameter => SmartHomeWebModule.ComingSoonPage;
-            /*
-                -Authentication
-            */
+            Get["/nopass"] = parameter => SmartHomeWebModule.NotAuthorizedPage; //self explanatory.
+            
+
             Get["/persons", true] = async (parameters, ct) =>
             {
                 var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
@@ -135,6 +77,19 @@ namespace SmartHomeWeb.Modules
             };
 
         }
+        public static string ErrorPage
+        {
+            get
+            {
+                return @"
+                <html>
+                    <body>
+                        <h1>Something went horribly, horribly wrong. Our code monkeys are working on the problem.</h1>
+                    </body>
+                </html>
+                ";
+            }
+        }
         public static string NotAuthorizedPage
         {
             get
@@ -143,18 +98,6 @@ namespace SmartHomeWeb.Modules
                 <html>
                     <body>
                         <h1>You shall not pass.</h1>
-                    </body>
-                </html>";
-            }
-        }
-        public static string SecuredPage
-        {
-            get
-            {
-                return @"
-                <html>
-                    <body>
-                        <center><h1>You have accessed the secure portion of our site!</h1></center>
                     </body>
                 </html>";
             }
@@ -196,7 +139,7 @@ namespace SmartHomeWeb.Modules
                 return @"
                 <html>
                     <body>
-                        <form method=""post"">
+                        <form method=""post"" action="""">
                             Username:<br>
                             <input type=""text"" name=""username""><br>
                             Password:<br>

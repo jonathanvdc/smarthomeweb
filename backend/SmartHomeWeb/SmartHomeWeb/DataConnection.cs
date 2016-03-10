@@ -15,6 +15,7 @@ namespace SmartHomeWeb
 		public const string LocationTableName = "Location";
 		public const string HasLocationTableName = "HasLocation";
 		public const string SensorTableName = "Sensor";
+        public const string MessageTableName = "Message";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -138,6 +139,14 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
+        /// Creates a task that fetches all messages in the database.
+        /// </summary>
+        public Task<IEnumerable<Message>> GetMessagesAsync()
+        {
+            return GetTableAsync<Message>(MessageTableName, DatabaseHelpers.ReadMessage);
+        }
+
+        /// <summary>
         /// Creates a task that fetches a single row from the database, by
         /// looking up one of its keys.
         /// </summary>
@@ -218,8 +227,15 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"INSERT INTO {PersonTableName}(name) VALUES (@name)";
+                cmd.CommandText = $"INSERT INTO {PersonTableName}(username, name, password, birthdate, address, city, zipcode) " +
+                    "VALUES (@username, @name, @password, @birthdate, @address, @city, @zipcode)";
+                cmd.Parameters.AddWithValue("@username", Data.UserName);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
+                cmd.Parameters.AddWithValue("@password", Data.Password);
+                cmd.Parameters.AddWithValue("@birthdate", DatabaseHelpers.CreateUnixTimeStamp(Data.Birthdate));
+                cmd.Parameters.AddWithValue("@address", Data.Address);
+                cmd.Parameters.AddWithValue("@city", Data.City);
+                cmd.Parameters.AddWithValue("@zipcode", Data.ZipCode);
                 return cmd.ExecuteNonQueryAsync();
             }
         }
