@@ -5,4 +5,4 @@ build:
     project: backend/SmartHomeWeb/SmartHomeWeb.sln
 
 test_script:
-    - ps: init-db.ps1
+    - ps: ./init-db.ps1
