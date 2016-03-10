@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using SmartHomeWeb.Model;
-using SmartHomeWeb.Modules;
+using Nancy;
+using Nancy.Bootstrapper;
+using Nancy.Diagnostics;
+using Nancy.TinyIoc;
 
 namespace SmartHomeWeb
 {
@@ -14,7 +14,6 @@ namespace SmartHomeWeb
 
         static void Main(string[] args)
         {
-            Nancy.StaticConfiguration.DisableErrorTraces = false;
             var nancyHost = new Nancy.Hosting.Self.NancyHost(new Uri(Domain), new Bootstrapper());
             nancyHost.Start();
             Console.WriteLine("Running from: " + Directory.GetCurrentDirectory());
@@ -24,14 +23,23 @@ namespace SmartHomeWeb
     }
 
     // We need a custom bootstrapper, because we want to modify Nancy's root path:
-    public class Bootstrapper : Nancy.DefaultNancyBootstrapper
+    public class Bootstrapper : DefaultNancyBootstrapper
     {
-        protected override Nancy.IRootPathProvider RootPathProvider
+        protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
+        {
+            StaticConfiguration.DisableErrorTraces = false;
+            StaticConfiguration.EnableRequestTracing = true;
+        }
+
+        protected override IRootPathProvider RootPathProvider
             => new CurrentDirectoryRootPathProvider();
+
+        protected override DiagnosticsConfiguration DiagnosticsConfiguration =>
+            new DiagnosticsConfiguration { Password = "admin" };
     }
 
     // Namely, we want to use the working directory specified in Visual Studio. 
-    public class CurrentDirectoryRootPathProvider : Nancy.IRootPathProvider
+    public class CurrentDirectoryRootPathProvider : IRootPathProvider
     {
         public string GetRootPath() => Directory.GetCurrentDirectory();
     }

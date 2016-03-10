@@ -1,113 +1,101 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Nancy.Security;
 using Nancy.Authentication.Forms;
 using Nancy;
+using SmartHomeWeb.Model;
+
 namespace SmartHomeWeb.Modules
 {
     public class UserMapper : IUserMapper
     {
-        public List<User> users;
-        public IUserIdentity GetUserFromIdentifier(Guid id, NancyContext context)
-        {
-            //Example code, would need to fill in user list and implement Guid saving within User.
-            IUserIdentity ret = null;
-            foreach (User u in users)
-            {
-                if (u.id == id)
-                {
-                    ret = u;
-                }
-            }
-            return ret;
-        }
         public UserMapper()
         {
-            users = new List<User>();
-            users.Add(new User());
+            UserIdentities = new Dictionary<Guid, UserIdentity>();
+        }
+
+        public Dictionary<Guid, UserIdentity> UserIdentities { get; }
+
+        public IUserIdentity GetUserFromIdentifier(Guid id, NancyContext context) => UserIdentities[id];
+
+        public bool FindUser(string userName, string password, out UserIdentity userIdentity)
+        {
+            foreach (var u in UserIdentities)
+            {
+                if (u.Value.UserName == userName && u.Value.Password == password)
+                {
+                    userIdentity = u.Value;
+                    return true;
+                }
+            }
+            userIdentity = null;
+            return false;
+        }
+
+        public void AddUser(Person person)
+        {
+            var u = new UserIdentity(person);
+            UserIdentities.Add(u.Guid, u);
         }
     }
-    //For testing purposes, we define our user class in this file, this needs moving as well as just better integration.
-    public class User : IUserIdentity
+
+    public class UserIdentity : IUserIdentity
     {
-        public Guid id
-        {
-            get;
-            private set;
-        }
-        public string UserName
-        {
-            get;
-            private set;
-        }
-        public string password
-        {
-            get;
-            private set;
-        }
-        public IEnumerable<string> Claims
-        {
-            get;
-            private set;
-        }
-        public User()
-        {
-            //Default construct a single user; for testing purposes.
-            UserName = "admin";
-            password = "admin";
-            id = Guid.Parse("10010010010010010010010010010010");
-            Claims = new List<string>();
-        }
+        private readonly Person Person;
 
+        public string UserName => Person.Data.UserName;
+        public string Password => Person.Data.Password;
+        public readonly Guid Guid;
+        public IEnumerable<string> Claims => Enumerable.Empty<string>();
+        
+        public UserIdentity(Person person)
+        {
+            Person = person;
+
+            // Given a person with ID 0x12345678, store the GUID 00000000-0000-0000-0000000012345678.
+            byte[] bytes = new byte[16];
+            Array.Copy(BitConverter.GetBytes(Person.Id), 0, bytes, 12, 4);
+            Guid = new Guid(bytes);
+        }
     }
-
+    
     public class SecureModule : NancyModule
     {
         private static UserMapper UM = new UserMapper();
-        public static FormsAuthenticationConfiguration authenticationConfiguration = new FormsAuthenticationConfiguration() {
-            RedirectUrl = "~/login",
-            UserMapper = UM
-        }; //UserMapper needs to be implemented decently, but works as an example.
-        public SecureModule() : base("/secure")
+
+        public SecureModule() : base("secure")
         {
-            FormsAuthentication.Enable(this, authenticationConfiguration); //Enables form auth.
+            FormsAuthentication.Enable(this,
+                new FormsAuthenticationConfiguration {
+                    RedirectUrl = "~/login",
+                    UserMapper = UM
+                });
+
             Get["/"] = parameters =>
             {
-                //this.RequiresAuthentication();
-                return this.SecuredPage;
+                Console.WriteLine("a");
+                var s = SecuredPage;
+                Console.WriteLine("b");
+                return s;
             };
-            
-        }
-        public static bool FindUser(string name, string pass, out User user)
-        {
-            foreach (User u in UM.users)
-            {
-                if (u.UserName == name)
-                {
-                    if (u.password == pass)
-                    {
-                        user = u;
-                        return true;
-                    }
-                }
-            }
-            user = null;
-            return false;
 
-
-        }
-        public string SecuredPage
-        {
-            get
+            var persons = DataConnection.Ask(dc => dc.GetPersonsAsync()).Result;
+            foreach (var p in persons)
             {
-                return @"
-                    <html>
-                        <body>
-                            <center><h1>You have accessed the secure portion of our site, " + this.Context.CurrentUser.UserName + @"!</h1></center>
-                        </body>
-                    </html>";
+                UM.AddUser(p);
             }
         }
 
+        public static bool FindUser(string userName, string password, out UserIdentity userIdentity)
+            => UM.FindUser(userName, password, out userIdentity);
+
+        private string SecuredPage => @"
+            <html>
+                <body>
+                    <center><h1>You have accessed the secure portion of our site, "
+                        + Context.CurrentUser.UserName + @"!</h1></center>
+                </body>
+            </html>";
     }
 }

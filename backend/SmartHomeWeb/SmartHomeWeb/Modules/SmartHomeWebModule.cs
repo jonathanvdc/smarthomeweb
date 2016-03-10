@@ -26,17 +26,11 @@ namespace SmartHomeWeb.Modules
             {
                 string name = Request.Form.username;
                 string pass = Request.Form.password;
-                User user;
-                bool userFound = SecureModule.FindUser(name, pass, out user);
+                UserIdentity user;
 
-                if (userFound)
-                {
-                    return this.LoginAndRedirect(user.id, System.DateTime.Now.AddYears(1), "/");
-                }
-                else
-                {
-                    return Response.AsRedirect("/nopass");
-                }
+                return SecureModule.FindUser(name, pass, out user)
+                    ? this.LoginAndRedirect(user.Guid, System.DateTime.Now.AddYears(1), "/")
+                    : Response.AsRedirect("/nopass");
             };
             Get["/logout"] = parameter => ComingSoonPage; //No implementation yet.
             Get["/nopass"] = parameter => NotAuthorizedPage; //self explanatory.
