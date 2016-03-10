@@ -15,7 +15,7 @@ namespace SmartHomeWeb.Modules
     */
     public class UserMapper : IUserMapper
     {
-        //List<User> users; //Was bitching about unassigned list, commented to remove underline. Underlines are bad for my sanity.
+        //List<User> users; //Was complaining about unassigned list, commented to remove underline. Underlines are bad for my sanity.
         public IUserIdentity GetUserFromIdentifier(Guid id, NancyContext context)
         {
             //Example code, would need to fill in user list and implement Guid saving within User.
