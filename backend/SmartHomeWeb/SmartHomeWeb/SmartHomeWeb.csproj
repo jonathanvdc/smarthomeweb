@@ -124,8 +124,17 @@
     <Compile Include="Modules\SmartHomeWebModule.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\views\SmartHomeWeb\testy.cshtml">
-      <Link>View Links\testy.cshtml</Link>
+    <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
+      <Link>View Links\home.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\layout.cshtml">
+      <Link>View Links\layout.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\login.cshtml">
+      <Link>View Links\login.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\_ViewStart.cshtml">
+      <Link>View Links\_ViewStart.cshtml</Link>
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />

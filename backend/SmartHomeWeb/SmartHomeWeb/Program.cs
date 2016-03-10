@@ -19,9 +19,7 @@ namespace SmartHomeWeb
             nancyHost.Start();
             Console.WriteLine("Running from: " + Directory.GetCurrentDirectory());
             while (true)
-            {
-                SmartHomeWebModule.PlatDuJour = Console.ReadLine();
-            }
+                Console.ReadLine();
         }
     }
 
