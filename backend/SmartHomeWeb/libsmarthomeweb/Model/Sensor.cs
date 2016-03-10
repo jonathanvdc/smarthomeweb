@@ -1,5 +1,4 @@
 ﻿using System;
-using AsyncPoco;
 using Newtonsoft.Json;
 
 namespace SmartHomeWeb.Model
@@ -7,15 +6,14 @@ namespace SmartHomeWeb.Model
 	/// <summary>
 	/// A class that describes a sensor in the database.
 	/// </summary>
-	[PrimaryKey("id", autoIncrement = true)]
-	public class Sensor : IEquatable<Sensor>
+	public sealed class Sensor : IEquatable<Sensor>
 	{
 		// AsyncPoco demands a parameterless constructor.
 		private Sensor()
 		{
 			// Initialize this to keep AsyncPoco from running
 			// into trouble.
-			this.Data = new SensorData(null, 0);
+			this.Data = new SensorData(null, null, null, 0);
 		}
 
 		/// <summary>
@@ -32,36 +30,12 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the sensor's unique identifier.
 		/// </summary>
-		[Column("id")]
 		[JsonProperty("id")]
 		public int Id { get; set; }
 
 		/// <summary>
-		/// Gets the sensor's name.
-		/// </summary>
-		[Column("name")]
-		[JsonIgnore]
-		public string Name
-		{ 
-			get { return Data.Name; } 
-			private set { this.Data = new SensorData(value, LocationId); }
-		}
-
-		/// <summary>
-		/// Gets the unique identifier belonging to this sensor's location.
-		/// </summary>
-		[Column("locationId")]
-		[JsonIgnore]
-		public int LocationId 
-		{ 
-			get { return Data.LocationId; } 
-			private set { this.Data = new SensorData(Name, value); }
-		}
-
-		/// <summary>
 		/// Gets this sensor's data.
 		/// </summary>
-		[Ignore]
 		[JsonProperty("data")]
 		public SensorData Data { get; private set; }
 

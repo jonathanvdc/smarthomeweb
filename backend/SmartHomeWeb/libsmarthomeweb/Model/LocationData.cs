@@ -1,13 +1,12 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace SmartHomeWeb
+namespace SmartHomeWeb.Model
 {
 	/// <summary>
 	/// A data structure that contains a location's data, 
 	/// but does not capture its unique identifier.
 	/// </summary>
-	public class LocationData
+	public sealed class LocationData
 	{
 		public LocationData(string Name)
 		{

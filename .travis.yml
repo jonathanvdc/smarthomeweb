@@ -1,0 +1,7 @@
+language: csharp
+apt:
+    - sqlite3
+solution: backend/SmartHomeWeb/SmartHomeWeb.sln
+script:
+    - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
+    - ./init-db.sh

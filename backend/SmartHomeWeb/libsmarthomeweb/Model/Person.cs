@@ -1,5 +1,4 @@
 using System;
-using AsyncPoco;
 using Newtonsoft.Json;
 
 namespace SmartHomeWeb.Model
@@ -7,8 +6,7 @@ namespace SmartHomeWeb.Model
 	/// <summary>
 	/// A class that describes a person in the database.
 	/// </summary>
-	[PrimaryKey("id", autoIncrement = true)]
-	public class Person : IEquatable<Person>
+	public sealed class Person : IEquatable<Person>
 	{
 		// AsyncPoco demands a parameterless constructor.
 		private Person()
@@ -28,27 +26,14 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the person's unique identifier.
 		/// </summary>
-		[Column("id")]
 		[JsonProperty("id")]
 		public int Id { get; private set; }
 
 		/// <summary>
 		/// Gets the person's data.
 		/// </summary>
-		[Ignore]
 		[JsonProperty("data")]
 		public PersonData Data { get; private set; }
-
-		/// <summary>
-		/// Gets the person's name.
-		/// </summary>
-		[Column("name")]
-		[JsonIgnore]
-		public string Name 
-		{ 
-			get { return Data.Name; } 
-			private set { this.Data = new PersonData(value); }
-		}
 
 		public bool Equals(Person Other)
 		{
