@@ -44,7 +44,7 @@ namespace SmartHomeWeb
         /// <param name="Command">The command to execute.</param>
         /// <param name="ReadTuple">A function that reads a single tuple.</param>
         public async Task<IEnumerable<T>> ExecuteCommandAsync<T>(
-            SqliteCommand Command, 
+            SqliteCommand Command,
             Func<IDataRecord, T> ReadTuple)
         {
             var results = new List<T>();
@@ -73,13 +73,13 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Creates a task that eagerly fetches all elements from 
+        /// Creates a task that eagerly fetches all elements from
         /// the table with the given name.
         /// </summary>
         /// <param name="TableName">The table to fetch items from.</param>
         /// <param name="ReadTuple">A function that reads a single tuple.</param>
         public Task<IEnumerable<T>> GetTableAsync<T>(
-            string TableName, 
+            string TableName,
             Func<IDataRecord, T> ReadTuple)
         {
             using (var cmd = sqlite.CreateCommand())
@@ -91,7 +91,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Creates a task that eagerly fetches all elements from 
+        /// Creates a task that eagerly fetches all elements from
         /// the table with the given name. The given key function is
         /// then used to construct a dictionary that maps these keys
         /// to the items they belong to.
@@ -147,7 +147,7 @@ namespace SmartHomeWeb
         {
             return GetTableAsync(MessageTableName, DatabaseHelpers.ReadMessage);
         }
-        
+
         /// <summary>
         /// Creates a task that fetches all measurements in the database.
         /// </summary>
@@ -223,7 +223,7 @@ namespace SmartHomeWeb
             {
                 cmd.CommandText = @"
                   SELECT loc.id, loc.name
-                  FROM HasLocation as hasLoc, Location as loc 
+                  FROM HasLocation as hasLoc, Location as loc
                   WHERE loc.id = hasLoc.locationId AND hasLoc.personId = @id";
                 cmd.Parameters.AddWithValue("@id", Item.Id);
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadLocation);
@@ -258,6 +258,30 @@ namespace SmartHomeWeb
         public Task InsertPersonAsync(IEnumerable<PersonData> Data)
         {
             return Task.WhenAll(Data.Select(InsertPersonAsync));
+        }
+
+        /// <summary>
+        /// Inserts the given location data into the Locations table.
+        /// </summary>
+        /// <param name="Data">The location data to insert into the table.</param>
+        public Task InsertLocationAsync(LocationData Data)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"INSERT INTO {LocationTableName}(name) " +
+                    "VALUES (@name)";
+                cmd.Parameters.AddWithValue("@name", Data.Name);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Inserts all location data in the given list into the Locations table.
+        /// </summary>
+        /// <param name="Data">The list of location data to insert into the table.</param>
+        public Task InsertLocationAsync(IEnumerable<LocationData> Data)
+        {
+            return Task.WhenAll(Data.Select(InsertLocationAsync));
         }
 
         /// <summary>
