@@ -54,7 +54,7 @@ create table Sensor (
 	notes text
 );
 
-create table electricityPrice (
+create table ElectricityPrice (
 	locationId integer not null references Location(id), --One location has one price.
 	--Restriction on users should be done through HasLocation table, no point doing that again here.
 	price real
@@ -71,7 +71,7 @@ create table SensorTag (
 	tagId integer not null references Tag(id)
 );
 
-create table Measurements (
+create table Measurement (
 	sensorId integer not null references Sensor(id),
 	unixtime integer not null, --solves timezone issues etc
 	measured real not null,
@@ -82,7 +82,7 @@ create table Measurements (
 --Adding indexes on (unixtime, sensorId) would probably be useful in these tables, to optimize the other search case.
 --example:
 --	create unique index hourIndex ON hourAverage (unixtime, sensorId)
-create table hourAverage (
+create table HourAverage (
 	sensorId integer not null references Sensor(id),
 	unixtime integer not null, --unix time for the hour, YYYY-MM-DD XX:00:00, where xx in 0-23 (inclusive).
 	average real not null,
@@ -99,7 +99,7 @@ create table hourAverage (
 
 --Day averages are needed seperately because hours don't get the outliers pruned, day does.
 --More than this shouldn't be needed, we can simply grab the records from day table and compute as needed.
-create table dayAverages (
+create table DayAverages (
 	sensorId integer not null references Sensor(id),
 	unixtime integer not null, --unix time for YYYY-MM-DD 00:00. Identifies the day.
 	average real not null,
@@ -111,7 +111,7 @@ create table dayAverages (
 --Adding extra for the longer time periods might be advisable though, to save on computing time.
 --Requires extra storage, but seems reasonable to include yearly, for example.
 
-create table yearAverages (
+create table YearAverages (
 	sensorId integer not null references Sensor(id),
 	unixtime integer not null, --unix time identifying the year; YYYY-01-01 00:00. only YYYY can vary.
 	average real not null,
