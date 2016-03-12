@@ -17,10 +17,10 @@
 @foreach (var p in @Model)
 {
     <tr>
-	    <th>@p.Data.UserName</th>
-	    <td>@p.Data.Name</td>
+        <th>@p.Data.UserName</th>
+        <td>@p.Data.Name</td>
         <td>@p.Data.Birthdate.ToLongDateString()</td>
-	    <td><marquee>@p.Data.Password</marquee></td>
+        <td><marquee>@p.Data.Password</marquee></td>
     </tr>
 }
 </table>

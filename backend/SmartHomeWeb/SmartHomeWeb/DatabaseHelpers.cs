@@ -4,8 +4,8 @@ using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
 {
-	public static class DatabaseHelpers
-	{
+    public static class DatabaseHelpers
+    {
         private static readonly DateTime UnixEpoch =
             new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -44,19 +44,19 @@ namespace SmartHomeWeb
             return ParseUnixTimeStamp(GetInt64(Record, Name));
         }
 
-		/// <summary>
-		/// Reads a person entity from the given record.
-		/// </summary>
-		public static Person ReadPerson(IDataRecord Record)
-		{
-			return new Person(
+        /// <summary>
+        /// Reads a person entity from the given record.
+        /// </summary>
+        public static Person ReadPerson(IDataRecord Record)
+        {
+            return new Person(
                 GetInt32(Record, "id"), 
                 new PersonData(
                     GetString(Record, "username"), GetString(Record, "password"),
                     GetString(Record, "name"), GetDateTime(Record, "birthdate"),
                     GetString(Record, "address"), GetString(Record, "city"), 
                     GetString(Record, "zipcode")));
-		}
+        }
 
         /// <summary>
         /// Reads a message entity from the given record.
@@ -80,34 +80,34 @@ namespace SmartHomeWeb
                 GetFloat64(Record, "measure"), GetString(Record, "notes"));
         }
 
-		/// <summary>
-		/// Reads a location entity from the given record.
-		/// </summary>
-		public static Location ReadLocation(IDataRecord Record)
+        /// <summary>
+        /// Reads a location entity from the given record.
+        /// </summary>
+        public static Location ReadLocation(IDataRecord Record)
         {
-			return new Location(Record.GetInt32(0), new LocationData(Record.GetString(1)));
-		}
+            return new Location(Record.GetInt32(0), new LocationData(Record.GetString(1)));
+        }
 
-		/// <summary>
-		/// Reads a sensor entity from the given record.
-		/// </summary>
-		public static Sensor ReadSensor(IDataRecord Record)
-		{
-			return new Sensor(
-				Record.GetInt32(0), 
-				new SensorData(
-					Record.GetString(1), Record.GetString(2), 
-					Record.GetString(3), Record.GetInt32(4)));
-		}
+        /// <summary>
+        /// Reads a sensor entity from the given record.
+        /// </summary>
+        public static Sensor ReadSensor(IDataRecord Record)
+        {
+            return new Sensor(
+                Record.GetInt32(0), 
+                new SensorData(
+                    Record.GetString(1), Record.GetString(2), 
+                    Record.GetString(3), Record.GetInt32(4)));
+        }
 
-		/// <summary>
-		/// Reads a person-location pair from the given record.
-		/// </summary>
-		/// <returns>The person-location pair.</returns>
-		public static PersonLocationPair ReadPersonLocationPair(IDataRecord Record)
-		{
-			return new PersonLocationPair(Record.GetInt32(0), Record.GetInt32(1));
-		}
-	}
+        /// <summary>
+        /// Reads a person-location pair from the given record.
+        /// </summary>
+        /// <returns>The person-location pair.</returns>
+        public static PersonLocationPair ReadPersonLocationPair(IDataRecord Record)
+        {
+            return new PersonLocationPair(Record.GetInt32(0), Record.GetInt32(1));
+        }
+    }
 }
 
