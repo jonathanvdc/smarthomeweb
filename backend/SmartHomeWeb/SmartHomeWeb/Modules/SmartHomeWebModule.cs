@@ -10,10 +10,7 @@ namespace SmartHomeWeb.Modules
         {
             // StaticConfiguration.EnableHeadRouting = true;
 
-            Get["/", true] = async (parameters, ct) =>
-            {
-                return View["home.cshtml"];
-            };
+            Get["/"] = parameters => View["home.cshtml"];
 
             // Pages for individual tables
             Get["/person", true] = async (parameters, ct) =>
@@ -24,7 +21,7 @@ namespace SmartHomeWeb.Modules
             Get["/location", true] = async (parameters, ct) =>
             {
                 var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
-                return View["Locations.cshtml", locations];
+                return View["locations.cshtml", locations];
             };
             Get["/message", true] = async (parameters, ct) =>
             {
@@ -38,7 +35,7 @@ namespace SmartHomeWeb.Modules
             };
             Get["/measurement", true] = async (parameters, ct) =>
             {
-                var measurements = await DataConnection.Ask(x => x.GetPersonsAsync());
+                var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
                 return View["measurement.cshtml", measurements];
             };
 

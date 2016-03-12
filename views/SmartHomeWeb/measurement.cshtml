@@ -2,11 +2,11 @@
 @using Nancy.Security
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Person>>
+@inherits NancyRazorViewBase<IEnumerable<Measurement>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Measurement (under construction)</h1>
+<h1>Measurement</h1>
 
 @if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
 {
@@ -17,14 +17,10 @@
     @foreach (var p in @Model)
     {
         <tr>
-            <th>@p.Id</th>
-            <th>@p.Data.UserName</th>
-            <td>@p.Data.Name</td>
-            <td>@p.Data.Birthdate.ToLongDateString()</td>
-            <td>@p.Data.Password</td>
-            <td>@p.Data.Address</td>
-            <td>@p.Data.City</td>
-            <td>@p.Data.ZipCode</td>
+            <th>@p.SensorId</th>
+            <th>@p.Time</th>
+            <th>@p.MeasuredData</th>
+            <th>@p.Notes</th>
         </tr>      
 }                  
 </table>
