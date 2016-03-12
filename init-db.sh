@@ -14,5 +14,6 @@ sleep 2
 
 # Post some sample data
 curl -X POST -d @example-files/person-data.json localhost:8088/api/persons
+curl -X POST -d @example-files/location-data.json localhost:8088/api/locations
 
 kill $serverid
