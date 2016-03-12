@@ -1,0 +1,30 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<Person>>
+@*                           ^^^^^^^^^^^^^^^^^^^    *@
+@*                         This is the @Model type  *@
+
+<h1>Measurement (under construction)</h1>
+
+@if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
+{
+    <h2>Logged in as @Html.RenderContext.Context.CurrentUser.UserName.</h2>
+}
+
+<table class="table">
+    @foreach (var p in @Model)
+    {
+        <tr>
+            <th>@p.Id</th>
+            <th>@p.Data.UserName</th>
+            <td>@p.Data.Name</td>
+            <td>@p.Data.Birthdate.ToLongDateString()</td>
+            <td>@p.Data.Password</td>
+            <td>@p.Data.Address</td>
+            <td>@p.Data.City</td>
+            <td>@p.Data.ZipCode</td>
+        </tr>      
+}                  
+</table>

@@ -6,18 +6,25 @@
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Test view</h1>
+<h1>Person</h1>
 
 @if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
 {
     <h2>Logged in as @Html.RenderContext.Context.CurrentUser.UserName.</h2>
 }
 
-
 <table class="table">
-  <td><a href="/person"> Person</a>		</td>    
-  <td><a href="/location"> Location</a>	</td>    
-  <td><a href="/message"> Message</a>	</td>    
-  <td><a href="/sensor"> Sensor</a>		</td>    
-  <td><a href="/measurement"> Measurement</a>		</td>    
-</table>      
+    @foreach (var p in @Model)
+    {
+        <tr>
+            <th>@p.Id</th>
+            <th>@p.Data.UserName</th>
+            <td>@p.Data.Name</td>
+            <td>@p.Data.Birthdate.ToLongDateString()</td>
+            <td>@p.Data.Password</td>
+            <td>@p.Data.Address</td>
+            <td>@p.Data.City</td>
+            <td>@p.Data.ZipCode</td>
+        </tr>      
+}                  
+</table>

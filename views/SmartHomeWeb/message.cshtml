@@ -2,22 +2,25 @@
 @using Nancy.Security
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Person>>
+@inherits NancyRazorViewBase<IEnumerable<Message>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Test view</h1>
+<h1>Message</h1>
 
 @if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
 {
     <h2>Logged in as @Html.RenderContext.Context.CurrentUser.UserName.</h2>
 }
 
-
 <table class="table">
-  <td><a href="/person"> Person</a>		</td>    
-  <td><a href="/location"> Location</a>	</td>    
-  <td><a href="/message"> Message</a>	</td>    
-  <td><a href="/sensor"> Sensor</a>		</td>    
-  <td><a href="/measurement"> Measurement</a>		</td>    
-</table>      
+    @foreach (var p in @Model)
+    {
+        <tr>
+            <th>@p.Id</th>
+            <th>@p.Data.SenderId</th>
+            <td>@p.Data.RecipientId</th>
+            <td>@p.Data.Message</th>
+        </tr>      
+}                  
+</table>

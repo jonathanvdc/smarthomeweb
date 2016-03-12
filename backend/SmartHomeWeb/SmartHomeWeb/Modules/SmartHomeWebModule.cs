@@ -12,8 +12,34 @@ namespace SmartHomeWeb.Modules
 
             Get["/", true] = async (parameters, ct) =>
             {
+                return View["home.cshtml"];
+            };
+
+            // Pages for individual tables
+            Get["/person", true] = async (parameters, ct) =>
+            {
                 var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
-                return View["home.cshtml", persons];
+                return View["person.cshtml", persons];
+            };
+            Get["/location", true] = async (parameters, ct) =>
+            {
+                var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
+                return View["Locations.cshtml", locations];
+            };
+            Get["/message", true] = async (parameters, ct) =>
+            {
+                var messages = await DataConnection.Ask(x => x.GetMessagesAsync());
+                return View["message.cshtml", messages];
+            };
+            Get["/sensor", true] = async (parameters, ct) =>
+            {
+                var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
+                return View["sensor.cshtml", sensors];
+            };
+            Get["/measurement", true] = async (parameters, ct) =>
+            {
+                var measurements = await DataConnection.Ask(x => x.GetPersonsAsync());
+                return View["measurement.cshtml", measurements];
             };
 
             Get["/login"] = _ => View["login.cshtml"];

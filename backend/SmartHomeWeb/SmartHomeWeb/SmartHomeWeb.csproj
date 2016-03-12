@@ -130,8 +130,20 @@
     <None Include="..\..\..\views\SmartHomeWeb\layout.cshtml">
       <Link>View Links\layout.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\locations.cshtml">
+      <Link>View Links\locations.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\login.cshtml">
       <Link>View Links\login.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\measurement.cshtml">
+      <Link>View Links\measurement.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\message.cshtml">
+      <Link>View Links\message.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\sensor.cshtml">
+      <Link>View Links\sensor.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\_ViewStart.cshtml">
       <Link>View Links\_ViewStart.cshtml</Link>
