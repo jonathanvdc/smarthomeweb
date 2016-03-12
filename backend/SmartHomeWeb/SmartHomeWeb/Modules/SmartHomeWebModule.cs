@@ -1,14 +1,10 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
-using SmartHomeWeb.Model;
+using System;
 using Nancy;
 using Nancy.Authentication.Forms;
 
 namespace SmartHomeWeb.Modules
 {
-    public class SmartHomeWebModule : Nancy.NancyModule
+    public class SmartHomeWebModule : NancyModule
     {
         public SmartHomeWebModule()
         {
@@ -29,11 +25,14 @@ namespace SmartHomeWeb.Modules
                 UserIdentity user;
 
                 return SecureModule.FindUser(name, pass, out user)
-                    ? this.LoginAndRedirect(user.Guid, System.DateTime.Now.AddYears(1), "/")
+                    ? this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/")
                     : Response.AsRedirect("/nopass");
             };
-            Get["/logout"] = parameter => ComingSoonPage; //No implementation yet.
-            Get["/nopass"] = parameter => NotAuthorizedPage; //self explanatory.
+            Get["/logout"] = parameter => ComingSoonPage;
+            Get["/nopass"] = parameter => {
+                Console.WriteLine("nopass");
+                return NotAuthorizedPage;
+            };
         }
         public static string ErrorPage => @"
                 <html>

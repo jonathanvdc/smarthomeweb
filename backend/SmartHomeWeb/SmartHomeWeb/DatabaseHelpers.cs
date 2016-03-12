@@ -1,8 +1,6 @@
 ﻿using System;
-using SmartHomeWeb.Model;
 using System.Data;
-using System.Linq.Expressions;
-using System.Collections.Generic;
+using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
 {

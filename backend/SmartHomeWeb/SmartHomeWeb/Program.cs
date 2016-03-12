@@ -4,7 +4,9 @@ using System.IO;
 using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.Diagnostics;
+using Nancy.Hosting.Self;
 using Nancy.TinyIoc;
+using Nancy.ViewEngines.Razor;
 
 namespace SmartHomeWeb
 {
@@ -14,7 +16,7 @@ namespace SmartHomeWeb
 
         static void Main(string[] args)
         {
-            var nancyHost = new Nancy.Hosting.Self.NancyHost(new Uri(Domain), new Bootstrapper());
+            var nancyHost = new NancyHost(new Uri(Domain), new Bootstrapper());
             nancyHost.Start();
             Console.WriteLine("Running from: " + Directory.GetCurrentDirectory());
             while (true)
@@ -45,7 +47,7 @@ namespace SmartHomeWeb
     }
 
     // We also want our views to know about the assembly containing our model.
-    public class RazorConfig : Nancy.ViewEngines.Razor.IRazorConfiguration
+    public class RazorConfig : IRazorConfiguration
     {
         public IEnumerable<string> GetAssemblyNames()
         {

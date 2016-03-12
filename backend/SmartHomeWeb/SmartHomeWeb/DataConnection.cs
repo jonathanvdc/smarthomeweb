@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Mono.Data.Sqlite;
 using System.Threading.Tasks;
+using Mono.Data.Sqlite;
 using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
@@ -34,7 +34,6 @@ namespace SmartHomeWeb
 		{
             var result = new DataConnection();
 		    await result.sqlite.OpenAsync();
-		    await Console.Out.WriteLineAsync("Opened database.");
 		    return result;
 		}
 
@@ -99,9 +98,11 @@ namespace SmartHomeWeb
 		/// <param name="TableName">The table to fetch items from.</param>
 		/// <param name="GetKey">A function that extracts primary keys from tuples.</param>
 		public async Task<IReadOnlyDictionary<TKey, TItem>> GetTableMapAsync<TItem, TKey>(
-			string TableName, Func<IDataRecord, TItem> ReadTuple, Func<TItem, TKey> GetKey)
+			string TableName,
+            Func<IDataRecord, TItem> ReadTuple,
+            Func<TItem, TKey> GetKey)
 		{
-			var items = await GetTableAsync<TItem>(TableName, ReadTuple);
+			var items = await GetTableAsync(TableName, ReadTuple);
 			return items.ToDictionary(GetKey);
 		}
 
@@ -110,7 +111,7 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<IEnumerable<Person>> GetPersonsAsync()
         {
-            return GetTableAsync<Person>(PersonTableName, DatabaseHelpers.ReadPerson);
+            return GetTableAsync(PersonTableName, DatabaseHelpers.ReadPerson);
         }
 
         /// <summary>
@@ -118,7 +119,7 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<IEnumerable<Location>> GetLocationsAsync()
 		{
-			return GetTableAsync<Location>(LocationTableName, DatabaseHelpers.ReadLocation);
+			return GetTableAsync(LocationTableName, DatabaseHelpers.ReadLocation);
 		}
 
 		/// <summary>
@@ -127,7 +128,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<PersonLocationPair>> GetHasLocationPairsAsync()
 		{
-			return GetTableAsync<PersonLocationPair>(HasLocationTableName, DatabaseHelpers.ReadPersonLocationPair);
+			return GetTableAsync(HasLocationTableName, DatabaseHelpers.ReadPersonLocationPair);
 		}
 
 		/// <summary>
@@ -135,7 +136,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<IEnumerable<Sensor>> GetSensorsAsync()
 		{
-			return GetTableAsync<Sensor>(SensorTableName, DatabaseHelpers.ReadSensor);
+			return GetTableAsync(SensorTableName, DatabaseHelpers.ReadSensor);
 		}
 
         /// <summary>
@@ -143,14 +144,18 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<IEnumerable<Message>> GetMessagesAsync()
         {
-            return GetTableAsync<Message>(MessageTableName, DatabaseHelpers.ReadMessage);
+            return GetTableAsync(MessageTableName, DatabaseHelpers.ReadMessage);
         }
 
         /// <summary>
         /// Creates a task that fetches a single row from the database, by
         /// looking up one of its keys.
         /// </summary>
-        public Task<TItem> GetSingleByKeyAsync<TKey, TItem>(string TableName, string KeyName, TKey KeyValue, Func<IDataRecord, TItem> ReadTuple)
+        public Task<TItem> GetSingleByKeyAsync<TKey, TItem>(
+            string TableName,
+            string KeyName,
+            TKey KeyValue,
+            Func<IDataRecord, TItem> ReadTuple)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -178,28 +183,25 @@ namespace SmartHomeWeb
 		public async Task<IReadOnlyDictionary<Person, IReadOnlyList<Location>>> GetPersonToLocationsMapAsync()
 		{
 			// First, retrieve all locations, persons and person-location pairs.
-			var locTask = GetTableMapAsync<Location, int>(LocationTableName, DatabaseHelpers.ReadLocation, item => item.Id);
-			var personTask = GetTableMapAsync<Person, int>(PersonTableName, DatabaseHelpers.ReadPerson, item => item.Id);
-			var pairs = await GetHasLocationPairsAsync();
-			var locs = await locTask;
-			var persons = await personTask;
+            var locations = await GetTableMapAsync(LocationTableName, DatabaseHelpers.ReadLocation, l => l.Id);
+            var persons = await GetTableMapAsync(PersonTableName, DatabaseHelpers.ReadPerson, p => p.Id);
+            var pairs = await GetHasLocationPairsAsync();
 
-			// Then construct a dictionary.
+            // Then construct a dictionary.
 			var results = new Dictionary<Person, IReadOnlyList<Location>>();
-			foreach (var person in persons.Values)
+            foreach (var person in persons.Values)
+            {
+                // Create one location list per person.
+                results[person] = new List<Location>();
+            }
+            foreach (var pair in pairs)
 			{
-				// Create one location list per person.
-				results[person] = new List<Location>();
-			}
-			foreach (var pair in pairs)
-			{
-				// Convert every person-location pair to a location
-				// list item.
+				// Convert every person-location pair to a location list item.
 				var list = (List<Location>)results[persons[pair.PersonId]];
-				list.Add(locs[pair.LocationId]);
+				list.Add(locations[pair.LocationId]);
 			}
 
-			return results;
+            return results;
 		}
 
 		/// <summary>
@@ -249,12 +251,10 @@ namespace SmartHomeWeb
             return Task.WhenAll(Data.Select(InsertPersonAsync));
         }
 
-
-        public void Dispose()
-        {
-            Console.WriteLine("Closed database.");
-            sqlite.Close();
-        }
+        /// <summary>
+        /// Close the database connection.
+        /// </summary>
+        public void Dispose() => sqlite.Close();
 
         /// <summary>
 		/// Open a database connection, perform a single operation, and close it,
@@ -263,10 +263,7 @@ namespace SmartHomeWeb
 		public static async Task<T> Ask<T>(Func<DataConnection, Task<T>> operation)
         {
             using (var dc = await CreateAsync())
-            {
-                await Console.Out.WriteLineAsync("Doing the thing.");
                 return await operation(dc);
-            }
         }
 
         /// <summary>

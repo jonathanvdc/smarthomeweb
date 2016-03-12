@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Nancy.Security;
-using Nancy.Authentication.Forms;
 using Nancy;
+using Nancy.Authentication.Forms;
+using Nancy.Security;
 using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb.Modules
@@ -59,7 +59,7 @@ namespace SmartHomeWeb.Modules
             Guid = new Guid(bytes);
         }
     }
-    
+
     public class SecureModule : NancyModule
     {
         private static UserMapper UM = new UserMapper();
@@ -80,11 +80,13 @@ namespace SmartHomeWeb.Modules
                 return s;
             };
 
-            var persons = DataConnection.Ask(dc => dc.GetPersonsAsync()).Result;
-            foreach (var p in persons)
-            {
-                UM.AddUser(p);
-            }
+            Get["/test"] = parameters => "test?";
+
+            // var persons = DataConnection.Ask(dc => dc.GetPersonsAsync()).Result;
+            // foreach (var p in persons)
+            // {
+            //     UM.AddUser(p);
+            // }
         }
 
         public static bool FindUser(string userName, string password, out UserIdentity userIdentity)

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Nancy;
 using Newtonsoft.Json;
 
 namespace SmartHomeWeb.Modules.API
 {
 
-    public abstract class ApiModule : Nancy.NancyModule
+    public abstract class ApiModule : NancyModule
     {
         protected ApiModule(string modulePath) : base(modulePath) { }
 
@@ -32,10 +33,10 @@ namespace SmartHomeWeb.Modules.API
                 var json = JsonConvert.SerializeObject(result);
 
                 var statusCode = result == null
-                    ? Nancy.HttpStatusCode.NotFound
-                    : Nancy.HttpStatusCode.Accepted;
+                    ? HttpStatusCode.NotFound
+                    : HttpStatusCode.Accepted;
 
-                Nancy.Response response = json;
+                Response response = json;
                 response.ContentType = "application/json";
                 response.StatusCode = statusCode;
                 return response;
