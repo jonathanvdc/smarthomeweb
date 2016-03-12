@@ -10,7 +10,7 @@ popd
 mono ./backend/SmartHomeWeb/SmartHomeWeb/bin/Release/SmartHomeWeb.exe &
 serverid=$!
 
-sleep 1
+sleep 2
 
 # Post some sample data
 curl -X POST -d @example-files/personData.json localhost:8088/api/persons

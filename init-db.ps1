@@ -5,7 +5,7 @@ popd
 
 $app = Start-Process ./backend/SmartHomeWeb/SmartHomeWeb/bin/Release/SmartHomeWeb.exe -passthru
 
-Start-Sleep -s 1
+Start-Sleep -s 3
 $body = Get-Content ./example-files/personData.json
 Invoke-WebRequest -Uri http://localhost:8088/api/persons -Method POST -Body $body
 
