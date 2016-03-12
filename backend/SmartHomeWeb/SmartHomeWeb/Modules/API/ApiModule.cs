@@ -56,25 +56,26 @@ namespace SmartHomeWeb.Modules.API
             Get[path, true] = Ask(operation);
         }
 
-        protected Func<dynamic, CancellationToken, Task<dynamic>> Recieve<T>(
-            Func<dynamic, T, DataConnection, Task> operation)
+        protected Func<dynamic, CancellationToken, Task<dynamic>> Recieve<T, TParam>(
+            Func<TParam, T, DataConnection, Task> operation)
         {
             return async (arg, ct) =>
             {
+                var a = (TParam)arg;
                 using (var textReader = new StreamReader(Request.Body))
                 {
                     string data = await textReader.ReadToEndAsync();
                     var item = JsonConvert.DeserializeObject<T>(data);
-                    await DataConnection.Ask(dc => operation(arg, item, dc));
+                    await DataConnection.Ask(dc => operation(a, item, dc));
                     return HttpStatusCode.Created;
                 }
             };
         }
 
-        protected void ApiPost<T>(
-            string path, Func<dynamic, T, DataConnection, Task> operation)
+        protected void ApiPost<T, TParam>(
+            string path, Func<TParam, T, DataConnection, Task> operation)
         {
-            Post[path, true] = Recieve<T>(operation);
+            Post[path, true] = Recieve<T, TParam>(operation);
         }
     }
 }
