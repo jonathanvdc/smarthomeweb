@@ -14,7 +14,7 @@ namespace SmartHomeWeb.Modules.API
             ApiGet("/", (_, dc) => dc.GetPersonsAsync());
             ApiGet("/{id}/", (p, dc) => dc.GetPersonByIdAsync((int)p["id"]));
 
-            ApiPost<List<PersonData>, Object>("/", (_, items, dc) => dc.InsertPersonAsync(items));
+            ApiPost<List<PersonData>, object>("/", (_, items, dc) => dc.InsertPersonAsync(items));
         }
     }
 }
