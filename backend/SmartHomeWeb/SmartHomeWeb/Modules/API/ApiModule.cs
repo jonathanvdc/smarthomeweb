@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nancy;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace SmartHomeWeb.Modules.API
 {
@@ -24,7 +25,7 @@ namespace SmartHomeWeb.Modules.API
         /// <typeparam name="T">The query's result type.</typeparam>
         /// <param name="operation">The operation to wrap around.</param>
         /// <returns>A route handler.</returns>
-        protected static Func<dynamic, CancellationToken, Task<dynamic>> Ask<T>(
+        public static Func<dynamic, CancellationToken, Task<dynamic>> Ask<T>(
             Func<dynamic, DataConnection, Task<T>> operation)
         {
             return async (parameters, ct) =>
@@ -55,6 +56,25 @@ namespace SmartHomeWeb.Modules.API
             Get[path, true] = Ask(operation);
         }
 
+        protected Func<dynamic, CancellationToken, Task<dynamic>> Recieve<T>(
+            Func<dynamic, T, DataConnection, Task> operation)
+        {
+            return async (arg, ct) =>
+            {
+                using (var textReader = new StreamReader(Request.Body))
+                {
+                    string data = await textReader.ReadToEndAsync();
+                    var item = JsonConvert.DeserializeObject<T>(data);
+                    await DataConnection.Ask(dc => operation(arg, item, dc));
+                    return HttpStatusCode.Created;
+                }
+            };
+        }
 
+        protected void ApiPost<T>(
+            string path, Func<dynamic, T, DataConnection, Task> operation)
+        {
+            Post[path, true] = Recieve<T>(operation);
+        }
     }
 }
