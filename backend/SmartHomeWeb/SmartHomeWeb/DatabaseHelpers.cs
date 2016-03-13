@@ -94,10 +94,10 @@ namespace SmartHomeWeb
         public static Sensor ReadSensor(IDataRecord Record)
         {
             return new Sensor(
-                Record.GetInt32(0), 
+                GetInt32(Record, "id"), 
                 new SensorData(
-                    Record.GetString(1), Record.GetString(2), 
-                    Record.GetString(3), Record.GetInt32(4)));
+                    GetString(Record, "title"), GetString(Record, "description"), 
+                    GetString(Record, "notes"), GetInt32(Record, "locationid")));
         }
 
         /// <summary>
