@@ -32,15 +32,15 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the time at which this measurement was made.
         /// </summary>
-        [JsonProperty("unixtime", Required = Required.Always)]
+        [JsonProperty("timestamp", Required = Required.Always)]
         public DateTime Time { get; private set; }
 
         /// <summary>
         /// Gets the measurement's data.
         /// </summary>
-        [JsonProperty("measure", Required = Required.Always)]
+        [JsonProperty("measurement", Required = Required.Always)]
         public double MeasuredData { get; private set; }
-
+ 
         /// <summary>
         /// Gets an optional note or remark that relates
         /// to this measurement. 

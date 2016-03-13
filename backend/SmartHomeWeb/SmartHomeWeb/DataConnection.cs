@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mono.Data.Sqlite;
 using SmartHomeWeb.Model;
+using System.Text;
 
 namespace SmartHomeWeb
 {
@@ -158,6 +159,41 @@ namespace SmartHomeWeb
 
         /// <summary>
         /// Creates a task that fetches a single row from the database, by
+        /// looking up all of its keys.
+        /// </summary>
+        public Task<TItem> GetSingleByKeyAsync<TItem>(
+            string TableName,
+            IReadOnlyDictionary<string, object> KeyValues,
+            Func<IDataRecord, TItem> ReadTuple)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                // Write SQL code for 
+                //    SELECT * FROM {TableName} WHERE k1 = @v1 AND k2 = @v2 AND ... AND kn = @vn LIMIT 1
+
+                var sql = new StringBuilder();
+                sql.Append($"SELECT * FROM {TableName} WHERE ");
+                int i = 0;
+                foreach (var pair in KeyValues)
+                {
+                    if (i > 0)
+                        sql.Append("AND ");
+                    sql.Append(pair.Key);
+                    sql.Append(" = ");
+                    sql.Append("@v" + i);
+                    cmd.Parameters.AddWithValue("@v" + i, pair.Value);
+                    sql.Append(" ");
+                    i++;
+                }
+                sql.Append("LIMIT 1");
+
+                cmd.CommandText = sql.ToString();
+                return ExecuteCommandSingleAsync(cmd, ReadTuple);
+            }
+        }
+
+        /// <summary>
+        /// Creates a task that fetches a single row from the database, by
         /// looking up one of its keys.
         /// </summary>
         public Task<TItem> GetSingleByKeyAsync<TKey, TItem>(
@@ -191,6 +227,25 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<Sensor> GetSensorByIdAsync(int id) =>
             GetSingleByKeyAsync(SensorTableName, "id", id, DatabaseHelpers.ReadSensor);
+
+        /// <summary>
+        /// Creates a task that fetches a single measurement from the database.
+        /// </summary>
+        public Task<Measurement> GetMeasurementAsync(int sensorId, long timestamp)
+        {
+            var keys = new Dictionary<string, object>();
+            keys["sensorId"] = sensorId;
+            keys["unixtime"] = timestamp;
+            return GetSingleByKeyAsync(MeasurementTableName, keys, DatabaseHelpers.ReadMeasurement);
+        }
+
+        /// <summary>
+        /// Creates a task that fetches a single measurement from the database.
+        /// </summary>
+        public Task<Measurement> GetMeasurementAsync(int sensorId, DateTime timestamp)
+        {
+            return GetMeasurementAsync(sensorId, DatabaseHelpers.CreateUnixTimeStamp(timestamp));
+        }
 
         /// <summary>
         /// Creates a dictionary maps persons to their associated locations.
@@ -291,7 +346,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Inserts the given sensor data into the Locations table.
+        /// Inserts the given sensor data into the Sensor table.
         /// </summary>
         /// <param name="Data">The sensor data to insert into the table.</param>
         public Task InsertSensorAsync(SensorData Data)
@@ -309,12 +364,39 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Inserts all sensor data in the given list into the Locations table.
+        /// Inserts all sensor data in the given list into the Sensor table.
         /// </summary>
         /// <param name="Data">The list of sensor data to insert into the table.</param>
         public Task InsertSensorAsync(IEnumerable<SensorData> Data)
         {
             return Task.WhenAll(Data.Select(InsertSensorAsync));
+        }
+
+        /// <summary>
+        /// Inserts the given measurement into the Measurement table.
+        /// </summary>
+        /// <param name="Data">The measurement to insert into the table.</param>
+        public Task InsertMeasurementAsync(Measurement Data)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"INSERT INTO {MeasurementTableName}(sensorId, unixtime, measured, notes) " +
+                    "VALUES (@sensorId, @unixtime, @measured, @notes)";
+                cmd.Parameters.AddWithValue("@sensorId", Data.SensorId);
+                cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Data.Time));
+                cmd.Parameters.AddWithValue("@measured", Data.MeasuredData);
+                cmd.Parameters.AddWithValue("@notes", Data.Notes);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Inserts all measurements in the given list into the Measurement table.
+        /// </summary>
+        /// <param name="Data">The list of measurements to insert into the table.</param>
+        public Task InsertMeasurementAsync(IEnumerable<Measurement> Data)
+        {
+            return Task.WhenAll(Data.Select(InsertMeasurementAsync));
         }
 
         /// <summary>

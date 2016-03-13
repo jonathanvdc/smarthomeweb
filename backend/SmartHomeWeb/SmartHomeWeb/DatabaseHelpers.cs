@@ -16,12 +16,16 @@ namespace SmartHomeWeb
 
         public static long CreateUnixTimeStamp(DateTime Time)
         {
-            return (long)(DateTime.UtcNow - UnixEpoch).TotalSeconds;
+            return (long)(Time - UnixEpoch).TotalSeconds;
         }
 
         public static string GetString(IDataRecord Record, string Name)
         {
-            return Record.GetString(Record.GetOrdinal(Name));
+            int fieldIndex = Record.GetOrdinal(Name);
+            if (Record.IsDBNull(fieldIndex))
+                return null;
+            else
+                return Record.GetString(fieldIndex);
         }
 
         public static int GetInt32(IDataRecord Record, string Name)
@@ -77,7 +81,7 @@ namespace SmartHomeWeb
         {
             return new Measurement(
                 GetInt32(Record, "sensorId"), GetDateTime(Record, "unixtime"),
-                GetFloat64(Record, "measure"), GetString(Record, "notes"));
+                GetFloat64(Record, "measured"), GetString(Record, "notes"));
         }
 
         /// <summary>
