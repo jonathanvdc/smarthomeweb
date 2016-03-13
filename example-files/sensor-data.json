@@ -6,7 +6,7 @@
         "notes" : ""
     },
     {
-        "name" : "Hair dryer",
+        "name" : "Hairdryer",
         "locationId" : 1,
         "description" : "",
         "notes" : ""
@@ -14,7 +14,6 @@
     {
         "name" : "Hot tub",
         "locationId" : 1,
-        "description" : "",
-        "notes" : ""
+        "description" : ""
     }
 ]
