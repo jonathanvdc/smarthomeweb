@@ -187,6 +187,12 @@ namespace SmartHomeWeb
             GetSingleByKeyAsync(LocationTableName, "id", id, DatabaseHelpers.ReadLocation);
 
         /// <summary>
+        /// Creates a task that fetches a single sensor from the database.
+        /// </summary>
+        public Task<Sensor> GetSensorByIdAsync(int id) =>
+            GetSingleByKeyAsync(SensorTableName, "id", id, DatabaseHelpers.ReadSensor);
+
+        /// <summary>
         /// Creates a dictionary maps persons to their associated locations.
         /// </summary>
         public async Task<IReadOnlyDictionary<Person, IReadOnlyList<Location>>> GetPersonToLocationsMapAsync()
@@ -282,6 +288,33 @@ namespace SmartHomeWeb
         public Task InsertLocationAsync(IEnumerable<LocationData> Data)
         {
             return Task.WhenAll(Data.Select(InsertLocationAsync));
+        }
+
+        /// <summary>
+        /// Inserts the given sensor data into the Locations table.
+        /// </summary>
+        /// <param name="Data">The sensor data to insert into the table.</param>
+        public Task InsertSensorAsync(SensorData Data)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"INSERT INTO {SensorTableName}(locationid, title, description, notes) " +
+                    "VALUES (@locationid, @title, @description, @notes)";
+                cmd.Parameters.AddWithValue("@locationid", Data.LocationId);
+                cmd.Parameters.AddWithValue("@title", Data.Name);
+                cmd.Parameters.AddWithValue("@description", Data.Description);
+                cmd.Parameters.AddWithValue("@notes", Data.Notes);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Inserts all sensor data in the given list into the Locations table.
+        /// </summary>
+        /// <param name="Data">The list of sensor data to insert into the table.</param>
+        public Task InsertSensorAsync(IEnumerable<SensorData> Data)
+        {
+            return Task.WhenAll(Data.Select(InsertSensorAsync));
         }
 
         /// <summary>
