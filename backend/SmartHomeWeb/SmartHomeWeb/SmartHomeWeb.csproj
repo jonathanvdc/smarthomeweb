@@ -115,6 +115,7 @@
   <ItemGroup>
     <Compile Include="DataConnection.cs" />
     <Compile Include="Modules\API\ApiLocationsModule.cs" />
+    <Compile Include="Modules\API\ApiMessagesModule.cs" />
     <Compile Include="Modules\API\ApiModule.cs" />
     <Compile Include="Modules\API\ApiPersonsModule.cs" />
     <Compile Include="Modules\SecureModule.cs" />

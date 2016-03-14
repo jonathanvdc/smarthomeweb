@@ -400,6 +400,32 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Inserts the given messaeg  into the Message table.
+        /// </summary>
+        /// <param name="Data">The message to insert into the table.</param>
+        public Task InsertMessageAsync(MessageData Data)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"INSERT INTO {MessageTableName}(sender, recipient, message) " +
+                    "VALUES (@usender, @recipient, @message)";
+                cmd.Parameters.AddWithValue("@usender", Data.SenderId);
+                cmd.Parameters.AddWithValue("@recipient", Data.RecipientId);
+                cmd.Parameters.AddWithValue("@message", Data.Message);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Inserts all messages in the given list into the Message table.
+        /// </summary>
+        /// <param name="Data">The list of messages to insert into the table.</param>
+        public Task InsertMessageAsync(IEnumerable<MessageData> Data)
+        {
+            return Task.WhenAll(Data.Select(InsertMessageAsync));
+        }
+
+        /// <summary>
         /// Close the database connection.
         /// </summary>
         public void Dispose() => sqlite.Close();
