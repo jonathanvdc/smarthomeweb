@@ -229,6 +229,12 @@ namespace SmartHomeWeb
             GetSingleByKeyAsync(SensorTableName, "id", id, DatabaseHelpers.ReadSensor);
 
         /// <summary>
+        /// Creates a task that fetches a single message from the database.
+        /// </summary>
+        public Task<Message> GetMessageByIdAsync(int id) =>
+            GetSingleByKeyAsync(MessageTableName, "id", id, DatabaseHelpers.ReadMessage);
+
+        /// <summary>
         /// Creates a task that fetches a single measurement from the database.
         /// </summary>
         public Task<Measurement> GetMeasurementAsync(int sensorId, long timestamp)
