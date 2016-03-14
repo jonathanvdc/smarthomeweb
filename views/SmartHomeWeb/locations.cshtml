@@ -14,10 +14,15 @@
 }
 
 <table class="table">
+
+        <tr class="tableHeader">
+            <th>Name</th>
+        </tr>
+		
     @foreach (var p in @Model)
     {
         <tr>
-            <th>@p.Data.Name</th>
+            <td>@p.Data.Name</td>
         </tr>
     }
 </table>
