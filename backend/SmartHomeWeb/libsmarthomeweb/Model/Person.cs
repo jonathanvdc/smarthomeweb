@@ -12,22 +12,22 @@ namespace SmartHomeWeb.Model
 		private Person()
 		{ }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="SmartHomeWeb.Model.Person"/> class.
-		/// </summary>
-		/// <param name="Id">The person's unique identifier.</param>
-		/// <param name="Data">A data structure that describes the person.</param>
-		public Person(int Id, PersonData Data)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SmartHomeWeb.Model.Person"/> class.
+        /// </summary>
+        /// <param name="Guid">The person's globally unique identifier.</param>
+        /// <param name="Data">A data structure that describes the person.</param>
+        public Person(Guid Guid, PersonData Data)
 		{ 
-			this.Id = Id;
+			this.Guid = Guid;
 			this.Data = Data;
 		}
 
 		/// <summary>
-		/// Gets the person's unique identifier.
+		/// Gets the person's globally unique identifier.
 		/// </summary>
-		[JsonProperty("id")]
-		public int Id { get; private set; }
+		[JsonProperty("guid")]
+		public Guid Guid { get; private set; }
 
 		/// <summary>
 		/// Gets the person's data.
@@ -37,12 +37,12 @@ namespace SmartHomeWeb.Model
 
 		public bool Equals(Person Other)
 		{
-			return Id == Other.Id;
+			return Guid == Other.Guid;
 		}
 
 		public override int GetHashCode()
 		{
-			return Id.GetHashCode();
+			return Guid.GetHashCode();
 		}
 
 		public override bool Equals(object obj)

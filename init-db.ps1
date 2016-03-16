@@ -1,6 +1,6 @@
 # Create the database
 pushd backend/database
-cmd /R create-db.bat
+./create-db.ps1
 popd
 
 $app = Start-Process ./backend/SmartHomeWeb/SmartHomeWeb/bin/Release/SmartHomeWeb.exe -passthru

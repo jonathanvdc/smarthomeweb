@@ -1,16 +1,21 @@
 using System;
 using Nancy;
 using Nancy.Authentication.Forms;
+using Nancy.Security;
 
 namespace SmartHomeWeb.Modules
 {
     public class SmartHomeWebModule : NancyModule
     {
-        public SmartHomeWebModule()
+        public SmartHomeWebModule(IFindUserMapper userMapper)
         {
             // StaticConfiguration.EnableHeadRouting = true;
-
-            Get["/"] = parameters => View["home.cshtml"];
+            
+            Get["/"] = parameters =>
+            {
+                Console.WriteLine($"Logged in as {(Context.CurrentUser == null ? "nobody" : Context.CurrentUser.UserName)}");
+                return View["home.cshtml"];
+            };
 
             // Pages for individual tables
             Get["/person", true] = async (parameters, ct) =>
@@ -41,15 +46,21 @@ namespace SmartHomeWeb.Modules
 
             Get["/login"] = _ => View["login.cshtml"];
 
-            Post["/login"] = parameter => //Process the post on /login
+            Post["/login"] = parameter =>
             {
                 string name = Request.Form.username;
                 string pass = Request.Form.password;
                 UserIdentity user;
 
-                return SecureModule.FindUser(name, pass, out user)
-                    ? this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/")
-                    : Response.AsRedirect("/nopass");
+                if (userMapper.FindUser(name, pass, out user))
+                {
+                    Console.WriteLine("Found user: " + user.Guid);
+                    return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/");
+                }
+                else
+                {
+                    return Response.AsRedirect("/nopass");
+                }
             };
             Get["/logout"] = parameter => ComingSoonPage;
             Get["/nopass"] = parameter => {

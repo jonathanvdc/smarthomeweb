@@ -14,17 +14,17 @@ namespace SmartHomeWeb.Model
 		{
 		}
 
-		public PersonLocationPair(int PersonId, int LocationId)
+		public PersonLocationPair(Guid PersonGuid, int LocationId)
 		{
-			this.PersonId = PersonId;
+			this.PersonGuid = PersonGuid;
 			this.LocationId = LocationId;
 		}
 
 		/// <summary>
 		/// Gets the person's unique identifier.
 		/// </summary>
-		[JsonProperty("personId")]
-		public int PersonId { get; private set; }
+		[JsonProperty("personGuid")]
+		public Guid PersonGuid { get; private set; }
 
 		/// <summary>
 		/// Gets the location's unique identifier.

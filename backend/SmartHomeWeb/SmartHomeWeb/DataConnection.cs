@@ -206,6 +206,8 @@ namespace SmartHomeWeb
             {
                 cmd.CommandText = $"SELECT * FROM {TableName} WHERE {KeyName} = @v LIMIT 1";
                 cmd.Parameters.AddWithValue("@v", KeyValue);
+                Console.WriteLine(cmd.CommandText);
+                Console.WriteLine(KeyValue);
                 return ExecuteCommandSingleAsync(cmd, ReadTuple);
             }
         }
@@ -213,8 +215,8 @@ namespace SmartHomeWeb
         /// <summary>
         /// Creates a task that fetches a single person from the database.
         /// </summary>
-        public Task<Person> GetPersonByIdAsync(int id) =>
-            GetSingleByKeyAsync(PersonTableName, "id", id, DatabaseHelpers.ReadPerson);
+        public Task<Person> GetPersonByGuidAsync(Guid id) =>
+            GetSingleByKeyAsync(PersonTableName, "guid", id.ToString(), DatabaseHelpers.ReadPerson);
 
         /// <summary>
         /// Creates a task that fetches a single location from the database.
@@ -260,7 +262,7 @@ namespace SmartHomeWeb
         {
             // First, retrieve all locations, persons and person-location pairs.
             var locations = await GetTableMapAsync(LocationTableName, DatabaseHelpers.ReadLocation, l => l.Id);
-            var persons = await GetTableMapAsync(PersonTableName, DatabaseHelpers.ReadPerson, p => p.Id);
+            var persons = await GetTableMapAsync(PersonTableName, DatabaseHelpers.ReadPerson, p => p.Guid);
             var pairs = await GetHasLocationPairsAsync();
 
             // Then construct a dictionary.
@@ -273,7 +275,7 @@ namespace SmartHomeWeb
             foreach (var pair in pairs)
             {
                 // Convert every person-location pair to a location list item.
-                var list = (List<Location>)results[persons[pair.PersonId]];
+                var list = (List<Location>)results[persons[pair.PersonGuid]];
                 list.Add(locations[pair.LocationId]);
             }
 
@@ -291,8 +293,8 @@ namespace SmartHomeWeb
                 cmd.CommandText = @"
                   SELECT loc.id, loc.name
                   FROM HasLocation as hasLoc, Location as loc
-                  WHERE loc.id = hasLoc.locationId AND hasLoc.personId = @id";
-                cmd.Parameters.AddWithValue("@id", Item.Id);
+                  WHERE loc.id = hasLoc.locationId AND hasLoc.personGuid = @guid";
+                cmd.Parameters.AddWithValue("@guid", Item.Guid);
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadLocation);
             }
         }
@@ -305,8 +307,9 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"INSERT INTO {PersonTableName}(username, name, password, birthdate, address, city, zipcode) " +
-                    "VALUES (@username, @name, @password, @birthdate, @address, @city, @zipcode)";
+                cmd.CommandText = $"INSERT INTO {PersonTableName}(guid, username, name, password, birthdate, address, city, zipcode) " +
+                    "VALUES (@guid, @username, @name, @password, @birthdate, @address, @city, @zipcode)";
+                cmd.Parameters.AddWithValue("@guid", Guid.NewGuid().ToString());
                 cmd.Parameters.AddWithValue("@username", Data.UserName);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
                 cmd.Parameters.AddWithValue("@password", Data.Password);
