@@ -56,6 +56,12 @@ namespace SmartHomeWeb.Modules
                 Console.WriteLine("nopass");
                 return NotAuthorizedPage;
             };
+
+            Get["/graphing", true] = async (parameters, ct) =>
+            {
+                var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
+                return View["graph.cshtml", measurements];
+            };
         }
         public static string ErrorPage => @"
                 <html>

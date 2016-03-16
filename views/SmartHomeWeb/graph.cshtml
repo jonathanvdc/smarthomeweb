@@ -1,0 +1,82 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<Measurement>>
+@*                           ^^^^^^^^^^^^^^^^^^^    *@
+@*                         This is the @Model type  *@
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		var data;
+		var chart;
+		google.charts.load('current', {packages: ['corechart']});
+		google.charts.setOnLoadCallback(drawChart);
+		function drawChart() {
+      // Create our data table.
+		data = new google.visualization.DataTable();
+
+		
+	    var rows = new Array();
+		@foreach (var p in @Model){
+			@: rows.push(['@p.Time', Number(@p.MeasuredData)]);
+		}
+		alert(rows);
+		
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+		data.addRows(rows);
+		
+		// Set chart options
+        var options = {'title':'Measurements',
+                       'width':800,
+                       'height':500};
+					   
+		// Instantiate and draw the chart.
+		chart = new google.visualization.ColumnChart(document.getElementById('myPieChart'));
+		google.visualization.events.addListener(chart, 'select', selectHandler);
+		chart.draw(data, options);
+		}
+		
+		function selectHandler(e) {
+			var selectedItem = chart.getSelection()[0];
+			alert('The user selected ' + data.getValue(selectedItem.row, 0));
+        }
+	</script>
+  </head>
+  <body>
+
+
+<h1>Measurement</h1>
+
+@if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
+{
+    <h2>Logged in as @Html.RenderContext.Context.CurrentUser.UserName.</h2>
+}
+else
+{
+	<h2>Not Logged In</h2>
+}
+
+<table class="table">
+
+        <tr class="tableHeader">
+            <th>ID</th>
+            <th>Time</th>
+            <th>Data</th>
+            <th>Notes</th>
+        </tr>      
+		
+    @foreach (var p in @Model)
+    {
+        <tr>
+            <th>@p.SensorId</th>
+            <td>@p.Time</td>
+            <td>@p.MeasuredData</td>
+            <td>@p.Notes</td>
+        </tr>      
+}                  
+</table>
+
+  <div id="myPieChart"/>
+ </body>
