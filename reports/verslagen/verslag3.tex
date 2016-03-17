@@ -1,0 +1,49 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage{pxfonts}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\author{Sibert Aerts\\
+Ken Bauwens\\
+Pieter Hendriks\\
+Jonathan Van der Cruysse\\
+Mauris Van Hauwe}
+\title{Project Databases: Verslag 3}
+\date{}
+\newcommand{\red}[1]{{\color{red!80!green}#1}}
+\newcommand{\green}[1]{{\color{green!60!blue}#1}}
+
+\begin{document}
+  \maketitle
+  \section{Aanwezigheden}
+  Iedereen was aanwezig op de vergadering van 25 februari.
+  
+  \section{Status en onderwerpen}
+  We hebben de ORM \emph{from scratch} herschreven, om rechtstreekser met de 
+  database te communiceren. Onze werkende view hebben we gemigreerd naar het 
+  \emph{Razor View Engine}: het eenvoudige engine dat we daarvoor gebruikten 
+  was te gelimiteerd, en \emph{Razor} heeft betere localization support.
+  
+  De API werkt ook al een beetje: er is werkende JSON-serializatie, en er zijn 
+  GET en POST requests voor gebruikers en locaties, die we eenvoudig zullen 
+  kunnen uitbreiden naar de rest van de database. Nu moeten we wat meer focus 
+  leggen op de \emph{front-end}.
+  
+  \section{Afspraken en planning}
+  Puntjes voor volgende week:
+  \begin{itemize}
+    \item De \emph{front-end} uitbreiden met het nieuwe view engine (Ken, 
+    Sibert).
+    \item Nuttige functies schrijven die database-queries voorstellen 
+    (Jonathan).
+    \item De API uitbreiden (Mauris).
+    \item Database-tabellen maken voor metingen en locaties (Pieter).
+    \item Algemene projectstructuur verbeteren.
+  \end{itemize}
+\end{document}

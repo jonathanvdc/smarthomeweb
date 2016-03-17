@@ -1,0 +1,48 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage{pxfonts}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\author{Sibert Aerts\\
+Ken Bauwens\\
+Pieter Hendriks\\
+Jonathan Van der Cruysse\\
+Mauris Van Hauwe}
+\title{Project Databases: Verslag 1}
+\newcommand{\red}[1]{{\color{red!80!green}#1}}
+\newcommand{\green}[1]{{\color{green!60!blue}#1}}
+
+\begin{document}
+  \maketitle
+  \section{Aanwezigheden}
+  Iedereen was aanwezig op de vergadering van 18 februari, behalve Pieter, die 
+  afwezig was wegens ziekte.
+  
+  \section{Status en onderwerpen}
+  We hebben heel eenvoudige werkende views, en kunnen vanuit de webserver 
+  communiceren met de database.
+  
+  \section{Afspraken en planning}
+  Puntjes voor volgende week:
+  \begin{itemize}
+    \item Momenteel biedt onze server enkel een eenvoudige \texttt{<h1>Hello 
+    world!</h1>} pagina aan. Sibert en Pieter gaan kijken hoe we complexere 
+    views kunnen implementeren: het Nancy framework biedt eenvoudige 
+    \textsc{html}-templating aan 
+    via het \textit{Super Simple View Engine}, en waarschijnlijk gaan we dat 
+    gebruiken.
+    \item Onze server moet reageren op meer dan alleen 
+    \textsc{get}-requests. Jonathan gaat wat we nu hebben uitbreiden zodat 
+    \textsc{put} ook werkt; dan staan we al dichter bij werkende \textsc{crud}.
+    \item De basis van de database en de server werkt nu, dus we moeten ze met 
+    elkaar laten communiceren. Hier zorgt Mauris voor.
+    \item Sibert en Ken gaan hun C\#-kennis wat opfrissen, zodat iedereen vlot 
+    kan samenwerken aan het project.
+  \end{itemize}
+\end{document}
