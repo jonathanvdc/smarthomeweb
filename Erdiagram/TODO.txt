@@ -1,0 +1,3 @@
+* Person-Location is N:N
+* Rename DayAverages naar DayAverage
+* YearAverages mag weg (for now)
