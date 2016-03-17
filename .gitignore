@@ -225,3 +225,8 @@ backend/database/sqlite3.exe
 
 # Doxygen
 docs/
+
+# LaTeX
+*.aux
+*.pdf
+*.log
