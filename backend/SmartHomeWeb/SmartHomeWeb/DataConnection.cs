@@ -206,8 +206,6 @@ namespace SmartHomeWeb
             {
                 cmd.CommandText = $"SELECT * FROM {TableName} WHERE {KeyName} = @v LIMIT 1";
                 cmd.Parameters.AddWithValue("@v", KeyValue);
-                Console.WriteLine(cmd.CommandText);
-                Console.WriteLine(KeyValue);
                 return ExecuteCommandSingleAsync(cmd, ReadTuple);
             }
         }
