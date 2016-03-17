@@ -5,7 +5,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{listings}
-\usepackage{DejaVuSansMono}
+\usepackage{pxfonts}
 \usepackage{relsize}
 % \usepackage{all_is_fuck}
 \begin{document}
@@ -13,8 +13,13 @@
 \author{Sibert Aerts \\ Ken Bauwens \\ Pieter Hendriks \\ Jonathan Van der Cruysse \\ Mauris Van Hauwe}
 \maketitle
 
+%\setlength{\parskip}{3mm}
+\setlength{\parindent}{0mm}
+
 \newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\CS}{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-2}{\textbf{\#}}}}}
+% 
+%\newcommand{\CS}{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-2}{\textbf{\#}}}}}
+\newcommand{\CS}{{C\#}}
 \lstset{language=[Sharp]C,basicstyle=\ttfamily}
 
 
@@ -24,17 +29,29 @@ We hebben intussen de volgende features ge\"implementeerd:
 
 \begin{itemize}
 
-\item Jonathan, Mauris \& Sibert hebben de \textbf{REST API} verzorgd, wat inhoudt dat we ruwe json data uit de database kunnen requesten en hiernaar kunnen posten.
+\item Mauris, Jonathan en Sibert hebben de \textbf{REST API} verzorgd, wat 
+inhoudt dat we ruwe JSON data uit de database kunnen requesten en hiernaar 
+kunnen posten.
 
-\item Jonathan, Pieter \& Mauris hebben de \textbf{Database Structuur} opgesteld, dit zijn alle huidige tables en constraints hierop.
+\item Pieter, Jonathan en Mauris hebben de \textbf{database structuur} 
+opgesteld. Dit zijn alle huidige tables en de \textit{constraints} die hierop
+gedefinieerd zijn.
 
-\item Jonathan \& Pieter hebben de interne \textbf{Database Queries} voorzien, die de server gebruikt om data uit de database te lezen en om data weg te schrijven naar de database.
+\item Jonathan en Pieter hebben de interne \textbf{database queries} voorzien, 
+die de server gebruikt om data uit de database te lezen en om data weg te 
+schrijven naar de database.
 
-\item Jonathan, Mauris, Pieter \& Sibert hebben gewerkt aan \textbf{Database Integration}. Dit omvat de meer complexe methodes die data uit de database behandelen.
+\item Sibert, Jonathan, Mauris en Pieter hebben gewerkt aan \textbf{database 
+integration}. Dit omvat de meer complexe methodes die data uit de database 
+behandelen.
 
-\item Mauris \& Pieter hebben \textbf{Login} functionaliteit ge\"implementeerd, zodat men op een rudimentaire manier een session kan aanmaken waardoor de gebruiker ge\"identificeerd kan worden door de server. 
+\item Mauris en Pieter hebben \textbf{login}-functionaliteit ge\"implementeerd, 
+zodat men op een rudimentaire manier een session kan aanmaken waardoor de 
+gebruiker ge\"identificeerd kan worden door de server. 
 
-\item Sibert, Ken \& Mauris hebben voor rudimentaire \textbf{HTML Views} gezorgd, waardoor men data uit de verschillende tabellen uit de database kan bekijken.
+\item Ken, Sibert en Mauris hebben voor rudimentaire \textbf{HTML views} 
+gezorgd, waardoor men data uit de verschillende tabellen uit de database kan 
+bekijken.
 
 \end{itemize}
 
@@ -51,12 +68,23 @@ asynchroon af te handelen.
 \subsubsection{Framework}
 Als framework voor onze web-applicatie gebruiken we \textit{Nancy}. Dit is een 
 minimalistisch web-framework ge\"inspireerd door het Ruby-framework 
-\textit{Sinatra}. De simpelste Nancy-applicatie ziet er als volgt uit:
+\textit{Sinatra}. Een Nancy-project bestaat uit modules, waarin we per URL 
+defini\"eren hoe requests beantwoord moeten worden:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=Een \textit{hello world}-applicatie in Nancy]
     public class MyModule : NancyModule {
-        public MyModule() { Get["/"] = _ => "Hey!" }
+        public MyModule() { Get["/"] = _ => "Hey!"; }
     }
+\end{lstlisting}
+
+\subsubsection{View engine}
+We gebruiken het \textit{Razor} view engine om data in onze pagina's te 
+verwerken. Hiertoe schrijven we \textit{view templates}: HTML-pagina's waarin 
+C\#-code zit. Deze worden gecompileerd, en Nancy vult data in waar nodig.
+
+\lstset{language=HTML}
+\begin{lstlisting}[caption=Een simpel voorbeeld van een Razor view, label=razor]
+    <h2>Logged in as @CurrentUser.UserName.</h2>
 \end{lstlisting}
 
 \subsection{Database schema}
@@ -74,25 +102,76 @@ Het UML schema zelf is toegevoegd als bijlage. De \emph{back-end} bestaat uit de
 
 \item \textbf{identity classes}: stellen een tuple in de database voor met een unieke \emph{identifier}, die door de \emph{data connection} gegenereerd wordt. Hun data wordt voorgesteld door een instantie van een \emph{data class}. Zo zijn \code{Location}, \code{Person} en \code{Sensor} enkele voorbeelden van \emph{identity classes}.
 
-\item \textbf{data classes}: stellen concrete data voor. Deze data komt niet noodzakelijk precies overeen met een tuple in de database, maar altijd wel met een bepaalde deelverzameling daarvan, zonder unieke identifier. Er bestaan twee voorname \emph{use cases} voor deze \emph{data objects}. Enerzijds worden ze gebruikt om, zij het in samenwerking met een \emph{identity object}, zij het onafhankelijk, informatie uit de database voor te stellen. Anderzijds kunnen ze ook gebruikt worden om data van objecten die nog toegevoegd moeten worden aan de database -- en dus nog geen unieke \emph{identifier} hebben -- voor te stellen. \code{PersonData}, \code{LocationData} en \code{Measurement} zijn voorbeelden van \emph{data classes}.
+\item \textbf{data classes}: stellen concrete data voor. Deze data komt niet 
+noodzakelijk precies overeen met een tuple in de database, maar altijd wel met 
+een bepaalde deelverzameling daarvan, zonder unieke identifier.
+
+Er bestaan twee voorname \emph{use cases} voor deze \emph{data objects}.
+Enerzijds worden ze gebruikt om, zij het in samenwerking met een 
+  \emph{identity object}, zij het onafhankelijk, informatie uit de database 
+  voor te stellen.
+Anderzijds kunnen ze ook gebruikt worden om data van objecten die nog 
+  toegevoegd moeten worden aan de database -- en dus nog geen unieke 
+  \emph{identifier} hebben -- voor te stellen. \code{PersonData}, 
+  \code{LocationData} en \code{Measurement} zijn voorbeelden van \emph{data 
+  classes}.
 
 \end{itemize}
 
 \item \textbf{data connection}: spant de brug tussen de database en de \emph{back-end}. De \code{DataConnection} klasse opent en sluit de database, en bedient zich van SQL queries om records aan de database toe te voegen, en deze later weer uit de database te halen. \code{DataConnection} vormt een laag abstractie bovenop directe communicatie met de database: database tuples worden meteen vertaald in \emph{model objects}, en omgekeerd.
 
-\item \textbf{Nancy modules}: een \emph{module} voorziet \emph{routing}-functionaliteit; elke module geeft een lijst URL's op, en bepaalt welke \emph{content} de server doorstuurt of aanvaardt wanneer een HTTP \textsc{get}, \textsc{put} of \textsc{post} request voorkomt. Hier wordt geen onderscheid gemaakt tussen de API, dat door scripts een applicaties gebruikt kan worden, en de HTML pagina's, die in een browser bekeken kunnen worden. Elke \emph{module} heeft zijn eigen verantwoordelijkheid, en toegang (via de API) tot de verschillende \emph{tables} van de database wordt voorzien door verschillende modules. De \emph{modules} zelf komen echter nooit direct in contact met de database: ze manipuleren enkel \emph{model objects}, en laten het communiceren met de database over aan \code{DataConnection}.
+\item \textbf{Nancy modules}: een \emph{module} voorziet 
+\emph{routing}-functionaliteit; elke module geeft een lijst URL's op, en 
+bepaalt welke \emph{content} de server doorstuurt of aanvaardt wanneer een HTTP 
+\textsc{get}, \textsc{put} of \textsc{post} request voorkomt. Hier wordt geen 
+onderscheid gemaakt tussen de API, dat door scripts een applicaties gebruikt 
+kan worden, en de HTML pagina's, die in een browser bekeken kunnen worden.
+
+Elke \emph{module} heeft zijn eigen verantwoordelijkheid, en toegang (via de 
+API) tot de verschillende \emph{tables} van de database wordt voorzien door 
+verschillende modules. De \emph{modules} zelf komen echter nooit direct in 
+contact met de database: ze manipuleren enkel \emph{model objects}, en laten 
+het communiceren met de database over aan \code{DataConnection}.
 
 \item \textbf{Configuratie en bootstrapping}: naast interactie met gebruikers en database, bestaan er ook nog enkele \emph{utility classes}, die de configuratie en het opstarten van de server organiseren. Daarnaast voorzien deze klassen ook extra functionaliteit in de vorm van \emph{user login}. 
 
 \end{itemize}
-
 \section{Product}
 
 \subsection{Basisvereisten}
+We hebben een hoofdpagina die momenteel doorverwijst naar 
+pagina's die tabellen tonen met daarin data over alle personen, sensoren, 
+locaties, berichten en meetresultaten 
+in de database.
+
+Er is integratie met \textit{Google Charts}, een JavaScript-library die 
+grafieken kan 
+renderen van de data in de tabellen. De gebruiker kan interageren met die 
+grafieken, en zal zo metadata kunnen toevoegen aan metingen.
+
+Via de API-pagina's kan diezelfde informatie verkregen worden 
+in JSON-formaat. Enkele voorbeelden van ge\"implementeerde API calls:
+\begin{itemize}
+  \item \code{GET /api/sensors} toont een JSON-lijst van alle \code{Sensor} 
+  records.
+  \item \code{GET /api/persons/\textbf{\textit{\{guid\}}}} toont enkel de 
+  \code{Person} 
+  met de 
+  gegeven \textit{globally unique identifier} GUID.
+  \item \code{POST /api/location} neemt een JSON-lijst van \code{LocationData} 
+  uit de \textit{request body}, en voegt deze toe aan de database.
+\end{itemize}
 
 \subsection{Extra functionaliteit}
 
-Naast de bovengenoemde basisfunctionaliteit, zijn we ook al begonnen aan een simpele implementatie van \emph{secure user login}, en hebben we \emph{continuous integration} opgezet voor het project. Telkens we een \emph{commit} toevoegen aan onze GitHub \emph{repository}, gaan Travis CI op Linux en AppVeyor CI op Windows, na dat de applicatie correct compileert. Daarnaast wordt momenteel ook het cre\"eren van een database en het toevoegen van data getest.
+Naast de bovengenoemde basisfunctionaliteit, zijn we ook al begonnen aan een 
+simpele implementatie van \emph{secure user login}, en hebben we 
+\emph{continuous integration} opgezet voor het project. Telkens we een {commit} 
+toevoegen aan onze GitHub {repository}, gaan Travis CI (op Linux) en AppVeyor 
+CI (op Windows) na dat de applicatie correct compileert. Daarnaast wordt 
+momenteel ook het cre\"eren van een database en het toevoegen van data 
+automatisch getest. Als een commit de \textit{build} breekt, worden we hiervan 
+op de hoogte gebracht.
 
 \section{Planning}
 % Een overzicht van de planning van de belangrijkste functionaliteit, voor de 
@@ -103,6 +182,8 @@ maar nog geen data uploaden of communiceren met hun vrienden.
 Sommige van de tabellen die we in de database gedefinieerd hebben, worden nog 
 niet gebruikt. Het design van de front-end is ook niet finaal.
 
-\section{Appendix}
+\section{Appendix: SQL}
+\lstset{language=SQL,basicstyle=\ttfamily}
+\lstinputlisting{smarthomeweb.sql}
 
 \end{document}
