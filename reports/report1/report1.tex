@@ -1,8 +1,12 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage[dutch]{babel}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{listings}
+\usepackage{DejaVuSansMono}
+\usepackage{relsize}
 % \usepackage{all_is_fuck}
 \begin{document}
 \title{Rapport 1}
@@ -10,6 +14,9 @@
 \maketitle
 
 \newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\CS}{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-2}{\textbf{\#}}}}}
+\lstset{language=[Sharp]C,basicstyle=\ttfamily}
+
 
 \section{Status}
 
@@ -35,6 +42,21 @@ We hebben intussen de volgende features ge\"implementeerd:
 
 \subsection{Keuzes}
 % Korte motivatie van de belangrijkste keuzes in het ontwerp.
+We hebben gekozen voor de programmeertaal \CS{}. Deze taal is vergelijkbaar met
+C++, maar is veel expressiever en meer memory-safe. \CS{} ondersteunt ook 
+\textit{task-based parallellism}, wat ons toelaat heel eenvoudig requests 
+asynchroon af te handelen.
+
+Als framework voor onze web-applicatie gebruiken we \textit{Nancy}. Dit is een 
+minimalistisch web-framework ge\"inspireerd door het Ruby-framework 
+\textit{Sinatra}. De simpelste Nancy-applicatie ziet er als volgt uit:
+
+\begin{lstlisting}
+    public class MyModule : NancyModule {
+        public MyModule() { Get["/"] = _ => "Hey!" }
+    }
+\end{lstlisting}
+
 
 \subsection{Database schema}
 % Een ER diagram van de databank, met alle entiteiten en relaties. Voorzie een 
