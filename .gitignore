@@ -222,3 +222,6 @@ pip-log.txt
 # Database files
 backend/database/smarthomeweb.db
 backend/database/sqlite3.exe
+
+# Doxygen
+docs/
