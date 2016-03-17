@@ -24,17 +24,17 @@ We hebben intussen de volgende features ge\"implementeerd:
 
 \begin{itemize}
 
-\item \textbf{REST API}: Jonathan, Mauris \& Sibert
+\item Jonathan, Mauris \& Sibert hebben de \textbf{REST API} verzorgd, wat inhoudt dat we ruwe json data uit de database kunnen requesten en hiernaar kunnen posten.
 
-\item \textbf{Database Structuur}: Jonathan, Pieter \& Mauris
+\item Jonathan, Pieter \& Mauris hebben de \textbf{Database Structuur} opgesteld, dit zijn alle huidige tables en constraints hierop.
 
-\item \textbf{Database Queries}: Jonathan \& Pieter
+\item Jonathan \& Pieter hebben de interne \textbf{Database Queries} voorzien, die de server gebruikt om data uit de database te lezen en om data weg te schrijven naar de database.
 
-\item \textbf{Database Integration}: Jonathan, Mauris, Pieter \& Sibert
+\item Jonathan, Mauris, Pieter \& Sibert hebben gewerkt aan \textbf{Database Integration}. Dit omvat de meer complexe methodes die data uit de database behandelen.
 
-\item \textbf{Login}: Mauris \& Pieter
+\item Mauris \& Pieter hebben \textbf{Login} functionaliteit ge\"implementeerd, zodat men op een rudimentaire manier een session kan aanmaken waardoor de gebruiker ge\"identificeerd kan worden door de server. 
 
-\item \textbf{HTML Views}: Sibert, Ken \& Mauris
+\item Sibert, Ken \& Mauris hebben voor rudimentaire \textbf{HTML Views} gezorgd, waardoor men data uit de verschillende tabellen uit de database kan bekijken.
 
 \end{itemize}
 
@@ -57,38 +57,38 @@ minimalistisch web-framework ge\"inspireerd door het Ruby-framework
     }
 \end{lstlisting}
 
-
 \subsection{Database schema}
-% Een ER diagram van de databank, met alle entiteiten en relaties. Voorzie een 
-% woordje uitleg bij de verschillende tabellen, relaties en extra constraints.
 Het ER-diagram is toegevoegd als bijlage.
 
 \subsection{UML schema}
-% Een UML diagram van de source code, met alle classes/modules en dependencies. 
-% Voorzie een woordje uitleg bij de verschillende classes en dependencies, 
-% alsook welke libraries (of frameworks of tools) zijn gebruikt. Je kan een 
-% class diagram maken, of een combinatie van bijv. een package diagram, en een 
-% sequence diagram. Het UML schema zelf is toegevoegd als bijlage.
 
-De backend bestaat uit de volgende componenten:
+Het UML schema zelf is toegevoegd als bijlage. De \emph{back-end} bestaat uit de volgende componenten:
 
 \begin{itemize}
 
-\item \textbf{model classes}:  
+\item \textbf{model classes}: het \emph{model} stelt tuples in de database voor. Concreet is het \emph{model} opgesplitst in twee soorten klassen.
 
-\item \textbf{}:
+\begin{itemize}
+
+\item \textbf{identity classes}: stellen een tuple in de database voor met een unieke \emph{identifier}, die door de \emph{data connection} gegenereerd wordt. Hun data wordt voorgesteld door een instantie van een \emph{data class}. Zo zijn \code{Location}, \code{Person} en \code{Sensor} enkele voorbeelden van \emph{identity classes}.
+
+\item \textbf{data classes}: stellen concrete data voor. Deze data komt niet noodzakelijk precies overeen met een tuple in de database, maar altijd wel met een bepaalde deelverzameling daarvan, zonder unieke identifier. Er bestaan twee voorname \emph{use cases} voor deze \emph{data objects}. Enerzijds worden ze gebruikt om, zij het in samenwerking met een \emph{identity object}, zij het onafhankelijk, informatie uit de database voor te stellen. Anderzijds kunnen ze ook gebruikt worden om data van objecten die nog toegevoegd moeten worden aan de database -- en dus nog geen unieke \emph{identifier} hebben -- voor te stellen. \code{PersonData}, \code{LocationData} en \code{Measurement} zijn voorbeelden van \emph{data classes}.
+
+\end{itemize}
+
+\item \textbf{data connection}: spant de brug tussen de database en de \emph{back-end}. De \code{DataConnection} klasse opent en sluit de database, en bedient zich van SQL queries om records aan de database toe te voegen, en deze later weer uit de database te halen. \code{DataConnection} vormt een laag abstractie bovenop directe communicatie met de database: database tuples worden meteen vertaald in \emph{model objects}, en omgekeerd.
+
+\item \textbf{Nancy modules}: een \emph{module} voorziet \emph{routing}-functionaliteit; elke module geeft een lijst URL's op, en bepaalt welke \emph{content} de server doorstuurt of aanvaardt wanneer een HTTP \textsc{get}, \textsc{put} of \textsc{post} request voorkomt. Hier wordt geen onderscheid gemaakt tussen de API, dat door scripts een applicaties gebruikt kan worden, en de HTML pagina's, die in een browser bekeken kunnen worden. Elke \emph{module} heeft zijn eigen verantwoordelijkheid, en toegang (via de API) tot de verschillende \emph{tables} van de database wordt voorzien door verschillende modules. De \emph{modules} zelf komen echter nooit direct in contact met de database: ze manipuleren enkel \emph{model objects}, en laten het communiceren met de database over aan \code{DataConnection}.
+
+\item \textbf{Configuratie en bootstrapping}: naast interactie met gebruikers en database, bestaan er ook nog enkele \emph{utility classes}, die de configuratie en het opstarten van de server organiseren. Daarnaast voorzien deze klassen ook extra functionaliteit in de vorm van \emph{user login}. 
 
 \end{itemize}
 
 \section{Product}
 
 \subsection{Basisvereisten}
-% Overzicht van de verschillende pagina’s, en achterliggende functionaliteit, 
-% vanuit het enduser perspectief. Voorzie een woordje uitleg bij elke pagina, 
-% en verwijs hierbij naar de basisvereisten uit de project opgave.
 
 \subsection{Extra functionaliteit}
-% Overzicht van de extra functionaliteit vanuit het end-user perspectief.
 
 \section{Planning}
 % Een overzicht van de planning van de belangrijkste functionaliteit, voor de 
@@ -99,7 +99,5 @@ die we in de database gedefinieerd hebben, worden nog niet gebruikt. Het design
 van de front-end is ook niet finaal.
 
 \section{Appendix}
-% Een listing van de SQL create statements, alsook niet-triviale SQL queries.
-Het SQL-script met alle \textsc{create}-statements is toegevoegd als bijlage.
 
 \end{document}
