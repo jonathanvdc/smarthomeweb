@@ -1,0 +1,42 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage{pxfonts}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\author{Sibert Aerts\\
+Ken Bauwens\\
+Pieter Hendriks\\
+Jonathan Van der Cruysse\\
+Mauris Van Hauwe}
+\title{Project Databases: Verslag 5}
+\date{}
+\newcommand{\red}[1]{{\color{red!80!green}#1}}
+\newcommand{\green}[1]{{\color{green!60!blue}#1}}
+
+\begin{document}
+  \maketitle
+  \section{Aanwezigheden}
+  Iedereen was aanwezig op de vergadering van 10 maart, op Sibert na.
+  
+  \section{Status en onderwerpen}
+  Deze week is de \emph{authentication} boilerplate code geschreven. 
+  Het grondwerk voor de \emph{front-end} is gelegd, we kunnen onze database records weergeven in de web interface.
+  Er zijn nieuwe \emph{model} classes aangemaakt om de data op te slaan in memory.
+  De \emph{REST API} werd verder uitgewerkt, om de database beter te reflecteren.
+  
+  \section{Afspraken en planning}
+  Puntjes voor volgende week:
+  \begin{itemize}
+    \item Basis implementatie van grafieken voor de data representatie aan die client (Ken).
+    \item Messages POSTen voor communicatie tussen de gebruikers (Sibert).
+    \item Implementatie van measurement API en andere sensor-related goodness (Jonathan).
+    \item De csv parser updaten, zodat deze op de clientside JSON aanmaakt in plaats van SQL, die dan via de interface gePOST kan worden (Pieter).
+    \item De authentication implementatie verder zetten, zodat deze overeenkomt met users in de database (Mauris).
+  \end{itemize}
+\end{document}

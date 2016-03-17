@@ -33,8 +33,8 @@ def main(argv):
 						else:
 							if (first[ctr2] != "Total"): #Exclude "total" - We compute this as needed, it's not a sensor datapoint
 								final.append("""
-insert into Data(time, sensorId, usage) values (
-\tselect {}, Sensor.id, {}\n\tfrom Sensor\n\twhere Sensor.name='{}' and Sensor.locationId={}
+insert into Measurement(time, sensorId, usage) values (
+\tselect Sensor.id, {}, {}\n\tfrom Sensor\n\twhere Sensor.name='{}' and Sensor.locationId={}
 );
 """.format(unixtime, data, first[ctr2], household))
 					ctr2 += 1
