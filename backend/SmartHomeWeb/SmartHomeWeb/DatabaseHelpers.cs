@@ -54,7 +54,7 @@ namespace SmartHomeWeb
         public static Person ReadPerson(IDataRecord Record)
         {
             return new Person(
-                GetInt32(Record, "id"), 
+                new Guid(GetString(Record, "guid")), 
                 new PersonData(
                     GetString(Record, "username"), GetString(Record, "password"),
                     GetString(Record, "name"), GetDateTime(Record, "birthdate"),
@@ -110,7 +110,7 @@ namespace SmartHomeWeb
         /// <returns>The person-location pair.</returns>
         public static PersonLocationPair ReadPersonLocationPair(IDataRecord Record)
         {
-            return new PersonLocationPair(Record.GetInt32(0), Record.GetInt32(1));
+            return new PersonLocationPair(new Guid(Record.GetString(0)), Record.GetInt32(1));
         }
     }
 }

@@ -14,10 +14,22 @@
 }
 
 <table class="table">
+
+        <tr class="tableHeader">
+            <th>GUID</th>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Birthdate</th>
+            <th>Password</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Zipcode</th>
+        </tr>      
+		
     @foreach (var p in @Model)
     {
         <tr>
-            <th>@p.Id</th>
+            <th>@p.Guid</th>
             <th>@p.Data.UserName</th>
             <td>@p.Data.Name</td>
             <td>@p.Data.Birthdate.ToLongDateString()</td>

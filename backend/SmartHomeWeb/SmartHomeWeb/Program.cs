@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Nancy;
+using Nancy.Authentication.Forms;
 using Nancy.Bootstrapper;
 using Nancy.Diagnostics;
 using Nancy.Hosting.Self;
@@ -31,6 +32,13 @@ namespace SmartHomeWeb
         {
             StaticConfiguration.DisableErrorTraces = false;
             StaticConfiguration.EnableRequestTracing = true;
+
+            var formsAuthConfiguration = new FormsAuthenticationConfiguration
+                {
+                    RedirectUrl = "~/login",
+                    UserMapper = container.Resolve<IUserMapper>()
+                };
+            FormsAuthentication.Enable(pipelines, formsAuthConfiguration);
         }
 
         protected override IRootPathProvider RootPathProvider

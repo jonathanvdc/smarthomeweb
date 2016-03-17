@@ -14,13 +14,21 @@
 }
 
 <table class="table">
+
+        <tr class="tableHeader">
+            <th>ID</th>
+            <th>Sender</th>
+            <th>Recipient</th>
+            <th>Message</th>
+        </tr>      
+		
     @foreach (var p in @Model)
     {
         <tr>
             <th>@p.Id</th>
-            <th>@p.Data.SenderId</th>
-            <td>@p.Data.RecipientId</th>
-            <td>@p.Data.Message</th>
+            <td>@p.Data.SenderId</td>
+            <td>@p.Data.RecipientId</td>
+            <td>@p.Data.Message</td>
         </tr>      
 }                  
 </table>

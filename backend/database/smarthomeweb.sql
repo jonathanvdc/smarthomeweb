@@ -1,5 +1,5 @@
 create table Person (
-	id integer primary key autoincrement,
+	guid text primary key not null,
 	username text not null,
 	name text,
 	password text not null, --obviously niet plaintext
@@ -18,15 +18,15 @@ create table Person (
 
 );
 create table Friends (
-	personOne integer not null references Person(id),
-	personTwo integer not null references Person(id),
+	personOne text not null references Person(guid),
+	personTwo text not null references Person(guid),
 	primary key (personOne, personTwo) --How do we enforce that the reversed pair is not present?
 );
 
 create table Message (
 	id integer primary key autoincrement,
-	sender integer not null references Person(id),
-	recipient integer not null references Person(id),
+	sender text not null references Person(guid),
+	recipient text not null references Person(guid),
 	message text not null
 	--'usage messages' as described in assignment can simply insert a link into message,
 	--Though perhaps allowing an attached link is better? (Optional, obviously)
@@ -41,9 +41,9 @@ create table Location (
 --Reverse index? See example @ hourAverages
 
 create table HasLocation (
-	personId integer not null references Person(id),
+	personGuid text not null references Person(guid),
 	locationId integer not null references Location(id),
-	primary key (personId, locationId)
+	primary key (personGuid, locationId)
 );
 
 create table Sensor (

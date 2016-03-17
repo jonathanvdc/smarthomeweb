@@ -14,13 +14,21 @@
 }
 
 <table class="table">
+
+        <tr class="tableHeader">
+            <th>ID</th>
+            <th>Time</th>
+            <th>Data</th>
+            <th>Notes</th>
+        </tr>      
+		
     @foreach (var p in @Model)
     {
         <tr>
             <th>@p.SensorId</th>
-            <th>@p.Time</th>
-            <th>@p.MeasuredData</th>
-            <th>@p.Notes</th>
+            <td>@p.Time</td>
+            <td>@p.MeasuredData</td>
+            <td>@p.Notes</td>
         </tr>      
 }                  
 </table>

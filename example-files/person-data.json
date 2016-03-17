@@ -4,23 +4,39 @@
         "username" : "bgoethals",
         "password" : "topsecret",
         "address" : "De G.10",
-        "city" : "UAntwerpen",
-        "zipcode" : "0000"
+        "city" : "Antwerpen",
+        "zipcode" : "2000"
     },
     {
         "name" : "Jon Sneyers",
         "username" : "jonsneyers",
         "password" : "topsecret",
         "address" : "UAntwerpen",
-        "city" : "UAntwerpen",
-        "zipcode" : "0000"
+        "city" : "Antwerpen",
+        "zipcode" : "2000"
     },
     {
         "name" : "Len Feremans",
         "username" : "lilferemans",
         "password" : "topsecret",
         "address" : "UAntwerpen",
-        "city" : "UAntwerpen",
-        "zipcode" : "0000"
+        "city" : "Antwerpen",
+        "zipcode" : "2000"
+    },
+    {
+        "name" : "Benny Van Houdt",
+        "username" : "bennyvh",
+        "password" : "topsecret",
+        "address" : "UAntwerpen",
+        "city" : "Houdt",
+        "zipcode" : "2001"
+    },
+    {
+        "name" : "Hans Van Gheluwe",
+        "username" : "hans",
+        "password" : "topsecret",
+        "address" : "UAntwerpen",
+        "city" : "Antwerpen",
+        "zipcode" : "2000"
     }
 ]

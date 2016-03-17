@@ -1,0 +1,22 @@
+[
+    {
+        "senderId" : "0",
+        "recipientId" : "1",
+        "message" : "GOEDENDAG",
+    },
+    {
+        "senderId" : "1",
+        "recipientId" : "0",
+        "message" : "WEDERZIJDS GOEDENDAG",
+    },
+    {
+        "senderId" : "2",
+        "recipientId" : "1",
+        "message" : "GEODENDAG, T. BENNY VAN HOUDT",
+    },
+    {
+        "senderId" : "3",
+        "recipientId" : "0",
+        "message" : "Beste Professor Goethals, <br>Ik hoop ten zeerste dat u van uw vakantie geniet! <br>Vriendelijke groet, Hans Van Gheluwe",
+    },
+]
