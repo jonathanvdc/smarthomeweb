@@ -1,0 +1,45 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage{pxfonts}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\author{Sibert Aerts\\
+Ken Bauwens\\
+Pieter Hendriks\\
+Jonathan Van der Cruysse\\
+Mauris Van Hauwe}
+\title{Project Databases: Verslag 2}
+\newcommand{\red}[1]{{\color{red!80!green}#1}}
+\newcommand{\green}[1]{{\color{green!60!blue}#1}}
+
+\begin{document}
+  \maketitle
+  \section{Aanwezigheden}
+  Iedereen was aanwezig op de vergadering van 18 februari, behalve Pieter, die 
+  afwezig was wegens ziekte.
+  
+  \section{Status en onderwerpen}
+  We hebben een heel eenvoudige (werkende) view, en kunnen vanuit de webserver
+  communiceren met de database: queries werken, en we hebben een eenvoudige
+  \textsc{orm} waarmee we users uit de database mappen naar onze eigen klasse.
+  
+  \section{Afspraken en planning}
+  Puntjes voor volgende week:
+  \begin{itemize}
+    \item De ORM uitbreiden: welke tabellen hebben we 
+    nog nodig, en hoe stellen we de rijen ervan voor als C\# objecten? Jonathan 
+    zorgt hiervoor.
+    \item Nu we kunnen communiceren met SQLite, is het tijd om te beginnen aan 
+    een REST API. Mauris zorgt hiervoor.
+    \item Ken en Sibert gaan views schrijven, en nadenken over hoe onze 
+    frontend eruit zal zien.
+    \item Pieter gaat de database uitbreiden op basis van de ElecSim-data, 
+    zodat ons model de output ervan kan verwerken.
+  \end{itemize}
+\end{document}
