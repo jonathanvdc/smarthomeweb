@@ -47,6 +47,13 @@ namespace SmartHomeWeb.Model
         /// </summary>
         [JsonProperty("notes")]
         public string Notes { get; private set; }
+
+        public long ToJavascriptTimestamp()
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var time = this.Time.Subtract(new TimeSpan(epoch.Ticks));
+            return (long)(time.Ticks / 10000);
+        }
     }
 }
 
