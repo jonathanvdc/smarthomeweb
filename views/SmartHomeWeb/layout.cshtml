@@ -37,17 +37,15 @@
 				<li><a href="/mydata"> Dashboard</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-			<li>
 				@if (@Context.CurrentUser.IsAuthenticated())
 				{
-                    <a href="#">@Html.RenderContext.Context.CurrentUser.UserName</a>
-				    <a href="/logout">Log out</a>
+                    <li><a href="#">@Html.RenderContext.Context.CurrentUser.UserName</a></li>
+				    <li><a href="/logout">Log out</a></li>
 				}
 				else
 				{
-				    <a href="/login">Log in</a>
+				    <li><a href="/login">Log in</a></li>
 				}
-			</li>
             </ul>
 		</div><!--/.nav-collapse -->
 	</div>
