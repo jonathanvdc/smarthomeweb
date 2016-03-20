@@ -4,4 +4,5 @@ apt:
 solution: backend/SmartHomeWeb/SmartHomeWeb.sln
 script:
     - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
+    - xbuild /p:Configuration=Release json-utils/json-utils.sln
     - ./init-db.sh

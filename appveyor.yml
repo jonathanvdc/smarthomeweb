@@ -1,5 +1,6 @@
 before_build:
-    nuget restore backend/SmartHomeWeb/SmartHomeWeb.sln
+    - nuget restore backend/SmartHomeWeb/SmartHomeWeb.sln
+    - nuget restore json-utils/json-utils.sln
 
 configuration:
   - Release
@@ -8,6 +9,8 @@ build:
     project: backend/SmartHomeWeb/SmartHomeWeb.sln
 
 after_build:
+    # Build json-utils
+    - msbuild /p:Configuration=Release json-utils/json-utils.sln
     # Install sqlite3
     - curl -L http://www.sqlite.org/2016/sqlite-dll-win32-x86-3110100.zip > sqlite-dll.zip
     - 7z x sqlite-dll.zip -obackend/SmartHomeWeb/SmartHomeWeb/bin/Release
