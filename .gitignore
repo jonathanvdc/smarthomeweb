@@ -231,3 +231,4 @@ docs/
 *.pdf
 *.log
 *.synctex.gz
+*.out
