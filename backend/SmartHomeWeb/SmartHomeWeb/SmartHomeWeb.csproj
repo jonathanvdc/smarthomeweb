@@ -126,6 +126,7 @@
     <Compile Include="Modules\SmartHomeWebModule.cs" />
     <Compile Include="Modules\API\ApiSensorsModule.cs" />
     <Compile Include="Modules\API\ApiMeasurementsModule.cs" />
+    <Compile Include="Modules\API\ApiPersonLocationsModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">

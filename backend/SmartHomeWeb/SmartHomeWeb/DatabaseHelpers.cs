@@ -48,13 +48,18 @@ namespace SmartHomeWeb
             return ParseUnixTimeStamp(GetInt64(Record, Name));
         }
 
+        public static Guid GetGuid(IDataRecord Record, string Name)
+        {
+            return new Guid(GetString(Record, Name));
+        }
+
         /// <summary>
         /// Reads a person entity from the given record.
         /// </summary>
         public static Person ReadPerson(IDataRecord Record)
         {
             return new Person(
-                new Guid(GetString(Record, "guid")), 
+                GetGuid(Record, "guid"), 
                 new PersonData(
                     GetString(Record, "username"), GetString(Record, "password"),
                     GetString(Record, "name"), GetDateTime(Record, "birthdate"),
@@ -70,7 +75,7 @@ namespace SmartHomeWeb
             return new Message(
                 GetInt32(Record, "id"),
                 new MessageData(
-                    GetInt32(Record, "sender"), GetInt32(Record, "recipient"),
+                    GetGuid(Record, "sender"), GetGuid(Record, "recipient"),
                     GetString(Record, "message")));
         }
 
