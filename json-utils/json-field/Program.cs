@@ -104,7 +104,7 @@ namespace jsonfield
         {
             Console.WriteLine("usage: json-field [options] field-names");
             Console.WriteLine("extracts named fields from a JSON dictionary, or an array of JSON dictionaries");
-            Console.WriteLine("JSON is parsed from standard output");
+            Console.WriteLine("JSON is parsed from standard input");
             Console.WriteLine();
             Console.WriteLine("options:");
             p.WriteOptionDescriptions(Console.Out);
