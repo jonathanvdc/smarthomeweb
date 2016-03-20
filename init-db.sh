@@ -21,7 +21,8 @@ curl -X POST -d @sensor-data.json localhost:8088/api/sensors
 curl -X POST -d @measurement-data.json localhost:8088/api/measurements
 
 chmod +x ./add-message.sh
-./add-message.sh message1.json 0 1
+./add-message.sh bgoethals jonsneyers "Hallo"
+./add-message.sh jonsneyers bgoethals "Goede morgen"
 popd
 
 kill $serverid
