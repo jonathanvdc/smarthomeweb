@@ -17,6 +17,6 @@
     {
         "senderId" : "3",
         "recipientId" : "0",
-        "message" : "Beste Professor Goethals, <br>Ik hoop ten zeerste dat u van uw vakantie geniet! <br>Vriendelijke groet, Hans Van Gheluwe",
+        "message" : "Beste Professor Goethals, \\nIk hoop ten zeerste dat u van uw vakantie geniet! \\nVriendelijke groet, Hans Van Gheluwe",
     },
 ]

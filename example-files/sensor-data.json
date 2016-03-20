@@ -2,18 +2,25 @@
     {
         "name" : "Electric shower",
         "locationId" : 0,
-        "description" : "",
+        "description" : "Showers you with electricity",
         "notes" : ""
     },
     {
         "name" : "Hairdryer",
         "locationId" : 1,
-        "description" : "",
-        "notes" : ""
+        "description" : "Dries your hair",
+        "notes" : "(New model)"
     },
     {
         "name" : "Hot tub",
         "locationId" : 1,
-        "description" : ""
+        "description" : "Very hot",
+        "notes" : ""
+    },
+    {
+        "name" : "TV",
+        "locationId" : 2,
+        "description" : "Panaphonics colour-TV",
+        "notes" : "(Old model)"
     }
 ]
