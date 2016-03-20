@@ -20,7 +20,7 @@
 
 # Schedule
 
-* **17 maart**: 1e rapport
+* <s>**17 maart**: 1e rapport</s>
 * **21 maart**: 1e presentatie: taakverdeling, database, design-beslissingen
 * **25 april**: 2e rapport
 * **ergens vlak daarna**: 2e presentatie: werkende demo
