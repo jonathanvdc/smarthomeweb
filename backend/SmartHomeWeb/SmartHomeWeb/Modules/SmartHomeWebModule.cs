@@ -73,6 +73,18 @@ namespace SmartHomeWeb.Modules
                 var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
                 return View["graph.cshtml", measurements];
             };
+
+
+            Get["/mydata", true] = async (parameters, ct) =>
+            {
+                this.RequiresAuthentication();
+                //Get sensors in location where user is located
+                //display each sensor
+                var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid));
+
+                var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
+                return View["mydata.cshtml", sensors];
+            };
         }
         public static string ErrorPage => @"
                 <html>
