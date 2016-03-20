@@ -23,11 +23,21 @@ namespace SmartHomeWeb.Model
 			this.Data = Data;
 		}
 
-		/// <summary>
-		/// Gets the person's globally unique identifier.
-		/// </summary>
-		[JsonProperty("guid")]
-		public Guid Guid { get; private set; }
+        /// <summary>
+        /// Gets the person's GUID string.
+        /// </summary>
+        [JsonProperty("personGuid")]
+        public string GuidString
+        {
+            get { return Guid.ToString(); }
+            private set { Guid = new Guid(value); }
+        }
+
+        /// <summary>
+        /// Gets the person's globally unique identifier.
+        /// </summary>
+        [JsonIgnore]
+        public Guid Guid { get; private set; }
 
 		/// <summary>
 		/// Gets the person's data.

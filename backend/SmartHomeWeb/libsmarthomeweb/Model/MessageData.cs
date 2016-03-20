@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace SmartHomeWeb.Model
 {
@@ -9,27 +10,47 @@ namespace SmartHomeWeb.Model
     public sealed class MessageData
     {
         public MessageData(
-            int SenderId, int RecipientId, 
+            Guid SenderGuid, Guid RecipientGuid, 
             string Message)
         {
-            this.SenderId = SenderId;
-            this.RecipientId = RecipientId;
+            this.SenderGuid = SenderGuid;
+            this.RecipientGuid = RecipientGuid;
             this.Message = Message;
+        }
+
+        /// <summary>
+        /// Gets the sender's GUID string.
+        /// </summary>
+        [JsonProperty("senderId")]
+        public string SenderGuidString
+        {
+            get { return SenderGuid.ToString(); }
+            private set { SenderGuid = new Guid(value); }
         }
 
         /// <summary>
         /// Gets the sender identifier.
         /// </summary>
         /// <value>The sender identifier.</value>
-        [JsonProperty("senderId")]
-        public int SenderId { get; private set; }
+        [JsonIgnore]
+        public Guid SenderGuid { get; private set; }
+
+        /// <summary>
+        /// Gets the recipient's GUID string.
+        /// </summary>
+        [JsonProperty("recipientId")]
+        public string RecipientGuidString
+        {
+            get { return RecipientGuid.ToString(); }
+            private set { RecipientGuid = new Guid(value); }
+        }
 
         /// <summary>
         /// Gets the recipient identifier.
         /// </summary>
         /// <value>The recipient identifier.</value>
-        [JsonProperty("recipientId")]
-        public int RecipientId { get; private set; }
+        [JsonIgnore]
+        public Guid RecipientGuid { get; private set; }
 
         /// <summary>
         /// Gets the message's contents.

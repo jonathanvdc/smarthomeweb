@@ -19,7 +19,7 @@ Invoke-WebRequest -Uri http://localhost:8088/api/sensors -Method POST -Body $bod
 $body = Get-Content ./example-files/measurement-data.json
 Invoke-WebRequest -Uri http://localhost:8088/api/measurements -Method POST -Body $body
 
-$body = Get-Content ./example-files/message-data.json
-Invoke-WebRequest -Uri http://localhost:8088/api/messages -Method POST -Body $body
+# $body = Get-Content ./example-files/message-data.json
+# Invoke-WebRequest -Uri http://localhost:8088/api/messages -Method POST -Body $body
 
 Stop-Process $app

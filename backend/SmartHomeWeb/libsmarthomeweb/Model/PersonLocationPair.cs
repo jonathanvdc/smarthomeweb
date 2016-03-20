@@ -20,10 +20,20 @@ namespace SmartHomeWeb.Model
 			this.LocationId = LocationId;
 		}
 
+        /// <summary>
+        /// Gets the person's GUID string.
+        /// </summary>
+        [JsonProperty("personGuid")]
+        public string PersonGuidString
+        {
+            get { return PersonGuid.ToString(); }
+            private set { PersonGuid = new Guid(value); }
+        }
+
 		/// <summary>
 		/// Gets the person's unique identifier.
 		/// </summary>
-		[JsonProperty("personGuid")]
+		[JsonIgnore]
 		public Guid PersonGuid { get; private set; }
 
 		/// <summary>

@@ -416,8 +416,8 @@ namespace SmartHomeWeb
             {
                 cmd.CommandText = $"INSERT INTO {MessageTableName}(sender, recipient, message) " +
                     "VALUES (@usender, @recipient, @message)";
-                cmd.Parameters.AddWithValue("@usender", Data.SenderId);
-                cmd.Parameters.AddWithValue("@recipient", Data.RecipientId);
+                cmd.Parameters.AddWithValue("@usender", Data.SenderGuid.ToString());
+                cmd.Parameters.AddWithValue("@recipient", Data.RecipientGuid.ToString());
                 cmd.Parameters.AddWithValue("@message", Data.Message);
                 return cmd.ExecuteNonQueryAsync();
             }
