@@ -2,6 +2,8 @@ using System;
 using Nancy;
 using Nancy.Authentication.Forms;
 using Nancy.Security;
+using SmartHomeWeb.Model;
+using System.Collections.Generic;
 
 namespace SmartHomeWeb.Modules
 {
@@ -76,6 +78,17 @@ namespace SmartHomeWeb.Modules
                 return View["graph.cshtml", measurements];
             };
 
+            Get["/add-has-location", true] = async (parameters, ct) =>
+            {
+                this.RequiresAuthentication();
+
+                // First, acquire all locations.
+                var newLocations = new HashSet<Location>(await DataConnection.Ask(dc => dc.GetLocationsAsync()));
+                // Then remove all locations that were already assigned to the
+                // person.
+                newLocations.ExceptWith(await DataConnection.Ask(dc => dc.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid)));
+                return View["add-has-location.cshtml", newLocations];
+            };
 
             Get["/mydata", true] = async (parameters, ct) =>
             {
