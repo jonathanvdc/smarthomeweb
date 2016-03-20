@@ -292,7 +292,7 @@ namespace SmartHomeWeb
                   SELECT loc.id, loc.name
                   FROM HasLocation as hasLoc, Location as loc
                   WHERE loc.id = hasLoc.locationId AND hasLoc.personGuid = @guid";
-                cmd.Parameters.AddWithValue("@guid", Item.Guid);
+                cmd.Parameters.AddWithValue("@guid", Item.Guid.ToString());
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadLocation);
             }
         }
