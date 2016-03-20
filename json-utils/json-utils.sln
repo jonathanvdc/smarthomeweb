@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "json-field", "json-field\js
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "json-add", "json-add\json-add.csproj", "{2E16725A-46F1-434D-BB59-D7EF29448A55}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "json-pack", "json-pack\json-pack.csproj", "{8399BEB4-D044-4100-9B1C-B60B927E6B3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -15,6 +17,10 @@ Global
 		{2E16725A-46F1-434D-BB59-D7EF29448A55}.Debug|x86.Build.0 = Debug|x86
 		{2E16725A-46F1-434D-BB59-D7EF29448A55}.Release|x86.ActiveCfg = Release|x86
 		{2E16725A-46F1-434D-BB59-D7EF29448A55}.Release|x86.Build.0 = Release|x86
+		{8399BEB4-D044-4100-9B1C-B60B927E6B3B}.Debug|x86.ActiveCfg = Debug|x86
+		{8399BEB4-D044-4100-9B1C-B60B927E6B3B}.Debug|x86.Build.0 = Debug|x86
+		{8399BEB4-D044-4100-9B1C-B60B927E6B3B}.Release|x86.ActiveCfg = Release|x86
+		{8399BEB4-D044-4100-9B1C-B60B927E6B3B}.Release|x86.Build.0 = Release|x86
 		{F71BD97B-9925-466A-95F2-D945492C93DD}.Debug|x86.ActiveCfg = Debug|x86
 		{F71BD97B-9925-466A-95F2-D945492C93DD}.Debug|x86.Build.0 = Debug|x86
 		{F71BD97B-9925-466A-95F2-D945492C93DD}.Release|x86.ActiveCfg = Release|x86
