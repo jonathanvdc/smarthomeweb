@@ -1,0 +1,48 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<Sensor>>
+@*                           ^^^^^^^^^^^^^^^^^^^    *@
+@*                         This is the @Model type  *@
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+  <body>
+
+
+<h1>Measurement</h1>
+
+@if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
+{
+    <h2>Logged in as @Html.RenderContext.Context.CurrentUser.UserName.</h2>
+}
+else
+{
+	<h2>Not Logged In</h2>
+}
+
+<table class="table">
+
+        <tr class="tableHeader">
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Notes</th>
+        </tr>      
+		
+    @foreach (var p in @Model)
+    {
+        <tr>
+            <th>@p.Id</th>
+            <th>@p.Data.Name</th>
+            <td>@p.Data.LocationId </td>
+            <td>@p.Data.Description</td>
+            <td>@p.Data.Notes</td>
+        </tr>      
+}                  
+</table>
+
+  <div id="myPieChart"/>
+ </body>
