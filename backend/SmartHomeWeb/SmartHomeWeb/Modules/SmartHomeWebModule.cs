@@ -65,7 +65,8 @@ namespace SmartHomeWeb.Modules
                     return Response.AsRedirect("/nopass");
                 }
             };
-            Get["/logout"] = parameter => ComingSoonPage;
+            Get["/logout"] = parameter => this.Logout("/");
+
             Get["/nopass"] = parameter => {
                 Console.WriteLine("nopass");
                 return NotAuthorizedPage;

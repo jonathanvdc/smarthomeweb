@@ -1,3 +1,4 @@
+@using Nancy.Security
 @inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 
 <!DOCTYPE html5>
@@ -32,8 +33,17 @@
 				<li><a href="#contact">Contact</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/login">Log in</a>
-			</ul>
+			<li>
+				@if (@Context.CurrentUser.IsAuthenticated())
+				{
+				    <a href="/logout">Log out</a>
+				}
+				else
+				{
+				    <a href="/login">Log in</a>
+				}
+			</li>
+            </ul>
 		</div><!--/.nav-collapse -->
 	</div>
 </nav>
