@@ -2,11 +2,13 @@
 @using Nancy.Security
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Sensor>>
+@inherits NancyRazorViewBase<List<Locationextended>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   </head>
   <body>
 
@@ -22,27 +24,37 @@ else
 	<h2>Not Logged In</h2>
 }
 
-<table class="table">
+<div class="container">
+  <h2>Dynamic Tabs</h2>
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#0">@Model[0].location.Data.Name</a></li>
+	@for(int x = 1; x < @Model.Count; ++x){
+    <li><a data-toggle="tab" href="#@x">@Model[x].location.Data.Name</a></li>
+	}
+  </ul>
 
-        <tr class="tableHeader">
-            <th>ID</th>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Description</th>
-            <th>Notes</th>
-        </tr>      
-		
-    @foreach (var p in @Model)
-    {
-        <tr>
-            <th>@p.Id</th>
-            <th>@p.Data.Name</th>
-            <td>@p.Data.LocationId </td>
-            <td>@p.Data.Description</td>
-            <td>@p.Data.Notes</td>
-        </tr>      
-}                  
-</table>
+  <div class="tab-content">
+    <div id="0" class="tab-pane fade in active">
+      <h3>Sensoren:</h3>
+      <table>
+	  @foreach( var x in @Model[0].sensoren){
+			<tr>@x.Data.Name</tr>
+	  }
+	  </table>
+    </div>
+	
+	@for( var x = 1; x < @Model.Count; ++x){
+		<div id="@x" class="tab-pane fade">
+		  <h3>Sensoren:</h3>
+		  @foreach( var i in @Model[x].sensoren){
+			<tr>@i.Data.Name</tr>			
+		  }
+		</div>
+	}
+  </div>
+</div>
+  
+
 
   <div id="myPieChart"/>
  </body>
