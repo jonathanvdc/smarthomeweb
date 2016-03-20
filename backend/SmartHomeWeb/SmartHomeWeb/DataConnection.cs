@@ -284,7 +284,7 @@ namespace SmartHomeWeb
         /// Creates a task that eagerly fetches all locations that are
         /// associated with the given person in the database.
         /// </summary>
-        public Task<IEnumerable<Location>> GetPersonLocationsAsync(Person Item)
+        public Task<IEnumerable<Location>> GetLocationsForPersonAsync(Guid PersonGuid)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -292,8 +292,31 @@ namespace SmartHomeWeb
                   SELECT loc.id, loc.name
                   FROM HasLocation as hasLoc, Location as loc
                   WHERE loc.id = hasLoc.locationId AND hasLoc.personGuid = @guid";
-                cmd.Parameters.AddWithValue("@guid", Item.Guid);
+                cmd.Parameters.AddWithValue("@guid", PersonGuid);
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadLocation);
+            }
+        }
+
+        /// <summary>
+        /// Creates a task that eagerly fetches all locations that are
+        /// associated with the given person in the database.
+        /// </summary>
+        public Task<IEnumerable<Location>> GetLocationsForPersonAsync(Person Item)
+           => GetLocationsForPersonAsync(Item.Guid);
+
+        /// <summary>
+        /// Gets the persons at the given location identifier.
+        /// </summary>
+        public Task<IEnumerable<Person>> GetPersonsAtLocationAsync(int LocationId)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"
+                  SELECT pers.guid, pers.username, pers.name, pers.password, pers.birthdate, pers.address, pers.city, pers.zipcode
+                  FROM HasLocation as hasLoc, Person as pers
+                  WHERE pers.guid = hasLoc.personGuid AND hasLoc.locationId = @locId";
+                cmd.Parameters.AddWithValue("@locId", LocationId);
+                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
             }
         }
 
@@ -407,7 +430,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Inserts the given messaeg  into the Message table.
+        /// Inserts the given message  into the Message table.
         /// </summary>
         /// <param name="Data">The message to insert into the table.</param>
         public Task InsertMessageAsync(MessageData Data)
@@ -430,6 +453,32 @@ namespace SmartHomeWeb
         public Task InsertMessageAsync(IEnumerable<MessageData> Data)
         {
             return Task.WhenAll(Data.Select(InsertMessageAsync));
+        }
+
+        /// <summary>
+        /// Inserts the given person-location pair into the
+        /// HasLocation table. 
+        /// </summary>
+        /// <param name="Data">The person-location pair to insert into the table.</param>
+        public Task InsertHasLocationPairAsync(PersonLocationPair Pair)
+        {            
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"INSERT INTO {HasLocationTableName}(personGuid, locationId) " +
+                    "VALUES (@personGuid, @locationId)";
+                cmd.Parameters.AddWithValue("@personGuid", Pair.PersonGuidString);
+                cmd.Parameters.AddWithValue("@locationId", Pair.LocationId);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Inserts all person-location pairs in the given list into the HasLocation table.
+        /// </summary>
+        /// <param name="Data">The list of person-location pairs to insert into the table.</param>
+        public Task InsertHasLocationPairAsync(IEnumerable<PersonLocationPair> Data)
+        {
+            return Task.WhenAll(Data.Select(InsertHasLocationPairAsync));
         }
 
         /// <summary>
