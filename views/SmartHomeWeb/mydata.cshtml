@@ -25,12 +25,12 @@ else
 @if (@Model.Count == 0)
 {
     <h2>Seems kind of lonely in here.</h2>
-    <div>Maybe you should add a location to your profile.</div>
+    <div>Maybe you should <a href="/add-has-location">add a location to your profile.</a></div>
 }
 else
 {
     <div class="container">
-        <h2>Dynamic Tabs</h2>
+        <h2>Locations</h2>
         <ul class="nav nav-tabs">
             <li class="active"><a data-toggle="tab" href="#0">@Model[0].location.Data.Name</a></li>
         	@for (int x = 1; x < @Model.Count; ++x) {
@@ -40,7 +40,7 @@ else
 
         <div class="tab-content">
             <div id="0" class="tab-pane fade in active">
-                <h3>Sensoren:</h3>
+                <h3>Sensors:</h3>
                 <table>
                 @foreach (var x in @Model[0].sensoren) {
                     <tr>@x.Data.Name</tr>
@@ -50,7 +50,7 @@ else
 
             @for (int x = 1; x < @Model.Count; ++x) {
                 <div id="@x" class="tab-pane fade">
-                    <h3>Sensoren:</h3>
+                    <h3>Sensors:</h3>
                     @foreach (var i in @Model[x].sensoren) {
                         <tr>@i.Data.Name</tr>
                     }
