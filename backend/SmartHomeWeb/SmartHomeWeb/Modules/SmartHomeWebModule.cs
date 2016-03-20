@@ -13,7 +13,8 @@ namespace SmartHomeWeb.Modules
             
             Get["/"] = parameters =>
             {
-                Console.WriteLine($"Logged in as {(Context.CurrentUser == null ? "nobody" : Context.CurrentUser.UserName)}");
+                string userName = Context.CurrentUser == null ? "nobody" : Context.CurrentUser.UserName;
+                Console.WriteLine($"Logged in as {userName}");
                 return View["home.cshtml"];
             };
 
