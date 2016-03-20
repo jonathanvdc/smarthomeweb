@@ -23,6 +23,9 @@ curl -X POST -d @measurement-data.json localhost:8088/api/measurements
 chmod +x ./add-message.sh
 ./add-message.sh bgoethals jonsneyers "Hallo"
 ./add-message.sh jonsneyers bgoethals "Goede morgen"
+
+chmod +x ./associate-location.sh
+./associate-location.sh bgoethals "De G.10"
 popd
 
 kill $serverid
