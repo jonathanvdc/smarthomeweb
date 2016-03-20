@@ -79,8 +79,6 @@ namespace SmartHomeWeb.Modules
             Get["/mydata", true] = async (parameters, ct) =>
             {
                 this.RequiresAuthentication();
-                //Get sensors in location where user is located
-                //display each sensor
                 var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid));
                 var locationlist = new System.Collections.Generic.List<Model.Locationextended>();
 
@@ -90,22 +88,16 @@ namespace SmartHomeWeb.Modules
 
                     foreach (var sensor in sensorsinlocations)
                     {
-                        Console.WriteLine(sensor.Data.Name);
-                        locest.addsensor(sensor);
-                        Console.WriteLine("test");
+                        var sensorex = new Model.Sensorextended(sensor);
+                        var measurements = await DataConnection.Ask(x => x.GetMeasurementsFromSensorAsync(sensor));
+                        foreach (var measurement in measurements)
+                        {
+                            sensorex.addmeasurement(measurement);
+                        }
+                        locest.addsensor(sensorex);
                     }
                     locationlist.Add(locest);
                 };
-
-                foreach (var x in locationlist)
-                {
-                    Console.WriteLine(x.location.Data.Name);
-                    foreach (var y in x.sensoren)
-                    {
-                        Console.WriteLine(y.Data.Name);
-                    }
-                }
-                
                 return View["mydata.cshtml", locationlist];
             };
         }

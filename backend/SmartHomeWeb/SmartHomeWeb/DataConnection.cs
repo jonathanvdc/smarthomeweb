@@ -321,6 +321,11 @@ namespace SmartHomeWeb
             }
         }
 
+        /// <summary>
+        /// Gets all sensors at a given location
+        /// </summary>
+        /// <param name="loc"></param>
+        /// <returns></returns>
         public Task<IEnumerable<Sensor>> GetSensorsAtLocation(Location loc)
         {
             using (var cmd = sqlite.CreateCommand())
@@ -333,6 +338,24 @@ namespace SmartHomeWeb
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor);
             }
 
+        }
+
+        /// <summary>
+        /// Gets all measurements for a given sensor
+        /// </summary>
+        /// <param name="sensor"></param>
+        /// <returns></returns>
+        public Task<IEnumerable<Measurement>> GetMeasurementsFromSensorAsync(Sensor sensor)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"
+                  SELECT *
+                  FROM Measurement
+                  WHERE sensorId = @senid";
+                cmd.Parameters.AddWithValue("@senid", sensor.Id);
+                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
+            }
         }
 
         /// <summary>

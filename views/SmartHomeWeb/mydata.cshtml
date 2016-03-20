@@ -6,21 +6,15 @@
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 <head>
+    <!-- Bootstrap Core CSS -->
+    <link href="ofbootstrap/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </head>
 <body>
 <h1>Measurement</h1>
-
-@if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
-{
-    <h2>Logged in as @Html.RenderContext.Context.CurrentUser.UserName.</h2>
-}
-else
-{
-	<h2>Not Logged In</h2>
-}
 
 @if (@Model.Count == 0)
 {
@@ -30,34 +24,50 @@ else
 else
 {
     <div class="container">
-        <h2>Dynamic Tabs</h2>
         <ul class="nav nav-tabs">
             <li class="active"><a data-toggle="tab" href="#0">@Model[0].location.Data.Name</a></li>
         	@for (int x = 1; x < @Model.Count; ++x) {
                 <li><a data-toggle="tab" href="#@x">@Model[x].location.Data.Name</a></li>
+				
         	}
         </ul>
-
-        <div class="tab-content">
-            <div id="0" class="tab-pane fade in active">
+        <div class="col-lg-8">
+            <div id="0" class="">
                 <h3>Sensoren:</h3>
-                <table>
-                @foreach (var x in @Model[0].sensoren) {
-                    <tr>@x.Data.Name</tr>
-                }
-                </table>
             </div>
 
-            @for (int x = 1; x < @Model.Count; ++x) {
-                <div id="@x" class="tab-pane fade">
-                    <h3>Sensoren:</h3>
-                    @foreach (var i in @Model[x].sensoren) {
-                        <tr>@i.Data.Name</tr>
-                    }
-                </div>
-            }
         </div>
+		<div class="col-lg-4">
+			<div class="panel panel-default tab-content">
+				<div class="list-group">
+					<div id="0" class="tab-pane face in active"
+				    @foreach (var x in @Model[0].sensoren) 
+					{					
+						<a href="#" class="list-group-item">
+							<i class="fa fa-comment fa-fw"></i> @x.sensor.Data.Name
+						</a>
+					}
+					
+					@for (int x = 1; x < @Model.Count; ++x) {
+						<div id="@x" class="tab-pane fade">
+							@foreach (var i in @Model[x].sensoren) 
+							{
+								<a href="#" class="list-group-item">
+									<i class="fa fa-comment fa-fw"></i> @i.sensor.Data.Name
+								</a>
+							}
+						</div>
+					}
+					<div class="tab-pane fade"
+					<a href="#" class="list-group-item">
+						<i class="fa fa-twitter fa-fw"></i> 3 New Followers
+						<span class="pull-right text-muted small"><em>12 minutes ago</em>
+						</span>
+					</a>
+					</div>
+				</div>
+			</div>
+		</div>
     </div>
-    <div id="myPieChart"/>
 }
 </body>

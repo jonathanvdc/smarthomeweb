@@ -8,15 +8,15 @@ namespace SmartHomeWeb.Model
 {
     public class Locationextended
     {
-        public List<Sensor> sensoren { get; private set; }
+        public List<Sensorextended> sensoren { get; private set; }
 
         public Locationextended(Location location)
         {
             this.location = location;
-            this.sensoren = new List<Sensor>();
+            this.sensoren = new List<Sensorextended>();
         }
 
-        public void addsensor(Sensor sensor)
+        public void addsensor(Sensorextended sensor)
         {
             this.sensoren.Add(sensor);
         }
