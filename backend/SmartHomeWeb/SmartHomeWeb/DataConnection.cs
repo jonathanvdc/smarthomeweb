@@ -321,6 +321,20 @@ namespace SmartHomeWeb
             }
         }
 
+        public Task<IEnumerable<Sensor>> GetSensorsAtLocation(Location loc)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"
+                  SELECT *
+                  FROM Sensor
+                  WHERE locationid = @locId";
+                cmd.Parameters.AddWithValue("@locId", loc.Id);
+                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor);
+            }
+
+        }
+
         /// <summary>
         /// Inserts the given person data into the Persons table.
         /// </summary>
