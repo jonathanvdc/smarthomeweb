@@ -20,6 +20,8 @@ curl -X POST -d @location-data.json localhost:8088/api/locations
 curl -X POST -d @sensor-data.json localhost:8088/api/sensors
 curl -X POST -d @measurement-data.json localhost:8088/api/measurements
 
+mkdir -p tmp
+
 chmod +x ./add-message.sh
 ./add-message.sh bgoethals jonsneyers "Hallo"
 ./add-message.sh jonsneyers bgoethals "Goede morgen"
