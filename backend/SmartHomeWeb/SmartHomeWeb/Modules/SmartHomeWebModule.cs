@@ -4,6 +4,8 @@ using Nancy.Authentication.Forms;
 using Nancy.Security;
 using SmartHomeWeb.Model;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SmartHomeWeb.Modules
 {
@@ -13,12 +15,7 @@ namespace SmartHomeWeb.Modules
         {
             // StaticConfiguration.EnableHeadRouting = true;
             
-            Get["/"] = parameters =>
-            {
-                string userName = Context.CurrentUser == null ? "nobody" : Context.CurrentUser.UserName;
-                Console.WriteLine($"Logged in as {userName}");
-                return View["home.cshtml"];
-            };
+            Get["/"] = parameters => View["home.cshtml"];
 
             // Pages for individual tables
             Get["/person", true] = async (parameters, ct) =>
@@ -31,11 +28,47 @@ namespace SmartHomeWeb.Modules
                 var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
                 return View["locations.cshtml", locations];
             };
-            Get["/message", true] = async (parameters, ct) =>
+            Get["/message", true] = GetMessage;
+
+            Post["/message", true] = async (parameters, ct) =>
             {
-                var messages = await DataConnection.Ask(x => x.GetMessagesAsync());
-                return View["message.cshtml", messages];
+                ViewBag.Error = "";
+                ViewBag.Success = "";
+
+                using (var dc = await DataConnection.CreateAsync())
+                {
+                    if (!Context.CurrentUser.IsAuthenticated())
+                    {
+                        ViewBag.Error = "You must log in to send messages.";
+                    }
+                    else
+                    {
+                        var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                        if (sender == null)
+                        {
+                            ViewBag.Error = "I couldn't find your username in the database...?";
+                        }
+                        else
+                        {
+                            await Console.Out.WriteLineAsync((string)Request.Form["messagename"]);
+                            var recipient = await dc.GetPersonByUsernameAsync((string)Request.Form["messagename"]);
+                            if (recipient == null)
+                            {
+                                ViewBag.Error = "That person doesn't exist.";
+                            }
+                            else
+                            {
+                                var messageData = new MessageData(sender.Guid, recipient.Guid, Request.Form["messagebody"]);
+                                await dc.InsertMessageAsync(messageData);
+                                ViewBag.Success = "Message sent!";
+                            }
+                        }
+                    }
+                }
+
+                return await GetMessage(parameters, ct);
             };
+
             Get["/sensor", true] = async (parameters, ct) =>
             {
                 var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
@@ -57,7 +90,6 @@ namespace SmartHomeWeb.Modules
 
                 if (userMapper.FindUser(name, pass, out user))
                 {
-                    Console.WriteLine("Found user: " + user.Guid);
                     return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/");
                 }
                 else
@@ -67,10 +99,7 @@ namespace SmartHomeWeb.Modules
             };
             Get["/logout"] = parameter => this.Logout("/");
 
-            Get["/nopass"] = parameter => {
-                Console.WriteLine("nopass");
-                return NotAuthorizedPage;
-            };
+            Get["/nopass"] = parameter => NotAuthorizedPage;
 
             Get["/graphing", true] = async (parameters, ct) =>
             {
@@ -94,7 +123,7 @@ namespace SmartHomeWeb.Modules
             {
                 this.RequiresAuthentication();
                 var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid));
-                var locationlist = new System.Collections.Generic.List<LocationExtended>();
+                var locationlist = new List<LocationExtended>();
 
                 foreach (var pair in locations) {
                     var sensorsinlocations = await DataConnection.Ask(x => x.GetSensorsAtLocation(pair));
@@ -115,6 +144,13 @@ namespace SmartHomeWeb.Modules
                 return View["mydata.cshtml", locationlist];
             };
         }
+
+        private async Task<dynamic> GetMessage(dynamic parameters, CancellationToken ct)
+        {
+            var messages = await DataConnection.Ask(x => x.GetMessagesAsync());
+            return View["message.cshtml", messages];
+        }
+
         public static string ErrorPage => @"
                 <html>
                     <body>

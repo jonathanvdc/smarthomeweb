@@ -14,13 +14,7 @@ namespace SmartHomeWeb.Modules
         {
             this.RequiresAuthentication();
 
-            Get["/"] = parameters =>
-            {
-                Console.WriteLine("a");
-                var s = SecuredPage;
-                Console.WriteLine("b");
-                return s;
-            };
+            Get["/"] = parameters => SecuredPage;
 
             Get["/test"] = parameters => "test?";
         }

@@ -211,10 +211,16 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Creates a task that fetches a single person from the database.
+        /// Creates a task that fetches a single person from the database by their GUID.
         /// </summary>
         public Task<Person> GetPersonByGuidAsync(Guid id) =>
             GetSingleByKeyAsync(PersonTableName, "guid", id.ToString(), DatabaseHelpers.ReadPerson);
+
+        /// <summary>
+        /// Creates a task that fetches a single person from the database by their username.
+        /// </summary>
+        public Task<Person> GetPersonByUsernameAsync(string username) =>
+            GetSingleByKeyAsync(PersonTableName, "username", username, DatabaseHelpers.ReadPerson);
 
         /// <summary>
         /// Creates a task that fetches a single location from the database.

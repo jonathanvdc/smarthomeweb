@@ -129,6 +129,9 @@
     <Compile Include="Modules\API\ApiPersonLocationsModule.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
+      <Link>View Links\add-has-location.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
       <Link>View Links\home.cshtml</Link>
     </None>
