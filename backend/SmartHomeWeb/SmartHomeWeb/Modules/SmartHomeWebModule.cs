@@ -94,23 +94,23 @@ namespace SmartHomeWeb.Modules
             {
                 this.RequiresAuthentication();
                 var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid));
-                var locationlist = new System.Collections.Generic.List<Model.Locationextended>();
+                var locationlist = new System.Collections.Generic.List<LocationExtended>();
 
                 foreach (var pair in locations) {
                     var sensorsinlocations = await DataConnection.Ask(x => x.GetSensorsAtLocation(pair));
-                    var locest = new Model.Locationextended(pair);
+                    var extended = new LocationExtended(pair);
 
                     foreach (var sensor in sensorsinlocations)
                     {
-                        var sensorex = new Model.Sensorextended(sensor);
+                        var sensorex = new SensorExtended(sensor);
                         var measurements = await DataConnection.Ask(x => x.GetMeasurementsFromSensorAsync(sensor));
                         foreach (var measurement in measurements)
                         {
-                            sensorex.addmeasurement(measurement);
+                            sensorex.AddMeasurement(measurement);
                         }
-                        locest.addsensor(sensorex);
+                        extended.AddSensor(sensorex);
                     }
-                    locationlist.Add(locest);
+                    locationlist.Add(extended);
                 };
                 return View["mydata.cshtml", locationlist];
             };

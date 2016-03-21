@@ -6,22 +6,22 @@ using System.Threading.Tasks;
 
 namespace SmartHomeWeb.Model
 {
-    public class Sensorextended
+    public class SensorExtended
     {
-        public List<Measurement> sensoren { get; private set; }
+        public List<Measurement> Measurements { get; private set; }
 
-        public Sensorextended(Sensor sensor)
+        public SensorExtended(Sensor sensor)
         {
-            this.sensor = sensor;
-            this.sensoren = new List<Measurement>();
+            this.Sensor = sensor;
+            this.Measurements = new List<Measurement>();
         }
 
-        public void addmeasurement(Measurement measurement)
+        public void AddMeasurement(Measurement measurement)
         {
-            this.sensoren.Add(measurement);
+            this.Measurements.Add(measurement);
         }
 
-        public Sensor sensor { get; private set; }
+        public Sensor Sensor { get; private set; }
 
 
     }

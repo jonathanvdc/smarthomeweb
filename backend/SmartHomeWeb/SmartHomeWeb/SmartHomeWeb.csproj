@@ -147,6 +147,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\message.cshtml">
       <Link>View Links\message.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\mydata.cshtml">
+      <Link>View Links\mydata.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\person.cshtml">
       <Link>View Links\person.cshtml</Link>
     </None>

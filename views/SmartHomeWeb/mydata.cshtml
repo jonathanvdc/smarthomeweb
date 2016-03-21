@@ -2,7 +2,7 @@
 @using Nancy.Security
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<List<Locationextended>>
+@inherits NancyRazorViewBase<List<LocationExtended>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 <head>
@@ -21,27 +21,32 @@
       // draws it.
       function drawChart() {
 		var array = [];
-		@foreach(var x in @Model[0].sensoren[0].sensoren)
-		{
-			@:var stamp = @x.ToJavascriptTimestamp();
-			@:var date = new Date(stamp);
-			@:var hmsstring = date.getHours() + ':' + ("0"+date.getMinutes());
-			@:array.push([hmsstring, @x.MeasuredData]);
-		}
-        // Create the data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Time');
-        data.addColumn('number', 'Usage');
-        data.addRows(array);
+        @if (@Model.Count > 0 && @Model[0].Sensors.Count > 0)
+        {
+             foreach (var x in @Model[0].Sensors[0].Measurements)
+             {
+                 @:var stamp = @x.ToJavascriptTimestamp();
+                 @:var date = new Date(stamp);
+                 @:var hmsstring = date.getHours() + ':' + ("0" + date.getMinutes());
+                 @:array.push([hmsstring, @x.MeasuredData]);
+             }
 
-        // Set chart options
-        var options = {'width':600,
-                       'height':500};
+            <text>
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Time');
+            data.addColumn('number', 'Usage');
+            data.addRows(array);
 
-        // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+            // Set chart options
+            var options = {'width':600,
+                           'height':500};
 
-        chart.draw(data, options);
+            // Instantiate and draw our chart, passing in some options.
+            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+
+            chart.draw(data, options);            
+          </text>
+      }
       }
 	  
     </script>
@@ -61,10 +66,10 @@ else
 {
     <div class="container col-sm-12">
         <ul class="nav nav-tabs col-sm-12">
-		  <li class="active"><a data-toggle="tab" href="#0">@Model[0].location.Data.Name</a></li>
+		  <li class="active"><a data-toggle="tab" href="#0">@Model[0].Location.Data.Name</a></li>
 		  @for(var x = 1; x < @Model.Count; ++x)
 			{
-			  <li><a data-toggle="tab" href="#@x">@Model[@x].location.Data.Name</a></li>		
+			  <li><a data-toggle="tab" href="#@x">@Model[@x].Location.Data.Name</a></li>		
 			}
 		</ul>
 		<div class="col-sm-8">
@@ -75,9 +80,9 @@ else
 		
 		  <div id="0"  class="tab-pane fade in active">
 			<ul class="nav nav-pills nav-stacked">
-			@foreach (var x in @Model[0].sensoren)
+			@foreach (var x in @Model[0].Sensors)
 			{
-			  <li><a href="#">@x.sensor.Data.Name</a></li>
+			  <li><a href="#">@x.Sensor.Data.Name</a></li>
 			}
 			</ul>
 		  </div>
@@ -86,9 +91,9 @@ else
 			{
 			  <div id="@x" class="tab-pane fade">
 				<ul class="nav nav-pills nav-stacked">
-					@foreach (var y in @Model[x].sensoren)
+					@foreach (var y in @Model[x].Sensors)
 					{
-					  <li><a href="#">@y.sensor.Data.Name</a></li>
+					  <li><a href="#">@y.Sensor.Data.Name</a></li>
 					}
 				</ul>
 			  </div>	
