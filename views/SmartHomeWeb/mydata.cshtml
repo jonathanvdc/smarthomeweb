@@ -20,18 +20,28 @@
 	var array = [];
     @if (@Model.Count > 0 && @Model[0].Sensors.Count > 0)
     {
-            foreach (var x in @Model[0].Sensors[0].Measurements)
-            {
-                @:var stamp = @x.ToJavascriptTimestamp();
-                @:var date = new Date(stamp);
-                @:var hmsstring = date.toISOString().substring(11, 19);
-                @:array.push([hmsstring, @x.MeasuredData]);
-            }
+            // foreach (var x in @Model[0].Sensors[0].Measurements)
+            // {
+            //     @:var stamp = @x.ToJavascriptTimestamp();
+            //     @:var date = new Date(stamp);
+            //     @:var hmsstring = date.toISOString().substring(11, 19);
+            //     @:array.push([hmsstring, @x.MeasuredData]);
+            // }
 
         <text>
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Time');
         data.addColumn('number', 'Usage');
+
+        // This is temporary:
+        var a = 30.0;
+        array = Array(120).fill().map(function(x, i) {
+            return [
+                new Date(1458565827 + i * 1000).toISOString().substring(11, 19),
+                a += Math.random() * 3 - 1.5
+            ];
+        });
+
         data.addRows(array);
 
         // Set chart options
@@ -39,7 +49,7 @@
                         'height':500};
 
         // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
         chart.draw(data, options);            
         </text>
@@ -48,11 +58,31 @@
 	  
 </script>
 
-<h1>Measurement</h1>
+<h2>Messages</h2>
+
+<ul class="media-list">
+@foreach (var message in @ViewBag.Messages)
+{
+    // TODO: VIEWBAG
+    <li class="media">
+      <div class="media-left">
+        <a href="#">
+	        <img class="media-object missing-avatar" height="64px" src="content/logostencil.png" alt="@message.Item1">
+        </a>
+      </div>
+      <div class="media-body">
+        <h4 class="media-heading">@message.Item1</h4>
+        @message.Item2
+      </div>
+    </li>
+}
+</ul>
+
+<h2>Measurement</h2>
 
 @if (@Model.Count == 0)
 {
-    <h2>Seems kind of lonely in here.</h2>
+    <h3>Seems kind of lonely in here.</h3>
     <div>Maybe you should add a <a href="/add-has-location">location to your profile.</a></div>
 }
 else

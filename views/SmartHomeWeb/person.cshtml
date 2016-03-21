@@ -29,14 +29,14 @@
     @foreach (var p in @Model)
     {
         <tr>
-            <th>@p.Guid</th>
-            <th>@p.Data.UserName</th>
-            <td>@p.Data.Name</td>
-            <td>@p.Data.Birthdate.ToLongDateString()</td>
-            <td>@p.Data.Password</td>
-            <td>@p.Data.Address</td>
-            <td>@p.Data.City</td>
-            <td>@p.Data.ZipCode</td>
-        </tr>      
-}                  
+	        <th><samp>@p.Guid</samp></th>
+	        <th>@p.Data.UserName</th>
+	        <td>@p.Data.Name</td>
+	        <td>@p.Data.Birthdate.ToLongDateString()</td>
+	        <td>@p.Data.Password</td>
+	        <td>@p.Data.Address</td>
+	        <td>@p.Data.City</td>
+	        <td>@p.Data.ZipCode</td>
+        </tr>
+    }
 </table>

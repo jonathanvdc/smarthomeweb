@@ -9,3 +9,32 @@ body {
 .navbar-brand:hover #navbar-logo {
 	opacity: 1;
 }
+
+.bubble {
+    position: relative;
+    padding: 10px;
+    background: #CFCFFF;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+.bubble:after {
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 10px 10px 10px 0;
+    border-color: transparent #CFCFFF;
+    display: block;
+    width: 0;
+    z-index: 1;
+    left: -9px;
+    top: 10px;
+}
+
+img.missing-avatar {
+	background-color: #888888;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+	opacity: 0.4;
+}

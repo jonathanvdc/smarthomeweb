@@ -4,6 +4,8 @@ using Nancy.Authentication.Forms;
 using Nancy.Security;
 using SmartHomeWeb.Model;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -140,7 +142,27 @@ namespace SmartHomeWeb.Modules
                         extended.AddSensor(sensorex);
                     }
                     locationlist.Add(extended);
-                };
+                }
+
+                // TODO VIEWBAG
+                // TODO write a query for this, too?
+                var tuples = new List<Tuple<string, string>>();
+
+                using (var dc = await DataConnection.CreateAsync())
+                {
+                    var messages = await dc.GetMessagesAsync();
+                    foreach (var m in messages)
+                    {
+                        var recipient = await dc.GetPersonByGuidAsync(m.Data.RecipientGuid);
+                        if (recipient.Data.UserName == Context.CurrentUser.UserName)
+                        {
+                            var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
+                            tuples.Add(Tuple.Create(sender.Data.UserName, m.Data.Message));
+                        }
+                    }
+                }
+
+                ViewBag.Messages = tuples;
                 return View["mydata.cshtml", locationlist];
             };
         }
