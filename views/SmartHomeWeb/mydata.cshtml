@@ -5,56 +5,50 @@
 @inherits NancyRazorViewBase<List<LocationExtended>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
-<head>
-    <!-- Bootstrap Core CSS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	
-	<script type="text/javascript">
-      // Load the Visualization API and the corechart package.
-      google.charts.load('current', {'packages':['corechart']});
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
+<script type="text/javascript">
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', {'packages':['corechart']});
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawChart);
 
-      // Callback that creates and populates a data table,
-      // instantiates the pie chart, passes in the data and
-      // draws it.
-      function drawChart() {
-		var array = [];
-        @if (@Model.Count > 0 && @Model[0].Sensors.Count > 0)
-        {
-             foreach (var x in @Model[0].Sensors[0].Measurements)
-             {
-                 @:var stamp = @x.ToJavascriptTimestamp();
-                 @:var date = new Date(stamp);
-                 @:var hmsstring = date.getHours() + ':' + ("0" + date.getMinutes());
-                 @:array.push([hmsstring, @x.MeasuredData]);
-             }
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+	var array = [];
+    @if (@Model.Count > 0 && @Model[0].Sensors.Count > 0)
+    {
+            foreach (var x in @Model[0].Sensors[0].Measurements)
+            {
+                @:var stamp = @x.ToJavascriptTimestamp();
+                @:var date = new Date(stamp);
+                @:var hmsstring = date.getHours() + ':' + ("0" + date.getMinutes());
+                @:array.push([hmsstring, @x.MeasuredData]);
+            }
 
-            <text>
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Time');
-            data.addColumn('number', 'Usage');
-            data.addRows(array);
+        <text>
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Time');
+        data.addColumn('number', 'Usage');
+        data.addRows(array);
 
-            // Set chart options
-            var options = {'width':600,
-                           'height':500};
+        // Set chart options
+        var options = {'width':600,
+                        'height':500};
 
-            // Instantiate and draw our chart, passing in some options.
-            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
 
-            chart.draw(data, options);            
-          </text>
-      }
-      }
+        chart.draw(data, options);            
+        </text>
+    }
+    }
 	  
-    </script>
-	
-	
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-</head>
-<body>
+</script>
+
 <h1>Measurement</h1>
 
 @if (@Model.Count == 0)
@@ -72,8 +66,8 @@ else
 			  <li><a data-toggle="tab" href="#@x">@Model[@x].Location.Data.Name</a></li>		
 			}
 		</ul>
-		<div class="col-sm-8">
-		<div id="chart_div"></div>
+		<div class="col-sm-8-remove-this"> <!-- HACK -->
+		    <div id="chart_div" hidden></div>
 		</div>
 		<div class="tab-content col-sm-4">
 		
@@ -101,4 +95,3 @@ else
 		</div>
     </div>
 }
-</body>
