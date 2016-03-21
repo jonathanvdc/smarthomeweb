@@ -6,6 +6,12 @@ jsonpack="../json-utils/json-pack/bin/Release/json-pack.exe"
 jsonfind="../json-utils/json-find/bin/Release/json-find.exe"
 jsonflatten="../json-utils/json-flatten/bin/Release/json-flatten.exe"
 
+chmod +x $jsonfield
+chmod +x $jsonadd
+chmod +x $jsonpack
+chmod +x $jsonfind
+chmod +x $jsonflatten
+
 curl -X GET localhost:8088/api/persons | $jsonflatten > tmp/persons.json
 guid1="$(cat tmp/persons.json | $jsonfind username $1 | $jsonfield personGuid)"
 guid2="$(cat tmp/persons.json | $jsonfind username $2 | $jsonfield personGuid)"
