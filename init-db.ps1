@@ -2,6 +2,9 @@
 pushd backend/database
 ./create-db.ps1
 popd
+pushd ElecSim
+cmd.exe /c "init.bat"
+popd
 
 $app = Start-Process ./backend/SmartHomeWeb/SmartHomeWeb/bin/Release/SmartHomeWeb.exe -passthru
 
@@ -16,7 +19,10 @@ Invoke-WebRequest -Uri http://localhost:8088/api/locations -Method POST -Body $b
 $body = Get-Content ./example-files/sensor-data.json
 Invoke-WebRequest -Uri http://localhost:8088/api/sensors -Method POST -Body $body
 
-$body = Get-Content ./example-files/measurement-data.json
+# $body = Get-Content ./example-files/measurement-data.json
+# Invoke-WebRequest -Uri http://localhost:8088/api/measurements -Method POST -Body $body
+
+$body = Get-Content ./ElecSim/MY_FILE1.json
 Invoke-WebRequest -Uri http://localhost:8088/api/measurements -Method POST -Body $body
 
 # $body = Get-Content ./example-files/message-data.json

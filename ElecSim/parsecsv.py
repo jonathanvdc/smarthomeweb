@@ -22,25 +22,26 @@ def main(argv):
 	
 	reader = csv.reader(csvfile, delimiter=';')
 	counter = 0
-	finalOutput = ["["]
+	finalOutput = ["[\n"]
 	fieldnames = []
 	for line in reader:
 		if (counter == 0):
 			fieldnames = line
 		else:
-			
 			counter2 = 0
 			unixtime = 0
 			for data in line:
 				if (data != ""):
 					if (counter2 == 0):
 						dt = datetime(int(data[:4]), int(data[5:7]), int(data[8:10]), int(data[11:13]), int(data[14:16]), int(data[17:19]))
-						unixtime = dt.timestamp()
+						unixtime = dt
 					else:
 						if (fieldnames[counter2] != "Total"):
-							if (finalOutput[-1] != '[' and finalOutput[-1] != ', '):
-								finalOutput.append(', ')
-							finalOutput.append("""{}{}, {}, {}, {}{}""".format('{', fieldnames[counter2], household, unixtime, data, '}'))
+							finalOutput.append("\t{")
+							finalOutput.append("\n\t\t\"sensorId\" : {0},\n".format(counter2))
+							finalOutput.append("\t\t\"timestamp\" : \"{0}\", \n".format(unixtime))
+							finalOutput.append("\t\t\"measurement\" : {0},\n".format(data))
+							finalOutput.append("\t\t\"notes\" : \"\"\n\t},\n")
 				counter2 += 1
 		counter += 1
 	finalOutput.append("]")
