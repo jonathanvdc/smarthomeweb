@@ -365,6 +365,20 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Gets all measurements for a sensor with given id
+        /// </summary>
+        /// <param name="sensor"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Measurement>> GetMeasurementsFromSensorAsync(int sensorid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                Sensor sensor = await GetSensorByIdAsync(sensorid);
+                return await GetMeasurementsFromSensorAsync(sensor);
+            }
+        }
+
+        /// <summary>
         /// Inserts the given person data into the Persons table.
         /// </summary>
         /// <param name="Data">The person data to insert into the table.</param>
