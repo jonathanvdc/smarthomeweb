@@ -3,25 +3,44 @@
 ## Up next
 * CSV files laden in database (+ cronnig scriptje)
 * Logins met database integreren
-* Iets “toonbaar” krijgen: inloggen als user, bijbehorende data zien??
-  * “Als ge da in een grafiekske ziet, da’s ook, een ureke werk hé.” – ik
+* Readings inladen, opslaan, tonen en aggregeren
+* Elke Location heeft exact 1 persoon -> HasLocation weg, Location een Person id geven
+* Metingen:
+  * Inlezen
+  * Opslaan
+  * Aggregeren
+  * Weergeven
 
 ## Moetjes
 
 * REST API verder maken
-* Grafieken
-* Sociaal gedoe
-* Analytics over verbruik
+* Metingen:
+    * Grafieken
+    * Kost / eenheid ingeven
+    * Filteren/sorteren op:
+        * Periode
+        * Verbruik/kostprijs
+        * tags/groepen van sensoren
+    * Aggregatie:
+        * Historische data samenvoegen tot minder data
+        * Verschil in verbruik tussen periodes kunnen bekijken
+* Sociaal:
+    * Vrienden of groepen maken
+    * Messages schrijven op mensen hun wall
+    * Optie om grafieken te sharen (op wall?)
+* Taalkeuze
+* Multi-user
 
 ## Magjes
 
 * Alles mooi maken
 * Connect met feesboek
+* Sociaal gedoe diep uitwerken
 
 # Schedule
 
-* <s>**17 maart**: 1e rapport</s>
-* **21 maart**: 1e presentatie: taakverdeling, database, design-beslissingen
+* ~~**17 maart**: 1e rapport~~
+* ~~**21 maart**: 1e presentatie: taakverdeling, database, design-beslissingen~~
 * **25 april**: 2e rapport
 * **ergens vlak daarna**: 2e presentatie: werkende demo
 * **17 mei**: indienen project + eindrapport
