@@ -11,7 +11,7 @@
     // Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
     // Set a callback to run when the Google Visualization API is loaded.
-    google.charts.setOnLoadCallback(function(){ drawChart(@Model[0].Sensors[0].Sensor.Id) });
+    google.charts.setOnLoadCallback(function(){ drawChart(@Model[0].Sensors[0].Id) });
 
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
@@ -107,7 +107,7 @@ else
 			<ul class="nav nav-pills nav-stacked">
 			@foreach (var x in @Model[0].Sensors)
 			{
-			  <li id="@x.Sensor.Id" onClick="drawChart(this.id)"><a>@x.Sensor.Data.Name</a></li>
+			  <li id="@x.Id" onClick="drawChart(this.id)"><a>@x.Data.Name</a></li>
 			}
 			</ul>
 		  </div>
@@ -118,7 +118,7 @@ else
 				<ul class="nav nav-pills nav-stacked">
 					@foreach (var y in @Model[x].Sensors)
 					{
-					  <li id="@y.Sensor.Id" onClick="drawChart(this.id)"><a>@y.Sensor.Data.Name</a></li>
+					  <li id="@y.Id" onClick="drawChart(this.id)"><a>@y.Data.Name</a></li>
 					}
 				</ul>
 			  </div>	

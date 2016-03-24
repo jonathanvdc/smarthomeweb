@@ -133,13 +133,7 @@ namespace SmartHomeWeb.Modules
 
                     foreach (var sensor in sensorsinlocations)
                     {
-                        var sensorex = new SensorExtended(sensor);
-                        var measurements = await DataConnection.Ask(x => x.GetMeasurementsFromSensorAsync(sensor));
-                        foreach (var measurement in measurements)
-                        {
-                            sensorex.AddMeasurement(measurement);
-                        }
-                        extended.AddSensor(sensorex);
+                        extended.AddSensor(sensor);
                     }
                     locationlist.Add(extended);
                 }
