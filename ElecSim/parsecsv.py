@@ -3,6 +3,7 @@ import csv
 import sys
 import getopt
 from datetime import datetime
+import sqlite3
 
 def main(argv):
 	usage="parsecsv.py -h <household number> -i <input csv file> -o <output json file>"
@@ -24,9 +25,26 @@ def main(argv):
 	counter = 0
 	finalOutput = ["[\n"]
 	fieldnames = []
+	sensorids = []
 	for line in reader:
 		if (counter == 0):
 			fieldnames = line
+			conn = sqlite3.connect('../backend/database/smarthomeweb.db')
+			c = conn.cursor()
+			sensorcounter = 2
+			for value in fieldnames:
+				if (value != ""):
+					if value != "Timestamp" and value != "Total":
+						c.execute("INSERT INTO Sensor(locationid, title, description) VALUES ({},\"{}\",\"{}\");".format(household, value, sensorcounter))
+						sensorcounter += 1
+			conn.commit()
+			c.execute("SELECT id, description FROM Sensor WHERE Locationid == " + household + ";")
+			sensorids = c.fetchall()
+			for value in sensorids:
+				for num in range(0, len(sensorids)-1):
+					if int(sensorids[num][1]) > int(sensorids[num+1][1]) :
+						sensorids[num], sensorids[num+1] = sensorids[num+1], sensorids[num]			
+			conn.close()
 		else:
 			counter2 = 0
 			unixtime = 0
@@ -38,7 +56,7 @@ def main(argv):
 					else:
 						if (fieldnames[counter2] != "Total"):
 							finalOutput.append("\t{")
-							finalOutput.append("\n\t\t\"sensorId\" : {0},\n".format(counter2))
+							finalOutput.append("\n\t\t\"sensorId\" : {0},\n".format(sensorids[counter2-2][0]))
 							finalOutput.append("\t\t\"timestamp\" : \"{0}\", \n".format(unixtime))
 							finalOutput.append("\t\t\"measurement\" : {0},\n".format(data))
 							finalOutput.append("\t\t\"notes\" : \"\"\n\t},\n")

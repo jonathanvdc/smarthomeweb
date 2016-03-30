@@ -16,8 +16,8 @@ Invoke-WebRequest -Uri http://localhost:8088/api/persons -Method POST -Body $bod
 $body = Get-Content ./example-files/location-data.json
 Invoke-WebRequest -Uri http://localhost:8088/api/locations -Method POST -Body $body
 
-$body = Get-Content ./example-files/sensor-data.json
-Invoke-WebRequest -Uri http://localhost:8088/api/sensors -Method POST -Body $body
+#$body = Get-Content ./example-files/sensor-data.json
+#Invoke-WebRequest -Uri http://localhost:8088/api/sensors -Method POST -Body $body
 
 # $body = Get-Content ./example-files/measurement-data.json
 # Invoke-WebRequest -Uri http://localhost:8088/api/measurements -Method POST -Body $body
