@@ -12,7 +12,11 @@
     google.charts.load('current', {'packages':['corechart']});
     // Set a callback to run when the Google Visualization API is loaded.
 	@if (@Model.Count != 0){
-		@:google.charts.setOnLoadCallback(function(){ drawChart(@Model[0].Sensors[0].Id) });
+		@if (@Model[0].Sensors.Count == 0){
+			@:document.getElementById('chart_div').innerHTML = "<h3>No sensordata is saved.</h3>";
+		}else{
+			@:google.charts.setOnLoadCallback(function(){ drawChart(@Model[0].Sensors[0].Id) });
+		}
 	}
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
@@ -21,12 +25,12 @@
 	
     function drawChart(x) {
 		var array = [];
-		var json = getSensor(x);
 		if(json.length == 0)
 		{
 			document.getElementById('chart_div').innerHTML = "<h3>No sensordata is saved.</h3>";
 		}else
 		{
+			var json = getSensor(x);
 			for(x in json)
 			{
 				var date = new Date(json[x].timestamp);
