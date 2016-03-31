@@ -94,7 +94,11 @@ namespace SmartHomeWeb
         /// </summary>
         public static Location ReadLocation(IDataRecord Record)
         {
-            return new Location(Record.GetInt32(0), new LocationData(Record.GetString(1)));
+            return new Location(
+                GetInt32(Record, "id"), 
+                new LocationData(
+                    GetString(Record, "name"),
+                    GetGuid(Record, "owner")));
         }
 
         /// <summary>

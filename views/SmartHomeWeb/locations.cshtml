@@ -12,12 +12,14 @@
 
         <tr class="tableHeader">
             <th>Name</th>
+            <th>Owner GUID</th>
         </tr>
 		
     @foreach (var p in @Model)
     {
         <tr>
             <td>@p.Data.Name</td>
+            <td><samp>@p.Data.OwnerGuid</samp></td>
         </tr>
     }
 </table>

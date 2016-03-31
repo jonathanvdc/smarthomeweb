@@ -417,9 +417,10 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"INSERT INTO {LocationTableName}(name) " +
-                    "VALUES (@name)";
+                cmd.CommandText = $"INSERT INTO {LocationTableName}(name, owner) " +
+                    "VALUES (@name, @owner)";
                 cmd.Parameters.AddWithValue("@name", Data.Name);
+                cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
                 return cmd.ExecuteNonQueryAsync();
             }
         }
