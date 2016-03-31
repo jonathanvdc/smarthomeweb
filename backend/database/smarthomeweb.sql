@@ -25,7 +25,12 @@ create table Message (
 
 create table Location (
     id integer primary key autoincrement,
-    name text not null
+    name text not null,
+    -- A location has exactly one owner, but there can be any number of
+    -- persons who are interested in a location's energy consumption.
+    -- (for example, family members may want to know if they left the
+    -- lights on, etc)
+    owner text not null references Person(guid)
 );
 
 -- "Person A has location B" is an N:N relation, so we need a separate table
@@ -71,7 +76,7 @@ create table HourAverage (
     sensorId integer not null references Sensor(id),
     unixtime integer not null, -- Unix time for YYYY-MM-DD XX:00. Identifies the hour.
     average real not null,
-    notes text, -- Aggregate 
+    notes text, -- Aggregate
     primary key (sensorId, unixtime)
 
 );
