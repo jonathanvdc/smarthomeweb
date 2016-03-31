@@ -15,12 +15,17 @@ sleep 2
 # Post some sample data
 pushd example-files
 
+mkdir -p tmp
+
 curl -X POST -d @person-data.json localhost:8088/api/persons
-curl -X POST -d @location-data.json localhost:8088/api/locations
+
+./create-location.sh "De G.10" bgoethals
+./create-location.sh "M.H. 143" bennyvh
+./create-location.sh "V. 009" hans
+
 curl -X POST -d @sensor-data.json localhost:8088/api/sensors
 curl -X POST -d @measurement-data.json localhost:8088/api/measurements
 
-mkdir -p tmp
 
 chmod +x ./add-message.sh
 ./add-message.sh bgoethals jonsneyers "Hallo"
@@ -29,5 +34,7 @@ chmod +x ./add-message.sh
 chmod +x ./associate-location.sh
 ./associate-location.sh bgoethals "De G.10"
 popd
+
+# curl -X POST -d @ElecSim/MY_FILE1.json localhost:8088/api/measurements
 
 kill $serverid
