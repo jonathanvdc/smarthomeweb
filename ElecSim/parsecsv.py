@@ -25,25 +25,27 @@ def main(argv):
 	counter = 0
 	finalOutput = ["[\n"]
 	fieldnames = []
-	sensorids = []
+
+	# Fetch highest id from sensors
+	conn = sqlite3.connect('../backend/database/smarthomeweb.db')
+	c = conn.cursor()
+	c.execute("SELECT MAX(id) FROM Sensor;")
+	sensorcounter = c.fetchall()[0][0]
+	if sensorcounter == None:
+		sensorcounter = 0
+	else:
+		sensorcounter += 1
+	sensorid = sensorcounter
 	for line in reader:
 		if (counter == 0):
 			fieldnames = line
-			conn = sqlite3.connect('../backend/database/smarthomeweb.db')
-			c = conn.cursor()
-			sensorcounter = 2
+			# add one to the id to get unique id
 			for value in fieldnames:
 				if (value != ""):
 					if value != "Timestamp" and value != "Total":
-						c.execute("INSERT INTO Sensor(locationid, title, description) VALUES ({},\"{}\",\"{}\");".format(household, value, sensorcounter))
+						c.execute("INSERT INTO Sensor(id, locationid, title, description) VALUES ({}, {},\"{}\", \"{}\");".format(sensorcounter,household, value, value))
 						sensorcounter += 1
 			conn.commit()
-			# Fetch all sensors that have been installed in the current
-			# household, from database.
-			c.execute("SELECT id, description FROM Sensor WHERE Locationid == " + household + ";")
-			sensorids = c.fetchall()
-			# Sort sensors by key
-			sensorids.sort(key = lambda xs: int(xs[1]))
 			conn.close()
 		else:
 			counter2 = 0
@@ -56,7 +58,7 @@ def main(argv):
 					else:
 						if (fieldnames[counter2] != "Total"):
 							finalOutput.append("\t{")
-							finalOutput.append("\n\t\t\"sensorId\" : {0},\n".format(sensorids[counter2-2][0]))
+							finalOutput.append("\n\t\t\"sensorId\" : {0},\n".format(sensorid+counter2-2))
 							finalOutput.append("\t\t\"timestamp\" : \"{0}\", \n".format(unixtime))
 							finalOutput.append("\t\t\"measurement\" : {0},\n".format(data))
 							finalOutput.append("\t\t\"notes\" : \"\"\n\t},\n")
