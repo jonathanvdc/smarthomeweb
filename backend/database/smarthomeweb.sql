@@ -10,9 +10,15 @@ create table Person (
 );
 
 create table Friends (
+    -- A tuple in this table is interpreted as follows:
+    --
+    --     "person one has added person two as a friend"
+    --
+    -- The relation need therefore not be symmetric
+    -- (like Google+ Circles)
     personOne text not null references Person(guid),
     personTwo text not null references Person(guid),
-    primary key (personOne, personTwo) -- How do we enforce that the reversed pair is not present?
+    primary key (personOne, personTwo)
 );
 
 create table Message (

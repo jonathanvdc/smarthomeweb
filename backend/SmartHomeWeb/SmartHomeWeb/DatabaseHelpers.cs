@@ -121,6 +121,14 @@ namespace SmartHomeWeb
         {
             return new PersonLocationPair(new Guid(Record.GetString(0)), Record.GetInt32(1));
         }
+
+        /// <summary>
+        /// Reads a person-person pair from the database.
+        /// </summary>
+        public static PersonPair ReadPersonPair(IDataRecord Record)
+        {
+            return new PersonPair(GetGuid(Record, "personOne"), GetGuid(Record, "personTwo"));
+        }
     }
 }
 

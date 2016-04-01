@@ -18,6 +18,7 @@ namespace SmartHomeWeb
         public const string SensorTableName = "Sensor";
         public const string MessageTableName = "Message";
         public const string MeasurementTableName = "Measurement";
+        public const string FriendsTableName = "Friends";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -155,6 +156,33 @@ namespace SmartHomeWeb
         public Task<IEnumerable<Measurement>> GetMeasurementsAsync()
         {
             return GetTableAsync(MeasurementTableName, DatabaseHelpers.ReadMeasurement);
+        }
+
+        /// <summary>
+        /// Creates a task that fetches all friend pairs in the database.
+        /// </summary>
+        public Task<IEnumerable<PersonPair>> GetFriendsAsync()
+        {
+            return GetTableAsync(FriendsTableName, DatabaseHelpers.ReadPersonPair);
+        }
+
+        /// <summary>
+        /// Creates a task that eagerly fetches all friend persons
+        /// that have been added by the person with the given GUID.
+        /// </summary>
+        public Task<IEnumerable<Person>> GetFriendsAsync(Guid PersonGuid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"
+                  SELECT friend2.guid, friend2.username, friend2.name, friend2.password, 
+                         friend2.birthdate, friend2.address, friend2.city, friend2.zipcode
+                  FROM Friends as pair, Person as friend2
+                  WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
+                cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
+
+                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+            }
         }
 
         /// <summary>
@@ -538,6 +566,30 @@ namespace SmartHomeWeb
         public Task InsertHasLocationPairAsync(IEnumerable<PersonLocationPair> Data)
         {
             return Task.WhenAll(Data.Select(InsertHasLocationPairAsync));
+        }
+
+        /// <summary>
+        /// Inserts a pair of friends in the Friends table.
+        /// </summary>
+        public Task InsertFriendsPairAsync(PersonPair Data)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"INSERT INTO {FriendsTableName}(personOne, personTwo) " +
+                    "VALUES (@personOne, @personTwo)";
+                cmd.Parameters.AddWithValue("@personOne", Data.PersonOneGuidString);
+                cmd.Parameters.AddWithValue("@personTwo", Data.PersonTwoGuidString);
+                return cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Inserts all person-person pairs in the given list into the Friends table.
+        /// </summary>
+        /// <param name="Data">The list of person-person pairs to insert into the table.</param>
+        public Task InsertFriendsPairAsync(IEnumerable<PersonPair> Data)
+        {
+            return Task.WhenAll(Data.Select(InsertFriendsPairAsync));
         }
 
         /// <summary>
