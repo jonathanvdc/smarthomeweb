@@ -81,7 +81,7 @@ create table Measurement (
 create table HourAverage (
     sensorId integer not null references Sensor(id),
     unixtime integer not null, -- Unix time for YYYY-MM-DD XX:00. Identifies the hour.
-    average real not null,
+    measured real not null,
     notes text, -- Aggregate
     primary key (sensorId, unixtime)
 
@@ -95,7 +95,7 @@ create table HourAverage (
 create table DayAverage (
     sensorId integer not null references Sensor(id),
     unixtime integer not null, -- Unix time for YYYY-MM-DD 00:00. Identifies the day.
-    average real not null,
+    measured real not null,
     notes text,
     primary key (sensorId, unixtime)
 );

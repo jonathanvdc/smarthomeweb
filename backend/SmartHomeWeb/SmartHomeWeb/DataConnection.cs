@@ -19,6 +19,7 @@ namespace SmartHomeWeb
         public const string MessageTableName = "Message";
         public const string MeasurementTableName = "Measurement";
         public const string FriendsTableName = "Friends";
+        public const string HourAverageTableName = "HourAverage";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -182,6 +183,66 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+            }
+        }
+
+        /// <summary>
+        /// Actually computes the the hour average for the 
+        /// given sensor during the given hour.
+        /// </summary>
+        private async Task<Measurement> ComputeHourAverageAsync(int SensorId, DateTime Hour)
+        {
+            IEnumerable<Measurement> measurements;
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"
+                    SELECT *
+                    FROM Measurement
+                    WHERE Measurement.sensorId = @id AND Measurement.unixtime >= @starttime AND Measurement.unixtime < @endtime";
+                cmd.Parameters.AddWithValue("@id", SensorId);
+                cmd.Parameters.AddWithValue("@starttime", DatabaseHelpers.CreateUnixTimeStamp(Hour));
+                cmd.Parameters.AddWithValue("@endtime", DatabaseHelpers.CreateUnixTimeStamp(Hour.AddHours(1)));
+                measurements = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
+            }
+            // TODO: actually aggregate these measurements.
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Creates a task that fetches or computes the hour average for the 
+        /// given sensor during the given hour.
+        /// </summary>
+        public async Task<Measurement> GetHourAverageAsync(int SensorId, DateTime Hour)
+        {
+            // Maybe we have already computed the hour average?
+            // Try to fetch it from the database to find out.
+            Measurement[] results;
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"
+                    SELECT *
+                    FROM HourAverage
+                    WHERE HourAverage.sensorId = @id AND HourAverage.unixtime = @unixtime";
+                cmd.Parameters.AddWithValue("@id", SensorId);
+                cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Hour));
+
+                results = (await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement)).ToArray();
+            }
+
+            if (results.Length > 0)
+            {
+                // Success. Return that precomputed 
+                // hour average,
+                return results[0];
+            }
+            else
+            {
+                // Bummer. Looks like we'll have to
+                // compute the hour average, and insert
+                // it into the database.
+                var result = await ComputeHourAverageAsync(SensorId, Hour);
+                InsertMeasurementAsync(result, HourAverageTableName);
+                return result;
             }
         }
 
@@ -490,14 +551,14 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Inserts the given measurement into the Measurement table.
+        /// Inserts the given measurement into the table with the given name.
         /// </summary>
         /// <param name="Data">The measurement to insert into the table.</param>
-        public Task InsertMeasurementAsync(Measurement Data)
+        public Task InsertMeasurementAsync(Measurement Data, string TableName)
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"INSERT INTO {MeasurementTableName}(sensorId, unixtime, measured, notes) " +
+                cmd.CommandText = $"INSERT INTO {TableName}(sensorId, unixtime, measured, notes) " +
                     "VALUES (@sensorId, @unixtime, @measured, @notes)";
                 cmd.Parameters.AddWithValue("@sensorId", Data.SensorId);
                 cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Data.Time));
@@ -505,6 +566,15 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@notes", Data.Notes);
                 return cmd.ExecuteNonQueryAsync();
             }
+        }
+
+        /// <summary>
+        /// Inserts the given measurement into the Measurement table.
+        /// </summary>
+        /// <param name="Data">The measurement to insert into the table.</param>
+        public Task InsertMeasurementAsync(Measurement Data)
+        {
+            return InsertMeasurementAsync(Data, MeasurementTableName);
         }
 
         /// <summary>
