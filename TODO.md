@@ -31,10 +31,19 @@
 * Taalkeuze
 * Multi-user
 
+* Pagina's:
+	* /user/{username} 	: pagina per gebruiker met hun info + posts (als vriend) + [Add friend] (als niet vriend)
+	* /newuser			: pagina om nieuwe gebruiker aan te maken
+	* /newlocation		: pagina om nieuwe locatie aan te maken, gebonden aan de ingelogde user
+	* /newsensor		: pagina om nieuwe sensor te registreren, gebonden aan een gekozen locatie
+	* /users			: pagina om gebruikers te vinden adhv naam/gebruikersnaam + [Add friend] knop als niet vriend
+	* (front page)		: Alle posts/messages van vrienden?
+	* 
+	
 ## Magjes
 
 * Alles mooi maken
-* Connect met feesboek
+* Connect met feesboek (?)
 * Sociaal gedoe diep uitwerken
 
 # Schedule
