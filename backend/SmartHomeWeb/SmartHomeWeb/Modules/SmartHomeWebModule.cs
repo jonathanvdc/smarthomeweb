@@ -71,6 +71,46 @@ namespace SmartHomeWeb.Modules
                 return await GetMessage(parameters, ct);
             };
 
+            Get["/friends", true] = GetFriends;
+
+            Post["/friends", true] = async (parameters, ct) =>
+            {
+                ViewBag.Error = "";
+                ViewBag.Success = "";
+
+                if (!Context.CurrentUser.IsAuthenticated())
+                {
+                    ViewBag.Error = "You must log in to add friends.";
+                }
+                else
+                {
+                    using (var dc = await DataConnection.CreateAsync())
+                    {
+                        var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                        if (sender == null)
+                        {
+                            ViewBag.Error = "I couldn't find your username in the database...?";
+                        }
+                        else
+                        {
+                            await Console.Out.WriteLineAsync((string)Request.Form["friendname"]);
+                            var recipient = await dc.GetPersonByUsernameAsync((string)Request.Form["friendname"]);
+                            if (recipient == null)
+                            {
+                                ViewBag.Error = "That person doesn't exist.";
+                            }
+                            else
+                            {
+                                await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
+                                ViewBag.Success = "Friend added!";
+                            }
+                        }
+                    }
+                }
+
+                return await GetFriends(parameters, ct);
+            };
+
             Get["/sensor", true] = async (parameters, ct) =>
             {
                 var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
@@ -159,6 +199,13 @@ namespace SmartHomeWeb.Modules
                 ViewBag.Messages = tuples;
                 return View["mydata.cshtml", locationlist];
             };
+        }
+
+        private async Task<dynamic> GetFriends(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            var friends = await DataConnection.Ask(x => x.GetFriendsAsync(((UserIdentity)Context.CurrentUser).Guid));
+            return View["friends.cshtml", friends];
         }
 
         private async Task<dynamic> GetMessage(dynamic parameters, CancellationToken ct)

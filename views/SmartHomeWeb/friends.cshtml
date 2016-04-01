@@ -1,0 +1,63 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using Nancy.Session
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<Person>>
+@*                           ^^^^^^^^^^^^^^^^^^^    *@
+@*                         This is the @Model type  *@
+
+<h1>Friends</h1>
+<h2>Add a friend</h2>
+
+@if (Context.CurrentUser.IsAuthenticated())
+{
+    var error = (string) ViewBag.Error;
+    if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Error:</span>
+            @error
+        </div>
+    }
+
+    var success = (string) ViewBag.Success;
+    if (!string.IsNullOrEmpty(success))
+    {
+        <div class="alert alert-success" role="alert">
+        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+        <span class="sr-only">Success:</span>
+            @success
+        </div>
+    }
+
+    <form method="post">
+        <div class="form-group">
+            <label for="friend">Friend username:</label>
+            <input id="friend" name="friend-name" class="form-control"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Add friend</button>
+    </form>
+}
+else
+{
+    <text>You must log in to view your friends.</text>
+}
+
+<h2>All friends</h2>
+<table class="table">
+
+        <tr class="tableHeader">
+            <th>Username</th>
+            <th>Name</th>
+        </tr>
+
+    @foreach (var p in @Model)
+    {
+        <tr>
+            <th>@p.Data.UserName</th>
+	        <td>@p.Data.Name</td>
+        </tr>
+    }
+</table>
