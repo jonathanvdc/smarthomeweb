@@ -17,10 +17,10 @@ def main(argv):
 			outputfile=arg
 		else:
 			raise Exception("Incorrect args")
-	
+
 	csvfile = open(inputfile, 'r')
 	jsonfile = open(outputfile, 'w')
-	
+
 	reader = csv.reader(csvfile, delimiter=';')
 	counter = 0
 	finalOutput = ["[\n"]
@@ -38,12 +38,12 @@ def main(argv):
 						c.execute("INSERT INTO Sensor(locationid, title, description) VALUES ({},\"{}\",\"{}\");".format(household, value, sensorcounter))
 						sensorcounter += 1
 			conn.commit()
+			# Fetch all sensors that have been installed in the current
+			# household, from database.
 			c.execute("SELECT id, description FROM Sensor WHERE Locationid == " + household + ";")
 			sensorids = c.fetchall()
-			for value in sensorids:
-				for num in range(0, len(sensorids)-1):
-					if int(sensorids[num][1]) > int(sensorids[num+1][1]) :
-						sensorids[num], sensorids[num+1] = sensorids[num+1], sensorids[num]			
+			# Sort sensors by key
+			sensorids.sort(key = lambda xs: int(xs[1]))
 			conn.close()
 		else:
 			counter2 = 0
@@ -66,10 +66,10 @@ def main(argv):
 	csvfile.close()
 	jsonfile.write("".join(finalOutput))
 	jsonfile.close()
-	
-	
-	
-#	
+
+
+
+#
 #
 #	with open(inputfile, "r") as f:
 #		reader=csv.reader(f, delimiter=';')
@@ -94,13 +94,13 @@ def main(argv):
 #);
 #""".format(unixtime, data, first[ctr2], household))
 #					ctr2 += 1
-#					
-#				
+#
+#
 #				output.write(''.join(final))
-#				
+#
 #			ctr += 1
 #		output.close()
-#	
-	
+#
+
 if __name__ == "__main__":
 	main(sys.argv[1:])
