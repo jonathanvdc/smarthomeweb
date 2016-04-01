@@ -35,8 +35,16 @@ body {
 	padding-left: 6px;
 }
 
-.nav li a.debug-page-link{
+.nav .debug-pages .dropdown-toggle, .nav .debug-pages .dropdown-toggle:focus{
 	color: #CC4466;
+}
+
+.nav .debug-pages .dropdown-toggle:hover, .nav .debug-pages.open .dropdown-toggle, .nav .debug-pages.open .dropdown-toggle:hover,  .nav .debug-pages.open .dropdown-toggle:focus{
+	color: #FF88AA;
+}
+
+.nav .debug-pages ul li a{
+	color: #AA1144;
 }
 
 img.missing-avatar {
