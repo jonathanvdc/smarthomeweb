@@ -13,7 +13,7 @@ body {
 .bubble {
     position: relative;
     padding: 10px;
-    background: #CFCFFF;
+    background: #E0E0FF;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
@@ -31,10 +31,14 @@ body {
     top: 10px;
 }
 
+.message-header{
+	padding-left: 6px;
+}
+
+.nav li a.debug-page-link{
+	color: #CC4466;
+}
+
 img.missing-avatar {
-	background-color: #888888;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-	opacity: 0.4;
+	background-image:("content/profilepicsmall.png");
 }
