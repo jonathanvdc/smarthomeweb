@@ -75,6 +75,7 @@ namespace SmartHomeWeb.Modules
 
             Post["/friends", true] = async (parameters, ct) =>
             {
+                this.RequiresAuthentication();
                 ViewBag.Error = "";
                 ViewBag.Success = "";
 
