@@ -241,7 +241,7 @@ namespace SmartHomeWeb
                 // compute the hour average, and insert
                 // it into the database.
                 var result = await ComputeHourAverageAsync(SensorId, Hour);
-                InsertMeasurementAsync(result, HourAverageTableName);
+                await InsertMeasurementAsync(result, HourAverageTableName);
                 return result;
             }
         }
