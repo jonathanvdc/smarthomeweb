@@ -35,6 +35,9 @@ chmod +x ./associate-location.sh
 ./associate-location.sh bgoethals "De G.10"
 popd
 
-# curl -X POST -d @ElecSim/MY_FILE1.json localhost:8088/api/measurements
+pushd ElecSim
+./run.bash
+curl -X POST -d @MY_FILE1.json localhost:8088/api/measurements
+popd
 
 kill $serverid
