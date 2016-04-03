@@ -204,8 +204,8 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@endtime", DatabaseHelpers.CreateUnixTimeStamp(Hour.AddHours(1)));
                 measurements = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
             }
-            // TODO: actually aggregate these measurements.
-            throw new NotImplementedException();
+
+            return MeasurementAggregation.Average(measurements, Hour);
         }
 
         /// <summary>
@@ -334,9 +334,11 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<Measurement> GetMeasurementAsync(int sensorId, long timestamp)
         {
-            var keys = new Dictionary<string, object>();
-            keys["sensorId"] = sensorId;
-            keys["unixtime"] = timestamp;
+            var keys = new Dictionary<string, object>
+            {
+                ["sensorId"] = sensorId,
+                ["unixtime"] = timestamp
+            };
             return GetSingleByKeyAsync(MeasurementTableName, keys, DatabaseHelpers.ReadMeasurement);
         }
 
