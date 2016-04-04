@@ -130,6 +130,7 @@
     <Compile Include="Modules\API\ApiPersonLocationsModule.cs" />
     <Compile Include="Modules\API\ApiFriendsModule.cs" />
     <Compile Include="Modules\API\ApiHourAverageModule.cs" />
+    <Compile Include="Modules\API\ApiDayAverageModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
