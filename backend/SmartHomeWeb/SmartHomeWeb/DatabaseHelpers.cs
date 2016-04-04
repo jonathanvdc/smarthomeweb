@@ -43,6 +43,12 @@ namespace SmartHomeWeb
             return Record.GetDouble(Record.GetOrdinal(Name));
         }
 
+        public static double? GetFloat64OrNull(IDataRecord Record, string Name)
+        {
+            int index = Record.GetOrdinal(Name);
+            return Record.IsDBNull(index) ? (double?)null : Record.GetDouble(index);
+        }
+
         public static DateTime GetDateTime(IDataRecord Record, string Name)
         {
             return ParseUnixTimeStamp(GetInt64(Record, Name));
@@ -86,7 +92,7 @@ namespace SmartHomeWeb
         {
             return new Measurement(
                 GetInt32(Record, "sensorId"), GetDateTime(Record, "unixtime"),
-                GetFloat64(Record, "measured"), GetString(Record, "notes"));
+                GetFloat64OrNull(Record, "measured"), GetString(Record, "notes"));
         }
 
         /// <summary>

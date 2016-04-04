@@ -205,7 +205,7 @@ namespace SmartHomeWeb
                 measurements = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
             }
 
-            return MeasurementAggregation.Average(measurements, Hour);
+            return MeasurementAggregation.Aggregate(measurements, SensorId, Hour);
         }
 
         /// <summary>
@@ -221,8 +221,8 @@ namespace SmartHomeWeb
             {
                 cmd.CommandText = @"
                     SELECT *
-                    FROM HourAverage
-                    WHERE HourAverage.sensorId = @id AND HourAverage.unixtime = @unixtime";
+                    FROM HourAverage as measurement
+                    WHERE measurement.sensorId = @id AND measurement.unixtime = @unixtime";
                 cmd.Parameters.AddWithValue("@id", SensorId);
                 cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Hour));
 

@@ -14,7 +14,7 @@ namespace SmartHomeWeb.Model
 
         public Measurement(
             int SensorId, DateTime Time, 
-            double MeasuredData, string Notes)
+            double? MeasuredData, string Notes)
         {
             this.SensorId = SensorId;
             this.Time = Time;
@@ -38,8 +38,8 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the measurement's data.
         /// </summary>
-        [JsonProperty("measurement", Required = Required.Always)]
-        public double MeasuredData { get; private set; }
+        [JsonProperty("measurement", Required = Required.AllowNull)]
+        public double? MeasuredData { get; private set; }
  
         /// <summary>
         /// Gets an optional note or remark that relates
