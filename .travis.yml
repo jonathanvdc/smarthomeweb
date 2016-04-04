@@ -1,6 +1,6 @@
 language: csharp
 python:
-  - "3.4"
+    - "3.4"
 apt:
     - sqlite3
 solution: backend/SmartHomeWeb/SmartHomeWeb.sln
