@@ -80,11 +80,15 @@ create table Measurement (
 
 create table HourAverage (
     sensorId integer not null references Sensor(id),
-    unixtime integer not null, -- Unix time for YYYY-MM-DD XX:00. Identifies the hour.
-    measured real not null,
-    notes text, -- Aggregate
+    -- Unix time for YYYY-MM-DD XX:00. Identifies the hour.
+    unixtime integer not null,
+    -- Note that this measurement can be null.
+    -- This allows us to represent a lack
+    -- of measurements to aggregate.
+    measured real,
+    -- Aggregate
+    notes text,
     primary key (sensorId, unixtime)
-
 );
 
 -- We might want indices like this:
@@ -94,8 +98,12 @@ create table HourAverage (
 -- Separately track day averages after removing outliers from the HourAverage results.
 create table DayAverage (
     sensorId integer not null references Sensor(id),
-    unixtime integer not null, -- Unix time for YYYY-MM-DD 00:00. Identifies the day.
-    measured real not null,
+    -- Unix time for YYYY-MM-DD 00:00. Identifies the day.
+    unixtime integer not null,
+    -- Note that this measurement can be null.
+    -- This allows us to represent a lack
+    -- of measurements to aggregate.
+    measured real,
     notes text,
     primary key (sensorId, unixtime)
 );
