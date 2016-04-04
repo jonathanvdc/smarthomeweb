@@ -23,19 +23,8 @@ namespace SmartHomeWeb
 
         public bool FindUser(string userName, string password, out UserIdentity userIdentity)
         {
-            // TODO: make this a real query instead of fetching *all* users.
-            var persons = DataConnection.Ask(dc => dc.GetPersonsAsync()).Result;
-
-            foreach (var p in persons)
-            {
-                if (p.Data.UserName == userName && p.Data.Password == password)
-                {
-                    userIdentity = new UserIdentity(p);
-                    return true;
-                }
-            }
-            userIdentity = null;
-            return false;
+            userIdentity = DataConnection.Ask(dc => dc.GetUserIdentityAsync(userName, password)).Result;
+            return userIdentity != null;
         }
     }
 

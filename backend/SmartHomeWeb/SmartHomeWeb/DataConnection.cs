@@ -312,6 +312,27 @@ namespace SmartHomeWeb
             GetSingleByKeyAsync(PersonTableName, "username", username, DatabaseHelpers.ReadPerson);
 
         /// <summary>
+        /// Creates a task that looks up a username/password pair in the database, and returns
+        /// a corresponding UserIdentity, if it exists. Otherwise, `null` is returned.
+        /// </summary>
+        public async Task<UserIdentity> GetUserIdentityAsync(string userName, string password)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $@"
+                  SELECT * FROM {PersonTableName} as p
+                  WHERE p.username = @userName AND p.password = @password";
+                cmd.Parameters.AddWithValue("@userName", userName);
+                cmd.Parameters.AddWithValue("@password", password);
+
+                var results = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+                var person = results.FirstOrDefault();
+
+                return person == null ? null : new UserIdentity(person);
+            }
+        }
+
+        /// <summary>
         /// Creates a task that fetches a single location from the database.
         /// </summary>
         public Task<Location> GetLocationByIdAsync(int id) =>
