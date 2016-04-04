@@ -1,7 +1,8 @@
 language: csharp
+python:
+  - "3.4"
 apt:
     - sqlite3
-    - python3
 solution: backend/SmartHomeWeb/SmartHomeWeb.sln
 script:
     - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
