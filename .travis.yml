@@ -1,7 +1,11 @@
 language: csharp
 apt:
-    - sqlite3
+    packages:
+        - sqlite3
+        - python3
 solution: backend/SmartHomeWeb/SmartHomeWeb.sln
+# before_install:
+#     - python3 -V
 script:
     - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
     - nuget restore json-utils/json-utils.sln

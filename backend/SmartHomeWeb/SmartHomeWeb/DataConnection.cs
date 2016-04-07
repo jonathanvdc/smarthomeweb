@@ -20,6 +20,7 @@ namespace SmartHomeWeb
         public const string MeasurementTableName = "Measurement";
         public const string FriendsTableName = "Friends";
         public const string HourAverageTableName = "HourAverage";
+        public const string DayAverageTableName = "DayAverage";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -209,41 +210,81 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Creates a task that fetches or computes the hour average for the 
-        /// given sensor during the given hour.
+        /// Actually computes the the day average for the 
+        /// given sensor during the given day.
         /// </summary>
-        public async Task<Measurement> GetHourAverageAsync(int SensorId, DateTime Hour)
+        private async Task<Measurement> ComputeDayAverageAsync(int SensorId, DateTime Day)
         {
-            // Maybe we have already computed the hour average?
+            // Create one task per hour, and have each task
+            // fetch an hour average.
+            var tasks = new Task<Measurement>[24];
+
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                tasks[i] = GetHourAverageAsync(SensorId, Day.AddHours(i));
+            }
+
+            var measurements = await Task.WhenAll(tasks);
+
+            // Just use the mean to aggregate data here, because we have already removed
+            // outliers when computing the hour average.
+            return MeasurementAggregation.Aggregate(measurements, SensorId, Day, Enumerable.Average);
+        }
+
+        /// <summary>
+        /// Creates a task that fetches or computes the average measurement for the 
+        /// given sensor at the given time. A cache table name and an average 
+        /// computation function are also given.
+        /// </summary>
+        private async Task<Measurement> GetAverageAsync(
+            int SensorId, DateTime Time, string TableName, 
+            Func<int, DateTime, Task<Measurement>> ComputeAverageAsync)
+        {
+            // Perhaps we have already computed the average.
             // Try to fetch it from the database to find out.
             Measurement[] results;
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = @"
-                    SELECT *
-                    FROM HourAverage as measurement
-                    WHERE measurement.sensorId = @id AND measurement.unixtime = @unixtime";
+                cmd.CommandText = $"SELECT * FROM {TableName} as m " +
+                    "WHERE m.sensorId = @id AND m.unixtime = @unixtime";
                 cmd.Parameters.AddWithValue("@id", SensorId);
-                cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Hour));
+                cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Time));
 
                 results = (await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement)).ToArray();
             }
 
             if (results.Length > 0)
             {
-                // Success. Return that precomputed 
-                // hour average,
+                // Success. Return that precomputed average,
                 return results[0];
             }
             else
             {
                 // Bummer. Looks like we'll have to
-                // compute the hour average, and insert
+                // compute the average, and insert
                 // it into the database.
-                var result = await ComputeHourAverageAsync(SensorId, Hour);
-                await InsertMeasurementAsync(result, HourAverageTableName);
+                var result = await ComputeAverageAsync(SensorId, Time);
+                await InsertMeasurementAsync(result, TableName);
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Creates a task that fetches or computes the hour average for the 
+        /// given sensor during the given hour.
+        /// </summary>
+        public Task<Measurement> GetHourAverageAsync(int SensorId, DateTime Hour)
+        {
+            return GetAverageAsync(SensorId, Hour, HourAverageTableName, ComputeHourAverageAsync);
+        }
+
+        /// <summary>
+        /// Creates a task that fetches or computes the day average for the 
+        /// given sensor during the given day.
+        /// </summary>
+        public Task<Measurement> GetDayAverageAsync(int SensorId, DateTime Day)
+        {
+            return GetAverageAsync(SensorId, Day, DayAverageTableName, ComputeDayAverageAsync);
         }
 
         /// <summary>
