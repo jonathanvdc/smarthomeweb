@@ -42,7 +42,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\LocationExtended.cs" />
+    <Compile Include="Model\LocationWithSensors.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\Location.cs" />
     <Compile Include="Model\Person.cs" />

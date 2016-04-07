@@ -166,22 +166,16 @@ namespace SmartHomeWeb.Modules
             {
                 this.RequiresAuthentication();
                 var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid));
-                var locationlist = new List<LocationExtended>();
+                var locationsWithSensors = new List<LocationWithSensors>();
 
-                foreach (var pair in locations) {
-                    var sensorsinlocations = await DataConnection.Ask(x => x.GetSensorsAtLocation(pair));
-                    var extended = new LocationExtended(pair);
-
-                    foreach (var sensor in sensorsinlocations)
-                    {
-                        extended.AddSensor(sensor);
-                    }
-                    locationlist.Add(extended);
+                foreach (var location in locations) {
+                    var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocation(location));
+                    locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
                 }
 
                 // TODO VIEWBAG
                 // TODO write a query for this, too?
-                var tuples = new List<Tuple<string, string>>();
+                var usernameMessageTuples = new List<Tuple<string, string>>();
 
                 using (var dc = await DataConnection.CreateAsync())
                 {
@@ -192,13 +186,13 @@ namespace SmartHomeWeb.Modules
                         if (recipient.Data.UserName == Context.CurrentUser.UserName)
                         {
                             var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
-                            tuples.Add(Tuple.Create(sender.Data.UserName, m.Data.Message));
+                            usernameMessageTuples.Add(Tuple.Create(sender.Data.UserName, m.Data.Message));
                         }
                     }
                 }
 
-                ViewBag.Messages = tuples;
-                return View["mydata.cshtml", locationlist];
+                ViewBag.Messages = usernameMessageTuples;
+                return View["mydata.cshtml", locationsWithSensors];
             };
         }
 
