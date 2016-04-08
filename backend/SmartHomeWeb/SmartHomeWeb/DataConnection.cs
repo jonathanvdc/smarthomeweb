@@ -448,7 +448,7 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"
-                  SELECT loc.id, loc.name
+                  SELECT loc.id, loc.name, loc.owner
                   FROM HasLocation as hasLoc, Location as loc
                   WHERE loc.id = hasLoc.locationId AND hasLoc.personGuid = @guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
