@@ -23,12 +23,12 @@
 	
     function drawChart(x) {
 		var array = [];
+		var json = getSensor(x);
 		if(json.length == 0)
 		{
 			document.getElementById('chart_div').innerHTML = "<h3>No sensordata is saved.</h3>";
 		}else
 		{
-			var json = getSensor(x);
 			for(x in json)
 			{
 				var date = new Date(json[x].timestamp);
