@@ -1,4 +1,4 @@
-@using Nancy.Security
+﻿@using Nancy.Security
 @using SmartHomeWeb
 @inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 
@@ -49,7 +49,7 @@
 			<ul class="nav navbar-nav navbar-right">
 				@if (@Context.CurrentUser.IsAuthenticated())
 				{
-                    <li><a href="#">@Html.RenderContext.Context.CurrentUser.UserName</a></li>
+                    <li><a href="person=@Html.RenderContext.Context.CurrentUser.UserName">@Html.RenderContext.Context.CurrentUser.UserName</a></li>
 				    <li><a href="/logout">Log out</a></li>
 				}
 				else
