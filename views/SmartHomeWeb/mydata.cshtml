@@ -56,7 +56,7 @@
 	
 	function getSensor(x){
 		var xmlhttp = new XMLHttpRequest();
-		var url = "http://localhost:8088/api/measurements/" + x.toString();
+		var url = "/api/measurements/" + x.toString();
 		xmlhttp.open("GET", url, false);
 		xmlhttp.send();
 		return myArr = JSON.parse(xmlhttp.responseText);
