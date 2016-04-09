@@ -58,7 +58,7 @@ namespace SmartHomeWeb.Modules
                             else
                             {
                                 await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
-                                ViewBag.Success = "Friend added!";
+                                ViewBag.Success = "Friend request sent!";
                             }
                         }
                     }
@@ -145,7 +145,7 @@ namespace SmartHomeWeb.Modules
                             else
                             {
                                 await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
-                                ViewBag.Success = "Friend added!";
+                                ViewBag.Success = "Friend request sent!";
                             }
                         }
                     }
@@ -260,7 +260,7 @@ namespace SmartHomeWeb.Modules
                 if (Context.CurrentUser.IsAuthenticated())
                 {
                     Person currentUser = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
-                    state = await dc.GetFriendsState(person.Guid, currentUser.Guid);
+					state = await dc.GetFriendsState(currentUser.Guid, person.Guid);
                 }
                 Tuple<Person, FriendsState> tuple = Tuple.Create(person, state);
                 return View["profile.cshtml", tuple];

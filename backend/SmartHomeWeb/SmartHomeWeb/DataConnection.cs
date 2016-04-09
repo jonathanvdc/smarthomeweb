@@ -181,8 +181,8 @@ namespace SmartHomeWeb
                   FROM Friends as pair
                   WHERE (pair.personOne = @guid1 AND pair.personTwo = @guid2) 
                      OR (pair.personOne = @guid2 AND pair.personTwo = @guid1)";
-				cmd.Parameters.AddWithValue("@guid1", PersonOneGuid);
-				cmd.Parameters.AddWithValue("@guid2", PersonTwoGuid);
+				cmd.Parameters.AddWithValue("@guid1", PersonOneGuid.ToString());
+				cmd.Parameters.AddWithValue("@guid2", PersonTwoGuid.ToString());
 
 				var tuples = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPersonPair);
 				var result = FriendsState.None;
@@ -198,8 +198,8 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
-        /// Creates a task that eagerly fetches all friend persons
-        /// that have been added by the person with the given GUID.
+        /// Creates a task that eagerly fetches all mutual friends
+		/// of the person identified by the given GUID.
         /// </summary>
         public Task<IEnumerable<Person>> GetFriendsAsync(Guid PersonGuid)
         {
@@ -208,8 +208,9 @@ namespace SmartHomeWeb
                 cmd.CommandText = @"
                   SELECT friend2.guid, friend2.username, friend2.name, friend2.password, 
                          friend2.birthdate, friend2.address, friend2.city, friend2.zipcode
-                  FROM Friends as pair, Person as friend2
-                  WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
+                  FROM Friends as pair1, Friends as pair2, Person as friend2
+                  WHERE pair1.personOne = @guid AND pair1.personTwo = friend2.guid
+                    AND pair2.personTwo = @guid AND pair2.personOne = friend2.guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SmartHomeWeb
+namespace SmartHomeWeb.Model
 {
 	/// <summary>
 	/// Describes possible states for a 'friends' relationship.
