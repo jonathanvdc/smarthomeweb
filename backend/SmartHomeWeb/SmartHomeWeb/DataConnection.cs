@@ -168,6 +168,35 @@ namespace SmartHomeWeb
             return GetTableAsync(FriendsTableName, DatabaseHelpers.ReadPersonPair);
         }
 
+		/// <summary>
+		/// Gets the state of the 'friends' relation between persons
+		/// with the given GUIDs.
+		/// </summary>
+		public async Task<FriendsState> GetFriendsState(Guid PersonOneGuid, Guid PersonTwoGuid)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                  SELECT pair.personOne, pair.PersonTwo
+                  FROM Friends as pair
+                  WHERE (pair.personOne = @guid1 AND pair.personTwo = @guid2) 
+                     OR (pair.personOne = @guid2 AND pair.personTwo = @guid1)";
+				cmd.Parameters.AddWithValue("@guid1", PersonOneGuid);
+				cmd.Parameters.AddWithValue("@guid2", PersonTwoGuid);
+
+				var tuples = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPersonPair);
+				var result = FriendsState.None;
+				foreach (var item in tuples)
+				{
+					if (item.PersonOneGuid == PersonOneGuid)
+						result |= FriendsState.FriendRequestSent;
+					else
+						result |= FriendsState.FriendRequestRecieved;
+				}
+				return result;
+			}
+		}
+
         /// <summary>
         /// Creates a task that eagerly fetches all friend persons
         /// that have been added by the person with the given GUID.
