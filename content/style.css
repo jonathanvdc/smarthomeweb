@@ -47,6 +47,19 @@ body {
 	color: #AA1144;
 }
 
-img.missing-avatar {
-	background-image:("content/profilepicsmall.png");
+div.profile-avatar-small {
+	width: 64px;
+	height: 64px;
+	background-image: url("profilepicsmall.png");
+    background-size: 64px 64px;
+	float: left;
+}
+
+div.profile-avatar {
+	width: 150px;
+	height: 150px;
+	background-image:url("profilepicsmall.png");
+    background-size: 150px 150px;
+	float: left;
+	margin-right:32px;
 }

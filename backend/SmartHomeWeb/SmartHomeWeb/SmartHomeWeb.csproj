@@ -139,6 +139,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
       <Link>View Links\add-has-location.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
+      <Link>View Links\friends.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
       <Link>View Links\home.cshtml</Link>
     </None>
@@ -162,6 +165,9 @@
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\person.cshtml">
       <Link>View Links\person.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\profile.cshtml">
+      <Link>View Links\profile.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\sensor.cshtml">
       <Link>View Links\sensor.cshtml</Link>

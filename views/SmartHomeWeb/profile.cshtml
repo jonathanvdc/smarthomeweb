@@ -1,0 +1,22 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<Person>
+
+
+@if (@Model != null)
+{
+    <h1>@Model.Data.Name (@Model.Data.UserName)</h1>
+
+    <div class="profile-avatar"></div>
+
+    <ul class="list">
+        <li><b>GUID:</b>        <samp>@Model.Guid</samp></li>
+        <li><b>Birthday:</b>    @Model.Data.Birthdate.ToLongDateString()</li>
+        <li><b>Address:</b>     @Model.Data.Address, @Model.Data.ZipCode @Model.Data.City </li>
+    </ul>
+
+} else {
+    <p>That user does not exist.</p>
+}

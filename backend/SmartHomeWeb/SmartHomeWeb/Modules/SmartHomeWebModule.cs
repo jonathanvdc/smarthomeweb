@@ -25,6 +25,13 @@ namespace SmartHomeWeb.Modules
                 var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
                 return View["person.cshtml", persons];
             };
+
+            Get["/person={username}", true] = async (parameters, ct) =>
+            {
+                Person person = await DataConnection.Ask<Person>(x => x.GetPersonByUsernameAsync(parameters.username));
+                return View["profile.cshtml", person];
+            };
+
             Get["/location", true] = async (parameters, ct) =>
             {
                 var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
