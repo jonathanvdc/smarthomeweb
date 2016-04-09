@@ -23,18 +23,20 @@
 	
 	
     function drawChart(x) {
-		var array = [];
-		if(json.length == 0)
+		var json = getSensor(x);
+		if (json.length == 0)
 		{
 			document.getElementById('chart_div').innerHTML = "<h3>No sensordata is saved.</h3>";
-		}else
+		}
+		else
 		{
-			var json = getSensor(x);
-			for(x in json)
+			var array = [];
+			for (var i = 0; i < json.length; i++) 
 			{
-				var date = new Date(json[x].timestamp);
+				var x = json[i];
+				var date = new Date(x.timestamp);
 				var hmsstring = date.toISOString().substring(11, 19);
-				array.push([hmsstring, json[x].measurement]);
+				array.push([hmsstring, x.measurement]);
 			}
 
 			var data = new google.visualization.DataTable();
