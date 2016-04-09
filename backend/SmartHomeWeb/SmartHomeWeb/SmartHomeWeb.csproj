@@ -131,6 +131,9 @@
     <Compile Include="Modules\API\ApiFriendsModule.cs" />
     <Compile Include="Modules\API\ApiHourAverageModule.cs" />
     <Compile Include="Modules\API\ApiDayAverageModule.cs" />
+    <Compile Include="Resources\TextResources.Designer.cs">
+      <DependentUpon>TextResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
@@ -207,4 +210,20 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets'))" />
   </Target>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\TextResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>TextResources.Designer.cs</LastGenOutput>
+      <LogicalName>SmartHomeWeb.TextResources.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\TextResources.en-US.resx">
+      <LogicalName>SmartHomeWeb.TextResources.en-US.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\TextResources.nl-NL.resx">
+      <LogicalName>SmartHomeWeb.TextResources.nl-NL.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

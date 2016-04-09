@@ -17,6 +17,11 @@ namespace SmartHomeWeb
 
         static void Main(string[] args)
         {
+			Console.WriteLine("Loaded resources:");
+			foreach (var res in System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames())
+			{
+				Console.WriteLine(res);
+			}
             var nancyHost = new NancyHost(new Uri(Domain), new Bootstrapper());
             nancyHost.Start();
             Console.WriteLine("Running from: " + Directory.GetCurrentDirectory());
