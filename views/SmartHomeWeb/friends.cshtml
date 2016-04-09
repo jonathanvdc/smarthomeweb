@@ -56,7 +56,7 @@ else
     @foreach (var p in @Model)
     {
         <tr>
-            <th>@p.Data.UserName</th>
+            <th><a href="person=@p.Data.UserName">@p.Data.UserName</a></th>
 	        <td>@p.Data.Name</td>
         </tr>
     }
