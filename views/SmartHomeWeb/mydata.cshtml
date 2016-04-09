@@ -67,11 +67,11 @@
 <h2>Messages</h2>
 
 <ul class="media-list">
-// NOTE: this cast is necessary. Without it, the view fails to
-// render on mono, because ViewBag.Messages is one of them 
-// wishy-washy dynamic objects.
 @foreach (var message in (List<Tuple<string, string>>)ViewBag.Messages)
 {
+	// NOTE: the above cast is necessary. Without it, the view fails to
+	// render on mono, because ViewBag.Messages is one of them 
+	// wishy-washy dynamic objects.
     // TODO: VIEWBAG
     <li class="media">
       <div class="media-left">
