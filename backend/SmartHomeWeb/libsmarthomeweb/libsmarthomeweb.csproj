@@ -55,6 +55,7 @@
     <Compile Include="Model\Message.cs" />
     <Compile Include="Model\Measurement.cs" />
     <Compile Include="Model\PersonPair.cs" />
+    <Compile Include="Model\FriendsState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
