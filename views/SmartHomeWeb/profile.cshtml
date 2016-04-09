@@ -2,21 +2,50 @@
 @using Nancy.Security
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<Person>
+@inherits NancyRazorViewBase<Tuple<Person,SmartHomeWeb.FriendsState>>
 
 
-@if (@Model != null)
+@if (@Model.Item1 != null)
 {
-    <h1>@Model.Data.Name (@Model.Data.UserName)</h1>
+    @{Person user = @Model.Item1; }
+    <h1>@user.Data.Name (@user.Data.UserName)</h1>
 
     <div class="profile-avatar"></div>
 
     <ul class="list">
-        <li><b>GUID:</b>        <samp>@Model.Guid</samp></li>
-        <li><b>Birthday:</b>    @Model.Data.Birthdate.ToLongDateString()</li>
-        <li><b>Address:</b>     @Model.Data.Address, @Model.Data.ZipCode @Model.Data.City </li>
+        <li><b>GUID:</b>        <samp>@user.Guid</samp></li>
+        <li><b>Birthday:</b>    @user.Data.Birthdate.ToLongDateString()</li>
+        <li><b>Address:</b>     @user.Data.Address, @user.Data.ZipCode @user.Data.City </li>
     </ul>
 
-} else {
-    <p>That user does not exist.</p>
+
+
+    <div id="add-friend-container">
+        @if (Context.CurrentUser.IsAuthenticated())
+        {
+            @if((int)@Model.Item2 == 1 || (int)@Model.Item2 == 3)
+            {
+                <text>You are already friends!</text>
+            }
+            else
+            {
+                <form method="post">
+                    <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">Add @user.Data.Name as a friend</button>
+                </form>
+            }
+        }
+        else
+        {
+           <text> You need to be logged in to add someone as a friend. </text>
+        }
+    </div>
+
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Error: </span>
+        That user does not exist.
+    </div>
 }

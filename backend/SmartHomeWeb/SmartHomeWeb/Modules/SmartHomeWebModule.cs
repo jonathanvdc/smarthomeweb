@@ -26,12 +26,47 @@ namespace SmartHomeWeb.Modules
                 return View["person.cshtml", persons];
             };
 
-            Get["/person={username}", true] = async (parameters, ct) =>
-            {
-                Person person = await DataConnection.Ask<Person>(x => x.GetPersonByUsernameAsync(parameters.username));
-                return View["profile.cshtml", person];
-            };
+            Get["/person={username}", true] = GetProfile;
 
+            Post["/person={username}", true] = async (parameters, ct) =>
+            {
+                this.RequiresAuthentication();
+                ViewBag.Error = "";
+                ViewBag.Success = "";
+
+                if (!Context.CurrentUser.IsAuthenticated())
+                {
+                    ViewBag.Error = "You must log in to add friends.";
+                }
+                else
+                {
+                    using (var dc = await DataConnection.CreateAsync())
+                    {
+                        var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                        if (sender == null)
+                        {
+                            ViewBag.Error = "I couldn't find your username in the database...?";
+                        }
+                        else
+                        {
+                            await Console.Out.WriteLineAsync((string)Request.Form["friendname"]);
+                            var recipient = await dc.GetPersonByUsernameAsync((string)Request.Form["friendname"]);
+                            if (recipient == null)
+                            {
+                                ViewBag.Error = "That person doesn't exist.";
+                            }
+                            else
+                            {
+                                await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
+                                ViewBag.Success = "Friend added!";
+                            }
+                        }
+                    }
+                }
+
+                return await GetProfile(parameters, ct);
+            };
+            
             Get["/location", true] = async (parameters, ct) =>
             {
                 var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
@@ -214,6 +249,22 @@ namespace SmartHomeWeb.Modules
         {
             var messages = await DataConnection.Ask(x => x.GetMessagesAsync());
             return View["message.cshtml", messages];
+        }
+
+        private async Task<dynamic> GetProfile(dynamic parameters, CancellationToken ct)
+        {
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                Person person = await dc.GetPersonByUsernameAsync(parameters.username);
+                FriendsState state = 0;
+                if (Context.CurrentUser.IsAuthenticated())
+                {
+                    Person currentUser = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                    state = await dc.GetFriendsState(person.Guid, currentUser.Guid);
+                }
+                Tuple<Person, FriendsState> tuple = Tuple.Create(person, state);
+                return View["profile.cshtml", tuple];
+            }
         }
 
         public static string ErrorPage => @"
