@@ -1,3 +1,4 @@
+@using System
 @using System.Collections.Generic
 @using Nancy.Security
 @using SmartHomeWeb.Model
@@ -66,7 +67,7 @@
 <h2>Messages</h2>
 
 <ul class="media-list">
-@foreach (var message in @ViewBag.Messages)
+@foreach (var message in (List<Tuple<string, string>>)ViewBag.Messages)
 {
     // TODO: VIEWBAG
     <li class="media">
