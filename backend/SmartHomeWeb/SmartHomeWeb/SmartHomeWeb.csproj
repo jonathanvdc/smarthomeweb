@@ -225,10 +225,10 @@
       <LastGenOutput>TextResources.Designer.cs</LastGenOutput>
       <LogicalName>SmartHomeWeb.TextResources.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\TextResources-en-US.resx">
+    <EmbeddedResource Include="Resources\TextResources.en-US.resx">
       <LogicalName>SmartHomeWeb.TextResources.en-US.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\TextResources-nl-NL.resx">
+    <EmbeddedResource Include="Resources\TextResources.nl-NL.resx">
       <LogicalName>SmartHomeWeb.TextResources.nl-NL.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
