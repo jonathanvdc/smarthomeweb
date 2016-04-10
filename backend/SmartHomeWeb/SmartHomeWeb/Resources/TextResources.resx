@@ -15,4 +15,31 @@
     <data name="LogIn">
         <value>Log in</value>
     </data>
+    <data name="LogOut">
+        <value>Log out</value>
+    </data>
+    <data name="DebugPagesTitle">
+        <value>Debug pages</value>
+    </data>
+    <data name="UsersPageTitle">
+        <value>Users</value>
+    </data>
+    <data name="LocationsPageTitle">
+        <value>Locations</value>
+    </data>
+    <data name="SensorsPageTitle">
+        <value>Sensors</value>
+    </data>
+    <data name="MeasurementsPageTitle">
+        <value>Measurements</value>
+    </data>
+    <data name="MessagesPageTitle">
+        <value>Messages</value>
+    </data>
+    <data name="DashboardPageTitle">
+    	<value>Dashboard</value>
+    </data>
+    <data name="FriendsPageTitle">
+    	<value>Friends</value>
+    </data>
 </root>

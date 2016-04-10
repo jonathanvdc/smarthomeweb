@@ -51,5 +51,59 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LogIn", resourceCulture);
             }
         }
+        
+        public static string LogOut {
+            get {
+                return ResourceManager.GetString("LogOut", resourceCulture);
+            }
+        }
+        
+        public static string DebugPagesTitle {
+            get {
+                return ResourceManager.GetString("DebugPagesTitle", resourceCulture);
+            }
+        }
+        
+        public static string UsersPageTitle {
+            get {
+                return ResourceManager.GetString("UsersPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string LocationsPageTitle {
+            get {
+                return ResourceManager.GetString("LocationsPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string SensorsPageTitle {
+            get {
+                return ResourceManager.GetString("SensorsPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string MeasurementsPageTitle {
+            get {
+                return ResourceManager.GetString("MeasurementsPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string MessagesPageTitle {
+            get {
+                return ResourceManager.GetString("MessagesPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string DashboardPageTitle {
+            get {
+                return ResourceManager.GetString("DashboardPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string FriendsPageTitle {
+            get {
+                return ResourceManager.GetString("FriendsPageTitle", resourceCulture);
+            }
+        }
     }
 }

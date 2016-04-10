@@ -1,12 +1,13 @@
 ﻿@using System.Collections.Generic
 @using Nancy.Security
+@using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Location>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Locations</h1>
+<h1>@TextResources.LocationsPageTitle</h1>
 
 <table class="table">
 

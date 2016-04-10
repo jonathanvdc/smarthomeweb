@@ -1,6 +1,7 @@
 @using System
 @using System.Collections.Generic
 @using Nancy.Security
+@using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
@@ -89,7 +90,7 @@
 }
 </ul>
 
-<h2>Measurement</h2>
+<h2>@TextResources.MeasurementsPageTitle</h2>
 
 @if (@Model.Count == 0)
 {

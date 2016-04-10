@@ -15,4 +15,31 @@
     <data name="LogIn">
         <value>Inloggen</value>
     </data>
+    <data name="LogOut">
+        <value>Uitloggen</value>
+    </data>
+    <data name="DebugPagesTitle">
+        <value>Debug pagina's</value>
+    </data>
+    <data name="UsersPageTitle">
+        <value>Gebruikers</value>
+    </data>
+    <data name="LocationsPageTitle">
+        <value>Locaties</value>
+    </data>
+    <data name="SensorsPageTitle">
+        <value>Sensoren</value>
+    </data>
+    <data name="MeasurementsPageTitle">
+        <value>Metingen</value>
+    </data>
+    <data name="MessagesPageTitle">
+        <value>Berichten</value>
+    </data>
+    <data name="DashboardPageTitle">
+    	<value>Dashboard</value>
+    </data>
+    <data name="FriendsPageTitle">
+    	<value>Vrienden</value>
+    </data>
 </root>

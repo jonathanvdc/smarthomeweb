@@ -1,13 +1,14 @@
 @using System.Collections.Generic
 @using Nancy.Security
 @using Nancy.Session
+@using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Person>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Friends</h1>
+<h1>@TextResources.FriendsPageTitle</h1>
 <h2>Add a friend</h2>
 
 @if (Context.CurrentUser.IsAuthenticated())
