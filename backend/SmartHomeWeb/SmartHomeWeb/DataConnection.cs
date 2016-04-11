@@ -370,6 +370,25 @@ namespace SmartHomeWeb
             }
         }
 
+		/// <summary>
+		/// Inserts all tuples in the given list into the database. Insert actions
+		/// are grouped in a transaction.
+		/// </summary>
+		public async Task InsertManyAsync<T>(IEnumerable<T> Data, Func<T, Task> InsertItem)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = "begin";
+				cmd.ExecuteNonQuery();
+			}
+			await Task.WhenAll(Data.Select(InsertItem).ToArray());
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = "end";
+				cmd.ExecuteNonQuery();
+			}
+		}
+
         /// <summary>
         /// Creates a task that fetches a single person from the database by their GUID.
         /// </summary>
@@ -589,7 +608,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of person data to insert into the table.</param>
         public Task InsertPersonAsync(IEnumerable<PersonData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertPersonAsync));
+			return InsertManyAsync(Data, InsertPersonAsync);
         }
 
         /// <summary>
@@ -614,7 +633,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of location data to insert into the table.</param>
         public Task InsertLocationAsync(IEnumerable<LocationData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertLocationAsync));
+			return InsertManyAsync(Data, InsertLocationAsync);
         }
 
         /// <summary>
@@ -641,7 +660,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of sensor data to insert into the table.</param>
         public Task InsertSensorAsync(IEnumerable<SensorData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertSensorAsync));
+			return InsertManyAsync(Data, InsertSensorAsync);
         }
 
         /// <summary>
@@ -677,7 +696,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of measurements to insert into the table.</param>
         public Task InsertMeasurementAsync(IEnumerable<Measurement> Data)
         {
-            return Task.WhenAll(Data.Select(InsertMeasurementAsync));
+			return InsertManyAsync(Data, InsertMeasurementAsync);
         }
 
         /// <summary>
@@ -703,7 +722,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of messages to insert into the table.</param>
         public Task InsertMessageAsync(IEnumerable<MessageData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertMessageAsync));
+			return InsertManyAsync(Data, InsertMessageAsync);
         }
 
         /// <summary>
@@ -729,7 +748,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of person-location pairs to insert into the table.</param>
         public Task InsertHasLocationPairAsync(IEnumerable<PersonLocationPair> Data)
         {
-            return Task.WhenAll(Data.Select(InsertHasLocationPairAsync));
+			return InsertManyAsync(Data, InsertHasLocationPairAsync);
         }
 
         /// <summary>
@@ -753,13 +772,16 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of person-person pairs to insert into the table.</param>
         public Task InsertFriendsPairAsync(IEnumerable<PersonPair> Data)
         {
-            return Task.WhenAll(Data.Select(InsertFriendsPairAsync));
+			return InsertManyAsync(Data, InsertFriendsPairAsync);
         }
 
         /// <summary>
         /// Close the database connection.
         /// </summary>
-        public void Dispose() => sqlite.Close();
+        public void Dispose()
+		{
+			sqlite.Close();
+		}
 
         /// <summary>
         /// Open a database connection, perform a single operation, and close it,
