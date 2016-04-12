@@ -12,10 +12,10 @@ create table Person (
 create table Friends (
     -- A tuple in this table is interpreted as follows:
     --
-    --     "person one has added person two as a friend"
+    --     "person one has sent person two a friend request"
     --
-    -- The relation need therefore not be symmetric
-    -- (like Google+ Circles)
+    -- The relation need therefore not be symmetric. Two people are "friends"
+    -- if they have sent each other a friend request.
     personOne text not null references Person(guid),
     personTwo text not null references Person(guid),
     primary key (personOne, personTwo)
