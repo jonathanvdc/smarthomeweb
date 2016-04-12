@@ -23,7 +23,11 @@
     <div id="add-friend-container">
         @if (Context.CurrentUser.IsAuthenticated())
         {
-        	if (Model.Item2 == FriendsState.None)
+            if (Model.Item1.Data.UserName == Context.CurrentUser.UserName)
+            {
+                // Insert nothing here. People shouldn't add themselves as friends.
+            }
+            else if (Model.Item2 == FriendsState.None)
         	{
                 <form method="post">
                     <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">Send @user.Data.Name a friend request</button>
