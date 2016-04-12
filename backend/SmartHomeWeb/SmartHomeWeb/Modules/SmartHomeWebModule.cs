@@ -13,8 +13,12 @@ namespace SmartHomeWeb.Modules
 {
     public class SmartHomeWebModule : NancyModule
     {
+        private IFindUserMapper UserMapper;
+
         public SmartHomeWebModule(IFindUserMapper userMapper)
         {
+            UserMapper = userMapper;
+
             // StaticConfiguration.EnableHeadRouting = true;
             
             Get["/"] = parameters => View["home.cshtml"];
@@ -28,44 +32,7 @@ namespace SmartHomeWeb.Modules
 
             Get["/person={username}", true] = GetProfile;
 
-            Post["/person={username}", true] = async (parameters, ct) =>
-            {
-                this.RequiresAuthentication();
-                ViewBag.Error = "";
-                ViewBag.Success = "";
-
-                if (!Context.CurrentUser.IsAuthenticated())
-                {
-                    ViewBag.Error = "You must log in to add friends.";
-                }
-                else
-                {
-                    using (var dc = await DataConnection.CreateAsync())
-                    {
-                        var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
-                        if (sender == null)
-                        {
-                            ViewBag.Error = "I couldn't find your username in the database...?";
-                        }
-                        else
-                        {
-                            await Console.Out.WriteLineAsync((string)Request.Form["friendname"]);
-							var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
-                            if (recipient == null)
-                            {
-                                ViewBag.Error = "That person doesn't exist.";
-                            }
-                            else
-                            {
-                                await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
-                                ViewBag.Success = "Friend request sent!";
-                            }
-                        }
-                    }
-                }
-
-                return await GetProfile(parameters, ct);
-            };
+            Post["/person={username}", true] = FriendRequest;
             
             Get["/location", true] = async (parameters, ct) =>
             {
@@ -74,91 +41,18 @@ namespace SmartHomeWeb.Modules
             };
             Get["/message", true] = GetMessage;
 
-            Post["/message", true] = async (parameters, ct) =>
-            {
-                ViewBag.Error = "";
-                ViewBag.Success = "";
-
-                using (var dc = await DataConnection.CreateAsync())
-                {
-                    if (!Context.CurrentUser.IsAuthenticated())
-                    {
-                        ViewBag.Error = "You must log in to send messages.";
-                    }
-                    else
-                    {
-                        var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
-                        if (sender == null)
-                        {
-                            ViewBag.Error = "I couldn't find your username in the database...?";
-                        }
-                        else
-                        {
-                            await Console.Out.WriteLineAsync((string)Request.Form["messagename"]);
-							var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "messagename"));
-                            if (recipient == null)
-                            {
-                                ViewBag.Error = "That person doesn't exist.";
-                            }
-                            else
-                            {
-                                var messageData = new MessageData(sender.Guid, recipient.Guid, Request.Form["messagebody"]);
-                                await dc.InsertMessageAsync(messageData);
-                                ViewBag.Success = "Message sent!";
-                            }
-                        }
-                    }
-                }
-
-                return await GetMessage(parameters, ct);
-            };
+            Post["/message", true] = PostMessage;
 
             Get["/friends", true] = GetFriends;
 
-            Post["/friends", true] = async (parameters, ct) =>
-            {
-                this.RequiresAuthentication();
-                ViewBag.Error = "";
-                ViewBag.Success = "";
-
-                if (!Context.CurrentUser.IsAuthenticated())
-                {
-                    ViewBag.Error = "You must log in to add friends.";
-                }
-                else
-                {
-                    using (var dc = await DataConnection.CreateAsync())
-                    {
-                        var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
-                        if (sender == null)
-                        {
-							ViewBag.Error = TextResources.UserNameNotFoundError;
-                        }
-                        else
-                        {
-                            await Console.Out.WriteLineAsync((string)Request.Form["friendname"]);
-							var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
-                            if (recipient == null)
-                            {
-                                ViewBag.Error = "That person doesn't exist.";
-                            }
-                            else
-                            {
-                                await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
-                                ViewBag.Success = "Friend request sent!";
-                            }
-                        }
-                    }
-                }
-
-                return await GetFriends(parameters, ct);
-            };
+            Post["/friends", true] = PostFriends;
 
             Get["/sensor", true] = async (parameters, ct) =>
             {
                 var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
                 return View["sensor.cshtml", sensors];
             };
+
             Get["/measurement", true] = async (parameters, ct) =>
             {
                 var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
@@ -173,14 +67,9 @@ namespace SmartHomeWeb.Modules
                 string pass = Request.Form.password;
                 UserIdentity user;
 
-                if (userMapper.FindUser(name, pass, out user))
-                {
-                    return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/");
-                }
-                else
-                {
-                    return Response.AsRedirect("/nopass");
-                }
+                return userMapper.FindUser(name, pass, out user)
+                    ? this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1))
+                    : Response.AsRedirect("/nopass");
             };
             Get["/logout"] = parameter => this.Logout("/");
 
@@ -194,58 +83,7 @@ namespace SmartHomeWeb.Modules
 
 			Get["/add-location", true] = GetAddLocation;
 
-			Post["/add-location", true] = async (parameters, ct) =>
-			{
-				this.RequiresAuthentication();
-				ViewBag.Error = "";
-				ViewBag.Success = "";
-
-				if (!Context.CurrentUser.IsAuthenticated())
-				{
-					ViewBag.Error = TextResources.AddLocationNotAuthenticatedText;
-				}
-				else
-				{
-					// DataConnection.Ask is used here, because it conveniently wraps everything in
-					// a single transaction.
-					await DataConnection.Ask(async dc =>
-					{
-						var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
-						if (sender == null)
-						{
-							ViewBag.Error = TextResources.UserNameNotFoundError;
-						}
-						else
-						{
-							// Retrieve the requested location name, and trim whitespace on both sides.
-							string name = FormHelpers.GetString(Request.Form, "locationname");
-							if (string.IsNullOrWhiteSpace(name))
-							{
-								// Don't create locations with empty names.
-								ViewBag.Error = TextResources.EmptyNameError;
-							}
-							else
-							{
-								await Console.Out.WriteLineAsync(name);
-								var loc = await dc.GetLocationByNameAsync(name);
-								if (loc != null)
-								{
-									ViewBag.Error = string.Format(TextResources.LocationAlreadyExistsError, name);
-								}
-								else
-								{
-									await dc.InsertLocationAsync(new LocationData(name, sender.Guid));
-									var newLoc = await dc.GetLocationByNameAsync(name);
-									await dc.InsertHasLocationPairAsync(new PersonLocationPair(sender.Guid, newLoc.Id));
-									ViewBag.Success = TextResources.AddedLocationMessage;
-								}
-							}
-						}
-					});
-				}
-
-				return await GetAddLocation(parameters, ct);
-			};
+			Post["/add-location", true] = PostAddLocation;
 
             Get["/add-has-location", true] = async (parameters, ct) =>
             {
@@ -261,109 +99,284 @@ namespace SmartHomeWeb.Modules
 
 			Get["/add-person", true] = GetAddPerson;
 
-			Post["/add-person", true] = async (parameters, ct) =>
-			{
-				ViewBag.Success = "";
-				ViewBag.Error = "";
+            Post["/add-person", true] = PostAddPerson;
 
-				string username = FormHelpers.GetString(Request.Form, "personusername");
-				string name = FormHelpers.GetString(Request.Form, "personname");
-				string password = FormHelpers.GetRawString(Request.Form, "personpassword");
-				string repeatPassword = FormHelpers.GetRawString(Request.Form, "personpasswordrepeat");
-				string address = FormHelpers.GetString(Request.Form, "personaddress");
-				DateTime? birthdate = FormHelpers.GetDate(Request.Form, "personbirthdate");
-				string city = FormHelpers.GetString(Request.Form, "personcity");
-				string zipcode = FormHelpers.GetString(Request.Form, "personzipcode");
+            Get["/mydata", true] = GetDashboard;
+        }
 
-				if (string.IsNullOrWhiteSpace(username))
-				{
-					ViewBag.Error = TextResources.EmptyUserNameError;
-				}
-				else if (string.IsNullOrWhiteSpace(name))
-				{
-					ViewBag.Error = TextResources.EmptyNameError;
-				}
-				else if (string.IsNullOrWhiteSpace(password))
-				{
-					ViewBag.Error = TextResources.EmptyPasswordError;
-				}
-				else if (password != repeatPassword)
-				{
-					ViewBag.Error = TextResources.PasswordMismatchError;
-				}
-				else if (!birthdate.HasValue)
-				{
-					ViewBag.Error = TextResources.BadlyFormattedBirthDateError;
-				}
-				else
-				{
-					// DataConnection.Ask is used here, because it conveniently wraps everything in
-					// a single transaction.
-					await DataConnection.Ask(async dc =>
-					{
-						var sender = await dc.GetPersonByUsernameAsync(username);
-						if (sender != null)
-						{
-							ViewBag.Error = string.Format(TextResources.PersonAlreadyExistsError, username);
-						}
-						else
-						{
-							var personData = new PersonData(username, password, name, birthdate.Value, address, city, zipcode);
-							// Create the person
-							await dc.InsertPersonAsync(personData);
-							ViewBag.Success = TextResources.AddedPersonMessage;
-						}
-					});
-				}
+        private async Task<object> PostAddPerson(dynamic parameters, CancellationToken ct)
+        {
+            ViewBag.Success = "";
+            ViewBag.Error = "";
 
-				if (string.IsNullOrWhiteSpace((string)ViewBag.Error))
-				{
-					UserIdentity user;
-					userMapper.FindUser(username, password, out user);
-					// Everything went fine. Log in and redirect to the profile page.
-					return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/person=" + username);
-				}
-				else
-				{
-					return await GetAddPerson(parameters, ct);
-				}
-			};
+            string username = FormHelpers.GetString(Request.Form, "personusername");
+            string name = FormHelpers.GetString(Request.Form, "personname");
+            string password = FormHelpers.GetRawString(Request.Form, "personpassword");
+            string repeatPassword = FormHelpers.GetRawString(Request.Form, "personpasswordrepeat");
+            string address = FormHelpers.GetString(Request.Form, "personaddress");
+            DateTime? birthdate = FormHelpers.GetDate(Request.Form, "personbirthdate");
+            string city = FormHelpers.GetString(Request.Form, "personcity");
+            string zipcode = FormHelpers.GetString(Request.Form, "personzipcode");
 
-            Get["/mydata", true] = async (parameters, ct) =>
+            if (string.IsNullOrWhiteSpace(username))
             {
-                this.RequiresAuthentication();
-                var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid));
-                var locationsWithSensors = new List<LocationWithSensors>();
+                ViewBag.Error = TextResources.EmptyUserNameError;
+            }
+            else if (string.IsNullOrWhiteSpace(name))
+            {
+                ViewBag.Error = TextResources.EmptyNameError;
+            }
+            else if (string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = TextResources.EmptyPasswordError;
+            }
+            else if (password != repeatPassword)
+            {
+                ViewBag.Error = TextResources.PasswordMismatchError;
+            }
+            else if (!birthdate.HasValue)
+            {
+                ViewBag.Error = TextResources.BadlyFormattedBirthDateError;
+            }
+            else
+            {
+                // DataConnection.Ask is used here, because it conveniently wraps everything in
+                // a single transaction.
+                await DataConnection.Ask(async dc =>
+                {
+                    var sender = await dc.GetPersonByUsernameAsync(username);
+                    if (sender != null)
+                    {
+                        ViewBag.Error = string.Format(TextResources.PersonAlreadyExistsError, username);
+                    }
+                    else
+                    {
+                        var personData = new PersonData(username, password, name, birthdate.Value, address, city, zipcode);
+                        // Create the person
+                        await dc.InsertPersonAsync(personData);
+                        ViewBag.Success = TextResources.AddedPersonMessage;
+                    }
+                });
+            }
 
-                foreach (var location in locations) {
-                    var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocation(location));
-                    locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
+            if (string.IsNullOrWhiteSpace((string)ViewBag.Error))
+            {
+                UserIdentity user;
+                UserMapper.FindUser(username, password, out user);
+                // Everything went fine. Log in and redirect to the profile page.
+                return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/person=" + username);
+            }
+            else
+            {
+                return await GetAddPerson(parameters, ct);
+            }
+        }
+
+        private async Task<dynamic> GetDashboard(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity) Context.CurrentUser).Guid));
+            var locationsWithSensors = new List<LocationWithSensors>();
+
+            foreach (var location in locations)
+            {
+                var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocation(location));
+                locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
+            }
+
+            // TODO VIEWBAG
+            // TODO write a query for this, too?
+            var usernameMessageTuples = new List<Tuple<string, string>>();
+
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                var messages = await dc.GetMessagesAsync();
+                foreach (var m in messages)
+                {
+                    var recipient = await dc.GetPersonByGuidAsync(m.Data.RecipientGuid);
+                    if (recipient.Data.UserName == Context.CurrentUser.UserName)
+                    {
+                        var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
+                        usernameMessageTuples.Add(Tuple.Create(sender.Data.UserName, m.Data.Message));
+                    }
                 }
+            }
 
-                // TODO VIEWBAG
-                // TODO write a query for this, too?
-                var usernameMessageTuples = new List<Tuple<string, string>>();
+            ViewBag.Messages = usernameMessageTuples;
+            return View["mydata.cshtml", locationsWithSensors];
+        }
 
+        private async Task<dynamic> PostAddLocation(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            ViewBag.Error = "";
+            ViewBag.Success = "";
+
+            if (!Context.CurrentUser.IsAuthenticated())
+            {
+                ViewBag.Error = TextResources.AddLocationNotAuthenticatedText;
+            }
+            else
+            {
+                // DataConnection.Ask is used here, because it conveniently wraps everything in
+                // a single transaction.
+                await DataConnection.Ask(async dc =>
+                {
+                    var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                    if (sender == null)
+                    {
+                        ViewBag.Error = TextResources.UserNameNotFoundError;
+                    }
+                    else
+                    {
+                        // Retrieve the requested location name, and trim whitespace on both sides.
+                        string name = FormHelpers.GetString(Request.Form, "locationname");
+                        if (string.IsNullOrWhiteSpace(name))
+                        {
+                            // Don't create locations with empty names.
+                            ViewBag.Error = TextResources.EmptyNameError;
+                        }
+                        else
+                        {
+                            await Console.Out.WriteLineAsync(name);
+                            var loc = await dc.GetLocationByNameAsync(name);
+                            if (loc != null)
+                            {
+                                ViewBag.Error = string.Format(TextResources.LocationAlreadyExistsError, name);
+                            }
+                            else
+                            {
+                                await dc.InsertLocationAsync(new LocationData(name, sender.Guid));
+                                var newLoc = await dc.GetLocationByNameAsync(name);
+                                await dc.InsertHasLocationPairAsync(new PersonLocationPair(sender.Guid, newLoc.Id));
+                                ViewBag.Success = TextResources.AddedLocationMessage;
+                            }
+                        }
+                    }
+                });
+            }
+
+            return await GetAddLocation(parameters, ct);
+        }
+
+        private async Task<dynamic> FriendRequest(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            ViewBag.Error = "";
+            ViewBag.Success = "";
+
+            if (!Context.CurrentUser.IsAuthenticated())
+            {
+                ViewBag.Error = "You must log in to add friends.";
+            }
+            else
+            {
                 using (var dc = await DataConnection.CreateAsync())
                 {
-                    var messages = await dc.GetMessagesAsync();
-                    foreach (var m in messages)
+                    var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                    if (sender == null)
                     {
-                        var recipient = await dc.GetPersonByGuidAsync(m.Data.RecipientGuid);
-                        if (recipient.Data.UserName == Context.CurrentUser.UserName)
+                        ViewBag.Error = "I couldn't find your username in the database...?";
+                    }
+                    else
+                    {
+                        await Console.Out.WriteLineAsync((string) Request.Form["friendname"]);
+                        var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
+                        if (recipient == null)
                         {
-                            var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
-                            usernameMessageTuples.Add(Tuple.Create(sender.Data.UserName, m.Data.Message));
+                            ViewBag.Error = "That person doesn't exist.";
+                        }
+                        else
+                        {
+                            await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
+                            ViewBag.Success = "Friend request sent!";
                         }
                     }
                 }
+            }
 
-                ViewBag.Messages = usernameMessageTuples;
-                return View["mydata.cshtml", locationsWithSensors];
-            };
+            return await GetProfile(parameters, ct);
         }
 
-		private async Task<dynamic> GetAddLocation(dynamic parameters, CancellationToken ct)
+        private async Task<dynamic> PostMessage(dynamic parameters, CancellationToken ct)
+        {
+            ViewBag.Error = "";
+            ViewBag.Success = "";
+
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                if (!Context.CurrentUser.IsAuthenticated())
+                {
+                    ViewBag.Error = "You must log in to send messages.";
+                }
+                else
+                {
+                    var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                    if (sender == null)
+                    {
+                        ViewBag.Error = "I couldn't find your username in the database...?";
+                    }
+                    else
+                    {
+                        await Console.Out.WriteLineAsync((string) Request.Form["messagename"]);
+                        var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "messagename"));
+                        if (recipient == null)
+                        {
+                            ViewBag.Error = "That person doesn't exist.";
+                        }
+                        else
+                        {
+                            var messageData = new MessageData(sender.Guid, recipient.Guid, Request.Form["messagebody"]);
+                            await dc.InsertMessageAsync(messageData);
+                            ViewBag.Success = "Message sent!";
+                        }
+                    }
+                }
+            }
+
+            return await GetMessage(parameters, ct);
+        }
+
+        private async Task<dynamic> PostFriends(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            ViewBag.Error = "";
+            ViewBag.Success = "";
+
+            if (!Context.CurrentUser.IsAuthenticated())
+            {
+                ViewBag.Error = "You must log in to add friends.";
+            }
+            else
+            {
+                using (var dc = await DataConnection.CreateAsync())
+                {
+                    var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+                    if (sender == null)
+                    {
+                        ViewBag.Error = TextResources.UserNameNotFoundError;
+                    }
+                    else
+                    {
+                        await Console.Out.WriteLineAsync((string) Request.Form["friendname"]);
+                        var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
+                        if (recipient == null)
+                        {
+                            ViewBag.Error = "That person doesn't exist.";
+                        }
+                        else
+                        {
+                            await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
+                            ViewBag.Success = "Friend request sent!";
+                        }
+                    }
+                }
+            }
+
+            return await GetFriends(parameters, ct);
+        }
+
+        private async Task<dynamic> GetAddLocation(dynamic parameters, CancellationToken ct)
 		{
 			this.RequiresAuthentication();
 
@@ -404,27 +417,11 @@ namespace SmartHomeWeb.Modules
             }
         }
 
-        public static string ErrorPage => @"
-                <html>
-                    <body>
-                        <h1>Something went horribly, horribly wrong. Our code monkeys are working on the problem.</h1>
-                    </body>
-                </html>";
-
         public static string NotAuthorizedPage => @"
                 <html>
                     <body>
                         <h1>You shall not pass.</h1>
                     </body>
                 </html>";
-
-        public static string ComingSoonPage => @"
-                <html>
-                    <body>
-                        <h1>Not implemented yet, our engineers are working very hard to provide this page for you.</h1>
-                    </body>
-                </html>";
-
-        public static string EmptyPage => "";
     }    
 }
