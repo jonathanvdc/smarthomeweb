@@ -4,10 +4,12 @@ using Nancy.Authentication.Forms;
 using Nancy.Security;
 using SmartHomeWeb.Model;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
 using System.Threading;
 using System.Threading.Tasks;
+using Nancy.Session;
 
 namespace SmartHomeWeb.Modules
 {
@@ -91,8 +93,7 @@ namespace SmartHomeWeb.Modules
 
                 // First, acquire all locations.
                 var newLocations = new HashSet<Location>(await DataConnection.Ask(dc => dc.GetLocationsAsync()));
-                // Then remove all locations that were already assigned to the
-                // person.
+                // Then remove all locations that were already assigned to the person.
                 newLocations.ExceptWith(await DataConnection.Ask(dc => dc.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid)));
                 return View["add-has-location.cshtml", newLocations];
             };
@@ -102,6 +103,13 @@ namespace SmartHomeWeb.Modules
             Post["/add-person", true] = PostAddPerson;
 
             Get["/mydata", true] = GetDashboard;
+
+            Get["/set-culture"] = parameters =>
+            {
+                string lcid = Request.Query["lcid"];
+                Request.Session["CurrentCulture"] = CultureInfo.GetCultureInfo(lcid);
+                return Response.AsRedirect("/");
+            };
         }
 
         private async Task<object> PostAddPerson(dynamic parameters, CancellationToken ct)

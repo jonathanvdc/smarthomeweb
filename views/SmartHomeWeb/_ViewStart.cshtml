@@ -1,3 +1,6 @@
+@using System.Globalization
+@using SmartHomeWeb
 @{
-    Layout = "layout.cshtml";
+    this.Layout = "layout.cshtml";
+    TextResources.Culture = (CultureInfo)this.Request.Session["CurrentCulture"];
 }

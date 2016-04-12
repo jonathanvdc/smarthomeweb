@@ -6,6 +6,7 @@ using Nancy.Authentication.Forms;
 using Nancy.Bootstrapper;
 using Nancy.Diagnostics;
 using Nancy.Hosting.Self;
+using Nancy.Session;
 using Nancy.TinyIoc;
 using Nancy.ViewEngines.Razor;
 
@@ -37,6 +38,7 @@ namespace SmartHomeWeb
         {
             StaticConfiguration.DisableErrorTraces = false;
             StaticConfiguration.EnableRequestTracing = true;
+            CookieBasedSessions.Enable(pipelines);
 
             var formsAuthConfiguration = new FormsAuthenticationConfiguration
                 {

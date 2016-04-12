@@ -1,6 +1,6 @@
-﻿@using Nancy.Security
+﻿@using System.Globalization
+@using Nancy.Security
 @using SmartHomeWeb
-@using SmartHomeWeb.Model
 @inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 
 <!DOCTYPE html5>
@@ -63,7 +63,8 @@
 
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-						@TextResources.Language<span class="caret"></span>
+						<span class="glyphicon glyphicon-globe" aria-hidden="true" title="@TextResources.Language"></span>
+                        <span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu">
 						<li><a href="/set-culture?lcid=en-US">English</a></li>
