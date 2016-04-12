@@ -19,11 +19,21 @@
         <li><b>GUID:</b>        <samp>@user.Guid</samp></li>
         <li><b>Birthday:</b>    @user.Data.Birthdate.ToLongDateString()</li>
         @{
+        	// Don't print empty addresses.
             if (!string.IsNullOrEmpty(user.Data.Address) 
         	|| !string.IsNullOrEmpty(user.Data.ZipCode) 
         	|| !string.IsNullOrEmpty(user.Data.City))
 	        {
-	        	<li><b>Address:</b> 
+	        	<li><b>Address:</b>
+	        	@* Some part of the address is non-empty. The code below does the following: 
+		        
+		           ("<address>", "<city>", "<zip>") -> "<address>, <zip> <city>"
+		           ("", "<city>", "<zip>") -> "<zip> <city>"
+		           ("", "", "<zip>") -> "<zip>"
+		           ("", "<city>", "") -> "<city>"
+		           ("<address>", "<city>", "") -> "<address>, <city>"
+		           ("<address>", "", "<zip>") -> "<address>, <zip>"
+		        *@
 	        	@(string.Join(
 	        		",", 
 	        		new string[] { user.Data.Address, user.Data.ZipCode + " " + user.Data.City }
