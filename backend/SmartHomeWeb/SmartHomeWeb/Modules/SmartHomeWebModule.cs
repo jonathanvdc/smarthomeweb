@@ -50,7 +50,7 @@ namespace SmartHomeWeb.Modules
                         else
                         {
                             await Console.Out.WriteLineAsync((string)Request.Form["friendname"]);
-                            var recipient = await dc.GetPersonByUsernameAsync((string)Request.Form["friendname"]);
+							var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
                             if (recipient == null)
                             {
                                 ViewBag.Error = "That person doesn't exist.";
@@ -95,7 +95,7 @@ namespace SmartHomeWeb.Modules
                         else
                         {
                             await Console.Out.WriteLineAsync((string)Request.Form["messagename"]);
-                            var recipient = await dc.GetPersonByUsernameAsync((string)Request.Form["messagename"]);
+							var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "messagename"));
                             if (recipient == null)
                             {
                                 ViewBag.Error = "That person doesn't exist.";
@@ -137,7 +137,7 @@ namespace SmartHomeWeb.Modules
                         else
                         {
                             await Console.Out.WriteLineAsync((string)Request.Form["friendname"]);
-                            var recipient = await dc.GetPersonByUsernameAsync((string)Request.Form["friendname"]);
+							var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
                             if (recipient == null)
                             {
                                 ViewBag.Error = "That person doesn't exist.";
@@ -218,11 +218,11 @@ namespace SmartHomeWeb.Modules
 						else
 						{
 							// Retrieve the requested location name, and trim whitespace on both sides.
-							string name = ((string)Request.Form["locationname"]).Trim();
+							string name = FormHelpers.GetString(Request.Form, "locationname");
 							if (string.IsNullOrWhiteSpace(name))
 							{
 								// Don't create locations with empty names.
-								ViewBag.Error = TextResources.WhitespaceNameError;
+								ViewBag.Error = TextResources.EmptyNameError;
 							}
 							else
 							{
@@ -260,6 +260,74 @@ namespace SmartHomeWeb.Modules
             };
 
 			Get["/add-person", true] = GetAddPerson;
+
+			Post["/add-person", true] = async (parameters, ct) =>
+			{
+				ViewBag.Success = "";
+				ViewBag.Error = "";
+
+				string username = FormHelpers.GetString(Request.Form, "personusername");
+				string name = FormHelpers.GetString(Request.Form, "personname");
+				string password = FormHelpers.GetRawString(Request.Form, "personpassword");
+				string repeatPassword = FormHelpers.GetRawString(Request.Form, "personpasswordrepeat");
+				string address = FormHelpers.GetString(Request.Form, "personaddress");
+				DateTime? birthdate = FormHelpers.GetDate(Request.Form, "personbirthdate");
+				string city = FormHelpers.GetString(Request.Form, "personcity");
+				string zipcode = FormHelpers.GetString(Request.Form, "personzipcode");
+
+				if (string.IsNullOrWhiteSpace(username))
+				{
+					ViewBag.Error = TextResources.EmptyUserNameError;
+				}
+				else if (string.IsNullOrWhiteSpace(name))
+				{
+					ViewBag.Error = TextResources.EmptyNameError;
+				}
+				else if (string.IsNullOrWhiteSpace(password))
+				{
+					ViewBag.Error = TextResources.EmptyPasswordError;
+				}
+				else if (password != repeatPassword)
+				{
+					ViewBag.Error = TextResources.PasswordMismatchError;
+				}
+				else if (!birthdate.HasValue)
+				{
+					ViewBag.Error = TextResources.BadlyFormattedBirthDateError;
+				}
+				else
+				{
+					// DataConnection.Ask is used here, because it conveniently wraps everything in
+					// a single transaction.
+					await DataConnection.Ask(async dc =>
+					{
+						var sender = await dc.GetPersonByUsernameAsync(username);
+						if (sender != null)
+						{
+							ViewBag.Error = string.Format(TextResources.PersonAlreadyExistsError, username);
+						}
+						else
+						{
+							var personData = new PersonData(username, password, name, birthdate.Value, address, city, zipcode);
+							// Create the person
+							await dc.InsertPersonAsync(personData);
+							ViewBag.Success = TextResources.AddedPersonMessage;
+						}
+					});
+				}
+
+				if (string.IsNullOrWhiteSpace((string)ViewBag.Error))
+				{
+					UserIdentity user;
+					userMapper.FindUser(username, password, out user);
+					// Everything went fine. Log in and redirect to the profile page.
+					return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/person=" + username);
+				}
+				else
+				{
+					return await GetAddPerson(parameters, ct);
+				}
+			};
 
             Get["/mydata", true] = async (parameters, ct) =>
             {

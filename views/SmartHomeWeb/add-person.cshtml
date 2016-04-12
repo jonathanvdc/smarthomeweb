@@ -10,7 +10,6 @@
 
 <h1>@TextResources.AddPersonPageTitle</h1>
 
-
 @Html.Partial("feedback-box.cshtml")
 
 <form method="post">
@@ -19,8 +18,12 @@
         <input id="personusername" name="person-username" class="form-control"/>
         <label for="personname">@(TextResources.PersonNameLabel):</label>
         <input id="personname" name="person-name" class="form-control"/>
+        <label for="personpassword">@(TextResources.PersonPasswordLabel):</label>
+        <input type="password" id="personpassword" name="person-password" class="form-control"/>
+        <label for="personpasswordrepeat">@(TextResources.PersonRepeatPasswordLabel):</label>
+        <input type="password" id="personpasswordrepeat" name="person-password-repeat" class="form-control"/>
         <label for="personbirthdate">@(TextResources.PersonBirthdateLabel):</label>
-        <input id="personbirthdate" name="person-birthdate" class="form-control"/>
+        <input type="date" id="personbirthdate" name="person-birthdate" class="form-control"/>
         <label for="personaddress">@(TextResources.PersonAddressLabel):</label>
         <input id="personaddress" name="person-address" class="form-control"/>
         <label for="personcity">@(TextResources.PersonCityLabel):</label>

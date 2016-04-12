@@ -70,9 +70,27 @@ namespace SmartHomeWeb {
             }
         }
         
-        public static string WhitespaceNameError {
+        public static string EmptyNameError {
             get {
-                return ResourceManager.GetString("WhitespaceNameError", resourceCulture);
+                return ResourceManager.GetString("EmptyNameError", resourceCulture);
+            }
+        }
+        
+        public static string EmptyUserNameError {
+            get {
+                return ResourceManager.GetString("EmptyUserNameError", resourceCulture);
+            }
+        }
+        
+        public static string EmptyPasswordError {
+            get {
+                return ResourceManager.GetString("EmptyPasswordError", resourceCulture);
+            }
+        }
+        
+        public static string BadlyFormattedBirthDateError {
+            get {
+                return ResourceManager.GetString("BadlyFormattedBirthDateError", resourceCulture);
             }
         }
         
@@ -178,9 +196,27 @@ namespace SmartHomeWeb {
             }
         }
         
+        public static string PersonAlreadyExistsError {
+            get {
+                return ResourceManager.GetString("PersonAlreadyExistsError", resourceCulture);
+            }
+        }
+        
+        public static string PasswordMismatchError {
+            get {
+                return ResourceManager.GetString("PasswordMismatchError", resourceCulture);
+            }
+        }
+        
         public static string AddedLocationMessage {
             get {
                 return ResourceManager.GetString("AddedLocationMessage", resourceCulture);
+            }
+        }
+        
+        public static string AddedPersonMessage {
+            get {
+                return ResourceManager.GetString("AddedPersonMessage", resourceCulture);
             }
         }
         
@@ -193,6 +229,18 @@ namespace SmartHomeWeb {
         public static string PersonNameLabel {
             get {
                 return ResourceManager.GetString("PersonNameLabel", resourceCulture);
+            }
+        }
+        
+        public static string PersonPasswordLabel {
+            get {
+                return ResourceManager.GetString("PersonPasswordLabel", resourceCulture);
+            }
+        }
+        
+        public static string PersonRepeatPasswordLabel {
+            get {
+                return ResourceManager.GetString("PersonRepeatPasswordLabel", resourceCulture);
             }
         }
         

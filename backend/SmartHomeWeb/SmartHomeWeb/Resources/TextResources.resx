@@ -24,8 +24,17 @@
     <data name="LogOut">
         <value>Log out</value>
     </data>
-    <data name="WhitespaceNameError">
+    <data name="EmptyNameError">
         <value>Names must be non-empty.</value>
+    </data>
+    <data name="EmptyUserNameError">
+        <value>Usernames must be non-empty.</value>
+    </data>
+    <data name="EmptyPasswordError">
+        <value>Passwords must be non-empty.</value>
+    </data>
+    <data name="BadlyFormattedBirthDateError">
+        <value>Your birth date could not be parsed. Have you tried formatting it as 'YYYY/MM/DD'?</value>
     </data>
     <data name="UserNameNotFoundError">
     	<value>I couldn't find your username in the database.</value>
@@ -81,14 +90,29 @@
     <data name="LocationAlreadyExistsError">
     	<value>There is a pre-existing location called '{0}'.</value>
     </data>
+    <data name="PersonAlreadyExistsError">
+    	<value>Someone else has already taken username '{0}'.</value>
+    </data>    
+    <data name="PasswordMismatchError">
+    	<value>The passwords you entered did not match.</value>
+    </data>
     <data name="AddedLocationMessage">
     	<value>The location has been registered!</value>
+    </data>
+    <data name="AddedPersonMessage">
+    	<value>Your profile has been created. Thanks for registering!</value>
     </data>
     <data name="PersonUserNameLabel">
     	<value>Username</value>
     </data>
     <data name="PersonNameLabel">
     	<value>Name</value>
+    </data>
+    <data name="PersonPasswordLabel">
+    	<value>Password</value>
+    </data>
+    <data name="PersonRepeatPasswordLabel">
+    	<value>Repeat password</value>
     </data>
     <data name="PersonBirthdateLabel">
     	<value>Date of birth</value>
