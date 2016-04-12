@@ -136,6 +136,12 @@ namespace SmartHomeWeb {
             }
         }
         
+        public static string AddHasLocationPageTitle {
+            get {
+                return ResourceManager.GetString("AddHasLocationPageTitle", resourceCulture);
+            }
+        }
+        
         public static string AddLocationPageDescription {
             get {
                 return ResourceManager.GetString("AddLocationPageDescription", resourceCulture);

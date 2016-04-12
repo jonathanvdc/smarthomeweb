@@ -57,6 +57,9 @@
     <data name="AddLocationPageTitle">
     	<value>Register location</value>
     </data>
+    <data name="AddHasLocationPageTitle">
+    	<value>Add a location to your profile</value>
+    </data>
     <data name="AddLocationPageDescription">
     	<value>Register a new location.</value>
     </data>
