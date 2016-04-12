@@ -252,4 +252,13 @@
   <data name="ViewFriendsNotLoggedInError" xml:space="preserve">
     <value>You must log in to view your friends.</value>
   </data>
+  <data name="WelcomeBody" xml:space="preserve">
+    <value>Log, track, and organize your devices' electricity usage. Create graphs of aggregated data and share them with friends.</value>
+  </data>
+  <data name="WelcomeCreateAccountButton" xml:space="preserve">
+    <value>Get started</value>
+  </data>
+  <data name="WelcomeTitle" xml:space="preserve">
+    <value>Welcome to SmartHomeWeb.</value>
+  </data>
 </root>

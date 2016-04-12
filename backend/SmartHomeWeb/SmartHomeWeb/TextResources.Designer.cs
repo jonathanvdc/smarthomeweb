@@ -464,5 +464,32 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("ViewFriendsNotLoggedInError", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log, track, and organize your devices&apos; electricity usage. Create graphs of aggregated data and share them with friends..
+        /// </summary>
+        public static string WelcomeBody {
+            get {
+                return ResourceManager.GetString("WelcomeBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get started.
+        /// </summary>
+        public static string WelcomeCreateAccountButton {
+            get {
+                return ResourceManager.GetString("WelcomeCreateAccountButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome to SmartHomeWeb..
+        /// </summary>
+        public static string WelcomeTitle {
+            get {
+                return ResourceManager.GetString("WelcomeTitle", resourceCulture);
+            }
+        }
     }
 }
