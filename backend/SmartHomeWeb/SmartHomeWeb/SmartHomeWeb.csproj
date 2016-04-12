@@ -139,6 +139,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
       <Link>View Links\add-has-location.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\add-location.cshtml">
+      <Link>View Links\add-location.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
       <Link>View Links\friends.cshtml</Link>
     </None>

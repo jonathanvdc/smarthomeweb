@@ -132,7 +132,7 @@ namespace SmartHomeWeb.Modules
                         var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
                         if (sender == null)
                         {
-                            ViewBag.Error = "I couldn't find your username in the database...?";
+							ViewBag.Error = TextResources.UserNameNotFoundError;
                         }
                         else
                         {
@@ -192,6 +192,61 @@ namespace SmartHomeWeb.Modules
                 return View["graph.cshtml", measurements];
             };
 
+			Get["/add-location", true] = GetAddLocation;
+
+			Post["/add-location", true] = async (parameters, ct) =>
+			{
+				this.RequiresAuthentication();
+				ViewBag.Error = "";
+				ViewBag.Success = "";
+
+				if (!Context.CurrentUser.IsAuthenticated())
+				{
+					ViewBag.Error = TextResources.AddLocationNotAuthenticatedText;
+				}
+				else
+				{
+					// DataConnection.Ask is used here, because it conveniently wraps everything in
+					// a single transaction.
+					await DataConnection.Ask(async dc =>
+					{
+						var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
+						if (sender == null)
+						{
+							ViewBag.Error = TextResources.UserNameNotFoundError;
+						}
+						else
+						{
+							// Retrieve the requested location name, and trim whitespace on both sides.
+							string name = ((string)Request.Form["locationname"]).Trim();
+							if (string.IsNullOrWhiteSpace(name))
+							{
+								// Don't create locations with empty names.
+								ViewBag.Error = TextResources.WhitespaceNameError;
+							}
+							else
+							{
+								await Console.Out.WriteLineAsync(name);
+								var loc = await dc.GetLocationByNameAsync(name);
+								if (loc != null)
+								{
+									ViewBag.Error = string.Format(TextResources.LocationAlreadyExistsError, name);
+								}
+								else
+								{
+									await dc.InsertLocationAsync(new LocationData(name, sender.Guid));
+									var newLoc = await dc.GetLocationByNameAsync(name);
+									await dc.InsertHasLocationPairAsync(new PersonLocationPair(sender.Guid, newLoc.Id));
+									ViewBag.Success = TextResources.AddedLocationMessage;
+								}
+							}
+						}
+					});
+				}
+
+				return await GetAddLocation(parameters, ct);
+			};
+
             Get["/add-has-location", true] = async (parameters, ct) =>
             {
                 this.RequiresAuthentication();
@@ -237,6 +292,13 @@ namespace SmartHomeWeb.Modules
                 return View["mydata.cshtml", locationsWithSensors];
             };
         }
+
+		private async Task<dynamic> GetAddLocation(dynamic parameters, CancellationToken ct)
+		{
+			this.RequiresAuthentication();
+
+			return View["add-location.cshtml"];
+		}
 
         private async Task<dynamic> GetFriends(dynamic parameters, CancellationToken ct)
         {

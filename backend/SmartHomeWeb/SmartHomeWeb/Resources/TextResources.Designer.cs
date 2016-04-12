@@ -46,6 +46,18 @@ namespace SmartHomeWeb {
             }
         }
         
+        public static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        public static string Success {
+            get {
+                return ResourceManager.GetString("Success", resourceCulture);
+            }
+        }
+        
         public static string LogIn {
             get {
                 return ResourceManager.GetString("LogIn", resourceCulture);
@@ -55,6 +67,18 @@ namespace SmartHomeWeb {
         public static string LogOut {
             get {
                 return ResourceManager.GetString("LogOut", resourceCulture);
+            }
+        }
+        
+        public static string WhitespaceNameError {
+            get {
+                return ResourceManager.GetString("WhitespaceNameError", resourceCulture);
+            }
+        }
+        
+        public static string UserNameNotFoundError {
+            get {
+                return ResourceManager.GetString("UserNameNotFoundError", resourceCulture);
             }
         }
         
@@ -103,6 +127,48 @@ namespace SmartHomeWeb {
         public static string FriendsPageTitle {
             get {
                 return ResourceManager.GetString("FriendsPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string AddLocationPageTitle {
+            get {
+                return ResourceManager.GetString("AddLocationPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string AddLocationPageDescription {
+            get {
+                return ResourceManager.GetString("AddLocationPageDescription", resourceCulture);
+            }
+        }
+        
+        public static string LocationNameLabel {
+            get {
+                return ResourceManager.GetString("LocationNameLabel", resourceCulture);
+            }
+        }
+        
+        public static string AddLocationButtonText {
+            get {
+                return ResourceManager.GetString("AddLocationButtonText", resourceCulture);
+            }
+        }
+        
+        public static string AddLocationNotAuthenticatedText {
+            get {
+                return ResourceManager.GetString("AddLocationNotAuthenticatedText", resourceCulture);
+            }
+        }
+        
+        public static string LocationAlreadyExistsError {
+            get {
+                return ResourceManager.GetString("LocationAlreadyExistsError", resourceCulture);
+            }
+        }
+        
+        public static string AddedLocationMessage {
+            get {
+                return ResourceManager.GetString("AddedLocationMessage", resourceCulture);
             }
         }
     }

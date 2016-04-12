@@ -468,6 +468,12 @@ namespace SmartHomeWeb
         public Task<Location> GetLocationByIdAsync(int id) =>
             GetSingleByKeyAsync(LocationTableName, "id", id, DatabaseHelpers.ReadLocation);
 
+		/// <summary>
+		/// Creates a task that fetches a single location from the database.
+		/// </summary>
+		public Task<Location> GetLocationByNameAsync(string Name) =>
+			GetSingleByKeyAsync(LocationTableName, "name", Name, DatabaseHelpers.ReadLocation);
+
         /// <summary>
         /// Creates a task that fetches a single sensor from the database.
         /// </summary>
