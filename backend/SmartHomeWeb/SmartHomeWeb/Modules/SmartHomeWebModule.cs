@@ -259,6 +259,8 @@ namespace SmartHomeWeb.Modules
                 return View["add-has-location.cshtml", newLocations];
             };
 
+			Get["/add-person", true] = GetAddPerson;
+
             Get["/mydata", true] = async (parameters, ct) =>
             {
                 this.RequiresAuthentication();
@@ -298,6 +300,11 @@ namespace SmartHomeWeb.Modules
 			this.RequiresAuthentication();
 
 			return View["add-location.cshtml"];
+		}
+
+		private async Task<dynamic> GetAddPerson(dynamic parameters, CancellationToken ct)
+		{
+			return View["add-person.cshtml"];
 		}
 
         private async Task<dynamic> GetFriends(dynamic parameters, CancellationToken ct)

@@ -60,6 +60,9 @@
     <data name="AddHasLocationPageTitle">
     	<value>Add a location to your profile</value>
     </data>
+    <data name="AddPersonPageTitle">
+    	<value>Register</value>
+    </data>
     <data name="AddLocationPageDescription">
     	<value>Register a new location.</value>
     </data>
@@ -80,5 +83,26 @@
     </data>
     <data name="AddedLocationMessage">
     	<value>The location has been registered!</value>
+    </data>
+    <data name="PersonUserNameLabel">
+    	<value>Username</value>
+    </data>
+    <data name="PersonNameLabel">
+    	<value>Name</value>
+    </data>
+    <data name="PersonBirthdateLabel">
+    	<value>Date of birth</value>
+    </data>
+    <data name="PersonAddressLabel">
+    	<value>Address</value>
+    </data>
+    <data name="PersonCityLabel">
+    	<value>Area of residence</value>
+    </data>
+    <data name="PersonZipCodeLabel">
+    	<value>Zip code</value>
+    </data>
+    <data name="AddPersonButtonText">
+    	<value>Create profile</value>
     </data>
 </root>

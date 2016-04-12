@@ -142,6 +142,12 @@ namespace SmartHomeWeb {
             }
         }
         
+        public static string AddPersonPageTitle {
+            get {
+                return ResourceManager.GetString("AddPersonPageTitle", resourceCulture);
+            }
+        }
+        
         public static string AddLocationPageDescription {
             get {
                 return ResourceManager.GetString("AddLocationPageDescription", resourceCulture);
@@ -175,6 +181,48 @@ namespace SmartHomeWeb {
         public static string AddedLocationMessage {
             get {
                 return ResourceManager.GetString("AddedLocationMessage", resourceCulture);
+            }
+        }
+        
+        public static string PersonUserNameLabel {
+            get {
+                return ResourceManager.GetString("PersonUserNameLabel", resourceCulture);
+            }
+        }
+        
+        public static string PersonNameLabel {
+            get {
+                return ResourceManager.GetString("PersonNameLabel", resourceCulture);
+            }
+        }
+        
+        public static string PersonBirthdateLabel {
+            get {
+                return ResourceManager.GetString("PersonBirthdateLabel", resourceCulture);
+            }
+        }
+        
+        public static string PersonAddressLabel {
+            get {
+                return ResourceManager.GetString("PersonAddressLabel", resourceCulture);
+            }
+        }
+        
+        public static string PersonCityLabel {
+            get {
+                return ResourceManager.GetString("PersonCityLabel", resourceCulture);
+            }
+        }
+        
+        public static string PersonZipCodeLabel {
+            get {
+                return ResourceManager.GetString("PersonZipCodeLabel", resourceCulture);
+            }
+        }
+        
+        public static string AddPersonButtonText {
+            get {
+                return ResourceManager.GetString("AddPersonButtonText", resourceCulture);
             }
         }
     }
