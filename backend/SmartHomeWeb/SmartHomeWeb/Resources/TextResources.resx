@@ -91,7 +91,7 @@
     	<value>There is a pre-existing location called '{0}'.</value>
     </data>
     <data name="PersonAlreadyExistsError">
-    	<value>Someone else has already taken username '{0}'.</value>
+    	<value>Username '{0}' is already taken. ಠ_ಠ</value>
     </data>    
     <data name="PasswordMismatchError">
     	<value>The passwords you entered did not match.</value>
