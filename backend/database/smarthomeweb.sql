@@ -1,6 +1,6 @@
 create table Person (
     guid text primary key not null,
-    username text not null,
+    username text not null unique,
     name text,
     password text not null, -- We store plaintext for now
     birthdate integer not null, -- In Unix time
@@ -31,7 +31,7 @@ create table Message (
 
 create table Location (
     id integer primary key autoincrement,
-    name text not null,
+    name text not null unique,
     -- A location has exactly one owner, but there can be any number of
     -- persons who are interested in a location's energy consumption.
     -- (for example, family members may want to know if they left the
