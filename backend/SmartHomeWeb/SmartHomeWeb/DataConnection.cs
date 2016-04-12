@@ -168,9 +168,38 @@ namespace SmartHomeWeb
             return GetTableAsync(FriendsTableName, DatabaseHelpers.ReadPersonPair);
         }
 
+		/// <summary>
+		/// Gets the state of the 'friends' relation between persons
+		/// with the given GUIDs.
+		/// </summary>
+		public async Task<FriendsState> GetFriendsState(Guid PersonOneGuid, Guid PersonTwoGuid)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                  SELECT pair.personOne, pair.PersonTwo
+                  FROM Friends as pair
+                  WHERE (pair.personOne = @guid1 AND pair.personTwo = @guid2) 
+                     OR (pair.personOne = @guid2 AND pair.personTwo = @guid1)";
+				cmd.Parameters.AddWithValue("@guid1", PersonOneGuid.ToString());
+				cmd.Parameters.AddWithValue("@guid2", PersonTwoGuid.ToString());
+
+				var tuples = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPersonPair);
+				var result = FriendsState.None;
+				foreach (var item in tuples)
+				{
+					if (item.PersonOneGuid == PersonOneGuid)
+						result |= FriendsState.FriendRequestSent;
+					else
+						result |= FriendsState.FriendRequestRecieved;
+				}
+				return result;
+			}
+		}
+
         /// <summary>
-        /// Creates a task that eagerly fetches all friend persons
-        /// that have been added by the person with the given GUID.
+        /// Creates a task that eagerly fetches all mutual friends
+		/// of the person identified by the given GUID.
         /// </summary>
         public Task<IEnumerable<Person>> GetFriendsAsync(Guid PersonGuid)
         {
@@ -179,8 +208,9 @@ namespace SmartHomeWeb
                 cmd.CommandText = @"
                   SELECT friend2.guid, friend2.username, friend2.name, friend2.password, 
                          friend2.birthdate, friend2.address, friend2.city, friend2.zipcode
-                  FROM Friends as pair, Person as friend2
-                  WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
+                  FROM Friends as pair1, Friends as pair2, Person as friend2
+                  WHERE pair1.personOne = @guid AND pair1.personTwo = friend2.guid
+                    AND pair2.personTwo = @guid AND pair2.personOne = friend2.guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
                 return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
@@ -340,6 +370,65 @@ namespace SmartHomeWeb
             }
         }
 
+		/// <summary>
+		/// Asynchronously performs the given action in a single transaction.
+		/// </summary>
+		public async Task PerformTransaction(Func<DataConnection, Task> Transaction)
+		{
+			using (var trans = sqlite.BeginTransaction())
+			{
+				try
+				{
+					await Transaction(this);
+				}
+				catch (Exception)
+				{
+					// If something goes wrong, we'll roll back the
+					// transaction and re-throw the exception.
+					trans.Rollback();
+					throw;
+				}
+				// If everything went fine, then we'll commit
+				// the transaction.
+				trans.Commit();
+			}
+		}
+
+		/// <summary>
+		/// Asynchronously performs the given action in a single transaction,
+		/// and returns the result.
+		/// </summary>
+		public async Task<T> PerformTransaction<T>(Func<DataConnection, Task<T>> Transaction)
+		{
+			T result;
+			using (var trans = sqlite.BeginTransaction())
+			{
+				try
+				{
+					result = await Transaction(this);
+				}
+				catch (Exception)
+				{
+					// If something goes wrong, we'll roll back the
+					// transaction and re-throw the exception.
+					trans.Rollback();
+					throw;
+				}
+				// If everything went fine, then we'll commit
+				// the transaction.
+				trans.Commit();
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Inserts all tuples in the given list into the database.
+		/// </summary>
+		public Task InsertManyAsync<T>(IEnumerable<T> Data, Func<T, Task> InsertItem)
+		{
+			return Task.WhenAll(Data.Select(InsertItem));
+		}
+
         /// <summary>
         /// Creates a task that fetches a single person from the database by their GUID.
         /// </summary>
@@ -378,6 +467,12 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<Location> GetLocationByIdAsync(int id) =>
             GetSingleByKeyAsync(LocationTableName, "id", id, DatabaseHelpers.ReadLocation);
+
+		/// <summary>
+		/// Creates a task that fetches a single location from the database.
+		/// </summary>
+		public Task<Location> GetLocationByNameAsync(string Name) =>
+			GetSingleByKeyAsync(LocationTableName, "name", Name, DatabaseHelpers.ReadLocation);
 
         /// <summary>
         /// Creates a task that fetches a single sensor from the database.
@@ -559,7 +654,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of person data to insert into the table.</param>
         public Task InsertPersonAsync(IEnumerable<PersonData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertPersonAsync));
+			return InsertManyAsync(Data, InsertPersonAsync);
         }
 
         /// <summary>
@@ -584,7 +679,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of location data to insert into the table.</param>
         public Task InsertLocationAsync(IEnumerable<LocationData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertLocationAsync));
+			return InsertManyAsync(Data, InsertLocationAsync);
         }
 
         /// <summary>
@@ -611,7 +706,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of sensor data to insert into the table.</param>
         public Task InsertSensorAsync(IEnumerable<SensorData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertSensorAsync));
+			return InsertManyAsync(Data, InsertSensorAsync);
         }
 
         /// <summary>
@@ -647,7 +742,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of measurements to insert into the table.</param>
         public Task InsertMeasurementAsync(IEnumerable<Measurement> Data)
         {
-            return Task.WhenAll(Data.Select(InsertMeasurementAsync));
+			return InsertManyAsync(Data, InsertMeasurementAsync);
         }
 
         /// <summary>
@@ -673,7 +768,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of messages to insert into the table.</param>
         public Task InsertMessageAsync(IEnumerable<MessageData> Data)
         {
-            return Task.WhenAll(Data.Select(InsertMessageAsync));
+			return InsertManyAsync(Data, InsertMessageAsync);
         }
 
         /// <summary>
@@ -699,7 +794,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of person-location pairs to insert into the table.</param>
         public Task InsertHasLocationPairAsync(IEnumerable<PersonLocationPair> Data)
         {
-            return Task.WhenAll(Data.Select(InsertHasLocationPairAsync));
+			return InsertManyAsync(Data, InsertHasLocationPairAsync);
         }
 
         /// <summary>
@@ -723,31 +818,36 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of person-person pairs to insert into the table.</param>
         public Task InsertFriendsPairAsync(IEnumerable<PersonPair> Data)
         {
-            return Task.WhenAll(Data.Select(InsertFriendsPairAsync));
+			return InsertManyAsync(Data, InsertFriendsPairAsync);
         }
 
         /// <summary>
         /// Close the database connection.
         /// </summary>
-        public void Dispose() => sqlite.Close();
+        public void Dispose()
+		{
+			sqlite.Close();
+		}
 
         /// <summary>
         /// Open a database connection, perform a single operation, and close it,
-        /// asynchronously retrieving the result.
+        /// asynchronously retrieving the result. The operation is wrapped
+		/// in a transaction.
         /// </summary>
         public static async Task<T> Ask<T>(Func<DataConnection, Task<T>> operation)
         {
             using (var dc = await CreateAsync())
-                return await operation(dc);
+                return await dc.PerformTransaction(operation);
         }
 
         /// <summary>
         /// Open a database connection, perform a single operation, and close it.
+		/// The operation is wrapped in a transaction.
         /// </summary>
         public static async Task Ask(Func<DataConnection, Task> operation)
         {
             using (var dc = await CreateAsync())
-                await operation(dc);
+				await dc.PerformTransaction(operation);
         }
     }
 }

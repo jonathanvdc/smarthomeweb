@@ -1,12 +1,13 @@
 @using System.Collections.Generic
 @using Nancy.Security
+@using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Measurement>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Measurement</h1>
+<h1>@TextResources.MeasurementsPageTitle</h1>
 
 <table class="table">
 

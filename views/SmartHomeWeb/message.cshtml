@@ -1,13 +1,14 @@
 @using System.Collections.Generic
 @using Nancy.Security
 @using Nancy.Session
+@using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Message>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Message</h1>
+<h1>@TextResources.MessagesPageTitle</h1>
 <h2>Send a message</h2>
 
 @if (Context.CurrentUser.IsAuthenticated())

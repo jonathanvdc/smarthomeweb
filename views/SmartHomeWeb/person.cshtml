@@ -1,17 +1,13 @@
 @using System.Collections.Generic
 @using Nancy.Security
+@using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Person>>
 @*                           ^^^^^^^^^^^^^^^^^^^    *@
 @*                         This is the @Model type  *@
 
-<h1>Person</h1>
-
-@if (@Html.RenderContext.Context.CurrentUser.IsAuthenticated())
-{
-    <h2>Logged in as @Html.RenderContext.Context.CurrentUser.UserName.</h2>
-}
+<h1>@TextResources.UsersPageTitle</h1>
 
 <table class="table">
 
@@ -30,7 +26,7 @@
     {
         <tr>
 	        <th><samp>@p.Guid</samp></th>
-	        <th>@p.Data.UserName</th>
+	        <th><a href="/person=@p.Data.UserName">@p.Data.UserName</a></th>
 	        <td>@p.Data.Name</td>
 	        <td>@p.Data.Birthdate.ToLongDateString()</td>
 	        <td>@p.Data.Password</td>

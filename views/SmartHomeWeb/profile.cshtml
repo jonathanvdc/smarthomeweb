@@ -1,0 +1,63 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<Tuple<Person,FriendsState>>
+
+
+@if (@Model.Item1 != null)
+{
+    @{Person user = @Model.Item1; }
+    <h1>@user.Data.Name (@user.Data.UserName)</h1>
+
+    <div class="profile-avatar"></div>
+
+    <ul class="list">
+        <li><b>GUID:</b>        <samp>@user.Guid</samp></li>
+        <li><b>Birthday:</b>    @user.Data.Birthdate.ToLongDateString()</li>
+        <li><b>Address:</b>     @user.Data.Address, @user.Data.ZipCode @user.Data.City </li>
+    </ul>
+
+
+
+    <div id="add-friend-container">
+        @if (Context.CurrentUser.IsAuthenticated())
+        {
+        	if (Model.Item2 == FriendsState.None)
+        	{
+                <form method="post">
+                    <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">Send @user.Data.Name a friend request</button>
+                </form>
+        	}
+        	else if (Model.Item2 == FriendsState.FriendRequestRecieved)
+        	{
+        	    <text>@user.Data.Name has sent you a friend request</text>
+                <form method="post">
+                    <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">Accept friend request</button>
+                </form>
+        	}
+        	else if (Model.Item2 == FriendsState.FriendRequestSent)
+        	{
+        		<text>Friend request sent</text>
+        	}
+            else
+            {
+                <text>You are friends with @user.Data.Name</text>
+            }
+        }
+        else
+        {
+           <text> You need to be logged in to add someone as a friend. </text>
+        }
+    </div>
+
+}
+else
+{
+    <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Error: </span>
+        That user does not exist.
+    </div>
+}

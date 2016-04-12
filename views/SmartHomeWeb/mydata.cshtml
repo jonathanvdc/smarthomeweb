@@ -1,5 +1,7 @@
+@using System
 @using System.Collections.Generic
 @using Nancy.Security
+@using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
@@ -27,13 +29,15 @@
 		if(json.length == 0)
 		{
 			document.getElementById('chart_div').innerHTML = "<h3>No sensordata is saved.</h3>";
-		}else
+		}
+		else
 		{
 			for(x in json)
 			{
-				var date = new Date(json[x].timestamp);
+				var x = json[i];
+				var date = new Date(x.timestamp);
 				var hmsstring = date.toISOString().substring(11, 19);
-				array.push([hmsstring, json[x].measurement]);
+				array.push([hmsstring, x.measurement]);
 			}
 
 			var data = new google.visualization.DataTable();
@@ -55,7 +59,7 @@
 	
 	function getSensor(x){
 		var xmlhttp = new XMLHttpRequest();
-		var url = "http://localhost:8088/api/measurements/" + x.toString();
+		var url = "/api/measurements/" + x.toString();
 		xmlhttp.open("GET", url, false);
 		xmlhttp.send();
 		return myArr = JSON.parse(xmlhttp.responseText);
@@ -66,13 +70,16 @@
 <h2>Messages</h2>
 
 <ul class="media-list">
-@foreach (var message in @ViewBag.Messages)
+@foreach (var message in (List<Tuple<string, string>>)ViewBag.Messages)
 {
+	// NOTE: the above cast is necessary. Without it, the view fails to
+	// render on mono, because ViewBag.Messages is one of them 
+	// wishy-washy dynamic objects.
     // TODO: VIEWBAG
     <li class="media">
       <div class="media-left">
-        <a href="#">
-	        <img class="media-object missing-avatar" height="64px" src="content/profilepicsmall.png" alt="@message.Item1">
+        <a href="/person=@message.Item1">
+	        <div class="profile-avatar-small"></div>
         </a>
       </div>
       <div class="media-body">
@@ -83,7 +90,7 @@
 }
 </ul>
 
-<h2>Measurement</h2>
+<h2>@TextResources.MeasurementsPageTitle</h2>
 
 @if (@Model.Count == 0)
 {

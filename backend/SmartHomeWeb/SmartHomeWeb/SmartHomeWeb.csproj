@@ -99,17 +99,17 @@
       <HintPath>..\packages\Mono.Data.Sqlite.Portable.1.0.3.5\lib\net4\System.Transactions.Portable.dll</HintPath>
     </Reference>
     <Reference Include="System.Transactions" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Nancy.Authentication.Forms, Version=1.4.1.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Nancy.Authentication.Forms.1.4.1\lib\net40\Nancy.Authentication.Forms.dll</HintPath>
     </Reference>
     <Reference Include="Nancy.ViewEngines.Razor, Version=1.4.2.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Nancy.Viewengines.Razor.1.4.3\lib\net40\Nancy.ViewEngines.Razor.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -131,10 +131,19 @@
     <Compile Include="Modules\API\ApiFriendsModule.cs" />
     <Compile Include="Modules\API\ApiHourAverageModule.cs" />
     <Compile Include="Modules\API\ApiDayAverageModule.cs" />
+    <Compile Include="Resources\TextResources.Designer.cs">
+      <DependentUpon>TextResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
       <Link>View Links\add-has-location.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\add-location.cshtml">
+      <Link>View Links\add-location.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
+      <Link>View Links\friends.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
       <Link>View Links\home.cshtml</Link>
@@ -159,6 +168,9 @@
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\person.cshtml">
       <Link>View Links\person.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\profile.cshtml">
+      <Link>View Links\profile.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\sensor.cshtml">
       <Link>View Links\sensor.cshtml</Link>
@@ -196,7 +208,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\content\style.css">
+    <Content Include="..\..\..\Content\style.css">
       <Link>View Links\style.css</Link>
     </Content>
   </ItemGroup>
@@ -207,4 +219,20 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets'))" />
   </Target>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\TextResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>TextResources.Designer.cs</LastGenOutput>
+      <LogicalName>SmartHomeWeb.TextResources.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\TextResources.en-US.resx">
+      <LogicalName>SmartHomeWeb.TextResources.en-US.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\TextResources.nl-NL.resx">
+      <LogicalName>SmartHomeWeb.TextResources.nl-NL.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

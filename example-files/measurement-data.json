@@ -1,24 +1,24 @@
 [
     {
-        "sensorId" : 0,
+        "sensorId" : 1,
         "timestamp" : "2016-03-12T17:07:27Z",
         "measurement" : 10.4,
         "notes" : "wow"
     },
     {
-        "sensorId" : 0,
+        "sensorId" : 1,
         "timestamp" : "2007-01-08T12:04:00Z",
         "measurement" : 9.4,
         "notes" : ""
     },
     {
-        "sensorId" : 1,
+        "sensorId" : 2,
         "timestamp" : "2007-01-08T12:04:00Z",
         "measurement" : 4.4,
         "notes" : ""
     },
     {
-        "sensorId" : 2,
+        "sensorId" : 3,
         "timestamp" : "2012-06-29T11:00:00Z",
         "measurement" : 0.0,
         "notes" : ""
