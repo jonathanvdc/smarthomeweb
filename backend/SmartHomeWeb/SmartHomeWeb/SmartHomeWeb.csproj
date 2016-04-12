@@ -145,6 +145,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\add-person.cshtml">
       <Link>View Links\add-person.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\feedback-box.cshtml">
+      <Link>View Links\feedback-box.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
       <Link>View Links\friends.cshtml</Link>
     </None>

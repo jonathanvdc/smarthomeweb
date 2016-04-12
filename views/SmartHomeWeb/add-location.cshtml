@@ -13,25 +13,7 @@
 
 @if (Context.CurrentUser.IsAuthenticated())
 {
-    var error = (string)ViewBag.Error;
-    if (!string.IsNullOrEmpty(error))
-    {
-        <div class="alert alert-danger" role="alert">
-        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        <span class="sr-only">@(TextResources.Error):</span>
-            @error
-        </div>
-    }
-
-    var success = (string)ViewBag.Success;
-    if (!string.IsNullOrEmpty(success))
-    {
-        <div class="alert alert-success" role="alert">
-        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-        <span class="sr-only">@(TextResources.Success):</span>
-            @success
-        </div>
-    }
+    @Html.Partial("feedback-box.cshtml")
 
     <form method="post">
         <div class="form-group">

@@ -5,6 +5,7 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<Tuple<Person,FriendsState>>
 
+@Html.Partial("feedback-box.cshtml")
 
 @if (@Model.Item1 != null)
 {
@@ -18,8 +19,6 @@
         <li><b>Birthday:</b>    @user.Data.Birthdate.ToLongDateString()</li>
         <li><b>Address:</b>     @user.Data.Address, @user.Data.ZipCode @user.Data.City </li>
     </ul>
-
-
 
     <div id="add-friend-container">
         @if (Context.CurrentUser.IsAuthenticated())
