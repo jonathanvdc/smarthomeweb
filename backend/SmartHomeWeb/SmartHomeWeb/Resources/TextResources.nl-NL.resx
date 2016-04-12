@@ -42,4 +42,10 @@
     <data name="FriendsPageTitle">
     	<value>Vrienden</value>
     </data>
+    <data name="AddLocationPageTitle">
+    	<value>Locatie registreren</value>
+    </data>
+    <data name="AddHasLocationPageTitle">
+    	<value>Locatie aan je profiel toevoegen</value>
+    </data>
 </root>
