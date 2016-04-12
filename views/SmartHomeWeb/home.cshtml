@@ -3,9 +3,37 @@
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Person>>
-@*                           ^^^^^^^^^^^^^^^^^^^    *@
-@*                         This is the @Model type  *@
 
-<div style="text-align: center">
-    <img src="/content/logostencil.png" height="800px" style="opacity: 0.15;pointer-events: none;"/>
+<style type="text/css">
+	body {
+		background:
+		    linear-gradient(
+		                    rgba(0, 0, 0, 0.7),
+		                    rgba(0, 0, 0, 0.7)
+            ),
+		    url(http://templateocean.com/premium/template/kane/files/images/bg-1.jpg) no-repeat center top fixed;
+		-webkit-background-size: cover;
+		background-size: cover;
+	}
+
+	.centered {
+		color: #eeeeee;
+		text-align: center;
+	}
+
+	h1 {
+		font-size: 60px;
+	}
+</style>
+
+<div class="centered">
+	<h1><br/>Welcome to SmartHomeWeb.</h1>
+	<div style="width: 800px; margin: auto;">
+		<br/>
+		<h2>Log, track, and organize your devices' electricity usage. Create graphs of aggregated data and share them with friends.</h2>
+		<br/>
+		<br/>
+		<a href="/add-person" role="button" class="btn btn-primary btn-lg">Create an account</a>
+	</div>
 </div>
+
