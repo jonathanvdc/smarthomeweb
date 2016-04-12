@@ -20,8 +20,8 @@
         <li><b>Birthday:</b>    @user.Data.Birthdate.ToLongDateString()</li>
         @{
             if (!string.IsNullOrEmpty(user.Data.Address) 
-            	|| !string.IsNullOrEmpty(user.Data.ZipCode) 
-            	|| !string.IsNullOrEmpty(user.Data.City))
+        	|| !string.IsNullOrEmpty(user.Data.ZipCode) 
+        	|| !string.IsNullOrEmpty(user.Data.City))
 	        {
 	        	<li><b>Address:</b> 
 	        	@(string.Join(
