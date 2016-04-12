@@ -371,22 +371,62 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
-		/// Inserts all tuples in the given list into the database. Insert actions
-		/// are grouped in a transaction.
+		/// Asynchronously performs the given action in a single transaction.
 		/// </summary>
-		public async Task InsertManyAsync<T>(IEnumerable<T> Data, Func<T, Task> InsertItem)
+		public async Task PerformTransaction(Func<DataConnection, Task> Transaction)
 		{
-			using (var cmd = sqlite.CreateCommand())
+			using (var trans = sqlite.BeginTransaction())
 			{
-				cmd.CommandText = "begin";
-				cmd.ExecuteNonQuery();
+				try
+				{
+					await Transaction(this);
+				}
+				catch (Exception)
+				{
+					// If something goes wrong, we'll roll back the
+					// transaction and re-throw the exception.
+					trans.Rollback();
+					throw;
+				}
+				// If everything went fine, then we'll commit
+				// the transaction.
+				trans.Commit();
 			}
-			await Task.WhenAll(Data.Select(InsertItem).ToArray());
-			using (var cmd = sqlite.CreateCommand())
+		}
+
+		/// <summary>
+		/// Asynchronously performs the given action in a single transaction,
+		/// and returns the result.
+		/// </summary>
+		public async Task<T> PerformTransaction<T>(Func<DataConnection, Task<T>> Transaction)
+		{
+			T result;
+			using (var trans = sqlite.BeginTransaction())
 			{
-				cmd.CommandText = "end";
-				cmd.ExecuteNonQuery();
+				try
+				{
+					result = await Transaction(this);
+				}
+				catch (Exception)
+				{
+					// If something goes wrong, we'll roll back the
+					// transaction and re-throw the exception.
+					trans.Rollback();
+					throw;
+				}
+				// If everything went fine, then we'll commit
+				// the transaction.
+				trans.Commit();
 			}
+			return result;
+		}
+
+		/// <summary>
+		/// Inserts all tuples in the given list into the database.
+		/// </summary>
+		public Task InsertManyAsync<T>(IEnumerable<T> Data, Func<T, Task> InsertItem)
+		{
+			return Task.WhenAll(Data.Select(InsertItem));
 		}
 
         /// <summary>
@@ -785,21 +825,23 @@ namespace SmartHomeWeb
 
         /// <summary>
         /// Open a database connection, perform a single operation, and close it,
-        /// asynchronously retrieving the result.
+        /// asynchronously retrieving the result. The operation is wrapped
+		/// in a transaction.
         /// </summary>
         public static async Task<T> Ask<T>(Func<DataConnection, Task<T>> operation)
         {
             using (var dc = await CreateAsync())
-                return await operation(dc);
+                return await dc.PerformTransaction(operation);
         }
 
         /// <summary>
         /// Open a database connection, perform a single operation, and close it.
+		/// The operation is wrapped in a transaction.
         /// </summary>
         public static async Task Ask(Func<DataConnection, Task> operation)
         {
             using (var dc = await CreateAsync())
-                await operation(dc);
+				await dc.PerformTransaction(operation);
         }
     }
 }
