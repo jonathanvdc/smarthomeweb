@@ -1,4 +1,5 @@
 @using System.Collections.Generic
+@using System.Linq
 @using Nancy.Security
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
@@ -17,7 +18,19 @@
     <ul class="list">
         <li><b>GUID:</b>        <samp>@user.Guid</samp></li>
         <li><b>Birthday:</b>    @user.Data.Birthdate.ToLongDateString()</li>
-        <li><b>Address:</b>     @user.Data.Address, @user.Data.ZipCode @user.Data.City </li>
+        @{
+            if (!string.IsNullOrEmpty(user.Data.Address) 
+            	|| !string.IsNullOrEmpty(user.Data.ZipCode) 
+            	|| !string.IsNullOrEmpty(user.Data.City))
+	        {
+	        	<li><b>Address:</b> 
+	        	@(string.Join(
+	        		",", 
+	        		new string[] { user.Data.Address, user.Data.ZipCode + " " + user.Data.City }
+	        		.Select(item => item.Trim()).Where(item => !string.IsNullOrEmpty(item))))
+	        	</li>
+	        }
+        }
     </ul>
 
     <div id="add-friend-container">
