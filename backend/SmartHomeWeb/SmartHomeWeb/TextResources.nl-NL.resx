@@ -153,7 +153,103 @@
   <data name="AddHasLocationPageTitle" xml:space="preserve">
     <value>Locatie aan je profiel toevoegen</value>
   </data>
+  <data name="AddedLocationMessage" xml:space="preserve">
+    <value>De locatie is geregistreerd.</value>
+  </data>
+  <data name="AddedPersonMessage" xml:space="preserve">
+    <value>Je profiel is aangemaakt. Welkom op SmartHomeWeb!</value>
+  </data>
+  <data name="AddFriendButton" xml:space="preserve">
+    <value>Vriend toevoegen</value>
+  </data>
+  <data name="AddFriendTitle" xml:space="preserve">
+    <value>Voeg een vriend toe</value>
+  </data>
+  <data name="AddLocationButtonText" xml:space="preserve">
+    <value>Registreer een locatie</value>
+  </data>
+  <data name="AddLocationNotAuthenticatedText" xml:space="preserve">
+    <value>Je moet inloggen om een locatie te registreren.</value>
+  </data>
+  <data name="AddLocationPageDescription" xml:space="preserve">
+    <value>Registreer een nieuwe locatie.</value>
+  </data>
+  <data name="AddPersonButtonText" xml:space="preserve">
+    <value>Profiel aanmaken</value>
+  </data>
+  <data name="AddPersonPageTitle" xml:space="preserve">
+    <value>Registreer een account</value>
+  </data>
+  <data name="AllFriendsLabel" xml:space="preserve">
+    <value>Alle vrienden</value>
+  </data>
+  <data name="BadlyFormattedBirthDateError" xml:space="preserve">
+    <value>Dit is geen geldig formaat voor een geboortedatum. Probeer 'YYYY/MM/DD'.</value>
+  </data>
+  <data name="EmptyNameError" xml:space="preserve">
+    <value>Je naam mag niet leeg zijn.</value>
+  </data>
+  <data name="EmptyPasswordError" xml:space="preserve">
+    <value>Je wachtwoord mag niet leeg zijn.</value>
+  </data>
+  <data name="EmptyUserNameError" xml:space="preserve">
+    <value>Je gebruikersnaam mag niet leeg zijn.</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Fout</value>
+  </data>
+  <data name="FriendUsernameLabel" xml:space="preserve">
+    <value>Gebruikersnaam vriend</value>
+  </data>
   <data name="Language" xml:space="preserve">
     <value>Taal</value>
+  </data>
+  <data name="LocationAlreadyExistsError" xml:space="preserve">
+    <value>Er bestaat al een locatie genaamd '{0}'.</value>
+  </data>
+  <data name="LocationNameLabel" xml:space="preserve">
+    <value>Locatienaam</value>
+  </data>
+  <data name="PasswordMismatchError" xml:space="preserve">
+    <value>De ingevulde wachtwoorden komen niet overeen.</value>
+  </data>
+  <data name="PersonAddressLabel" xml:space="preserve">
+    <value>Adres</value>
+  </data>
+  <data name="PersonAlreadyExistsError" xml:space="preserve">
+    <value>De gebruikersnaam '{0}' is al in gebruik.</value>
+  </data>
+  <data name="PersonBirthdateLabel" xml:space="preserve">
+    <value>Geboortedatum</value>
+  </data>
+  <data name="PersonCityLabel" xml:space="preserve">
+    <value>Woonplaats</value>
+  </data>
+  <data name="PersonNameLabel" xml:space="preserve">
+    <value>Naam</value>
+  </data>
+  <data name="PersonPasswordLabel" xml:space="preserve">
+    <value>Wachtwoord</value>
+  </data>
+  <data name="PersonRepeatPasswordLabel" xml:space="preserve">
+    <value>Herhaal wachtwoord</value>
+  </data>
+  <data name="PersonUserNameLabel" xml:space="preserve">
+    <value>Gebruikersnaam</value>
+  </data>
+  <data name="PersonZipCodeLabel" xml:space="preserve">
+    <value>Postcode</value>
+  </data>
+  <data name="PickALocation" xml:space="preserve">
+    <value>Kies een locatie:</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Voltooid</value>
+  </data>
+  <data name="UserNameNotFoundError" xml:space="preserve">
+    <value>Je gebruikersnaam staat niet in de database.</value>
+  </data>
+  <data name="ViewFriendsNotLoggedInError" xml:space="preserve">
+    <value>Je moet inloggen om je vrienden te bekijken.</value>
   </data>
 </root>

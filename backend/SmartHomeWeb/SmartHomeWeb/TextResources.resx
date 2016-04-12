@@ -231,7 +231,25 @@
   <data name="AddPersonButtonText" xml:space="preserve">
     <value>Create profile</value>
   </data>
+  <data name="AddFriendButton" xml:space="preserve">
+    <value>Add friend</value>
+  </data>
+  <data name="AddFriendTitle" xml:space="preserve">
+    <value>Add a friend</value>
+  </data>
+  <data name="AllFriendsLabel" xml:space="preserve">
+    <value>All friends</value>
+  </data>
+  <data name="FriendUsernameLabel" xml:space="preserve">
+    <value>Friend's username</value>
+  </data>
   <data name="Language" xml:space="preserve">
     <value>Language</value>
+  </data>
+  <data name="PickALocation" xml:space="preserve">
+    <value>Pick a location:</value>
+  </data>
+  <data name="ViewFriendsNotLoggedInError" xml:space="preserve">
+    <value>You must log in to view your friends.</value>
   </data>
 </root>

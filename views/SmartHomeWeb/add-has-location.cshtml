@@ -4,8 +4,6 @@
 @using Nancy.ViewEngines.Razor
 @using SmartHomeWeb
 @inherits NancyRazorViewBase<IEnumerable<Location>>
-@*                           ^^^^^^^^^^^^^^^^^^^    *@
-@*                         This is the @Model type  *@
 
 <div>
     <h2>@TextResources.AddHasLocationPageTitle</h2>
@@ -37,7 +35,7 @@
 
     <form id="add-location-form">
         <div class="form-group">
-            <label for="sel1">Pick a location:</label>
+            <label for="sel1">@TextResources.PickALocation:</label>
             <select class="form-control" id="sel">
                 @foreach (var item in @Model)
                 {

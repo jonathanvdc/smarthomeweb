@@ -79,6 +79,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add friend.
+        /// </summary>
+        public static string AddFriendButton {
+            get {
+                return ResourceManager.GetString("AddFriendButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a friend.
+        /// </summary>
+        public static string AddFriendTitle {
+            get {
+                return ResourceManager.GetString("AddFriendTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add a location to your profile.
         /// </summary>
         public static string AddHasLocationPageTitle {
@@ -138,6 +156,15 @@ namespace SmartHomeWeb {
         public static string AddPersonPageTitle {
             get {
                 return ResourceManager.GetString("AddPersonPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All friends.
+        /// </summary>
+        public static string AllFriendsLabel {
+            get {
+                return ResourceManager.GetString("AllFriendsLabel", resourceCulture);
             }
         }
         
@@ -210,6 +237,15 @@ namespace SmartHomeWeb {
         public static string FriendsPageTitle {
             get {
                 return ResourceManager.GetString("FriendsPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Friend&apos;s username.
+        /// </summary>
+        public static string FriendUsernameLabel {
+            get {
+                return ResourceManager.GetString("FriendUsernameLabel", resourceCulture);
             }
         }
         
@@ -376,6 +412,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pick a location:.
+        /// </summary>
+        public static string PickALocation {
+            get {
+                return ResourceManager.GetString("PickALocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sensors.
         /// </summary>
         public static string SensorsPageTitle {
@@ -408,6 +453,15 @@ namespace SmartHomeWeb {
         public static string UsersPageTitle {
             get {
                 return ResourceManager.GetString("UsersPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must log in to view your friends..
+        /// </summary>
+        public static string ViewFriendsNotLoggedInError {
+            get {
+                return ResourceManager.GetString("ViewFriendsNotLoggedInError", resourceCulture);
             }
         }
     }
