@@ -5,12 +5,12 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<Tuple<Person,FriendsState>>
 
-@Html.Partial("feedback-box.cshtml")
-
 @if (@Model.Item1 != null)
 {
     @{Person user = @Model.Item1; }
     <h1>@user.Data.Name (@user.Data.UserName)</h1>
+
+    @Html.Partial("feedback-box.cshtml")
 
     <div class="profile-avatar"></div>
 
