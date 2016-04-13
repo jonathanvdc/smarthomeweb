@@ -4,22 +4,20 @@
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Person>>
-@*                           ^^^^^^^^^^^^^^^^^^^    *@
-@*                         This is the @Model type  *@
 
 <h1>@TextResources.UsersPageTitle</h1>
 
 <table class="table">
 
         <tr class="tableHeader">
-            <th>GUID</th>
-            <th>Username</th>
-            <th>Full Name</th>
-            <th>Birthdate</th>
-            <th>Password</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>Zipcode</th>
+            <th>@TextResources.PersonGUIDLabel</th>
+            <th>@TextResources.PersonUserNameLabel</th>
+            <th>@TextResources.PersonNameLabel</th>
+            <th>@TextResources.PersonBirthdateLabel</th>
+            <th>@TextResources.PersonPasswordLabel</th>
+            <th>@TextResources.PersonAddressLabel</th>
+            <th>@TextResources.PersonCityLabel</th>
+            <th>@TextResources.PersonZipCodeLabel</th>
         </tr>      
 		
     @foreach (var p in @Model)
