@@ -153,6 +153,9 @@
   <data name="AddHasLocationPageTitle" xml:space="preserve">
     <value>Locatie aan je profiel toevoegen</value>
   </data>
+  <data name="AcceptFriendRequestButton" xml:space="preserve">
+    <value>Aanvaard vriendschapsverzoek</value>
+  </data>
   <data name="AddedLocationMessage" xml:space="preserve">
     <value>De locatie is geregistreerd.</value>
   </data>
@@ -161,6 +164,9 @@
   </data>
   <data name="AddFriendButton" xml:space="preserve">
     <value>Vriend toevoegen</value>
+  </data>
+  <data name="AddFriendNotAuthenticatedText" xml:space="preserve">
+    <value>Je moet inloggen om een vriendschapsverzoek te sturen.</value>
   </data>
   <data name="AddFriendTitle" xml:space="preserve">
     <value>Voeg een vriend toe</value>
@@ -198,6 +204,12 @@
   <data name="Error" xml:space="preserve">
     <value>Fout</value>
   </data>
+  <data name="FriendRequestReceived" xml:space="preserve">
+    <value>{0} heeft je een vriendschapsverzoek gestuurd.</value>
+  </data>
+  <data name="FriendRequestSent" xml:space="preserve">
+    <value>Vriendschapsverzoek verstuurd.</value>
+  </data>
   <data name="FriendUsernameLabel" xml:space="preserve">
     <value>Gebruikersnaam vriend</value>
   </data>
@@ -225,6 +237,9 @@
   <data name="PersonCityLabel" xml:space="preserve">
     <value>Woonplaats</value>
   </data>
+  <data name="PersonGUIDLabel" xml:space="preserve">
+    <value>GUID</value>
+  </data>
   <data name="PersonNameLabel" xml:space="preserve">
     <value>Naam</value>
   </data>
@@ -242,6 +257,9 @@
   </data>
   <data name="PickALocation" xml:space="preserve">
     <value>Kies een locatie:</value>
+  </data>
+  <data name="SendFriendRequestButton" xml:space="preserve">
+    <value>Stuur {0} een vriendschapsverzoek</value>
   </data>
   <data name="SensorDescriptionLabel" xml:space="preserve">
     <value>Beschrijving</value>
@@ -261,6 +279,9 @@
   <data name="Success" xml:space="preserve">
     <value>Voltooid</value>
   </data>
+  <data name="UserDoesNotExistError" xml:space="preserve">
+    <value>Die gebruiker bestaat niet.</value>
+  </data>
   <data name="UserNameNotFoundError" xml:space="preserve">
     <value>Je gebruikersnaam staat niet in de database.</value>
   </data>
@@ -275,5 +296,8 @@
   </data>
   <data name="WelcomeTitle" xml:space="preserve">
     <value>Welkom bij SmartHomeWeb.</value>
+  </data>
+  <data name="YouAreFriendsWith" xml:space="preserve">
+    <value>Je bent bevriend met {0}.</value>
   </data>
 </root>

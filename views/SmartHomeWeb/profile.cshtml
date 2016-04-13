@@ -4,11 +4,12 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<Tuple<Person,FriendsState>>
+@inherits NancyRazorViewBase<System.Tuple<Person,FriendsState>>
 
 @if (@Model.Item1 != null)
 {
-    @{Person user = @Model.Item1; }
+    Person user = @Model.Item1;
+    
     <h1>@user.Data.Name (@user.Data.UserName)</h1>
 
     @Html.Partial("feedback-box.cshtml")
@@ -16,15 +17,15 @@
     <div class="profile-avatar"></div>
 
     <ul class="list">
-        <li><b>GUID:</b>        <samp>@user.Guid</samp></li>
-        <li><b>Birthday:</b>    @user.Data.Birthdate.ToLongDateString()</li>
+        <li><b>@TextResources.PersonGUIDLabel:</b>        <samp>@user.Guid</samp></li>
+        <li><b>@TextResources.PersonBirthdateLabel:</b>    @user.Data.Birthdate.ToLongDateString()</li>
         @{
         	// Don't print empty addresses.
             if (!string.IsNullOrEmpty(user.Data.Address) 
         	|| !string.IsNullOrEmpty(user.Data.ZipCode) 
         	|| !string.IsNullOrEmpty(user.Data.City))
 	        {
-	        	<li><b>Address:</b>
+	        	<li><b>@TextResources.PersonAddressLabel:</b>
 	        	@* Some part of the address is non-empty. The code below does the following: 
 		        
 		           ("<address>", "<city>", "<zip>") -> "<address>, <zip> <city>"
@@ -46,35 +47,37 @@
     <div id="add-friend-container">
         @if (Context.CurrentUser.IsAuthenticated())
         {
-            if (Model.Item1.Data.UserName == Context.CurrentUser.UserName)
+            if (Model.Item1.Data.UserName != Context.CurrentUser.UserName)
             {
-                // Insert nothing here. People shouldn't add themselves as friends.
-            }
-            else if (Model.Item2 == FriendsState.None)
-        	{
-                <form method="post">
-                    <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">Send @user.Data.Name a friend request</button>
-                </form>
-        	}
-        	else if (Model.Item2 == FriendsState.FriendRequestRecieved)
-        	{
-        	    <text>@user.Data.Name has sent you a friend request</text>
-                <form method="post">
-                    <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">Accept friend request</button>
-                </form>
-        	}
-        	else if (Model.Item2 == FriendsState.FriendRequestSent)
-        	{
-        		<text>Friend request sent</text>
-        	}
-            else
-            {
-                <text>You are friends with @user.Data.Name</text>
+                switch (Model.Item2)
+                {
+                    case FriendsState.None:
+                        <form method="post">
+	                        <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">
+		                        @string.Format(TextResources.SendFriendRequestButton, user.Data.Name)
+	                        </button>
+                        </form>
+                        break;
+                    case FriendsState.FriendRequestRecieved:
+                        @string.Format(TextResources.FriendRequestReceived, user.Data.Name)
+                        <form method="post">
+	                        <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">
+		                        @TextResources.AcceptFriendRequestButton
+	                        </button>
+                        </form>
+                        break;
+                    case FriendsState.FriendRequestSent:
+                        @TextResources.FriendRequestSent
+                        break;
+                    case FriendsState.Friends:
+                        @string.Format(TextResources.YouAreFriendsWith, user.Data.Name)
+                        break;
+                }
             }
         }
         else
         {
-           <text> You need to be logged in to add someone as a friend. </text>
+           @TextResources.AddFriendNotAuthenticatedText
         }
     </div>
 
@@ -83,7 +86,7 @@ else
 {
     <div class="alert alert-danger" role="alert">
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        <span class="sr-only">Error: </span>
-        That user does not exist.
+        <span class="sr-only">@TextResources.Error: </span>
+        @TextResources.UserDoesNotExistError
     </div>
 }

@@ -231,8 +231,14 @@
   <data name="AddPersonButtonText" xml:space="preserve">
     <value>Create profile</value>
   </data>
+  <data name="AcceptFriendRequestButton" xml:space="preserve">
+    <value>Accept friend request</value>
+  </data>
   <data name="AddFriendButton" xml:space="preserve">
     <value>Add friend</value>
+  </data>
+  <data name="AddFriendNotAuthenticatedText" xml:space="preserve">
+    <value>You must log in to send friend requests.</value>
   </data>
   <data name="AddFriendTitle" xml:space="preserve">
     <value>Add a friend</value>
@@ -240,14 +246,26 @@
   <data name="AllFriendsLabel" xml:space="preserve">
     <value>All friends</value>
   </data>
+  <data name="FriendRequestReceived" xml:space="preserve">
+    <value>{0} has sent you a friend request.</value>
+  </data>
+  <data name="FriendRequestSent" xml:space="preserve">
+    <value>Friend request sent.</value>
+  </data>
   <data name="FriendUsernameLabel" xml:space="preserve">
     <value>Friend's username</value>
   </data>
   <data name="Language" xml:space="preserve">
     <value>Language</value>
   </data>
+  <data name="PersonGUIDLabel" xml:space="preserve">
+    <value>GUID</value>
+  </data>
   <data name="PickALocation" xml:space="preserve">
     <value>Pick a location:</value>
+  </data>
+  <data name="SendFriendRequestButton" xml:space="preserve">
+    <value>Send {0} a friend request</value>
   </data>
   <data name="SensorDescriptionLabel" xml:space="preserve">
     <value>Description</value>
@@ -264,6 +282,9 @@
   <data name="SensorNotesLabel" xml:space="preserve">
     <value>Notes</value>
   </data>
+  <data name="UserDoesNotExistError" xml:space="preserve">
+    <value>That user does not exist.</value>
+  </data>
   <data name="ViewFriendsNotLoggedInError" xml:space="preserve">
     <value>You must log in to view your friends.</value>
   </data>
@@ -275,5 +296,8 @@
   </data>
   <data name="WelcomeTitle" xml:space="preserve">
     <value>Welcome to SmartHomeWeb.</value>
+  </data>
+  <data name="YouAreFriendsWith" xml:space="preserve">
+    <value>You are friends with {0}.</value>
   </data>
 </root>

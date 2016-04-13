@@ -61,6 +61,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Accept friend request.
+        /// </summary>
+        public static string AcceptFriendRequestButton {
+            get {
+                return ResourceManager.GetString("AcceptFriendRequestButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The location has been registered!.
         /// </summary>
         public static string AddedLocationMessage {
@@ -84,6 +93,15 @@ namespace SmartHomeWeb {
         public static string AddFriendButton {
             get {
                 return ResourceManager.GetString("AddFriendButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must log in to send friend requests..
+        /// </summary>
+        public static string AddFriendNotAuthenticatedText {
+            get {
+                return ResourceManager.GetString("AddFriendNotAuthenticatedText", resourceCulture);
             }
         }
         
@@ -232,6 +250,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} has sent you a friend request..
+        /// </summary>
+        public static string FriendRequestReceived {
+            get {
+                return ResourceManager.GetString("FriendRequestReceived", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Friend request sent..
+        /// </summary>
+        public static string FriendRequestSent {
+            get {
+                return ResourceManager.GetString("FriendRequestSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Friends.
         /// </summary>
         public static string FriendsPageTitle {
@@ -367,6 +403,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GUID.
+        /// </summary>
+        public static string PersonGUIDLabel {
+            get {
+                return ResourceManager.GetString("PersonGUIDLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         public static string PersonNameLabel {
@@ -417,6 +462,15 @@ namespace SmartHomeWeb {
         public static string PickALocation {
             get {
                 return ResourceManager.GetString("PickALocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send {0} a friend request.
+        /// </summary>
+        public static string SendFriendRequestButton {
+            get {
+                return ResourceManager.GetString("SendFriendRequestButton", resourceCulture);
             }
         }
         
@@ -484,6 +538,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to That user does not exist..
+        /// </summary>
+        public static string UserDoesNotExistError {
+            get {
+                return ResourceManager.GetString("UserDoesNotExistError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to I couldn&apos;t find your username in the database..
         /// </summary>
         public static string UserNameNotFoundError {
@@ -534,6 +597,15 @@ namespace SmartHomeWeb {
         public static string WelcomeTitle {
             get {
                 return ResourceManager.GetString("WelcomeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are friends with {0}..
+        /// </summary>
+        public static string YouAreFriendsWith {
+            get {
+                return ResourceManager.GetString("YouAreFriendsWith", resourceCulture);
             }
         }
     }
