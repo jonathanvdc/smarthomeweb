@@ -300,4 +300,37 @@
   <data name="YouAreFriendsWith" xml:space="preserve">
     <value>Je bent bevriend met {0}.</value>
   </data>
+  <data name="AllMessagesTitle" xml:space="preserve">
+    <value>Alle berichten</value>
+  </data>
+  <data name="LocationOwnerGuidLabel" xml:space="preserve">
+    <value>GUID van eigenaar</value>
+  </data>
+  <data name="MessageComposerBodyLabel" xml:space="preserve">
+    <value>Inhoud</value>
+  </data>
+  <data name="MessageComposerTitle" xml:space="preserve">
+    <value>Bericht versturen</value>
+  </data>
+  <data name="MessageComposerToLabel" xml:space="preserve">
+    <value>Aan</value>
+  </data>
+  <data name="MessageIDLabel" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="MessageMessageLabel" xml:space="preserve">
+    <value>Bericht</value>
+  </data>
+  <data name="MessageRecipientLabel" xml:space="preserve">
+    <value>Ontvanger</value>
+  </data>
+  <data name="MessageSenderLabel" xml:space="preserve">
+    <value>Zender</value>
+  </data>
+  <data name="SendMessageNotAuthenticatedText" xml:space="preserve">
+    <value>Je moet inloggen om berichten te sturen.</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Verzenden</value>
+  </data>
 </root>

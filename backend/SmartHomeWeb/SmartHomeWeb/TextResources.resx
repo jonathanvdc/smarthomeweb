@@ -300,4 +300,37 @@
   <data name="YouAreFriendsWith" xml:space="preserve">
     <value>You are friends with {0}.</value>
   </data>
+  <data name="AllMessagesTitle" xml:space="preserve">
+    <value>All messages</value>
+  </data>
+  <data name="LocationOwnerGuidLabel" xml:space="preserve">
+    <value>Owner GUID</value>
+  </data>
+  <data name="MessageComposerBodyLabel" xml:space="preserve">
+    <value>Body</value>
+  </data>
+  <data name="MessageComposerTitle" xml:space="preserve">
+    <value>Send a message</value>
+  </data>
+  <data name="MessageComposerToLabel" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="MessageIDLabel" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="MessageMessageLabel" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="MessageRecipientLabel" xml:space="preserve">
+    <value>Recipient</value>
+  </data>
+  <data name="MessageSenderLabel" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="SendMessageNotAuthenticatedText" xml:space="preserve">
+    <value>You must log in to send messages.</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
 </root>

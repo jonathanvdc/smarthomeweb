@@ -187,6 +187,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All messages.
+        /// </summary>
+        public static string AllMessagesTitle {
+            get {
+                return ResourceManager.GetString("AllMessagesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your birth date could not be parsed. Have you tried formatting it as &apos;YYYY/MM/DD&apos;?.
         /// </summary>
         public static string BadlyFormattedBirthDateError {
@@ -313,6 +322,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Owner GUID.
+        /// </summary>
+        public static string LocationOwnerGuidLabel {
+            get {
+                return ResourceManager.GetString("LocationOwnerGuidLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Locations.
         /// </summary>
         public static string LocationsPageTitle {
@@ -345,6 +363,69 @@ namespace SmartHomeWeb {
         public static string MeasurementsPageTitle {
             get {
                 return ResourceManager.GetString("MeasurementsPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Body.
+        /// </summary>
+        public static string MessageComposerBodyLabel {
+            get {
+                return ResourceManager.GetString("MessageComposerBodyLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send a message.
+        /// </summary>
+        public static string MessageComposerTitle {
+            get {
+                return ResourceManager.GetString("MessageComposerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To.
+        /// </summary>
+        public static string MessageComposerToLabel {
+            get {
+                return ResourceManager.GetString("MessageComposerToLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID.
+        /// </summary>
+        public static string MessageIDLabel {
+            get {
+                return ResourceManager.GetString("MessageIDLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message.
+        /// </summary>
+        public static string MessageMessageLabel {
+            get {
+                return ResourceManager.GetString("MessageMessageLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recipient.
+        /// </summary>
+        public static string MessageRecipientLabel {
+            get {
+                return ResourceManager.GetString("MessageRecipientLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sender.
+        /// </summary>
+        public static string MessageSenderLabel {
+            get {
+                return ResourceManager.GetString("MessageSenderLabel", resourceCulture);
             }
         }
         
@@ -475,6 +556,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You must log in to send messages..
+        /// </summary>
+        public static string SendMessageNotAuthenticatedText {
+            get {
+                return ResourceManager.GetString("SendMessageNotAuthenticatedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Description.
         /// </summary>
         public static string SensorDescriptionLabel {
@@ -525,6 +615,15 @@ namespace SmartHomeWeb {
         public static string SensorsPageTitle {
             get {
                 return ResourceManager.GetString("SensorsPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Submit.
+        /// </summary>
+        public static string Submit {
+            get {
+                return ResourceManager.GetString("Submit", resourceCulture);
             }
         }
         

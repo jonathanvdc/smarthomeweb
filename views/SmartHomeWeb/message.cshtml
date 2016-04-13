@@ -5,11 +5,9 @@
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Message>>
-@*                           ^^^^^^^^^^^^^^^^^^^    *@
-@*                         This is the @Model type  *@
 
 <h1>@TextResources.MessagesPageTitle</h1>
-<h2>Send a message</h2>
+<h2>@TextResources.MessageComposerTitle</h2>
 
 @if (Context.CurrentUser.IsAuthenticated())
 {
@@ -17,36 +15,36 @@
 
     <form method="post">
         <div class="form-group">
-            <label for="message-to">To:</label>
+            <label for="message-to">@TextResources.MessageComposerToLabel</label>
             <input id="message-to" name="message-name" class="form-control"/>
-            <label for="message-body">Body:</label>
+            <label for="message-body">@TextResources.MessageComposerBodyLabel</label>
             <textarea id="message-body" name="message-body" class="form-control"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">@TextResources.Submit</button>
     </form>
 }
 else
 {
-    <text>You must log in to send messages.</text>
+    <text>@TextResources.SendMessageNotAuthenticatedText</text>
 }
 
-<h2>All messages</h2>
+<h2>@TextResources.AllMessagesTitle</h2>
 <table class="table">
 
         <tr class="tableHeader">
-            <th>ID</th>
-            <th>Sender</th>
-            <th>Recipient</th>
-            <th>Message</th>
+            <th>@TextResources.MessageIDLabel</th>
+            <th>@TextResources.MessageSenderLabel</th>
+            <th>@TextResources.MessageRecipientLabel</th>
+            <th>@TextResources.MessageMessageLabel</th>
         </tr>      
 		
-    @foreach (var p in @Model)
+    @foreach (var m in @Model)
     {
         <tr>
-            <th>@p.Id</th>
-	        <td><samp>@p.Data.SenderGuid</samp></td>
-	        <td><samp>@p.Data.RecipientGuid</samp></td>
-            <td>@p.Data.Message</td>
+            <th>@m.Id</th>
+	        <td><samp>@m.Data.SenderGuid</samp></td>
+	        <td><samp>@m.Data.RecipientGuid</samp></td>
+            <td>@m.Data.Message</td>
         </tr>      
 }                  
 </table>
