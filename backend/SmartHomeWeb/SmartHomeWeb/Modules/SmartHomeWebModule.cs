@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.Remoting.Channels;
 using System.Threading;
 using System.Threading.Tasks;
+using Nancy.Extensions;
 using Nancy.Session;
 
 namespace SmartHomeWeb.Modules
@@ -108,7 +109,8 @@ namespace SmartHomeWeb.Modules
             {
                 string lcid = Request.Query["lcid"];
                 Request.Session["CurrentCulture"] = CultureInfo.GetCultureInfo(lcid);
-                return Response.AsRedirect("/");
+                var referrer = Request.Headers.Referrer;
+                return Response.AsRedirect(string.IsNullOrWhiteSpace(referrer) ? "/" : referrer);
             };
         }
 
