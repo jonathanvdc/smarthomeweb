@@ -249,6 +249,21 @@
   <data name="PickALocation" xml:space="preserve">
     <value>Pick a location:</value>
   </data>
+  <data name="SensorDescriptionLabel" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="SensorIDLabel" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="SensorLocationLabel" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="SensorNameLabel" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SensorNotesLabel" xml:space="preserve">
+    <value>Notes</value>
+  </data>
   <data name="ViewFriendsNotLoggedInError" xml:space="preserve">
     <value>You must log in to view your friends.</value>
   </data>

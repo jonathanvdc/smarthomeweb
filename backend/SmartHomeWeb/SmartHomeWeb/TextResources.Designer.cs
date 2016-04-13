@@ -421,6 +421,51 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Description.
+        /// </summary>
+        public static string SensorDescriptionLabel {
+            get {
+                return ResourceManager.GetString("SensorDescriptionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID.
+        /// </summary>
+        public static string SensorIDLabel {
+            get {
+                return ResourceManager.GetString("SensorIDLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location.
+        /// </summary>
+        public static string SensorLocationLabel {
+            get {
+                return ResourceManager.GetString("SensorLocationLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string SensorNameLabel {
+            get {
+                return ResourceManager.GetString("SensorNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Notes.
+        /// </summary>
+        public static string SensorNotesLabel {
+            get {
+                return ResourceManager.GetString("SensorNotesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sensors.
         /// </summary>
         public static string SensorsPageTitle {

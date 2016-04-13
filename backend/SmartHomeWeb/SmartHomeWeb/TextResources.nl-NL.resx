@@ -243,6 +243,21 @@
   <data name="PickALocation" xml:space="preserve">
     <value>Kies een locatie:</value>
   </data>
+  <data name="SensorDescriptionLabel" xml:space="preserve">
+    <value>Beschrijving</value>
+  </data>
+  <data name="SensorIDLabel" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="SensorLocationLabel" xml:space="preserve">
+    <value>Locatie</value>
+  </data>
+  <data name="SensorNameLabel" xml:space="preserve">
+    <value>Naam</value>
+  </data>
+  <data name="SensorNotesLabel" xml:space="preserve">
+    <value>Commentaar</value>
+  </data>
   <data name="Success" xml:space="preserve">
     <value>Voltooid</value>
   </data>
