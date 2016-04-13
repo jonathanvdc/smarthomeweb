@@ -62,7 +62,8 @@ create table ElectricityPrice (
 
 create table SensorTag (
     sensorId integer not null references Sensor(id),
-    tag text not null
+    tag text not null,
+    primary key (sensorId, tag)
 );
 
 create table Measurement (
