@@ -9,7 +9,6 @@ using System.Text;
 
 namespace SmartHomeWeb
 {
-
     public class DataConnection : IDisposable
     {
         public const string PersonTableName = "Person";
@@ -21,6 +20,7 @@ namespace SmartHomeWeb
         public const string FriendsTableName = "Friends";
         public const string HourAverageTableName = "HourAverage";
         public const string DayAverageTableName = "DayAverage";
+		public const string SensorTagTableName = "SensorTag";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -82,7 +82,7 @@ namespace SmartHomeWeb
         /// </summary>
         /// <param name="TableName">The table to fetch items from.</param>
         /// <param name="ReadTuple">A function that reads a single tuple.</param>
-        public Task<IEnumerable<T>> GetTableAsync<T>(
+        public async Task<IEnumerable<T>> GetTableAsync<T>(
             string TableName,
             Func<IDataRecord, T> ReadTuple)
         {
@@ -90,7 +90,7 @@ namespace SmartHomeWeb
             {
                 cmd.CommandText = @"SELECT * FROM " + TableName;
                 cmd.ExecuteNonQueryAsync();
-                return ExecuteCommandAsync(cmd, ReadTuple);
+				return await ExecuteCommandAsync(cmd, ReadTuple);
             }
         }
 
@@ -201,7 +201,7 @@ namespace SmartHomeWeb
         /// Creates a task that eagerly fetches all mutual friends
 		/// of the person identified by the given GUID.
         /// </summary>
-        public Task<IEnumerable<Person>> GetFriendsAsync(Guid PersonGuid)
+        public async Task<IEnumerable<Person>> GetFriendsAsync(Guid PersonGuid)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -213,7 +213,7 @@ namespace SmartHomeWeb
                     AND pair2.personTwo = @guid AND pair2.personOne = friend2.guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
-                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
             }
         }
 
@@ -321,7 +321,7 @@ namespace SmartHomeWeb
         /// Creates a task that fetches a single row from the database, by
         /// looking up all of its keys.
         /// </summary>
-        public Task<TItem> GetSingleByKeyAsync<TItem>(
+        public async Task<TItem> GetSingleByKeyAsync<TItem>(
             string TableName,
             IReadOnlyDictionary<string, object> KeyValues,
             Func<IDataRecord, TItem> ReadTuple)
@@ -348,7 +348,7 @@ namespace SmartHomeWeb
                 sql.Append("LIMIT 1");
 
                 cmd.CommandText = sql.ToString();
-                return ExecuteCommandSingleAsync(cmd, ReadTuple);
+				return await ExecuteCommandSingleAsync(cmd, ReadTuple);
             }
         }
 
@@ -356,7 +356,7 @@ namespace SmartHomeWeb
         /// Creates a task that fetches a single row from the database, by
         /// looking up one of its keys.
         /// </summary>
-        public Task<TItem> GetSingleByKeyAsync<TKey, TItem>(
+        public async Task<TItem> GetSingleByKeyAsync<TKey, TItem>(
             string TableName,
             string KeyName,
             TKey KeyValue,
@@ -366,7 +366,7 @@ namespace SmartHomeWeb
             {
                 cmd.CommandText = $"SELECT * FROM {TableName} WHERE {KeyName} = @v LIMIT 1";
                 cmd.Parameters.AddWithValue("@v", KeyValue);
-                return ExecuteCommandSingleAsync(cmd, ReadTuple);
+				return await ExecuteCommandSingleAsync(cmd, ReadTuple);
             }
         }
 
@@ -538,7 +538,7 @@ namespace SmartHomeWeb
         /// Creates a task that eagerly fetches all locations that are
         /// associated with the given person in the database.
         /// </summary>
-        public Task<IEnumerable<Location>> GetLocationsForPersonAsync(Guid PersonGuid)
+        public async Task<IEnumerable<Location>> GetLocationsForPersonAsync(Guid PersonGuid)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -548,7 +548,7 @@ namespace SmartHomeWeb
                   WHERE loc.id = hasLoc.locationId AND hasLoc.personGuid = @guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
-                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadLocation);
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadLocation);
             }
         }
 
@@ -562,7 +562,7 @@ namespace SmartHomeWeb
         /// <summary>
         /// Gets the persons at the given location identifier.
         /// </summary>
-        public Task<IEnumerable<Person>> GetPersonsAtLocationAsync(int LocationId)
+		public async Task<IEnumerable<Person>> GetPersonsAtLocationAsync(int LocationId)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -571,7 +571,7 @@ namespace SmartHomeWeb
                   FROM HasLocation as hasLoc, Person as pers
                   WHERE pers.guid = hasLoc.personGuid AND hasLoc.locationId = @locId";
                 cmd.Parameters.AddWithValue("@locId", LocationId);
-                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
             }
         }
 
@@ -580,7 +580,7 @@ namespace SmartHomeWeb
         /// </summary>
         /// <param name="loc"></param>
         /// <returns></returns>
-        public Task<IEnumerable<Sensor>> GetSensorsAtLocation(Location loc)
+        public async Task<IEnumerable<Sensor>> GetSensorsAtLocation(Location loc)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -589,9 +589,8 @@ namespace SmartHomeWeb
                   FROM Sensor
                   WHERE locationid = @locId";
                 cmd.Parameters.AddWithValue("@locId", loc.Id);
-                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor);
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor);
             }
-
         }
 
         /// <summary>
@@ -599,7 +598,7 @@ namespace SmartHomeWeb
         /// </summary>
         /// <param name="sensor"></param>
         /// <returns></returns>
-        public Task<IEnumerable<Measurement>> GetMeasurementsFromSensorAsync(Sensor sensor)
+        public async Task<IEnumerable<Measurement>> GetMeasurementsFromSensorAsync(Sensor sensor)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -608,7 +607,7 @@ namespace SmartHomeWeb
                   FROM Measurement
                   WHERE sensorId = @senid";
                 cmd.Parameters.AddWithValue("@senid", sensor.Id);
-                return ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
             }
         }
 
@@ -630,7 +629,7 @@ namespace SmartHomeWeb
         /// Inserts the given person data into the Persons table.
         /// </summary>
         /// <param name="Data">The person data to insert into the table.</param>
-        public Task InsertPersonAsync(PersonData Data)
+        public async Task InsertPersonAsync(PersonData Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -644,7 +643,7 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@address", Data.Address);
                 cmd.Parameters.AddWithValue("@city", Data.City);
                 cmd.Parameters.AddWithValue("@zipcode", Data.ZipCode);
-                return cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -661,7 +660,7 @@ namespace SmartHomeWeb
         /// Inserts the given location data into the Locations table.
         /// </summary>
         /// <param name="Data">The location data to insert into the table.</param>
-        public Task InsertLocationAsync(LocationData Data)
+        public async Task InsertLocationAsync(LocationData Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -669,7 +668,7 @@ namespace SmartHomeWeb
                     "VALUES (@name, @owner)";
                 cmd.Parameters.AddWithValue("@name", Data.Name);
                 cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
-                return cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -686,7 +685,7 @@ namespace SmartHomeWeb
         /// Inserts the given sensor data into the Sensor table.
         /// </summary>
         /// <param name="Data">The sensor data to insert into the table.</param>
-        public Task InsertSensorAsync(SensorData Data)
+        public async Task InsertSensorAsync(SensorData Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -696,7 +695,7 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@title", Data.Name);
                 cmd.Parameters.AddWithValue("@description", Data.Description);
                 cmd.Parameters.AddWithValue("@notes", Data.Notes);
-                return cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -713,7 +712,7 @@ namespace SmartHomeWeb
         /// Inserts the given measurement into the table with the given name.
         /// </summary>
         /// <param name="Data">The measurement to insert into the table.</param>
-        public Task InsertMeasurementAsync(Measurement Data, string TableName)
+        public async Task InsertMeasurementAsync(Measurement Data, string TableName)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -723,7 +722,7 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Data.Time));
                 cmd.Parameters.AddWithValue("@measured", Data.MeasuredData);
                 cmd.Parameters.AddWithValue("@notes", Data.Notes);
-                return cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -749,7 +748,7 @@ namespace SmartHomeWeb
         /// Inserts the given message  into the Message table.
         /// </summary>
         /// <param name="Data">The message to insert into the table.</param>
-        public Task InsertMessageAsync(MessageData Data)
+        public async Task InsertMessageAsync(MessageData Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -758,7 +757,7 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@usender", Data.SenderGuid.ToString());
                 cmd.Parameters.AddWithValue("@recipient", Data.RecipientGuid.ToString());
                 cmd.Parameters.AddWithValue("@message", Data.Message);
-                return cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -776,7 +775,7 @@ namespace SmartHomeWeb
         /// HasLocation table. 
         /// </summary>
         /// <param name="Data">The person-location pair to insert into the table.</param>
-        public Task InsertHasLocationPairAsync(PersonLocationPair Pair)
+        public async Task InsertHasLocationPairAsync(PersonLocationPair Pair)
         {            
             using (var cmd = sqlite.CreateCommand())
             {
@@ -784,7 +783,7 @@ namespace SmartHomeWeb
                     "VALUES (@personGuid, @locationId)";
                 cmd.Parameters.AddWithValue("@personGuid", Pair.PersonGuidString);
                 cmd.Parameters.AddWithValue("@locationId", Pair.LocationId);
-                return cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -800,7 +799,7 @@ namespace SmartHomeWeb
         /// <summary>
         /// Inserts a pair of friends in the Friends table.
         /// </summary>
-        public Task InsertFriendsPairAsync(PersonPair Data)
+        public async Task InsertFriendsPairAsync(PersonPair Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -808,7 +807,7 @@ namespace SmartHomeWeb
                     "VALUES (@personOne, @personTwo)";
                 cmd.Parameters.AddWithValue("@personOne", Data.PersonOneGuidString);
                 cmd.Parameters.AddWithValue("@personTwo", Data.PersonTwoGuidString);
-                return cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
@@ -820,6 +819,72 @@ namespace SmartHomeWeb
         {
 			return InsertManyAsync(Data, InsertFriendsPairAsync);
         }
+
+		/// <summary>
+		/// Retrieves the set of all sensor tags for the sensor
+		/// with the given identifier.
+		/// </summary>
+		public async Task<IEnumerable<string>> GetSensorTagsAsync(int SensorId)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                  SELECT t.tag
+                  FROM {SensorTagTableName} as t
+                  WHERE t.sensorId = @sensorId";
+				cmd.Parameters.AddWithValue("@sensorId", SensorId);
+				return await ExecuteCommandAsync(cmd, tuple => DatabaseHelpers.GetString(tuple, "tag"));
+			}
+		}
+
+		/// <summary>
+		/// Checks if the database has associated the sensor with 
+		/// the given identifier, with the given tag.
+		/// </summary>
+		public async Task<bool> ContainsSensorTagAsync(int SensorId, string Tag)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                  SELECT COUNT(*)
+                  FROM {SensorTagTableName} as t
+                  WHERE t.sensorId = @sensorId AND t.tag = @tag
+				  LIMIT 1";
+				cmd.Parameters.AddWithValue("@sensorId", SensorId);
+				cmd.Parameters.AddWithValue("@sensorId", Tag.ToLowerInvariant());
+				return (int)(await cmd.ExecuteScalarAsync()) > 0;
+			}
+		}
+
+		/// <summary>
+		/// Adds the given tag to the given sensor. A boolean is returned
+		/// that reports whether a new tuple was inserted into the database.
+		/// This does not happen if the given tag was already associated with
+		/// the given sensor.
+		/// </summary>
+		public async Task<bool> AddSensorTagAsync(int SensorId, string Tag)
+		{
+			if (await ContainsSensorTagAsync(SensorId, Tag))
+				return false;
+
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"INSERT INTO {SensorTagTableName}(sensorId, tag) " +
+					"VALUES (@sensorId, @tag)";
+				cmd.Parameters.AddWithValue("@sensorId", SensorId);
+				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
+				await cmd.ExecuteNonQueryAsync();
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Adds the given set of tags to the given sensor.
+		/// </summary>
+		public Task InsertSensorTagAsync(int SensorId, IEnumerable<string> Tags)
+		{
+			return InsertManyAsync(Tags, tag => AddSensorTagAsync(SensorId, tag));
+		}
 
         /// <summary>
         /// Close the database connection.
