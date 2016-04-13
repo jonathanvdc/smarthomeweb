@@ -303,6 +303,18 @@
   <data name="AllMessagesTitle" xml:space="preserve">
     <value>All messages</value>
   </data>
+  <data name="DashboardAddLocation" xml:space="preserve">
+    <value>add a location</value>
+  </data>
+  <data name="DashboardAddLocationPost" xml:space="preserve">
+    <value>to your profile.</value>
+  </data>
+  <data name="DashboardAddLocationPre" xml:space="preserve">
+    <value>Maybe you should</value>
+  </data>
+  <data name="EmptyDashboardTitle" xml:space="preserve">
+    <value>Seems kind of lonely in here.</value>
+  </data>
   <data name="LocationOwnerGuidLabel" xml:space="preserve">
     <value>Owner GUID</value>
   </data>

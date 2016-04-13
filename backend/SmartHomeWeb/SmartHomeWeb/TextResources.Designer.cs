@@ -205,6 +205,33 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to add a location.
+        /// </summary>
+        public static string DashboardAddLocation {
+            get {
+                return ResourceManager.GetString("DashboardAddLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to to your profile..
+        /// </summary>
+        public static string DashboardAddLocationPost {
+            get {
+                return ResourceManager.GetString("DashboardAddLocationPost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maybe you should.
+        /// </summary>
+        public static string DashboardAddLocationPre {
+            get {
+                return ResourceManager.GetString("DashboardAddLocationPre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dashboard.
         /// </summary>
         public static string DashboardPageTitle {
@@ -219,6 +246,15 @@ namespace SmartHomeWeb {
         public static string DebugPagesTitle {
             get {
                 return ResourceManager.GetString("DebugPagesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seems kind of lonely in here..
+        /// </summary>
+        public static string EmptyDashboardTitle {
+            get {
+                return ResourceManager.GetString("EmptyDashboardTitle", resourceCulture);
             }
         }
         

@@ -303,6 +303,18 @@
   <data name="AllMessagesTitle" xml:space="preserve">
     <value>Alle berichten</value>
   </data>
+  <data name="DashboardAddLocation" xml:space="preserve">
+    <value>een locatie toevoegen</value>
+  </data>
+  <data name="DashboardAddLocationPost" xml:space="preserve">
+    <value>aan je profiel.</value>
+  </data>
+  <data name="DashboardAddLocationPre" xml:space="preserve">
+    <value>Misschien moet je</value>
+  </data>
+  <data name="EmptyDashboardTitle" xml:space="preserve">
+    <value>Het ziet er hier eenzaam uit.</value>
+  </data>
   <data name="LocationOwnerGuidLabel" xml:space="preserve">
     <value>GUID van eigenaar</value>
   </data>
