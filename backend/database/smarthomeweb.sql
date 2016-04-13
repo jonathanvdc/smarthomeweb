@@ -60,14 +60,10 @@ create table ElectricityPrice (
     price real
 );
 
-create table Tag (
-    id integer primary key autoincrement,
-    name text not null
-);
-
 create table SensorTag (
     sensorId integer not null references Sensor(id),
-    tagId integer not null references Tag(id)
+    tag text not null,
+    primary key (sensorId, tag)
 );
 
 create table Measurement (
