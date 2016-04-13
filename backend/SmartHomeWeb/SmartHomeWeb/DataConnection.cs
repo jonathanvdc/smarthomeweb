@@ -89,7 +89,6 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"SELECT * FROM " + TableName;
-                cmd.ExecuteNonQueryAsync();
 				return await ExecuteCommandAsync(cmd, ReadTuple);
             }
         }
@@ -862,7 +861,7 @@ namespace SmartHomeWeb
 		/// This does not happen if the given tag was already associated with
 		/// the given sensor.
 		/// </summary>
-		public async Task<bool> AddSensorTagAsync(int SensorId, string Tag)
+		public async Task<bool> InsertSensorTagAsync(int SensorId, string Tag)
 		{
 			if (await ContainsSensorTagAsync(SensorId, Tag))
 				return false;
@@ -883,7 +882,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task InsertSensorTagAsync(int SensorId, IEnumerable<string> Tags)
 		{
-			return InsertManyAsync(Tags, tag => AddSensorTagAsync(SensorId, tag));
+			return InsertManyAsync(Tags, tag => InsertSensorTagAsync(SensorId, tag));
 		}
 
         /// <summary>

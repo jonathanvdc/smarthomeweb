@@ -137,6 +137,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="FormHelpers.cs" />
+    <Compile Include="Modules\API\ApiTagsModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
@@ -235,13 +236,8 @@
     <EmbeddedResource Include="TextResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>TextResources.Designer.cs</LastGenOutput>
-      <LogicalName>SmartHomeWeb.TextResources.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="TextResources.en-US.resx">
-      <LogicalName>SmartHomeWeb.TextResources.en-US.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TextResources.nl-NL.resx">
-      <LogicalName>SmartHomeWeb.TextResources.nl-NL.resources</LogicalName>
-    </EmbeddedResource>
+    <EmbeddedResource Include="TextResources.en-US.resx" />
+    <EmbeddedResource Include="TextResources.nl-NL.resx" />
   </ItemGroup>
 </Project>
