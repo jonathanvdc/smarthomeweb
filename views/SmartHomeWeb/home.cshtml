@@ -6,10 +6,6 @@
 @using SmartHomeWeb
 @inherits NancyRazorViewBase<IEnumerable<Person>>
 
-@{
-    TextResources.Culture = (CultureInfo)this.Request.Session["CurrentCulture"];
-}
-
 <style type="text/css">
 	body {
 		background:

@@ -22,6 +22,12 @@ namespace SmartHomeWeb.Modules
             UserMapper = userMapper;
 
             // StaticConfiguration.EnableHeadRouting = true;
+
+			Before += ctx =>
+			{
+				TextResources.Culture = (CultureInfo)this.Request.Session["CurrentCulture"];
+				return null;
+			};
             
             Get["/"] = parameters => View["home.cshtml"];
 
