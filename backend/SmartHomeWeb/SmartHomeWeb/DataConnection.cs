@@ -916,6 +916,22 @@ namespace SmartHomeWeb
 			}
 		}
 
+		/// <summary>
+		/// Gets all sensors that have been tagged by the given 
+		/// string.
+		/// </summary>
+		public async Task<IEnumerable<Sensor>> GetSensorsByTagAsync(string Tag)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"SELECT s.* " +
+					$"FROM {SensorTagTableName} as t, {SensorTableName} as s " +
+					"WHERE t.sensorId = s.id AND t.tag = @tag";
+				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor); 
+			}
+		}
+
         /// <summary>
         /// Close the database connection.
         /// </summary>
