@@ -77,5 +77,11 @@ namespace SmartHomeWeb.Modules.API
         {
             Post[path, true] = Recieve<T, TParam>(operation);
         }
+
+		protected void ApiPut<T, TParam>(
+			string path, Func<TParam, T, DataConnection, Task> operation)
+		{
+			Put[path, true] = Recieve<T, TParam>(operation);
+		}
     }
 }

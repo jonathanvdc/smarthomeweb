@@ -681,6 +681,35 @@ namespace SmartHomeWeb
 			return InsertManyAsync(Data, InsertLocationAsync);
         }
 
+		/// <summary>
+		/// Updates the given location in the Locations table: the data of the location
+		/// with the given identifier is updated.
+		/// </summary>
+		/// <param name="Data">The location to update.</param>
+		public async Task UpdateLocationAsync(Location Location)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"UPDATE {LocationTableName} " +
+					"SET name = @name, owner = @owner, electricityPrice = @electricityPrice" +
+					"WHERE id = @id";
+				cmd.Parameters.AddWithValue("@id", Location.Id);
+				cmd.Parameters.AddWithValue("@name", Location.Data.Name);
+				cmd.Parameters.AddWithValue("@owner", Location.Data.OwnerGuidString);
+				cmd.Parameters.AddWithValue("@electricityPrice", Location.Data.ElectricityPrice);
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
+
+		/// <summary>
+		/// Updates the given locations list of locations 
+		/// in the Locations table.
+		/// </summary>
+		public Task UpdateLocationAsync(IEnumerable<Location> Data)
+		{
+			return InsertManyAsync(Data, UpdateLocationAsync);
+		}
+
         /// <summary>
         /// Inserts the given sensor data into the Sensor table.
         /// </summary>
