@@ -222,19 +222,7 @@ namespace SmartHomeWeb
         /// </summary>
         private async Task<Measurement> ComputeHourAverageAsync(int SensorId, DateTime Hour)
         {
-            IEnumerable<Measurement> measurements;
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = @"
-                    SELECT *
-                    FROM Measurement
-                    WHERE Measurement.sensorId = @id AND Measurement.unixtime >= @starttime AND Measurement.unixtime < @endtime";
-                cmd.Parameters.AddWithValue("@id", SensorId);
-                cmd.Parameters.AddWithValue("@starttime", DatabaseHelpers.CreateUnixTimeStamp(Hour));
-                cmd.Parameters.AddWithValue("@endtime", DatabaseHelpers.CreateUnixTimeStamp(Hour.AddHours(1)));
-                measurements = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
-            }
-
+			var measurements = await GetMeasurementsAsync(SensorId, Hour, Hour.AddHours(1));
             return MeasurementAggregation.Aggregate(measurements, SensorId, Hour);
         }
 
@@ -593,36 +581,44 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Gets all measurements for a given sensor
+        /// Gets all measurements for a sensor with the given identifier.
         /// </summary>
         /// <param name="sensor"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Measurement>> GetMeasurementsFromSensorAsync(Sensor sensor)
+		public async Task<IEnumerable<Measurement>> GetMeasurementsAsync(int SensorId)
         {
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = @"
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
                   SELECT *
                   FROM Measurement
                   WHERE sensorId = @senid";
-                cmd.Parameters.AddWithValue("@senid", sensor.Id);
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
-            }
+				cmd.Parameters.AddWithValue("@senid", SensorId);
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
+			}
         }
 
-        /// <summary>
-        /// Gets all measurements for a sensor with given id
-        /// </summary>
-        /// <param name="sensor"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Measurement>> GetMeasurementsFromSensorAsync(int sensorid)
-        {
-            using (var cmd = sqlite.CreateCommand())
-            {
-                Sensor sensor = await GetSensorByIdAsync(sensorid);
-                return await GetMeasurementsFromSensorAsync(sensor);
-            }
-        }
+		/// <summary>
+		/// Gets all measurements for a sensor with the given identifier,
+		/// within the given timespan.
+		/// </summary>
+		/// <param name="sensor"></param>
+		/// <returns></returns>
+		public async Task<IEnumerable<Measurement>> GetMeasurementsAsync(
+			int SensorId, DateTime Start, DateTime End)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                    SELECT *
+                    FROM Measurement
+                    WHERE Measurement.sensorId = @id AND Measurement.unixtime >= @starttime AND Measurement.unixtime < @endtime";
+				cmd.Parameters.AddWithValue("@id", SensorId);
+				cmd.Parameters.AddWithValue("@starttime", DatabaseHelpers.CreateUnixTimeStamp(Start));
+				cmd.Parameters.AddWithValue("@endtime", DatabaseHelpers.CreateUnixTimeStamp(End));
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
+			}
+		}
 
         /// <summary>
         /// Inserts the given person data into the Persons table.
