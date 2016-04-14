@@ -327,6 +327,9 @@
   <data name="MessageComposerToLabel" xml:space="preserve">
     <value>To</value>
   </data>
+  <data name="MessageHeader" xml:space="preserve">
+    <value>{0} wrote:</value>
+  </data>
   <data name="MessageIDLabel" xml:space="preserve">
     <value>ID</value>
   </data>

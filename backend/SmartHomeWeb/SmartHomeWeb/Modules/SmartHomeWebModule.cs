@@ -109,7 +109,7 @@ namespace SmartHomeWeb.Modules
 
             Post["/add-person", true] = PostAddPerson;
 
-            Get["/mydata", true] = GetDashboard;
+            Get["/dashboard", true] = GetDashboard;
 
             Get["/set-culture"] = parameters =>
             {
@@ -219,7 +219,7 @@ namespace SmartHomeWeb.Modules
             }
 
             ViewBag.Messages = usernameMessageTuples;
-            return View["mydata.cshtml", locationsWithSensors];
+            return View["dashboard.cshtml", locationsWithSensors];
         }
 
         private async Task<dynamic> PostAddLocation(dynamic parameters, CancellationToken ct)

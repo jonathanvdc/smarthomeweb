@@ -10,10 +10,13 @@
 <script type="text/javascript">
     // Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
+    var chartDiv = document.getElementById('chart_div');
+    var noDataSavedHtml = "<h3>No sensordata is saved.</h3>";
+
     // Set a callback to run when the Google Visualization API is loaded.
 	@if (@Model.Count != 0){
-		@if (@Model[0].Sensors.Count == 0){
-			@:document.getElementById('chart_div').innerHTML = "<h3>No sensordata is saved.</h3>";
+		if (@Model[0].Sensors.Count == 0){
+			@:chartDiv.innerHTML = noDataSavedHtml;
 		}else{
 			@:google.charts.setOnLoadCallback(function(){ drawChart(@Model[0].Sensors[0].Id) });
 		}
@@ -23,21 +26,19 @@
     // draws it.
 	
 	
-    function drawChart(x) {
+    function drawChart(id) {
 		var array = [];
-		var json = getSensor(x);
-		if(json.length == 0)
+		var json = getSensor(id);
+		if(json.length === 0) {
+		    chartDiv.innerHTML = noDataSavedHtml;
+		} else
 		{
-			document.getElementById('chart_div').innerHTML = "<h3>No sensordata is saved.</h3>";
-		}
-		else
-		{
-			for(i = 0; i < json.length; i++)
+			for(var i = 0; i < json.length; i++)
 			{
-				var x = json[i];
-				var date = new Date(x.timestamp);
+				var sensorData = json[i];
+				var date = new Date(sensorData.timestamp);
 				var hmsstring = date.toISOString().substring(11, 19);
-				array.push([hmsstring, x.measurement]);
+				array.push([hmsstring, sensorData.measurement]);
 			}
 
 			var data = new google.visualization.DataTable();
@@ -51,18 +52,18 @@
 							'height':500};
 
 			// Instantiate and draw our chart, passing in some options.
-			var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			var chart = new google.visualization.LineChart(chartDiv);
 
 			chart.draw(data, options);
 		}
     }
 	
-	function getSensor(x){
+	function getSensor(id){
 		var xmlhttp = new XMLHttpRequest();
-		var url = "/api/measurements/" + x.toString();
+		var url = "/api/measurements/" + id.toString();
 		xmlhttp.open("GET", url, false);
 		xmlhttp.send();
-		return myArr = JSON.parse(xmlhttp.responseText);
+		return JSON.parse(xmlhttp.responseText);
 	}
 	  
 </script>
@@ -83,8 +84,12 @@
         </a>
       </div>
       <div class="media-body">
-        <h4 class="media-heading message-header">@message.Item1 said</h4>
-        <div class="bubble">@message.Item2</div>
+	      <h4 class="media-heading message-header">
+		      @string.Format(TextResources.MessageHeader, message.Item1)
+	      </h4>
+	      <div class="bubble">
+		      @message.Item2
+	      </div>
       </div>
     </li>
 }

@@ -430,6 +430,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} wrote:.
+        /// </summary>
+        public static string MessageHeader {
+            get {
+                return ResourceManager.GetString("MessageHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ID.
         /// </summary>
         public static string MessageIDLabel {
