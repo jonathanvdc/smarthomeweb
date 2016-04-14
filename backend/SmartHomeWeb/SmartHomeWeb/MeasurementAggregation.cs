@@ -147,8 +147,9 @@ namespace SmartHomeWeb
             var quartiles = Quartiles(array);
             var q1 = quartiles.Item1;
             var q3 = quartiles.Item2;
-
-            return array.Where(x => x >= 2.5*q1 - 1.5*q3 && x <= 2.5*q3 - 1.5*q1).Average();
+            var iqr = q3 - q1;
+            //return array.Where(x => x >= 2.5*q1 - 1.5*q3 && x <= 2.5*q3 - 1.5*q1).Average();
+            return array.Where(x => x >= q1-1.5*iqr && x <= q3+1.5*iqr).Average();
         }
     }
 }
