@@ -31,7 +31,11 @@ create table Message (
 
 create table Location (
     id integer primary key autoincrement,
+    -- The location's name.
     name text not null unique,
+    -- The price per kilowatt hour, for all sensors at this location.
+    -- This is entirely optional.
+    electricityPrice real,
     -- A location has exactly one owner, but there can be any number of
     -- persons who are interested in a location's energy consumption.
     -- (for example, family members may want to know if they left the

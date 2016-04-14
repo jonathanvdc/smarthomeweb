@@ -26,13 +26,13 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the location's unique identifier.
 		/// </summary>
-		[JsonProperty("id")]
+		[JsonProperty("id", Required = Required.Always)]
 		public int Id { get; private set; }
 
 		/// <summary>
 		/// Gets the location's data.
 		/// </summary>
-		[JsonProperty("data")]
+		[JsonProperty("data", Required = Required.Always)]
 		public LocationData Data { get; private set; }
 
 		public bool Equals(Location Other)

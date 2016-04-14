@@ -542,7 +542,7 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"
-                  SELECT loc.id, loc.name, loc.owner
+                  SELECT loc.id, loc.name, loc.owner, loc.electricityPrice
                   FROM HasLocation as hasLoc, Location as loc
                   WHERE loc.id = hasLoc.locationId AND hasLoc.personGuid = @guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
@@ -663,10 +663,11 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"INSERT INTO {LocationTableName}(name, owner) " +
-                    "VALUES (@name, @owner)";
+				cmd.CommandText = $"INSERT INTO {LocationTableName}(name, owner, electricityPrice) " +
+					"VALUES (@name, @owner, @electricityPrice)";
                 cmd.Parameters.AddWithValue("@name", Data.Name);
                 cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
+				cmd.Parameters.AddWithValue("@electricityPrice", Data.ElectricityPrice);
                 await cmd.ExecuteNonQueryAsync();
             }
         }

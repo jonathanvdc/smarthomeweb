@@ -104,7 +104,8 @@ namespace SmartHomeWeb
                 GetInt32(Record, "id"), 
                 new LocationData(
                     GetString(Record, "name"),
-                    GetGuid(Record, "owner")));
+                    GetGuid(Record, "owner"),
+					GetFloat64OrNull(Record, "electricityPrice")));
         }
 
         /// <summary>

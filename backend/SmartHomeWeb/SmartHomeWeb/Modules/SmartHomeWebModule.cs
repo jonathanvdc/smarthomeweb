@@ -262,7 +262,7 @@ namespace SmartHomeWeb.Modules
                             }
                             else
                             {
-                                await dc.InsertLocationAsync(new LocationData(name, sender.Guid));
+                                await dc.InsertLocationAsync(new LocationData(name, sender.Guid, null));
                                 var newLoc = await dc.GetLocationByNameAsync(name);
                                 await dc.InsertHasLocationPairAsync(new PersonLocationPair(sender.Guid, newLoc.Id));
                                 ViewBag.Success = TextResources.AddedLocationMessage;
