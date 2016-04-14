@@ -32,8 +32,8 @@ namespace SmartHomeWeb
         /// contain any non-null measurements, then a null measurement
         /// is returned.</remarks>
         public static Measurement Aggregate(
-            IEnumerable<Measurement> Measurements, 
-            int SensorId, DateTime Time, 
+            IEnumerable<Measurement> Measurements,
+            int SensorId, DateTime Time,
             Func<IEnumerable<double>, double> AggregateData)
         {
             var array = Measurements as Measurement[] ?? Measurements.ToArray();
@@ -47,7 +47,7 @@ namespace SmartHomeWeb
 
             return new Measurement(SensorId, Time, aggrData, notesBuilder.ToString());
         }
-        
+
         /// <summary>
         /// Return a measurement that represents an average of all
         /// measurements in the input.
@@ -147,9 +147,11 @@ namespace SmartHomeWeb
             var quartiles = Quartiles(array);
             var q1 = quartiles.Item1;
             var q3 = quartiles.Item2;
-            var iqr = q3 - q1;
-            //return array.Where(x => x >= 2.5*q1 - 1.5*q3 && x <= 2.5*q3 - 1.5*q1).Average();
-            return array.Where(x => x >= q1-1.5*iqr && x <= q3+1.5*iqr).Average();
+            const double tol = 0.01;
+            double lowerBound = 2.5 * q1 - 1.5 * q3 - tol;
+            double upperBound = 2.5 * q3 - 1.5 * q1 + tol;
+
+            return array.Where(x => x >= lowerBound && x <= upperBound).Average();
         }
     }
 }
