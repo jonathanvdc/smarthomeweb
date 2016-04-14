@@ -149,6 +149,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\add-person.cshtml">
       <Link>View Links\add-person.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\dashboard.cshtml">
+      <Link>View Links\dashboard.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\feedback-box.cshtml">
       <Link>View Links\feedback-box.cshtml</Link>
     </None>
@@ -172,9 +175,6 @@
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\message.cshtml">
       <Link>View Links\message.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\mydata.cshtml">
-      <Link>View Links\mydata.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\person.cshtml">
       <Link>View Links\person.cshtml</Link>
