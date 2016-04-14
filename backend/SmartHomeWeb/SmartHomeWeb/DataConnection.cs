@@ -885,6 +885,37 @@ namespace SmartHomeWeb
 			return InsertManyAsync(Tags, tag => InsertSensorTagAsync(SensorId, tag));
 		}
 
+		/// <summary>
+		/// Removes the given tag from the sensor with the 
+		/// given identifier.
+		/// </summary>
+		public async Task RemoveSensorTagAsync(int SensorId, string Tag)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"DELETE FROM {SensorTagTableName} as t " +
+					"WHERE t.sensorId = @sensorId AND t.tag = @tag";
+				cmd.Parameters.AddWithValue("@sensorId", SensorId);
+				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
+
+		/// <summary>
+		/// Removes all tags from the sensor with the given
+		/// identifier.
+		/// </summary>
+		public async Task ClearSensorTagsAsync(int SensorId)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"DELETE FROM {SensorTagTableName} as t " +
+					"WHERE t.sensorId = @sensorId";
+				cmd.Parameters.AddWithValue("@sensorId", SensorId);
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
+
         /// <summary>
         /// Close the database connection.
         /// </summary>
