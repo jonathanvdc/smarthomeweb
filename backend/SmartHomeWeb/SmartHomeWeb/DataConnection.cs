@@ -737,7 +737,7 @@ namespace SmartHomeWeb
         /// Inserts the given measurement into the table with the given name.
         /// </summary>
         /// <param name="Data">The measurement to insert into the table.</param>
-        public async Task InsertMeasurementAsync(Measurement Data, string TableName)
+        private async Task InsertMeasurementAsync(Measurement Data, string TableName)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -751,13 +751,41 @@ namespace SmartHomeWeb
             }
         }
 
+		/// <summary>
+		/// Removes the measurement made by the given sensor at the given time 
+		/// from the table with the given name.  
+		/// </summary>
+		/// <remarks>
+		/// This method's intended use case is that of clearing the aggregation cache,
+		/// not to remove tuples from the Measurements table.
+		/// </remarks>
+		private async Task DeleteMeasurementAsync(string TableName, int SensorId, DateTime Time)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"DELETE FROM {TableName} " +
+					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+				cmd.Parameters.AddWithValue("@sensorId", SensorId);
+				cmd.Parameters.AddWithValue("@unixtime", DatabaseHelpers.CreateUnixTimeStamp(Time));
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
+
         /// <summary>
         /// Inserts the given measurement into the Measurement table.
         /// </summary>
         /// <param name="Data">The measurement to insert into the table.</param>
-        public Task InsertMeasurementAsync(Measurement Data)
+        public async Task InsertMeasurementAsync(Measurement Data)
         {
-            return InsertMeasurementAsync(Data, MeasurementTableName);
+			// Invalidate the aggregation cache first...
+			await DeleteMeasurementAsync(
+				HourAverageTableName, Data.SensorId, 
+				MeasurementAggregation.Quantize(Data.Time, TimeSpan.FromHours(1)));
+			await DeleteMeasurementAsync(
+				DayAverageTableName, Data.SensorId, 
+				MeasurementAggregation.Quantize(Data.Time, TimeSpan.FromDays(1)));
+			// ... then insert a tuple into the Measurement table.
+            await InsertMeasurementAsync(Data, MeasurementTableName);
         }
 
         /// <summary>
@@ -919,8 +947,8 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = $"DELETE FROM {SensorTagTableName} as t " +
-					"WHERE t.sensorId = @sensorId AND t.tag = @tag";
+				cmd.CommandText = $"DELETE FROM {SensorTagTableName} " +
+					"WHERE sensorId = @sensorId AND tag = @tag";
 				cmd.Parameters.AddWithValue("@sensorId", SensorId);
 				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
 				await cmd.ExecuteNonQueryAsync();
@@ -935,8 +963,8 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = $"DELETE FROM {SensorTagTableName} as t " +
-					"WHERE t.sensorId = @sensorId";
+				cmd.CommandText = $"DELETE FROM {SensorTagTableName} " +
+					"WHERE sensorId = @sensorId";
 				cmd.Parameters.AddWithValue("@sensorId", SensorId);
 				await cmd.ExecuteNonQueryAsync();
 			}

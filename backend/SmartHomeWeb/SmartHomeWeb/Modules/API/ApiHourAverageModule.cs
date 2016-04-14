@@ -29,8 +29,7 @@ namespace SmartHomeWeb.Modules.API
         /// </summary>
         public DateTime Quantize(DateTime Time)
         {
-            long tTicks = Time.Ticks;
-            return new DateTime(tTicks - tTicks % TimeQuantum.Ticks, Time.Kind);
+			return MeasurementAggregation.Quantize(Time, TimeQuantum);
         }
 
         /// <summary>

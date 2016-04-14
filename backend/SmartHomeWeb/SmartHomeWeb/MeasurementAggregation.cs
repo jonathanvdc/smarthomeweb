@@ -8,6 +8,16 @@ namespace SmartHomeWeb
 {
     public static class MeasurementAggregation
     {
+		/// <summary>
+		/// Quantize the given date-time, for the
+		/// given quantum of time.
+		/// </summary>
+		public static DateTime Quantize(DateTime Time, TimeSpan Quantum)
+		{
+			long tTicks = Time.Ticks;
+			return new DateTime(tTicks - tTicks % Quantum.Ticks, Time.Kind);
+		}
+
         /// <summary>
         /// Return a measurement that represents an aggregation of all
         /// measurements in the input.
