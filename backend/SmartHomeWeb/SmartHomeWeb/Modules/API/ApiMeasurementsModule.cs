@@ -9,8 +9,9 @@ namespace SmartHomeWeb.Modules.API
         public ApiMeasurementsModule() : base("api/measurements")
         {
             ApiGet("/", (_, dc) => dc.GetMeasurementsAsync());
-            ApiGet("/{id}", (p, dc) => dc.GetMeasurementsFromSensorAsync((int)p["id"]));
+			ApiGet("/{id}", (p, dc) => dc.GetMeasurementsAsync((int)p["id"]));
             ApiGet("/{id}/{timestamp}", (p, dc) => dc.GetMeasurementAsync((int)p["id"], (DateTime)p["timestamp"]));
+			ApiGet("/{id}/{starttime}/{endtime}", (p, dc) => dc.GetMeasurementsAsync((int)p["id"], (DateTime)p["starttime"], (DateTime)p["endtime"]));
 
             ApiPost<List<Measurement>, object>("/", (_, items, dc) => dc.InsertMeasurementAsync(items));
         }
