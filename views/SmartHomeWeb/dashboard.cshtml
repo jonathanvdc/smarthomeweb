@@ -6,12 +6,11 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	
 <script type="text/javascript">
     // Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
-    var chartDiv = document.getElementById('chart_div');
     var noDataSavedHtml = "<h3>No sensordata is saved.</h3>";
+
 
     // Set a callback to run when the Google Visualization API is loaded.
 	@if (@Model.Count != 0){
@@ -24,14 +23,21 @@
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
     // draws it.
-	
-	
-    function drawChart(id) {
+
+    function drawChart(id, way="minutes") {	
 		var array = [];
 		var json = getSensor(id);
+		
+		if(way == "minutes"){
+		}else if(way == "hours"){
+		  json = getHours(id);
+		}else{
+		  json = getHours(id);
+		}
+		
 		if(json.length === 0) {
-		    chartDiv.innerHTML = noDataSavedHtml;
-		} else
+		    document.getElementById('chart_div').innerHTML = noDataSavedHtml;
+		}else
 		{
 			for(var i = 0; i < json.length; i++)
 			{
@@ -44,26 +50,46 @@
 			var data = new google.visualization.DataTable();
 			data.addColumn('string', 'Time');
 			data.addColumn('number', 'Usage');
-
 			data.addRows(array);
-
 			// Set chart options
 			var options = {'width':600,
 							'height':500};
-
 			// Instantiate and draw our chart, passing in some options.
-			var chart = new google.visualization.LineChart(chartDiv);
+			var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
 			chart.draw(data, options);
 		}
     }
-	
+
 	function getSensor(id){
 		var xmlhttp = new XMLHttpRequest();
 		var url = "/api/measurements/" + id.toString();
 		xmlhttp.open("GET", url, false);
 		xmlhttp.send();
 		return JSON.parse(xmlhttp.responseText);
+	}
+	
+	function getHours(id){
+		var xmlhttp = new XMLHttpRequest();
+		var url = "/api/hour-average/" + id.toString()+ "/" + getCurrentTime() + "/5";
+		alert(url);
+		xmlhttp.open("GET", url, false);
+		xmlhttp.send();
+		test = xmlhttp.responseText;
+		var x = JSON.parse(test);
+		return x;
+	}
+	
+	function getCurrentTime(){
+		var currentdate = new Date(); 	
+		var seconds = currentdate.getSeconds() < 10 ? "0"+currentdate.getSeconds().toString() : currentdate.getSeconds().toString();
+		var minutes = currentdate.getMinutes() < 10 ? "0"+currentdate.getMinutes().toString() : currentdate.getMinutes().toString();
+		var hours = currentdate.getHours() < 10 ? "0"+currentdate.getHours().toString() : currentdate.getHours().toString();
+		var day =  currentdate.getDate().toString();
+		var month = (currentdate.getMonth()+1).toString();
+		var year =	currentdate.getFullYear().toString();
+		var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
+		return datestring;
 	}
 	  
 </script>
@@ -74,7 +100,7 @@
 @foreach (var message in (List<Tuple<string, string>>)ViewBag.Messages)
 {
 	// NOTE: the above cast is necessary. Without it, the view fails to
-	// render on mono, because ViewBag.Messages is one of them 
+	// render on mono, because ViewBag.Messages is one of them
 	// wishy-washy dynamic objects.
     // TODO: VIEWBAG
     <li class="media">
@@ -113,15 +139,22 @@ else
 		  <li class="active"><a data-toggle="tab" href="#0">@Model[0].Location.Data.Name</a></li>
 		  @for(var x = 1; x < @Model.Count; ++x)
 			{
-			  <li><a data-toggle="tab" href="#@x">@Model[@x].Location.Data.Name</a></li>		
+			  <li><a data-toggle="tab" href="#@x">@Model[@x].Location.Data.Name</a></li>
 			}
 		</ul>
+		<div class="col-sm-12">
+			<ul>
+				<li onClick="">Minutes</li>
+				<li onClick="drawChart(0, 'hours')">Hours</li>
+				<li onClick="">Days</li>
+			</ul>
+		</div>
 		<div class="col-sm-8">
 		    <div id="chart_div"></div>
 		</div>
 		<div class="tab-content col-sm-4">
-		
-		
+
+
 		  <div id="0"  class="tab-pane fade in active">
 			<ul class="nav nav-pills nav-stacked">
 			@foreach (var x in @Model[0].Sensors)
@@ -130,7 +163,7 @@ else
 			}
 			</ul>
 		  </div>
-		  
+
 			@for(var x = 1; x < @Model.Count; ++x)
 			{
 			  <div id="@x" class="tab-pane fade">
@@ -140,8 +173,9 @@ else
 					  <li id="@y.Id" onClick="drawChart(this.id)"><a>@y.Data.Name</a></li>
 					}
 				</ul>
-			  </div>	
+			  </div>
 			}
-		</div>
+		</div> 
     </div>
 }
+

@@ -13,6 +13,7 @@ namespace SmartHomeWeb.Modules.API
         {
             ApiGet("/", (_, dc) => dc.GetSensorsAsync());
             ApiGet("/{id}/", (p, dc) => dc.GetSensorByIdAsync((int)p["id"]));
+			ApiGet("/by-tag/{tag}", (p, dc) => dc.GetSensorsByTagAsync((string)p["tag"]));
 
             ApiPost<List<SensorData>, object>("/", (_, items, dc) => dc.InsertSensorAsync(items));
         }

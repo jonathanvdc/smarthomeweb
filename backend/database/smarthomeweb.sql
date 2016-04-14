@@ -52,7 +52,8 @@ create table Sensor (
     locationid integer not null references Location(id),
     title text not null,
     description text not null,
-    notes text
+    notes text,
+    unique (locationid, title)
 );
 
 create table ElectricityPrice (
