@@ -196,7 +196,7 @@ namespace SmartHomeWeb.Modules
 
             foreach (var location in locations)
             {
-                var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocation(location));
+                var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocationAsync(location));
                 locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
             }
 
