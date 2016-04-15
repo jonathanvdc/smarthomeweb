@@ -35,7 +35,8 @@ def popen_mono(path):
     cmd = [path]
     if os.name != 'nt' and 'CYGWIN' not in platform.system():
         cmd.insert(0, 'mono')
-    return Popen(cmd)
+    read, write = os.pipe()
+    return Popen(cmd, stdin=read)
 
 def size_format(num, suffix='B'):
     for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
@@ -211,4 +212,3 @@ try:
 finally:
     server.kill()
     log('Server stopped.')
-
