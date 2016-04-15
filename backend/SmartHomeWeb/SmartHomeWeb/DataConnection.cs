@@ -997,6 +997,32 @@ namespace SmartHomeWeb
 			}
 		}
 
+		/// <summary>
+		/// Gets all sensors at the location specified by the given 
+		/// unique identifier, that have been tagged by the given string.
+		/// </summary>
+		public async Task<IEnumerable<Sensor>> GetSensorsAtLocationByTagAsync(int LocationId, string Tag)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				// This orders sensors by total usage 
+				// (which may be useful later on, so I'm leaving it here for now).
+				//
+				// cmd.CommandText = $"SELECT s.id, s.locationId, s.title, s.description, s.notes " +
+				//     $"FROM {SensorTagTableName} as t, {SensorTableName} as s, {MeasurementTableName} as m " +
+				//     "WHERE t.sensorId = s.id AND m.sensorId = s.id AND s.locationId = @locId AND t.tag = @tag " +
+				//     "GROUP BY s.id " +
+				//     "ORDER BY SUM(m.measured) DESC";
+
+				cmd.CommandText = $"SELECT s.* " +
+					$"FROM {SensorTagTableName} as t, {SensorTableName} as s " +
+					"WHERE t.sensorId = s.id AND s.locationId = @locId AND t.tag = @tag";
+				cmd.Parameters.AddWithValue("@locId", LocationId);
+				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor); 
+			}
+		}
+
         /// <summary>
         /// Close the database connection.
         /// </summary>
