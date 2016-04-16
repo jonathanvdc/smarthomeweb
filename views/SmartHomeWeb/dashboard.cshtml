@@ -6,7 +6,73 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
 <script type="text/javascript">
+var timeframe = "minutes";
+var currentsensor = @Model[0].Sensors[0].Id;
+
+
+function setFrame(x){
+	timeframe = x;
+	drawChart();
+}
+
+function setId(x){
+	currentsensor = x;
+	drawChart();
+}
+
+function getSensor(){
+	currentDate = new Date();
+	currentDate2 = new Date();
+	currentDate2.setHours(currentDate2.getHours() - 1);
+	var xmlhttp = new XMLHttpRequest();
+	var url = "/api/measurements/" + currentsensor.toString() + "/" + timeString(currentDate2) + "/" + timeString(currentDate);
+	xmlhttp.open("GET", url, false);
+	xmlhttp.send();
+	return JSON.parse(xmlhttp.responseText);
+}
+
+function getHours(){
+	var xmlhttp = new XMLHttpRequest();
+	currentDate = new Date();
+	currentDate.setDate(currentDate.getDate() - 1);
+	currentDate.setHours(currentDate.getHours()+1);
+	var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/24";
+	xmlhttp.open("GET", url, false);
+	xmlhttp.send();
+	test = xmlhttp.responseText;
+	var x = JSON.parse(test);
+	return x;
+}
+
+function getDays(){
+	var xmlhttp = new XMLHttpRequest();
+	currentDate = new Date();
+	currentDate.setMonth(currentDate.getMonth() - 1);
+	var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/30";
+	xmlhttp.open("GET", url, false);
+	xmlhttp.send();
+	test = xmlhttp.responseText;
+	var x = JSON.parse(test);
+	return x;
+}
+
+function timeString(time)
+{
+	var seconds = time.getSeconds() < 10 ? "0"+time.getSeconds().toString() : time.getSeconds().toString();
+	var minutes = time.getMinutes() < 10 ? "0"+time.getMinutes().toString() : time.getMinutes().toString();
+	var hours = time.getHours() < 10 ? "0"+time.getHours().toString() : time.getHours().toString();
+	var day =  time.getDate().toString();
+	var month = (time.getMonth()+1).toString();
+	var year =	time.getFullYear().toString();
+	var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
+	return datestring;
+}
+
+
+
+
     // Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
     var noDataSavedHtml = "<h3>No sensordata is saved.</h3>";
@@ -17,22 +83,21 @@
 		if (@Model[0].Sensors.Count == 0){
 			@:chartDiv.innerHTML = noDataSavedHtml;
 		}else{
-			@:google.charts.setOnLoadCallback(function(){ drawChart(@Model[0].Sensors[0].Id) });
+			@:google.charts.setOnLoadCallback(function(){ drawChart() });
 		}
 	}
+	
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
     // draws it.
-
-    function drawChart(id, way="minutes") {	
+    function drawChart(){
 		var array = [];
-		var json = getSensor(id);
-		
-		if(way == "minutes"){
-		}else if(way == "hours"){
-		  json = getHours(id);
-		}else{
-		  json = getHours(id);
+		if(timeframe == "minutes"){
+		  var json = getSensor();
+		}else if(timeframe == "hours"){
+		  var json = getHours();
+		}else if(timeframe == "days"){
+		  var json = getDays();
 		}
 		
 		if(json.length === 0) {
@@ -44,7 +109,11 @@
 				var sensorData = json[i];
 				var date = new Date(sensorData.timestamp);
 				var hmsstring = date.toISOString().substring(11, 19);
-				array.push([hmsstring, sensorData.measurement]);
+				if(sensorData.measurement == null){
+					array.push([hmsstring, 0]);
+				}else{
+					array.push([hmsstring, sensorData.measurement]);
+				}
 			}
 
 			var data = new google.visualization.DataTable();
@@ -60,37 +129,6 @@
 			chart.draw(data, options);
 		}
     }
-
-	function getSensor(id){
-		var xmlhttp = new XMLHttpRequest();
-		var url = "/api/measurements/" + id.toString();
-		xmlhttp.open("GET", url, false);
-		xmlhttp.send();
-		return JSON.parse(xmlhttp.responseText);
-	}
-	
-	function getHours(id){
-		var xmlhttp = new XMLHttpRequest();
-		var url = "/api/hour-average/" + id.toString()+ "/" + getCurrentTime() + "/5";
-		alert(url);
-		xmlhttp.open("GET", url, false);
-		xmlhttp.send();
-		test = xmlhttp.responseText;
-		var x = JSON.parse(test);
-		return x;
-	}
-	
-	function getCurrentTime(){
-		var currentdate = new Date(); 	
-		var seconds = currentdate.getSeconds() < 10 ? "0"+currentdate.getSeconds().toString() : currentdate.getSeconds().toString();
-		var minutes = currentdate.getMinutes() < 10 ? "0"+currentdate.getMinutes().toString() : currentdate.getMinutes().toString();
-		var hours = currentdate.getHours() < 10 ? "0"+currentdate.getHours().toString() : currentdate.getHours().toString();
-		var day =  currentdate.getDate().toString();
-		var month = (currentdate.getMonth()+1).toString();
-		var year =	currentdate.getFullYear().toString();
-		var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
-		return datestring;
-	}
 	  
 </script>
 
@@ -136,18 +174,18 @@ else
 {
     <div class="container col-sm-12">
         <ul class="nav nav-tabs col-sm-12">
-		  <li class="active"><a data-toggle="tab" href="#0">@Model[0].Location.Data.Name</a></li>
-		  @for(var x = 1; x < @Model.Count; ++x)
-			{
-			  <li><a data-toggle="tab" href="#@x">@Model[@x].Location.Data.Name</a></li>
-			}
+		  <li class="active"><a data-toggle="tab" href="#u_0">@Model[0].Location.Data.Name</a></li>
+	  @for(var x = 1; x < @Model.Count; ++x)
+		{
+		  <li><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
+		}
 		</ul>
 		<div class="col-sm-12">
-			<ul>
-				<li onClick="">Minutes</li>
-				<li onClick="drawChart(0, 'hours')">Hours</li>
-				<li onClick="">Days</li>
-			</ul>
+		<ul class="nav nav-pills">
+		  <li class="active" onClick='setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
+		  <li onClick='setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
+		  <li onClick='setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
+		</ul>
 		</div>
 		<div class="col-sm-8">
 		    <div id="chart_div"></div>
@@ -155,26 +193,27 @@ else
 		<div class="tab-content col-sm-4">
 
 
-		  <div id="0"  class="tab-pane fade in active">
+		  <div id="u_0"  class="tab-pane fade in active">
 			<ul class="nav nav-pills nav-stacked">
-			@foreach (var x in @Model[0].Sensors)
+				<li class="active" id="@Model[0].Sensors[0].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[0].Data.Name</a></li>
+			@for (var x = 1; x < @Model[0].Sensors.Count; x++)
 			{
-			  <li id="@x.Id" onClick="drawChart(this.id)"><a>@x.Data.Name</a></li>
+				<li id="@Model[0].Sensors[x].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[x].Data.Name</a></li>
 			}
 			</ul>
 		  </div>
 
-			@for(var x = 1; x < @Model.Count; ++x)
-			{
-			  <div id="@x" class="tab-pane fade">
-				<ul class="nav nav-pills nav-stacked">
-					@foreach (var y in @Model[x].Sensors)
-					{
-					  <li id="@y.Id" onClick="drawChart(this.id)"><a>@y.Data.Name</a></li>
-					}
-				</ul>
-			  </div>
-			}
+		@for(var x = 1; x < @Model.Count; ++x)
+		{
+		  <div id="u_@x" class="tab-pane fade">
+			<ul class="nav nav-pills nav-stacked">
+				@foreach (var y in @Model[x].Sensors)
+				{
+				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name</a></li>
+				}
+			</ul>
+		  </div>
+		}
 		</div> 
     </div>
 }
