@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SmartHomeWeb.Modules.API
 {
-    public class ApiDayAverageModule : AggregatedMeasurementModuleBase
+	public class ApiDayAverageModule : FixedQuantumAggregateModuleBase
     {
         public ApiDayAverageModule() : base("api/day-average")
         { }

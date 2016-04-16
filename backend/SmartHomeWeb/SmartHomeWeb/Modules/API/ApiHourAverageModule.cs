@@ -18,19 +18,14 @@ namespace SmartHomeWeb.Modules.API
         }
 
         /// <summary>
-        /// Gets the quantum of time for this aggregated
-        /// measurement module.
-        /// </summary>
-        /// <value>The time quantum.</value>
-        public abstract TimeSpan TimeQuantum { get; }
-
-        /// <summary>
         /// Quantizes the given date-time.
         /// </summary>
-        public DateTime Quantize(DateTime Time)
-        {
-			return MeasurementAggregation.Quantize(Time, TimeQuantum);
-        }
+		public abstract DateTime Quantize(DateTime Time);
+
+		/// <summary>
+		/// Adds a single quantum of time to this date-time.
+		/// </summary>
+		public abstract DateTime AddQuantum(DateTime Time);
 
         /// <summary>
         /// Gets the aggregated measurement for the sensor with the given
@@ -51,13 +46,47 @@ namespace SmartHomeWeb.Modules.API
             for (int i = 0; i < ResultCount; i++)
             {
                 results[i] = GetAggregatedAsync(Connection, SensorId, time);
-                time += TimeQuantum;
+				time = AddQuantum(time);
             }
             return Task.WhenAll(results).ContinueWith<IEnumerable<Measurement>>(t => t.Result);
         }
     }
 
-    public class ApiHourAverageModule : AggregatedMeasurementModuleBase
+	/// <summary>
+	/// A base class that provides common functionality for
+	/// modules that offer aggregated measurements, where
+	/// the quantum of time is fixed.
+	/// </summary>
+	public abstract class FixedQuantumAggregateModuleBase : AggregatedMeasurementModuleBase
+	{
+		public FixedQuantumAggregateModuleBase(string Url) : base(Url)
+		{ }
+
+		/// <summary>
+		/// Gets the quantum of time for this aggregated
+		/// measurement module.
+		/// </summary>
+		/// <value>The time quantum.</value>
+		public abstract TimeSpan TimeQuantum { get; }
+
+		/// <summary>
+		/// Quantizes the given date-time.
+		/// </summary>
+		public override DateTime Quantize(DateTime Time)
+		{
+			return MeasurementAggregation.Quantize(Time, TimeQuantum);
+		}
+
+		/// <summary>
+		/// Adds a single quantum of time to this date-time.
+		/// </summary>
+		public override DateTime AddQuantum(DateTime Time)
+		{
+			return Time + TimeQuantum;
+		}
+	}
+
+	public class ApiHourAverageModule : FixedQuantumAggregateModuleBase
     {
         public ApiHourAverageModule() : base("api/hour-average")
         { }

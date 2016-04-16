@@ -138,6 +138,8 @@
     </Compile>
     <Compile Include="FormHelpers.cs" />
     <Compile Include="Modules\API\ApiTagsModule.cs" />
+    <Compile Include="Modules\API\ApiMonthAverageModule.cs" />
+    <Compile Include="Modules\API\ApiYearAverageModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">

@@ -108,3 +108,29 @@ create table DayAverage (
     notes text,
     primary key (sensorId, unixtime)
 );
+
+create table MonthAverage (
+    sensorId integer not null references Sensor(id),
+    -- Unix time for YYYY-MM-00 00:00. Identifies the month.
+    unixtime integer not null,
+    -- Note that this measurement can be null.
+    -- This allows us to represent a lack
+    -- of measurements to aggregate.
+    measured real,
+    -- Aggregate
+    notes text,
+    primary key (sensorId, unixtime)
+);
+
+create table YearAverage (
+    sensorId integer not null references Sensor(id),
+    -- Unix time for YYYY-00-00 00:00. Identifies the month.
+    unixtime integer not null,
+    -- Note that this measurement can be null.
+    -- This allows us to represent a lack
+    -- of measurements to aggregate.
+    measured real,
+    -- Aggregate
+    notes text,
+    primary key (sensorId, unixtime)
+);
