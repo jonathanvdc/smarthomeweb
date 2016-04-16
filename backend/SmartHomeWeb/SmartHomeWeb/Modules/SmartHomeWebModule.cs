@@ -283,7 +283,7 @@ namespace SmartHomeWeb.Modules
 
             if (!Context.CurrentUser.IsAuthenticated())
             {
-                ViewBag.Error = "You must log in to add friends.";
+                ViewBag.Error = TextResources.AddFriendNotAuthenticatedText;
             }
             else
             {
@@ -292,7 +292,7 @@ namespace SmartHomeWeb.Modules
                     var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
                     if (sender == null)
                     {
-                        ViewBag.Error = "I couldn't find your username in the database...?";
+                        ViewBag.Error = TextResources.UserNameNotFoundError;
                     }
                     else
                     {
@@ -300,12 +300,12 @@ namespace SmartHomeWeb.Modules
                         var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
                         if (recipient == null)
                         {
-                            ViewBag.Error = "That person doesn't exist.";
+                            ViewBag.Error = TextResources.UserDoesNotExistError;
                         }
                         else
                         {
                             await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
-                            ViewBag.Success = "Friend request sent!";
+                            ViewBag.Success = TextResources.FriendRequestSent;
                         }
                     }
                 }
@@ -323,14 +323,14 @@ namespace SmartHomeWeb.Modules
             {
                 if (!Context.CurrentUser.IsAuthenticated())
                 {
-                    ViewBag.Error = "You must log in to send messages.";
+                    ViewBag.Error = TextResources.SendMessageNotAuthenticatedText;
                 }
                 else
                 {
                     var sender = await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName);
                     if (sender == null)
                     {
-                        ViewBag.Error = "I couldn't find your username in the database...?";
+                        ViewBag.Error = TextResources.UserNameNotFoundError;
                     }
                     else
                     {
@@ -338,13 +338,13 @@ namespace SmartHomeWeb.Modules
                         var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "messagename"));
                         if (recipient == null)
                         {
-                            ViewBag.Error = "That person doesn't exist.";
+                            ViewBag.Error = TextResources.UserDoesNotExistError;
                         }
                         else
                         {
                             var messageData = new MessageData(sender.Guid, recipient.Guid, Request.Form["messagebody"]);
                             await dc.InsertMessageAsync(messageData);
-                            ViewBag.Success = "Message sent!";
+                            ViewBag.Success = TextResources.MessageSent;
                         }
                     }
                 }
@@ -361,7 +361,7 @@ namespace SmartHomeWeb.Modules
 
             if (!Context.CurrentUser.IsAuthenticated())
             {
-                ViewBag.Error = "You must log in to add friends.";
+                ViewBag.Error = TextResources.AddFriendNotAuthenticatedText;
             }
             else
             {
@@ -378,12 +378,12 @@ namespace SmartHomeWeb.Modules
                         var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
                         if (recipient == null)
                         {
-                            ViewBag.Error = "That person doesn't exist.";
+                            ViewBag.Error = TextResources.UserDoesNotExistError;
                         }
                         else
                         {
                             await dc.InsertFriendsPairAsync(new PersonPair(sender.Guid, recipient.Guid));
-                            ViewBag.Success = "Friend request sent!";
+                            ViewBag.Success = TextResources.FriendRequestSent;
                         }
                     }
                 }

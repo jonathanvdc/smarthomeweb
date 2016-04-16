@@ -345,6 +345,9 @@
   <data name="SendMessageNotAuthenticatedText" xml:space="preserve">
     <value>Je moet inloggen om berichten te sturen.</value>
   </data>
+  <data name="MessageSent" xml:space="preserve">
+    <value>Bericht verstuurdtd.</value>
+  </data>
   <data name="Submit" xml:space="preserve">
     <value>Verzenden</value>
   </data>
