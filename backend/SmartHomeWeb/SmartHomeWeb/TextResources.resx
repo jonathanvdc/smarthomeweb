@@ -346,7 +346,7 @@
     <value>You must log in to send messages.</value>
   </data>
   <data name="MessageSent" xml:space="preserve">
-    <value>Message sent. YEA!</value>
+    <value>Message sent.</value>
   </data>
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>

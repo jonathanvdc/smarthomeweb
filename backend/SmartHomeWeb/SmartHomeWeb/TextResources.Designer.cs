@@ -475,7 +475,7 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Message sent. YEA!.
+        ///   Looks up a localized string similar to Message sent..
         /// </summary>
         public static string MessageSent {
             get {

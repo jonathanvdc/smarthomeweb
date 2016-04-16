@@ -346,7 +346,7 @@
     <value>Je moet inloggen om berichten te sturen.</value>
   </data>
   <data name="MessageSent" xml:space="preserve">
-    <value>Bericht verstuurdtd.</value>
+    <value>Bericht verstuurd.</value>
   </data>
   <data name="Submit" xml:space="preserve">
     <value>Verzenden</value>
