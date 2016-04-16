@@ -185,7 +185,7 @@ with open(sql_path) as f:
     Popen(
         ['sqlite3', 'smarthomeweb.db'],
         cwd=join('backend', 'database'),
-        stdin=f
+        stdin=f, shell=True
     ).wait()
 
 log('Done.')
