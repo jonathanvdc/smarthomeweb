@@ -193,7 +193,7 @@ log('Done.')
 try:
     log('Launching server...')
     server = popen_mono(server_path)
-    time.sleep(2.0)
+    time.sleep(3.0)
     log('Server launched (PID=%d).' % server.pid)
 
     post_file('persons', join('example-files', 'person-data.json'))
