@@ -97,18 +97,20 @@ namespace SmartHomeWeb.Modules
 
 			Post["/add-location", true] = PostAddLocation;
 
-            Get["/add-has-location", true] = async (parameters, ct) =>
+            Get["/add-has-location", true] = GetAddHasLocation;
+
+            Post["/add-has-location", true] = async (parameters, ct) =>
             {
                 this.RequiresAuthentication();
 
-                // First, acquire all locations.
-                var newLocations = new HashSet<Location>(await DataConnection.Ask(dc => dc.GetLocationsAsync()));
-                // Then remove all locations that were already assigned to the person.
-                newLocations.ExceptWith(await DataConnection.Ask(dc => dc.GetLocationsForPersonAsync(((UserIdentity)Context.CurrentUser).Guid)));
-                return View["add-has-location.cshtml", newLocations];
+                var locationId = int.Parse((string) FormHelpers.GetString(Request.Form, "location"));
+                var personLocationPair = new PersonLocationPair(CurrentUserGuid(), locationId);
+                await DataConnection.Ask(d => d.InsertHasLocationPairAsync(personLocationPair));
+
+                return await GetAddHasLocation(parameters, ct);
             };
 
-			Get["/add-person", true] = GetAddPerson;
+            Get["/add-person", true] = GetAddPerson;
 
             Post["/add-person", true] = PostAddPerson;
 
@@ -123,6 +125,22 @@ namespace SmartHomeWeb.Modules
                 var referrer = Request.Headers.Referrer;
                 return Response.AsRedirect(string.IsNullOrWhiteSpace(referrer) ? "/" : referrer);
             };
+        }
+
+        private async Task<dynamic> GetAddHasLocation(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+
+            // First, acquire all locations.
+            var newLocations = new HashSet<Location>(await DataConnection.Ask(dc => dc.GetLocationsAsync()));
+            // Then remove all locations that were already assigned to the person.
+            newLocations.ExceptWith(await DataConnection.Ask(dc => dc.GetLocationsForPersonAsync(CurrentUserGuid())));
+            return View["add-has-location.cshtml", newLocations];
+        }
+
+        private Guid CurrentUserGuid()
+        {
+            return ((UserIdentity) Context.CurrentUser).Guid;
         }
 
         private async Task<object> GetWall(dynamic parameters, CancellationToken ct)
@@ -221,7 +239,7 @@ namespace SmartHomeWeb.Modules
         private async Task<dynamic> GetDashboard(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
-            var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(((UserIdentity) Context.CurrentUser).Guid));
+            var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
             var locationsWithSensors = new List<LocationWithSensors>();
 
             foreach (var location in locations)
@@ -418,7 +436,7 @@ namespace SmartHomeWeb.Modules
         private async Task<dynamic> GetFriends(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
-            var friends = await DataConnection.Ask(x => x.GetFriendsAsync(((UserIdentity)Context.CurrentUser).Guid));
+            var friends = await DataConnection.Ask(x => x.GetFriendsAsync(CurrentUserGuid()));
             return View["friends.cshtml", friends];
         }
 
