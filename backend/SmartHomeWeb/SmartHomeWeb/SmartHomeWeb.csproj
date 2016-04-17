@@ -119,7 +119,6 @@
     <Compile Include="Modules\API\ApiMessagesModule.cs" />
     <Compile Include="Modules\API\ApiModule.cs" />
     <Compile Include="Modules\API\ApiPersonsModule.cs" />
-    <Compile Include="Modules\SecureModule.cs" />
     <Compile Include="UserStore.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
