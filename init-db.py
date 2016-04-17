@@ -20,7 +20,7 @@ def log(s):
         formatter = '*** %s'
     else:
         formatter = '\x1b[36m*** %s\x1b[0m'
-    print formatter % s
+    print(formatter % s)
 
 def remove(path):
     try:
@@ -53,7 +53,7 @@ api = "http://localhost:8088/api/"
 
 def post_file(where, filepath):
     log('Posting %s' % filepath)
-    with open(filepath) as f:
+    with open(filepath, 'rb') as f:
         requests.post(api + where, data=f)
 
 def get_person_guid(username):
@@ -110,7 +110,7 @@ def post_elecsim():
     # Maps a (SensorName, LocationId, Time) to a measurement value.
     sensor_data = {}
 
-    for i in xrange(1, num_locations + 1):
+    for i in range(1, num_locations + 1):
         name = locations[i - 1]['data']['name']
         location_id = locations[i - 1]['id']
 
@@ -130,7 +130,7 @@ def post_elecsim():
         log('Processing sensor data.')
         with open(join('ElecSim', 'output.csv')) as f:
             reader = csv.reader(f, delimiter=';')
-            top = reader.next()
+            top = next(reader)
             sensor_names = top[2:-1]
 
             j = [{'name': name,
