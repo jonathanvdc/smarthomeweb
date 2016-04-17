@@ -30,7 +30,10 @@ namespace SmartHomeWeb.Modules
 				return null;
 			};
             
-            Get["/"] = parameters => View["home.cshtml"];
+            Get["/"] = parameters =>
+                Context.CurrentUser.IsAuthenticated()
+                    ? Response.AsRedirect("/dashboard")
+                    : (dynamic) View["home.cshtml"];
 
             // Pages for individual tables
             Get["/person", true] = async (parameters, ct) =>
