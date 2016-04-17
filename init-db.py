@@ -6,7 +6,6 @@ import json
 import os
 import platform
 import requests
-import time
 
 from subprocess import Popen
 from os.path import join
@@ -193,8 +192,15 @@ log('Done.')
 try:
     log('Launching server...')
     server = popen_mono(server_path)
-    time.sleep(6.0)
-    log('Server launched (PID=%d).' % server.pid)
+
+    # Wait for the server to come alive.
+    while True:
+        try:
+            requests.head('http://localhost:8088/')
+            log('Server launched (PID=%d).' % server.pid)
+            break
+        except requests.exceptions.RequestException:
+            log('Waiting for server...')
 
     post_file('persons', join('example-files', 'person-data.json'))
     create_location('De G.10', 'bgoethals')
