@@ -351,4 +351,7 @@
   <data name="Submit" xml:space="preserve">
     <value>Verzenden</value>
   </data>
+  <data name="WallNoMessages" xml:space="preserve">
+    <value>Je hebt nog geen berichten ontvangen.</value>
+  </data>
 </root>

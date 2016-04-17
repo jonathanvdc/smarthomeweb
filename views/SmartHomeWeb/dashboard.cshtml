@@ -143,33 +143,6 @@
 	  
 </script>
 
-<h2>Messages</h2>
-
-<ul class="media-list">
-@foreach (var message in (List<Tuple<string, string>>)ViewBag.Messages)
-{
-	// NOTE: the above cast is necessary. Without it, the view fails to
-	// render on mono, because ViewBag.Messages is one of them
-	// wishy-washy dynamic objects.
-    // TODO: VIEWBAG
-    <li class="media">
-      <div class="media-left">
-        <a href="/person=@message.Item1">
-	        <div class="profile-avatar-small"></div>
-        </a>
-      </div>
-      <div class="media-body">
-	      <h4 class="media-heading message-header">
-		      @string.Format(TextResources.MessageHeader, message.Item1)
-	      </h4>
-	      <div class="bubble">
-		      @message.Item2
-	      </div>
-      </div>
-    </li>
-}
-</ul>
-
 <h2>@TextResources.MeasurementsPageTitle</h2>
 
 @if (@Model.Count == 0)

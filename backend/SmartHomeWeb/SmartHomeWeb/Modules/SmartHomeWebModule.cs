@@ -32,7 +32,7 @@ namespace SmartHomeWeb.Modules
             
             Get["/"] = parameters =>
                 Context.CurrentUser.IsAuthenticated()
-                    ? Response.AsRedirect("/dashboard")
+                    ? Response.AsRedirect("/wall")
                     : (dynamic) View["home.cshtml"];
 
             // Pages for individual tables
@@ -112,6 +112,8 @@ namespace SmartHomeWeb.Modules
 
             Post["/add-person", true] = PostAddPerson;
 
+            Get["/wall", true] = GetWall;
+
             Get["/dashboard", true] = GetDashboard;
 
             Get["/set-culture"] = parameters =>
@@ -121,6 +123,31 @@ namespace SmartHomeWeb.Modules
                 var referrer = Request.Headers.Referrer;
                 return Response.AsRedirect(string.IsNullOrWhiteSpace(referrer) ? "/" : referrer);
             };
+        }
+
+        private async Task<object> GetWall(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+
+            var wallPosts = new List<WallPost>();
+
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                var messages = await dc.GetMessagesAsync();
+                foreach (var m in messages)
+                {
+                    var recipient = await dc.GetPersonByGuidAsync(m.Data.RecipientGuid);
+
+                    // TODO: write a query for this (all messages for one recipient.)
+                    if (recipient.Data.UserName == Context.CurrentUser.UserName)
+                    {
+                        var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
+                        wallPosts.Add(new WallPost(sender.Data.UserName, m.Data.Message));
+                    }
+                }
+            }
+
+            return View["wall.cshtml", wallPosts];
         }
 
         private async Task<object> PostAddPerson(dynamic parameters, CancellationToken ct)
@@ -203,25 +230,6 @@ namespace SmartHomeWeb.Modules
                 locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
             }
 
-            // TODO VIEWBAG
-            // TODO write a query for this, too?
-            var usernameMessageTuples = new List<Tuple<string, string>>();
-
-            using (var dc = await DataConnection.CreateAsync())
-            {
-                var messages = await dc.GetMessagesAsync();
-                foreach (var m in messages)
-                {
-                    var recipient = await dc.GetPersonByGuidAsync(m.Data.RecipientGuid);
-                    if (recipient.Data.UserName == Context.CurrentUser.UserName)
-                    {
-                        var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
-                        usernameMessageTuples.Add(Tuple.Create(sender.Data.UserName, m.Data.Message));
-                    }
-                }
-            }
-
-            ViewBag.Messages = usernameMessageTuples;
             return View["dashboard.cshtml", locationsWithSensors];
         }
 

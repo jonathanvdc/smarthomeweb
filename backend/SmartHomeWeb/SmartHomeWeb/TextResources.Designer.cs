@@ -727,6 +727,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You haven&apos;t received any messages..
+        /// </summary>
+        public static string WallNoMessages {
+            get {
+                return ResourceManager.GetString("WallNoMessages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Log, track, and organize your devices&apos; electricity usage. Create graphs of aggregated data and share them with friends..
         /// </summary>
         public static string WelcomeBody {
