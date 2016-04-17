@@ -21,6 +21,12 @@ create table Friends (
     primary key (personOne, personTwo)
 );
 
+-- (A, B) is in this table if and only if both (A, B) and (B, A) are in Friends.
+create view TwoWayFriends as
+    select * from Friends a where exists
+        (select 1 from Friends b where
+            a.personOne = b.personTwo and a.personTwo = b.personOne);
+
 create table Message (
     id integer primary key autoincrement,
     sender text not null references Person(guid),
