@@ -8,110 +8,121 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
-var timeframe = "minutes";
-var currentsensor = @Model[0].Sensors[0].Id;
+	var timeframe = "minutes";
+	var currentsensor = null;
 
+	function setFrame(x) {
+		timeframe = x;
+		drawChart();
+	}
 
-function setFrame(x){
-	timeframe = x;
-	drawChart();
-}
+	function setId(x) {
+		currentsensor = x;
+		drawChart();
+	}
 
-function setId(x){
-	currentsensor = x;
-	drawChart();
-}
+	// Replaces measurement data that consists of 'null'
+	// measurements only, by a simple empty array. This
+	// allows us to display an accurate error message.
+	function processData(json) {
+	    for (var i = 0; i < json.length; i++) {
+	        if (json[i].measurement !== null)
+	            return json;
+	    }
+	    return [];
+	}
 
-function getSensor(){
-	currentDate = new Date();
-	currentDate2 = new Date();
-	currentDate2.setHours(currentDate2.getHours() - 1);
-	var xmlhttp = new XMLHttpRequest();
-	var url = "/api/measurements/" + currentsensor.toString() + "/" + timeString(currentDate2) + "/" + timeString(currentDate);
-	xmlhttp.open("GET", url, false);
-	xmlhttp.send();
-	return JSON.parse(xmlhttp.responseText);
-}
+	// Performs a GET REST call to our API,
+	// and parses the response as JSON.
+	function requestData(url) {
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET", url, false);
+		xmlhttp.send();
+		return processData(JSON.parse(xmlhttp.responseText));
+	}
 
-function getHours(){
-	var xmlhttp = new XMLHttpRequest();
-	currentDate = new Date();
-	currentDate.setDate(currentDate.getDate() - 1);
-	currentDate.setHours(currentDate.getHours()+1);
-	var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/24";
-	xmlhttp.open("GET", url, false);
-	xmlhttp.send();
-	test = xmlhttp.responseText;
-	var x = JSON.parse(test);
-	return x;
-}
+	function getRawMeasurements() {
+		currentDate = new Date();
+		currentDate2 = new Date();
+		currentDate2.setHours(currentDate2.getHours() - 1);
+		var url = "/api/measurements/" + currentsensor.toString() + "/" + timeString(currentDate2) + "/" + timeString(currentDate);
+		return requestData(url);
+	}
 
-function getDays(){
-	var xmlhttp = new XMLHttpRequest();
-	currentDate = new Date();
-	currentDate.setMonth(currentDate.getMonth() - 1);
-	var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/30";
-	xmlhttp.open("GET", url, false);
-	xmlhttp.send();
-	test = xmlhttp.responseText;
-	var x = JSON.parse(test);
-	return x;
-}
+	function getHours() {
+		currentDate = new Date();
+		currentDate.setDate(currentDate.getDate() - 1);
+		currentDate.setHours(currentDate.getHours()+1);
+		var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/24";
+		return requestData(url);
+	}
 
-function timeString(time)
-{
-	var seconds = time.getSeconds() < 10 ? "0"+time.getSeconds().toString() : time.getSeconds().toString();
-	var minutes = time.getMinutes() < 10 ? "0"+time.getMinutes().toString() : time.getMinutes().toString();
-	var hours = time.getHours() < 10 ? "0"+time.getHours().toString() : time.getHours().toString();
-	var day =  time.getDate().toString();
-	var month = (time.getMonth()+1).toString();
-	var year =	time.getFullYear().toString();
-	var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
-	return datestring;
-}
+	function getDays() {
+		currentDate = new Date();
+		currentDate.setMonth(currentDate.getMonth() - 1);
+		var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/30";
+		return requestData(url);
+	}
 
+	function getMonths() {
+		currentDate = new Date();
+		currentDate.setFullYear(currentDate.getFullYear() - 1);
+		var url = "/api/month-average/" + currentsensor.toString() + "/" + timeString(currentDate) + "/12";
+		return requestData(url);
+	}
 
-
+	function timeString(time) {
+		var seconds = time.getSeconds() < 10 ? "0"+time.getSeconds().toString() : time.getSeconds().toString();
+		var minutes = time.getMinutes() < 10 ? "0"+time.getMinutes().toString() : time.getMinutes().toString();
+		var hours = time.getHours() < 10 ? "0"+time.getHours().toString() : time.getHours().toString();
+		var day =  time.getDate().toString();
+		var month = (time.getMonth()+1).toString();
+		var year =	time.getFullYear().toString();
+		var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
+		return datestring;
+	}
+	
 
     // Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
-    var noDataSavedHtml = "<h3>No sensordata is saved.</h3>";
+    var noDataSavedHtml = "<h3>This sensor hasn't made any measurements yet.</h3>";
+    var noSensorSelectedHtml = "<h3>Select a sensor to inspect its measurements.</h3>";
 
 
     // Set a callback to run when the Google Visualization API is loaded.
-	@if (@Model.Count != 0){
-		if (@Model[0].Sensors.Count == 0){
+	@if (@Model.Count != 0) {
+		if (@Model[0].Sensors.Count == 0) {
 			@:chartDiv.innerHTML = noDataSavedHtml;
-		}else{
-			@:google.charts.setOnLoadCallback(function(){ drawChart() });
+		}
+		else {
+			@:google.charts.setOnLoadCallback(function() { drawChart() });
 		}
 	}
 	
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
     // draws it.
-    function drawChart(){
-		var array = [];
-		if(timeframe == "minutes"){
-		  var json = getSensor();
-		}else if(timeframe == "hours"){
-		  var json = getHours();
-		}else if(timeframe == "days"){
-		  var json = getDays();
+    function drawChart() {
+    	if (currentsensor === null) {
+			document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
+			return;
 		}
+
+		var array = [];
+		var json = { 'minutes' : getRawMeasurements, 'hours' : getHours, 'days' : getDays, 'months' : getMonths }[timeframe](); 
 		
-		if(json.length === 0) {
+		if (json.length === 0) {
 		    document.getElementById('chart_div').innerHTML = noDataSavedHtml;
-		}else
-		{
-			for(var i = 0; i < json.length; i++)
-			{
+		}
+		else {
+			for (var i = 0; i < json.length; i++) {
 				var sensorData = json[i];
 				var date = new Date(sensorData.timestamp);
 				var hmsstring = date.toISOString().substring(11, 19);
-				if(sensorData.measurement == null){
+				if (sensorData.measurement === null) {
 					array.push([hmsstring, 0]);
-				}else{
+				}
+				else {
 					array.push([hmsstring, sensorData.measurement]);
 				}
 			}
@@ -175,7 +186,7 @@ else
     <div class="container col-sm-12">
         <ul class="nav nav-tabs col-sm-12">
 		  <li class="active"><a data-toggle="tab" href="#u_0">@Model[0].Location.Data.Name</a></li>
-	  @for(var x = 1; x < @Model.Count; ++x)
+	    @for(var x = 1; x < @Model.Count; ++x)
 		{
 		  <li><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
 		}
@@ -185,6 +196,7 @@ else
 		  <li class="active" onClick='setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
 		  <li onClick='setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
 		  <li onClick='setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
+		  <li onClick='setFrame("months")'><a href="#" data-toggle="tab">Months</a></li>
 		</ul>
 		</div>
 		<div class="col-sm-8">
@@ -195,21 +207,20 @@ else
 
 		  <div id="u_0"  class="tab-pane fade in active">
 			<ul class="nav nav-pills nav-stacked">
-				<li class="active" id="@Model[0].Sensors[0].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[0].Data.Name</a></li>
-			@for (var x = 1; x < @Model[0].Sensors.Count; x++)
-			{
-				<li id="@Model[0].Sensors[x].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[x].Data.Name</a></li>
-			}
+				@foreach (var y in @Model[0].Sensors)
+				{
+				  <li id="@y.Id" onClick="setId(this.id)"><a data-toggle="tab">@y.Data.Name</a></li>
+				}
 			</ul>
 		  </div>
 
-		@for(var x = 1; x < @Model.Count; ++x)
+		@for (var x = 1; x < @Model.Count; ++x)
 		{
 		  <div id="u_@x" class="tab-pane fade">
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
-				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name</a></li>
+				  <li id="@y.Id" onClick="setId(this.id)"><a data-toggle="tab">@y.Data.Name</a></li>
 				}
 			</ul>
 		  </div>

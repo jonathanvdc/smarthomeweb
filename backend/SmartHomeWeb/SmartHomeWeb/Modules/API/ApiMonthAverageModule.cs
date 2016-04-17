@@ -15,7 +15,7 @@ namespace SmartHomeWeb.Modules.API
 		/// </summary>
 		public override DateTime Quantize(DateTime Time)
 		{
-			return new DateTime(Time.Year, Time.Month, 0, 0, 0, 0, 0, Time.Kind);
+			return new DateTime(Time.Year, Time.Month, 1, 0, 0, 0, 0, Time.Kind);
 		}
 
 		/// <summary>
