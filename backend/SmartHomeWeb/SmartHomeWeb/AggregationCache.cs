@@ -12,8 +12,8 @@ namespace SmartHomeWeb
 	/// </summary>
 	public class AggregationCache
 	{
-		// Pre-fetch data up to 256 hours in the future.
-		private const int PrefetchSize = 256;
+		// Pre-fetch data up to 512 hours of measurements.
+		private const int PrefetchSize = 512;
 
 		public AggregationCache(
 			DataConnection Database, int SensorId, 
