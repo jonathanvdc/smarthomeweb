@@ -182,9 +182,9 @@ with open(sql_path) as f:
     log('Renewing database...')
     remove(join('backend', 'database', 'smarthomeweb.db'))
     Popen(
-        ['sqlite3 smarthomeweb.db'],
+        ['sqlite3',  'smarthomeweb.db'],
         cwd=join('backend', 'database'),
-        stdin=f, shell=True
+        stdin=f
     ).wait()
 
 log('Done.')
