@@ -351,7 +351,10 @@
   <data name="Submit" xml:space="preserve">
     <value>Verzenden</value>
   </data>
-  <data name="WallNoMessages" xml:space="preserve">
-    <value>Je hebt nog geen berichten ontvangen.</value>
+  <data name="NewsfeedNoMessages" xml:space="preserve">
+    <value>Je nieuwsoverzicht is leeg.</value>
+  </data>
+  <data name="NewsfeedPageTitle" xml:space="preserve">
+    <value>Nieuwsoverzicht</value>
   </data>
 </root>

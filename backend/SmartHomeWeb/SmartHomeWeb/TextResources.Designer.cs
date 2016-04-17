@@ -493,6 +493,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your news feed is empty..
+        /// </summary>
+        public static string NewsfeedNoMessages {
+            get {
+                return ResourceManager.GetString("NewsfeedNoMessages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to News Feed.
+        /// </summary>
+        public static string NewsfeedPageTitle {
+            get {
+                return ResourceManager.GetString("NewsfeedPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The passwords you entered did not match..
         /// </summary>
         public static string PasswordMismatchError {
@@ -723,15 +741,6 @@ namespace SmartHomeWeb {
         public static string ViewFriendsNotLoggedInError {
             get {
                 return ResourceManager.GetString("ViewFriendsNotLoggedInError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You haven&apos;t received any messages..
-        /// </summary>
-        public static string WallNoMessages {
-            get {
-                return ResourceManager.GetString("WallNoMessages", resourceCulture);
             }
         }
         

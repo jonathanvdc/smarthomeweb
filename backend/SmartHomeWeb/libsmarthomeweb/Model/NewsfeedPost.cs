@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace SmartHomeWeb.Model
 {
-    public class WallPost
+    public class NewsfeedPost
     {
         public string UserName;
         public string Message;
 
-        public WallPost(string userName, string message)
+        public NewsfeedPost(string userName, string message)
         {
             UserName = userName;
             Message = message;

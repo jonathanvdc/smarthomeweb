@@ -178,6 +178,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\message.cshtml">
       <Link>View Links\message.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\newsfeed.cshtml">
+      <Link>View Links\newsfeed.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\person.cshtml">
       <Link>View Links\person.cshtml</Link>
     </None>
@@ -186,9 +189,6 @@
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\sensor.cshtml">
       <Link>View Links\sensor.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\wall.cshtml">
-      <Link>View Links\wall.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\_ViewStart.cshtml">
       <Link>View Links\_ViewStart.cshtml</Link>

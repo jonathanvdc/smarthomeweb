@@ -1,16 +1,15 @@
 @using System.Collections.Generic
 @using System.Linq
-@using Nancy.Security
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @using SmartHomeWeb
-@inherits NancyRazorViewBase<IEnumerable<WallPost>>
+@inherits NancyRazorViewBase<IEnumerable<NewsfeedPost>>
 
-<h2>@TextResources.MessagesPageTitle</h2>
+<h2>@TextResources.NewsfeedPageTitle</h2>
 
 @if (!Model.Any())
 {
-    <p>@TextResources.WallNoMessages</p>
+    <p>@TextResources.NewsfeedNoMessages</p>
 }
 
 <ul class="media-list">

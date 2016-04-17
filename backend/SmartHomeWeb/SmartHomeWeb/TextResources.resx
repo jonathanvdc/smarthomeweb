@@ -351,7 +351,10 @@
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
-  <data name="WallNoMessages" xml:space="preserve">
-    <value>You haven't received any messages.</value>
+  <data name="NewsfeedNoMessages" xml:space="preserve">
+    <value>Your news feed is empty.</value>
+  </data>
+  <data name="NewsfeedPageTitle" xml:space="preserve">
+    <value>News Feed</value>
   </data>
 </root>

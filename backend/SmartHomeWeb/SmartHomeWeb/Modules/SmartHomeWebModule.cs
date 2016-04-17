@@ -32,7 +32,7 @@ namespace SmartHomeWeb.Modules
             
             Get["/"] = parameters =>
                 Context.CurrentUser.IsAuthenticated()
-                    ? Response.AsRedirect("/wall")
+                    ? Response.AsRedirect("/newsfeed")
                     : (dynamic) View["home.cshtml"];
 
             // Pages for individual tables
@@ -114,7 +114,7 @@ namespace SmartHomeWeb.Modules
 
             Post["/add-person", true] = PostAddPerson;
 
-            Get["/wall", true] = GetWall;
+            Get["/newsfeed", true] = GetNewsfeed;
 
             Get["/dashboard", true] = GetDashboard;
 
@@ -143,11 +143,11 @@ namespace SmartHomeWeb.Modules
             return ((UserIdentity) Context.CurrentUser).Guid;
         }
 
-        private async Task<object> GetWall(dynamic parameters, CancellationToken ct)
+        private async Task<object> GetNewsfeed(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
 
-            var wallPosts = new List<WallPost>();
+            var newsfeedPosts = new List<NewsfeedPost>();
 
             using (var dc = await DataConnection.CreateAsync())
             {
@@ -160,12 +160,12 @@ namespace SmartHomeWeb.Modules
                     if (recipient.Data.UserName == Context.CurrentUser.UserName)
                     {
                         var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
-                        wallPosts.Add(new WallPost(sender.Data.UserName, m.Data.Message));
+                        newsfeedPosts.Add(new NewsfeedPost(sender.Data.UserName, m.Data.Message));
                     }
                 }
             }
 
-            return View["wall.cshtml", wallPosts];
+            return View["newsfeed.cshtml", newsfeedPosts];
         }
 
         private async Task<object> PostAddPerson(dynamic parameters, CancellationToken ct)

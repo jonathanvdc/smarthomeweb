@@ -42,7 +42,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\WallPost.cs" />
+    <Compile Include="Model\NewsfeedPost.cs" />
     <Compile Include="Model\LocationWithSensors.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\Location.cs" />
