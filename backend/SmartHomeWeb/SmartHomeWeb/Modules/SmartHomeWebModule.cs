@@ -421,6 +421,7 @@ namespace SmartHomeWeb.Modules
             return await GetFriends(parameters, ct);
         }
 
+#pragma warning disable 1998
         private async Task<dynamic> GetAddLocation(dynamic parameters, CancellationToken ct)
 		{
 			this.RequiresAuthentication();
@@ -432,6 +433,7 @@ namespace SmartHomeWeb.Modules
 		{
 			return View["add-person.cshtml"];
 		}
+#pragma warning restore 1998
 
         private async Task<dynamic> GetFriends(dynamic parameters, CancellationToken ct)
         {
