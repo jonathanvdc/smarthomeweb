@@ -196,7 +196,7 @@ try:
     # Wait for the server to come alive.
     while True:
         try:
-            requests.head('http://localhost:8088/')
+            requests.head('http://localhost:8088/', timeout=3.05)
             log('Server launched (PID=%d).' % server.pid)
             break
         except requests.exceptions.RequestException:
