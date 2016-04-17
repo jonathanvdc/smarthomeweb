@@ -64,6 +64,13 @@
 		return requestData(url);
 	}
 
+	function getMonths() {
+		currentDate = new Date();
+		currentDate.setFullYear(currentDate.getFullYear() - 1);
+		var url = "/api/month-average/" + currentsensor.toString() + "/" + timeString(currentDate) + "/12";
+		return requestData(url);
+	}
+
 	function timeString(time) {
 		var seconds = time.getSeconds() < 10 ? "0"+time.getSeconds().toString() : time.getSeconds().toString();
 		var minutes = time.getMinutes() < 10 ? "0"+time.getMinutes().toString() : time.getMinutes().toString();
@@ -102,7 +109,7 @@
 		}
 
 		var array = [];
-		var json = {'minutes' : getRawMeasurements, 'hours' : getHours, 'days' : getDays}[timeframe](); 
+		var json = { 'minutes' : getRawMeasurements, 'hours' : getHours, 'days' : getDays, 'months' : getMonths }[timeframe](); 
 		
 		if (json.length === 0) {
 		    document.getElementById('chart_div').innerHTML = noDataSavedHtml;
@@ -189,6 +196,7 @@ else
 		  <li class="active" onClick='setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
 		  <li onClick='setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
 		  <li onClick='setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
+		  <li onClick='setFrame("months")'><a href="#" data-toggle="tab">Months</a></li>
 		</ul>
 		</div>
 		<div class="col-sm-8">
