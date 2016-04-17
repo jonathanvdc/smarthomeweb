@@ -183,7 +183,7 @@ with open(sql_path) as f:
     log('Renewing database...')
     remove(join('backend', 'database', 'smarthomeweb.db'))
     Popen(
-        ['sqlite3', 'smarthomeweb.db'],
+        ['sqlite3 smarthomeweb.db'],
         cwd=join('backend', 'database'),
         stdin=f, shell=True
     ).wait()
@@ -193,7 +193,7 @@ log('Done.')
 try:
     log('Launching server...')
     server = popen_mono(server_path)
-    time.sleep(4.0)
+    time.sleep(6.0)
     log('Server launched (PID=%d).' % server.pid)
 
     post_file('persons', join('example-files', 'person-data.json'))
