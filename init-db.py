@@ -200,7 +200,8 @@ try:
             log('Server launched (PID=%d).' % server.pid)
             break
         except requests.exceptions.RequestException:
-            log('Waiting for server...')
+            # log('Waiting for server...')
+            pass
 
     post_file('persons', join('example-files', 'person-data.json'))
     create_location('De G.10', 'bgoethals')
