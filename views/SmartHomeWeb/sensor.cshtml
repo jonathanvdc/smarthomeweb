@@ -22,24 +22,27 @@
     @foreach (var p in @Model)
     {
         <tr>
-	        <th>@p.Item1.Id</th>
-	        <th>@p.Item1.Data.Name</th>
-	        <td>@p.Item1.Data.LocationId </td>
-	        <td>@p.Item1.Data.Description</td>
-            <td>@p.Item1.Data.Notes</td>
+            @{var sensor = p.Item1;}
+	        <th>@sensor.Id</th>
+            <th>@sensor.Data.Name</th>
+            <td>@sensor.Data.LocationId </td>
+            <td>@sensor.Data.Description</td>
+            <td>@sensor.Data.Notes</td>
             <td>
+                <form action="/add-tag/@sensor.Id" style="display:inline">
+                    <input class="btn-xs btn-info" type="submit" value="+">
+                </form>
                 @{var tags = p.Item2;}
                 @if (tags.Count() != 0)
                 {
-                    @for (int i = 0; i < tags.Count() - 1; i++)
+                    @for (int i = 0; i < tags.Count(); i++)
                     {
-                        <span class="tag"> @tags.ElementAt(i) <text>, </text> </span>
+                        <span class="tag">@tags.ElementAt(i)</span>
                     }
-                    @tags.ElementAt(tags.Count() - 1)
                 }
                 else
                 {
-                    <span class="no-tags">@TextResources.NoTagsText</span>
+                    <span class="no-tags">(@TextResources.NoTagsText)</span>
                 }
             </td>
         </tr>

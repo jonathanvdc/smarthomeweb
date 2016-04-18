@@ -178,6 +178,33 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add tag.
+        /// </summary>
+        public static string AddTag {
+            get {
+                return ResourceManager.GetString("AddTag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You need to log in to add a tag..
+        /// </summary>
+        public static string AddTagNotAuthenticated {
+            get {
+                return ResourceManager.GetString("AddTagNotAuthenticated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a tag to a sensor.
+        /// </summary>
+        public static string AddTagPageTitle {
+            get {
+                return ResourceManager.GetString("AddTagPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All friends.
         /// </summary>
         public static string AllFriendsLabel {
@@ -637,6 +664,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pick a sensor.
+        /// </summary>
+        public static string PickASensor {
+            get {
+                return ResourceManager.GetString("PickASensor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send {0} a friend request.
         /// </summary>
         public static string SendFriendRequestButton {
@@ -660,6 +696,15 @@ namespace SmartHomeWeb {
         public static string SensorDescriptionLabel {
             get {
                 return ResourceManager.GetString("SensorDescriptionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to That sensor does not exist..
+        /// </summary>
+        public static string SensorDoesNotExistError {
+            get {
+                return ResourceManager.GetString("SensorDoesNotExistError", resourceCulture);
             }
         }
         
@@ -732,6 +777,24 @@ namespace SmartHomeWeb {
         public static string Success {
             get {
                 return ResourceManager.GetString("Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag added!.
+        /// </summary>
+        public static string TagAdded {
+            get {
+                return ResourceManager.GetString("TagAdded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag.
+        /// </summary>
+        public static string TagNameLabel {
+            get {
+                return ResourceManager.GetString("TagNameLabel", resourceCulture);
             }
         }
         

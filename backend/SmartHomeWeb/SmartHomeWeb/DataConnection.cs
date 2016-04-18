@@ -1035,8 +1035,8 @@ namespace SmartHomeWeb
                   WHERE t.sensorId = @sensorId AND t.tag = @tag
 				  LIMIT 1";
 				cmd.Parameters.AddWithValue("@sensorId", SensorId);
-				cmd.Parameters.AddWithValue("@sensorId", Tag.ToLowerInvariant());
-				return (int)(await cmd.ExecuteScalarAsync()) > 0;
+				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
+                return (Int64) await cmd.ExecuteScalarAsync() > 0;
 			}
 		}
 

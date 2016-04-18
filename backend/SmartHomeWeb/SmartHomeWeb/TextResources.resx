@@ -357,7 +357,6 @@
   <data name="NewsfeedPageTitle" xml:space="preserve">
     <value>News Feed</value>
   </data>
-
   <data name="NoTagsText" xml:space="preserve">
     <value>No tags</value>
   </data>
@@ -372,6 +371,26 @@
   </data>
   <data name="NewWallPostLabel" xml:space="preserve">
     <value>Put a message on {0}'s wall!</value>
-
+  </data>
+  <data name="AddTag" xml:space="preserve">
+    <value>Add tag</value>
+  </data>
+  <data name="AddTagNotAuthenticated" xml:space="preserve">
+    <value>You need to log in to add a tag.</value>
+  </data>
+  <data name="AddTagPageTitle" xml:space="preserve">
+    <value>Add a tag to a sensor</value>
+  </data>
+  <data name="PickASensor" xml:space="preserve">
+    <value>Pick a sensor</value>
+  </data>
+  <data name="SensorDoesNotExistError" xml:space="preserve">
+    <value>That sensor does not exist.</value>
+  </data>
+  <data name="TagAdded" xml:space="preserve">
+    <value>Tag added!</value>
+  </data>
+  <data name="TagNameLabel" xml:space="preserve">
+    <value>Tag</value>
   </data>
 </root>

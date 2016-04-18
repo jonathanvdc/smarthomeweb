@@ -40,6 +40,7 @@
 						<li><a href="/location"> @TextResources.LocationsPageTitle</a></li>
 						<li><a href="/message"> @TextResources.MessagesPageTitle</a></li>
 						<li><a href="/sensor"> @TextResources.SensorsPageTitle</a></li>
+						<li><a href="/add-tag"> @TextResources.AddTagPageTitle</a></li>
 						<li><a href="/measurement"> @TextResources.MeasurementsPageTitle</a></li>
 						<li><a href="/add-location"> @TextResources.AddLocationPageTitle</a></li>
 						<li><a href="/add-has-location"> @TextResources.AddHasLocationPageTitle</a></li>
@@ -52,7 +53,7 @@
 			<ul class="nav navbar-nav navbar-right">
 				@if (@Context.CurrentUser.IsAuthenticated())
 				{
-				    <li><a href="person=@Html.RenderContext.Context.CurrentUser.UserName">
+				    <li><a href="/person=@Html.RenderContext.Context.CurrentUser.UserName">
 					    @Html.RenderContext.Context.CurrentUser.UserName
 				    </a></li>
 				    <li><a href="/logout">
