@@ -28,7 +28,7 @@
             @foreach (var p in @Model[FriendsState.FriendRequestRecieved])
             {
                 <li>@p.Data.Name (@p.Data.UserName)
-                    <form method="post" action="/profile">
+                    <form method="post" action="/friend-request">
 	                    <button type="submit" class="btn btn-primary" name="friend-name" value="@p.Data.UserName">
 		                    @TextResources.AcceptFriendRequestButton
 	                    </button>

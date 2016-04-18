@@ -75,6 +75,11 @@ namespace SmartHomeWeb.Modules
             {
                 this.RequiresAuthentication();
                 await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
+
+                // TODO: this is a hack. Maybe make which success message to display a parameter of FriendRequest().
+                if (!string.IsNullOrEmpty(ViewBag.Success))
+                    ViewBag.Success = TextResources.FriendRequestAccepted;
+
                 return await GetFriends(parameters, ct);
             };
 
@@ -393,7 +398,6 @@ namespace SmartHomeWeb.Modules
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync(userName);
                         var recipient = await dc.GetPersonByUsernameAsync(userName);
                         if (recipient == null)
                         {

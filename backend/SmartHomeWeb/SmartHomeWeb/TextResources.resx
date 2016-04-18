@@ -372,6 +372,9 @@
   <data name="NewWallPostLabel" xml:space="preserve">
     <value>Put a message on {0}'s wall!</value>
   </data>
+  <data name="FriendRequestAccepted" xml:space="preserve">
+    <value>Friend request accepted.</value>
+  </data>
   <data name="NewFriendRequestsLabel" xml:space="preserve">
     <value>New friend requests</value>
   </data>

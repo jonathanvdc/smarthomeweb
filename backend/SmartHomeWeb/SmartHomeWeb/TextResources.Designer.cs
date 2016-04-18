@@ -295,6 +295,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Friend request accepted..
+        /// </summary>
+        public static string FriendRequestAccepted {
+            get {
+                return ResourceManager.GetString("FriendRequestAccepted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} has sent you a friend request..
         /// </summary>
         public static string FriendRequestReceived {
