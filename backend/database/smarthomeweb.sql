@@ -21,9 +21,17 @@ create table Friends (
     primary key (personOne, personTwo)
 );
 
--- (A, B) is in this table if and only if both (A, B) and (B, A) are in Friends.
+-- (A, B) is in this table if and only if:
+-- both (A, B) and (B, A) are in Friends.
 create view TwoWayFriends as
     select * from Friends a where exists
+        (select 1 from Friends b where
+            a.personOne = b.personTwo and a.personTwo = b.personOne);
+
+-- (A, B) is in this table if and only if:
+-- A has sent a friend request to B, but B has not responded.
+create view PendingFriendRequest as
+    select * from Friends a where not exists
         (select 1 from Friends b where
             a.personOne = b.personTwo and a.personTwo = b.personOne);
 

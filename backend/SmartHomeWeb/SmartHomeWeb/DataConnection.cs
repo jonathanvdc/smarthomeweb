@@ -19,6 +19,7 @@ namespace SmartHomeWeb
         public const string MeasurementTableName = "Measurement";
         public const string FriendsTableName = "Friends";
         public const string TwoWayFriendsTableName = "TwoWayFriends";
+        public const string PendingFriendRequestTableName = "PendingFriendRequest";
         public const string HourAverageTableName = "HourAverage";
         public const string DayAverageTableName = "DayAverage";
 		public const string MonthAverageTableName = "MonthAverage";
