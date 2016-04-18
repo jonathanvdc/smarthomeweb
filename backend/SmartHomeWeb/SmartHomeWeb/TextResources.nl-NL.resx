@@ -357,7 +357,6 @@
   <data name="NewsfeedPageTitle" xml:space="preserve">
     <value>Nieuwsoverzicht</value>
   </data>
-
   <data name="NoTagsText" xml:space="preserve">
     <value>Geen tags</value>
   </data>
@@ -372,6 +371,11 @@
   </data>
   <data name="NewWallPostLabel" xml:space="preserve">
     <value>Zet een bericht op de muur van {0}!</value>
-
+  </data>
+  <data name="NewFriendRequestsLabel" xml:space="preserve">
+    <value>Nieuwe vriendschapsverzoeken</value>
+  </data>
+  <data name="PendingFriendRequestsLabel" xml:space="preserve">
+    <value>Onbeantwoorde vriendschapsverzoeken</value>
   </data>
 </root>

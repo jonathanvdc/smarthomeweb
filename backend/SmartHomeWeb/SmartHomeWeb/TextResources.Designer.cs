@@ -493,6 +493,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New friend requests.
+        /// </summary>
+        public static string NewFriendRequestsLabel {
+            get {
+                return ResourceManager.GetString("NewFriendRequestsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your news feed is empty..
         /// </summary>
         public static string NewsfeedNoMessages {
@@ -534,6 +543,15 @@ namespace SmartHomeWeb {
         public static string PasswordMismatchError {
             get {
                 return ResourceManager.GetString("PasswordMismatchError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pending friend requests.
+        /// </summary>
+        public static string PendingFriendRequestsLabel {
+            get {
+                return ResourceManager.GetString("PendingFriendRequestsLabel", resourceCulture);
             }
         }
         

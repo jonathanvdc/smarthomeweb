@@ -47,8 +47,13 @@ namespace SmartHomeWeb.Modules
 
             Get["/person={username}", true] = GetProfile;
 
-            Post["/person={username}", true] = FriendRequest;
-
+            Post["/person={username}", true] = async (parameters, ct) =>
+            {
+                this.RequiresAuthentication();
+                await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
+                return await GetProfile(parameters, ct);
+            };
+            
             Get["/person={username}/wall", true] = GetWall;
 
             Post["/person={username}/wall", true] = PostWall;
@@ -65,6 +70,13 @@ namespace SmartHomeWeb.Modules
             Get["/friends", true] = GetFriends;
 
             Post["/friends", true] = PostFriends;
+
+            Post["/friend-request", true] = async (parameters, ct) =>
+            {
+                this.RequiresAuthentication();
+                await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
+                return await GetFriends(parameters, ct);
+            };
 
             Get["/sensor", true] = async (parameters, ct) =>
             {
@@ -357,9 +369,12 @@ namespace SmartHomeWeb.Modules
             return await GetAddLocation(parameters, ct);
         }
 
-        private async Task<dynamic> FriendRequest(dynamic parameters, CancellationToken ct)
+        /// <summary>
+        /// Perform a friend request from the current user to a given username.
+        /// </summary>
+        /// <param name="userName">The username of the friend to send a request to.</param>
+        private async Task FriendRequest(string userName)
         {
-            this.RequiresAuthentication();
             ViewBag.Error = "";
             ViewBag.Success = "";
 
@@ -378,8 +393,8 @@ namespace SmartHomeWeb.Modules
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync((string) Request.Form["friendname"]);
-                        var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
+                        await Console.Out.WriteLineAsync(userName);
+                        var recipient = await dc.GetPersonByUsernameAsync(userName);
                         if (recipient == null)
                         {
                             ViewBag.Error = TextResources.UserDoesNotExistError;
@@ -392,8 +407,6 @@ namespace SmartHomeWeb.Modules
                     }
                 }
             }
-
-            return await GetProfile(parameters, ct);
         }
 
         private async Task<dynamic> PostMessage(dynamic parameters, CancellationToken ct)
@@ -491,8 +504,18 @@ namespace SmartHomeWeb.Modules
         private async Task<dynamic> GetFriends(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
+            var sent = await DataConnection.Ask(x => x.GetSentFriendRequestsAsync(CurrentUserGuid()));
+            var received = await DataConnection.Ask(x => x.GetSentFriendRequestsAsync(CurrentUserGuid()));
             var friends = await DataConnection.Ask(x => x.GetFriendsAsync(CurrentUserGuid()));
-            return View["friends.cshtml", friends];
+
+            var model = new Dictionary<FriendsState, IEnumerable<Person>>
+            {
+                [FriendsState.FriendRequestSent] = sent,
+                [FriendsState.FriendRequestRecieved] = received,
+                [FriendsState.Friends] = friends
+            };
+
+            return View["friends.cshtml", model];
         }
 
         private async Task<dynamic> GetMessage(dynamic parameters, CancellationToken ct)
