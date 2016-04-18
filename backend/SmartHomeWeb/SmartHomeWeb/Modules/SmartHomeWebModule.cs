@@ -554,7 +554,7 @@ namespace SmartHomeWeb.Modules
         {
             this.RequiresAuthentication();
             var sent = await DataConnection.Ask(x => x.GetSentFriendRequestsAsync(CurrentUserGuid()));
-            var received = await DataConnection.Ask(x => x.GetSentFriendRequestsAsync(CurrentUserGuid()));
+            var received = await DataConnection.Ask(x => x.GetRecievedFriendRequestsAsync(CurrentUserGuid()));
             var friends = await DataConnection.Ask(x => x.GetFriendsAsync(CurrentUserGuid()));
 
             var model = new Dictionary<FriendsState, IEnumerable<Person>>
