@@ -392,5 +392,10 @@
   </data>
   <data name="TagNameLabel" xml:space="preserve">
     <value>Tag</value>
+  <data name="NewFriendRequestsLabel" xml:space="preserve">
+    <value>New friend requests</value>
+  </data>
+  <data name="PendingFriendRequestsLabel" xml:space="preserve">
+    <value>Pending friend requests</value>
   </data>
 </root>
