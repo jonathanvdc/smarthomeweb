@@ -220,9 +220,28 @@ namespace SmartHomeWeb
 
 		/// <summary>
 		/// Creates a task that eagerly fetches pending friend requests
-		/// that for the person with the given globally unique identifier. 
+		/// for the person with the given globally unique identifier. 
 		/// </summary>
 		public async Task<IEnumerable<Person>> GetRecievedFriendRequestsAsync(Guid PersonGuid)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                  SELECT friend2.*
+                  FROM PendingFriendRequest as pair, Person as friend2
+                  WHERE pair.personOne = friend2.guid AND pair.personTwo = @guid";
+				cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
+
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+			}
+		}
+
+		/// <summary>
+		/// Creates a task that eagerly fetches pending friend requests
+		/// that have been sent by the person with the given globally 
+		/// unique identifier. 
+		/// </summary>
+		public async Task<IEnumerable<Person>> GetSentFriendRequestsAsync(Guid PersonGuid)
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
