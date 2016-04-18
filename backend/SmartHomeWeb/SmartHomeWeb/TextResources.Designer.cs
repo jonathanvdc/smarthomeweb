@@ -511,11 +511,19 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+<<<<<<< Updated upstream
         ///   Looks up a localized string similar to No tags.
         /// </summary>
         public static string NoTagsText {
             get {
                 return ResourceManager.GetString("NoTagsText", resourceCulture);
+=======
+        ///   Looks up a localized string similar to Put a message on {0}&apos;s wall!.
+        /// </summary>
+        public static string NewWallPostLabel {
+            get {
+                return ResourceManager.GetString("NewWallPostLabel", resourceCulture);
+>>>>>>> Stashed changes
             }
         }
         
@@ -759,6 +767,24 @@ namespace SmartHomeWeb {
         public static string ViewFriendsNotLoggedInError {
             get {
                 return ResourceManager.GetString("ViewFriendsNotLoggedInError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This user&apos;s wall is empty!.
+        /// </summary>
+        public static string WallNoMessages {
+            get {
+                return ResourceManager.GetString("WallNoMessages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}&apos;s Wall.
+        /// </summary>
+        public static string WallPageTitle {
+            get {
+                return ResourceManager.GetString("WallPageTitle", resourceCulture);
             }
         }
         

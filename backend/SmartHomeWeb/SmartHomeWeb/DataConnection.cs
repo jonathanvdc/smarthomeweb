@@ -61,6 +61,7 @@ namespace SmartHomeWeb
                 while (await reader.ReadAsync())
                 {
                     results.Add(ReadTuple(reader));
+                    
                 }
             }
             return results;
@@ -1163,7 +1164,18 @@ namespace SmartHomeWeb
                 return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
             }
         }
-
+        /// <summary>
+        /// Creates a task to fetch all wallposts for a given user. 
+        /// Messages sent to that user, currently no private messaging is implemented.
+        /// TODO: private messaging(?)
+        /// </summary>
+        public async Task<IEnumerable<Message>> GetWallPostsAsync(Guid personGuid)
+        {
+            var cmd = sqlite.CreateCommand();
+            cmd.CommandText = "SELECT * FROM Message WHERE recipient=@person";
+            cmd.Parameters.AddWithValue("@person", personGuid.ToString());
+            return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
+        }
         /// <summary>
         /// Close the database connection.
         /// </summary>

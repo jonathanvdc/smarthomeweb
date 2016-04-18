@@ -6,7 +6,10 @@ using SmartHomeWeb.Model;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Mail;
 using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Messaging;
+using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 using Nancy.Extensions;
@@ -45,7 +48,11 @@ namespace SmartHomeWeb.Modules
             Get["/person={username}", true] = GetProfile;
 
             Post["/person={username}", true] = FriendRequest;
-            
+
+            Get["/person={username}/wall", true] = GetWall;
+
+            Post["/person={username}/wall", true] = PostWall;
+
             Get["/location", true] = async (parameters, ct) =>
             {
                 var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
@@ -129,8 +136,50 @@ namespace SmartHomeWeb.Modules
                 var referrer = Request.Headers.Referrer;
                 return Response.AsRedirect(string.IsNullOrWhiteSpace(referrer) ? "/" : referrer);
             };
+            
         }
+        private async Task<dynamic> PostWall(dynamic parameters, CancellationToken ct)
+        {
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                var recipient = await dc.GetPersonByUsernameAsync(parameters.username);
+                var sender = CurrentUserGuid();
+                var message = FormHelpers.GetString(Request.Form, "wallpost");
 
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    ViewBag.Error = "Please type a message before submitting!";
+                }
+                else
+                {
+                    await dc.InsertMessageAsync(new MessageData(sender, recipient.Guid, message));
+                }
+            }
+
+            return await GetWall(parameters, ct);
+        }
+        private async Task<dynamic> GetWall(dynamic parameters, CancellationToken ct)
+        {
+            // this.RequiresAuthentication(); // Disabled because the wall should be publicly viewable. We can hide things from users using a DB flag later.
+            // Maybe an int 0 = public, 1 = logged in users only, 2 = friends only, 3 = private message
+            // Or some other variation thereof. Loads of options!
+
+            // Get all messages addressed to the current user
+            var posts = new List<WallPost>();
+            var signedIn = Context.CurrentUser.IsAuthenticated();
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                Person recipient = await dc.GetPersonByUsernameAsync(parameters.username);
+                var messages = await dc.GetWallPostsAsync(recipient.Guid);
+                foreach (var m in messages)
+                {
+                    var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
+                    posts.Add(new WallPost(sender.Data.UserName, recipient.Data.UserName, m.Data.Message));
+                }
+            }
+            var viewstuff = new Tuple<string, List<WallPost>, bool>(parameters.username, posts, signedIn);
+            return View["wall.cshtml", viewstuff];
+        }
         private async Task<dynamic> GetAddHasLocation(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();

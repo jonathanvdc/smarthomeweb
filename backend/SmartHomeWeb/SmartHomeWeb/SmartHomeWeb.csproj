@@ -190,6 +190,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\sensor.cshtml">
       <Link>View Links\sensor.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\wall.cshtml">
+      <Link>View Links\wall.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\_ViewStart.cshtml">
       <Link>View Links\_ViewStart.cshtml</Link>
     </None>

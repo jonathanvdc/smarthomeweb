@@ -357,10 +357,21 @@
   <data name="NewsfeedPageTitle" xml:space="preserve">
     <value>News Feed</value>
   </data>
+<<<<<<< Updated upstream
   <data name="NoTagsText" xml:space="preserve">
     <value>No tags</value>
   </data>
   <data name="SensorTagsLabel" xml:space="preserve">
     <value>Tags</value>
+=======
+  <data name="WallPageTitle" xml:space="preserve">
+    <value>{0}'s Wall</value>
+  </data>
+  <data name="WallNoMessages" xml:space="preserve">
+    <value>This user's wall is empty!</value>
+  </data>
+  <data name="NewWallPostLabel" xml:space="preserve">
+    <value>Put a message on {0}'s wall!</value>
+>>>>>>> Stashed changes
   </data>
 </root>
