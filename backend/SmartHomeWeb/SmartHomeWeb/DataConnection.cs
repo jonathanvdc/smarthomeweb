@@ -18,6 +18,7 @@ namespace SmartHomeWeb
         public const string MessageTableName = "Message";
         public const string MeasurementTableName = "Measurement";
         public const string FriendsTableName = "Friends";
+        public const string TwoWayFriendsTableName = "TwoWayFriends";
         public const string HourAverageTableName = "HourAverage";
         public const string DayAverageTableName = "DayAverage";
 		public const string MonthAverageTableName = "MonthAverage";
@@ -1087,6 +1088,28 @@ namespace SmartHomeWeb
 				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor); 
 			}
 		}
+
+        /// <summary>
+        /// Creates a task that fetches all messages to display on a given
+        /// user's feed, i.e. messages sent to that user by friends or by
+        /// themselves.
+        /// </summary>
+        public async Task<IEnumerable<Message>> GetNewsfeedMessagesAsync(Guid PersonGuid)
+        {
+            // TODO: does this work?
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $@"
+                    SELECT m.* FROM Message m WHERE
+                        m.recipient = @person
+                        AND (m.sender = @person
+                            OR EXISTS (SELECT 1 FROM {TwoWayFriendsTableName} t WHERE
+                                m.sender = t.personOne AND
+                                m.recipient = t.personTwo))";
+                cmd.Parameters.AddWithValue("@person", PersonGuid);
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
+            }
+        }
 
         /// <summary>
         /// Close the database connection.
