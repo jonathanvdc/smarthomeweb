@@ -228,7 +228,7 @@ namespace SmartHomeWeb
 			{
 				cmd.CommandText = @"
                   SELECT friend2.*
-                  FROM FriendRequests as pair, Person as friend2
+                  FROM PendingFriendRequest as pair, Person as friend2
                   WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
 				cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
