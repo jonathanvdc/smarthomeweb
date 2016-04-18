@@ -217,6 +217,24 @@ namespace SmartHomeWeb
             }
         }
 
+		/// <summary>
+		/// Creates a task that eagerly fetches pending friend requests
+		/// that for the person with the given globally unique identifier. 
+		/// </summary>
+		public async Task<IEnumerable<Person>> GetRecievedFriendRequestsAsync(Guid PersonGuid)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                  SELECT friend2.*
+                  FROM FriendRequests as pair, Person as friend2
+                  WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
+				cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
+
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+			}
+		}
+
         /// <summary>
         /// Actually computes the hour average for the 
         /// given sensor during the given hour.
