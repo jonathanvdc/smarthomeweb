@@ -511,19 +511,20 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-<<<<<<< Updated upstream
-        ///   Looks up a localized string similar to No tags.
-        /// </summary>
-        public static string NoTagsText {
-            get {
-                return ResourceManager.GetString("NoTagsText", resourceCulture);
-=======
         ///   Looks up a localized string similar to Put a message on {0}&apos;s wall!.
         /// </summary>
         public static string NewWallPostLabel {
             get {
                 return ResourceManager.GetString("NewWallPostLabel", resourceCulture);
->>>>>>> Stashed changes
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No tags.
+        /// </summary>
+        public static string NoTagsText {
+            get {
+                return ResourceManager.GetString("NoTagsText", resourceCulture);
             }
         }
         

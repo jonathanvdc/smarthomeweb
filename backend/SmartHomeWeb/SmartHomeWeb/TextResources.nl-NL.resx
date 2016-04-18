@@ -357,13 +357,13 @@
   <data name="NewsfeedPageTitle" xml:space="preserve">
     <value>Nieuwsoverzicht</value>
   </data>
-<<<<<<< Updated upstream
+
   <data name="NoTagsText" xml:space="preserve">
     <value>Geen tags</value>
   </data>
   <data name="SensorTagsLabel" xml:space="preserve">
     <value>Tags</value>
-=======
+  </data>
   <data name="WallPageTitle" xml:space="preserve">
     <value>De muur van {0}</value>
   </data>
@@ -372,6 +372,6 @@
   </data>
   <data name="NewWallPostLabel" xml:space="preserve">
     <value>Zet een bericht op de muur van {0}!</value>
->>>>>>> Stashed changes
+
   </data>
 </root>

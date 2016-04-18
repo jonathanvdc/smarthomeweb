@@ -244,8 +244,11 @@
     <EmbeddedResource Include="TextResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>TextResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="TextResources.en-US.resx" />
-    <EmbeddedResource Include="TextResources.nl-NL.resx" />
+    <EmbeddedResource Include="TextResources.nl-NL.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
