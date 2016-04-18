@@ -209,11 +209,9 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"
-                  SELECT friend2.guid, friend2.username, friend2.name, friend2.password, 
-                         friend2.birthdate, friend2.address, friend2.city, friend2.zipcode
-                  FROM Friends as pair1, Friends as pair2, Person as friend2
-                  WHERE pair1.personOne = @guid AND pair1.personTwo = friend2.guid
-                    AND pair2.personTwo = @guid AND pair2.personOne = friend2.guid";
+                  SELECT friend2.*
+                  FROM TwoWayFriends as pair, Person as friend2
+                  WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
 				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
