@@ -148,6 +148,23 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Creates a task that fetches all sensors and their matching tags in the database.
+        /// </summary>
+        public async Task<IEnumerable<Tuple<Sensor, IEnumerable<string>>>> GetSensorTagsPairsAsync()
+        {
+            var sensors = await Ask(x => x.GetSensorsAsync());
+            var items = new List<Tuple<Sensor, IEnumerable<string>>>();
+            for (int i = 0; i < sensors.Count(); i++)
+            {
+                var sensor = sensors.ElementAt(i);
+                var tags = await Ask(x => x.GetSensorTagsAsync(sensor.Id));
+                items.Add(Tuple.Create(sensor, tags));
+            }
+
+            return items;
+        }
+
+        /// <summary>
         /// Creates a task that fetches all messages in the database.
         /// </summary>
         public Task<IEnumerable<Message>> GetMessagesAsync()
@@ -994,7 +1011,7 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = @"
+				cmd.CommandText = $@"
                   SELECT t.tag
                   FROM {SensorTagTableName} as t
                   WHERE t.sensorId = @sensorId";
@@ -1011,7 +1028,7 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = @"
+				cmd.CommandText = $@"
                   SELECT COUNT(*)
                   FROM {SensorTagTableName} as t
                   WHERE t.sensorId = @sensorId AND t.tag = @tag

@@ -1,9 +1,10 @@
 @using System.Collections.Generic
+@using System.Linq
 @using Nancy.Security
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Sensor>>
+@inherits NancyRazorViewBase<IEnumerable<Tuple<Sensor, IEnumerable<string>>>>
 
 <h1>@TextResources.SensorsPageTitle</h1>
 
@@ -15,16 +16,32 @@
             <th>@TextResources.SensorLocationLabel</th>
             <th>@TextResources.SensorDescriptionLabel</th>
             <th>@TextResources.SensorNotesLabel</th>
+            <th>@TextResources.SensorTagsLabel</th>
         </tr>      
 		
     @foreach (var p in @Model)
     {
         <tr>
-	        <th>@p.Id</th>
-	        <th>@p.Data.Name</th>
-	        <td>@p.Data.LocationId </td>
-	        <td>@p.Data.Description</td>
-	        <td>@p.Data.Notes</td>
+	        <th>@p.Item1.Id</th>
+	        <th>@p.Item1.Data.Name</th>
+	        <td>@p.Item1.Data.LocationId </td>
+	        <td>@p.Item1.Data.Description</td>
+            <td>@p.Item1.Data.Notes</td>
+            <td>
+                @{var tags = p.Item2;}
+                @if (tags.Count() != 0)
+                {
+                    @for (int i = 0; i < tags.Count() - 1; i++)
+                    {
+                        <span class="tag"> @tags.ElementAt(i) <text>, </text> </span>
+                    }
+                    @tags.ElementAt(tags.Count() - 1)
+                }
+                else
+                {
+                    <span class="no-tags">@TextResources.NoTagsText</span>
+                }
+            </td>
         </tr>
     }
 </table>

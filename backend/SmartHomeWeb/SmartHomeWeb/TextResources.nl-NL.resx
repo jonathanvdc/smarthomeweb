@@ -357,4 +357,10 @@
   <data name="NewsfeedPageTitle" xml:space="preserve">
     <value>Nieuwsoverzicht</value>
   </data>
+  <data name="NoTagsText" xml:space="preserve">
+    <value>Geen tags</value>
+  </data>
+  <data name="SensorTagsLabel" xml:space="preserve">
+    <value>Tags</value>
+  </data>
 </root>

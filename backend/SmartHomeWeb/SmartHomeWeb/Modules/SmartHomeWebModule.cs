@@ -61,8 +61,12 @@ namespace SmartHomeWeb.Modules
 
             Get["/sensor", true] = async (parameters, ct) =>
             {
-                var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
-                return View["sensor.cshtml", sensors];
+                IEnumerable<Tuple<Sensor, IEnumerable<string>>> items;
+                using (var dc = await DataConnection.CreateAsync())
+                {
+                    items = await dc.GetSensorTagsPairsAsync();
+                }
+                return View["sensor.cshtml", items];
             };
 
             Get["/measurement", true] = async (parameters, ct) =>

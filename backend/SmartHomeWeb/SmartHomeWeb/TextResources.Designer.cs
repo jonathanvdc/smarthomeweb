@@ -511,6 +511,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No tags.
+        /// </summary>
+        public static string NoTagsText {
+            get {
+                return ResourceManager.GetString("NoTagsText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The passwords you entered did not match..
         /// </summary>
         public static string PasswordMismatchError {
@@ -687,6 +696,15 @@ namespace SmartHomeWeb {
         public static string SensorsPageTitle {
             get {
                 return ResourceManager.GetString("SensorsPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tags.
+        /// </summary>
+        public static string SensorTagsLabel {
+            get {
+                return ResourceManager.GetString("SensorTagsLabel", resourceCulture);
             }
         }
         
