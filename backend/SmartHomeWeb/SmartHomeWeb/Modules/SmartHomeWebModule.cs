@@ -27,16 +27,16 @@ namespace SmartHomeWeb.Modules
 
             // StaticConfiguration.EnableHeadRouting = true;
 
-			Before += ctx =>
-			{
-				TextResources.Culture = (CultureInfo)this.Request.Session["CurrentCulture"];
-				return null;
-			};
-            
+            Before += ctx =>
+            {
+                TextResources.Culture = (CultureInfo)this.Request.Session["CurrentCulture"];
+                return null;
+            };
+
             Get["/"] = parameters =>
                 Context.CurrentUser.IsAuthenticated()
                     ? Response.AsRedirect("/newsfeed")
-                    : (dynamic) View["home.cshtml"];
+                    : (dynamic)View["home.cshtml"];
 
             // Pages for individual tables
             Get["/person", true] = async (parameters, ct) =>
@@ -92,8 +92,12 @@ namespace SmartHomeWeb.Modules
                 }
                 return View["sensor.cshtml", items];
             };
+            
+            Get["/add-tag/{id?}", true] = GetAddTag;
 
-            Get["/measurement", true] = async (parameters, ct) =>
+            Post["/add-tag/{id?}", true] = PostAddTag;
+
+                Get["/measurement", true] = async (parameters, ct) =>
             {
                 var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
                 return View["measurement.cshtml", measurements];
@@ -491,6 +495,41 @@ namespace SmartHomeWeb.Modules
             return await GetFriends(parameters, ct);
         }
 
+        private async Task<dynamic> PostAddTag(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            ViewBag.Error = "";
+            ViewBag.Success = "";
+
+            if (!Context.CurrentUser.IsAuthenticated())
+            {
+                ViewBag.Error = TextResources.AddTagNotAuthenticated;
+            }
+            else
+            {
+                using (var dc = await DataConnection.CreateAsync())
+                {
+                    int sensorId = (int)Request.Form["sensor-id"];
+                    string tag = FormHelpers.GetString(Request.Form, "tag-name");
+
+                    Console.WriteLine("Tagging Sensor {0} with \"{1}\"", sensorId, tag);
+
+                    var sensor = await dc.GetSensorByIdAsync(sensorId);
+
+                    if (sensor == null)
+                    {
+                        ViewBag.Error = TextResources.SensorDoesNotExistError;
+                    }
+                    else
+                    {
+                        await dc.InsertSensorTagAsync(sensorId, tag);
+                        ViewBag.Success = TextResources.TagAdded;
+                    }
+                }
+            }
+            return Response.AsRedirect(String.Format("/add-tag/{0}", (string)Request.Form["sensor-id"]));
+        }
+
 #pragma warning disable 1998
         private async Task<dynamic> GetAddLocation(dynamic parameters, CancellationToken ct)
 		{
@@ -503,6 +542,16 @@ namespace SmartHomeWeb.Modules
 		{
 			return View["add-person.cshtml"];
 		}
+
+        private async Task<dynamic> GetAddTag(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+
+            var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
+
+            ViewBag.HighlightedSensorId = parameters.id;
+            return View["add-tag.cshtml", sensors];
+        }
 #pragma warning restore 1998
 
         private async Task<dynamic> GetFriends(dynamic parameters, CancellationToken ct)
