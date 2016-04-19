@@ -178,6 +178,33 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add tag.
+        /// </summary>
+        public static string AddTag {
+            get {
+                return ResourceManager.GetString("AddTag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You need to log in to add a tag..
+        /// </summary>
+        public static string AddTagNotAuthenticated {
+            get {
+                return ResourceManager.GetString("AddTagNotAuthenticated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a tag to a sensor.
+        /// </summary>
+        public static string AddTagPageTitle {
+            get {
+                return ResourceManager.GetString("AddTagPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All friends.
         /// </summary>
         public static string AllFriendsLabel {
@@ -291,6 +318,15 @@ namespace SmartHomeWeb {
         public static string Error {
             get {
                 return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Friend request accepted..
+        /// </summary>
+        public static string FriendRequestAccepted {
+            get {
+                return ResourceManager.GetString("FriendRequestAccepted", resourceCulture);
             }
         }
         
@@ -493,11 +529,65 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New friend requests.
+        /// </summary>
+        public static string NewFriendRequestsLabel {
+            get {
+                return ResourceManager.GetString("NewFriendRequestsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your news feed is empty..
+        /// </summary>
+        public static string NewsfeedNoMessages {
+            get {
+                return ResourceManager.GetString("NewsfeedNoMessages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to News Feed.
+        /// </summary>
+        public static string NewsfeedPageTitle {
+            get {
+                return ResourceManager.GetString("NewsfeedPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Put a message on {0}&apos;s wall!.
+        /// </summary>
+        public static string NewWallPostLabel {
+            get {
+                return ResourceManager.GetString("NewWallPostLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No tags.
+        /// </summary>
+        public static string NoTagsText {
+            get {
+                return ResourceManager.GetString("NoTagsText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The passwords you entered did not match..
         /// </summary>
         public static string PasswordMismatchError {
             get {
                 return ResourceManager.GetString("PasswordMismatchError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pending friend requests.
+        /// </summary>
+        public static string PendingFriendRequestsLabel {
+            get {
+                return ResourceManager.GetString("PendingFriendRequestsLabel", resourceCulture);
             }
         }
         
@@ -601,6 +691,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pick a sensor.
+        /// </summary>
+        public static string PickASensor {
+            get {
+                return ResourceManager.GetString("PickASensor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send {0} a friend request.
         /// </summary>
         public static string SendFriendRequestButton {
@@ -624,6 +723,15 @@ namespace SmartHomeWeb {
         public static string SensorDescriptionLabel {
             get {
                 return ResourceManager.GetString("SensorDescriptionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to That sensor does not exist..
+        /// </summary>
+        public static string SensorDoesNotExistError {
+            get {
+                return ResourceManager.GetString("SensorDoesNotExistError", resourceCulture);
             }
         }
         
@@ -673,6 +781,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tags.
+        /// </summary>
+        public static string SensorTagsLabel {
+            get {
+                return ResourceManager.GetString("SensorTagsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Submit.
         /// </summary>
         public static string Submit {
@@ -687,6 +804,24 @@ namespace SmartHomeWeb {
         public static string Success {
             get {
                 return ResourceManager.GetString("Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag added!.
+        /// </summary>
+        public static string TagAdded {
+            get {
+                return ResourceManager.GetString("TagAdded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag.
+        /// </summary>
+        public static string TagNameLabel {
+            get {
+                return ResourceManager.GetString("TagNameLabel", resourceCulture);
             }
         }
         
@@ -723,6 +858,24 @@ namespace SmartHomeWeb {
         public static string ViewFriendsNotLoggedInError {
             get {
                 return ResourceManager.GetString("ViewFriendsNotLoggedInError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This user&apos;s wall is empty!.
+        /// </summary>
+        public static string WallNoMessages {
+            get {
+                return ResourceManager.GetString("WallNoMessages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}&apos;s Wall.
+        /// </summary>
+        public static string WallPageTitle {
+            get {
+                return ResourceManager.GetString("WallPageTitle", resourceCulture);
             }
         }
         

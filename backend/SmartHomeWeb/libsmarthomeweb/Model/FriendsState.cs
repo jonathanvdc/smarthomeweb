@@ -5,6 +5,7 @@ namespace SmartHomeWeb.Model
 	/// <summary>
 	/// Describes possible states for a 'friends' relationship.
 	/// </summary>
+	[Flags]
 	public enum FriendsState
 	{
 		/// <summary>

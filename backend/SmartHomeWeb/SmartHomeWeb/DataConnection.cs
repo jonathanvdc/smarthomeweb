@@ -18,6 +18,8 @@ namespace SmartHomeWeb
         public const string MessageTableName = "Message";
         public const string MeasurementTableName = "Measurement";
         public const string FriendsTableName = "Friends";
+        public const string TwoWayFriendsTableName = "TwoWayFriends";
+        public const string PendingFriendRequestTableName = "PendingFriendRequest";
         public const string HourAverageTableName = "HourAverage";
         public const string DayAverageTableName = "DayAverage";
 		public const string MonthAverageTableName = "MonthAverage";
@@ -59,6 +61,7 @@ namespace SmartHomeWeb
                 while (await reader.ReadAsync())
                 {
                     results.Add(ReadTuple(reader));
+                    
                 }
             }
             return results;
@@ -146,6 +149,23 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Creates a task that fetches all sensors and their matching tags in the database.
+        /// </summary>
+        public async Task<IEnumerable<Tuple<Sensor, IEnumerable<string>>>> GetSensorTagsPairsAsync()
+        {
+            var sensors = await Ask(x => x.GetSensorsAsync());
+            var items = new List<Tuple<Sensor, IEnumerable<string>>>();
+            for (int i = 0; i < sensors.Count(); i++)
+            {
+                var sensor = sensors.ElementAt(i);
+                var tags = await Ask(x => x.GetSensorTagsAsync(sensor.Id));
+                items.Add(Tuple.Create(sensor, tags));
+            }
+
+            return items;
+        }
+
+        /// <summary>
         /// Creates a task that fetches all messages in the database.
         /// </summary>
         public Task<IEnumerable<Message>> GetMessagesAsync()
@@ -207,11 +227,9 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"
-                  SELECT friend2.guid, friend2.username, friend2.name, friend2.password, 
-                         friend2.birthdate, friend2.address, friend2.city, friend2.zipcode
-                  FROM Friends as pair1, Friends as pair2, Person as friend2
-                  WHERE pair1.personOne = @guid AND pair1.personTwo = friend2.guid
-                    AND pair2.personTwo = @guid AND pair2.personOne = friend2.guid";
+                  SELECT friend2.*
+                  FROM TwoWayFriends as pair, Person as friend2
+                  WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
                 cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
 				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
@@ -219,7 +237,43 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Actually computes the the hour average for the 
+        /// Creates a task that eagerly fetches persons who sent friend requests
+        /// *to* the person with the given globally unique identifier. 
+        /// </summary>
+        public async Task<IEnumerable<Person>> GetRecievedFriendRequestsAsync(Guid PersonGuid)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $@"
+                  SELECT friend2.*
+                  FROM {PendingFriendRequestTableName} as pair, Person as friend2
+                  WHERE pair.personOne = friend2.guid AND pair.personTwo = @guid";
+				cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
+
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+			}
+		}
+
+        /// <summary>
+		/// Creates a task that eagerly fetches persons who were sent friend requests
+		/// *by* the person with the given globally unique identifier. 
+		/// </summary>
+		public async Task<IEnumerable<Person>> GetSentFriendRequestsAsync(Guid PersonGuid)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = @"
+                  SELECT friend2.*
+                  FROM PendingFriendRequest as pair, Person as friend2
+                  WHERE pair.personOne = @guid AND pair.personTwo = friend2.guid";
+				cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
+
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+			}
+		}
+
+        /// <summary>
+        /// Actually computes the hour average for the 
         /// given sensor during the given hour.
         /// </summary>
         private async Task<Measurement> ComputeHourAverageAsync(int SensorId, DateTime Hour)
@@ -229,55 +283,35 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Actually computes the the day average for the 
+        /// Actually computes the day average for the 
         /// given sensor during the given day.
         /// </summary>
         private async Task<Measurement> ComputeDayAverageAsync(int SensorId, DateTime Day)
         {
-            // Create one task per hour, and have each task
-            // fetch an hour average.
-            var tasks = new Task<Measurement>[24];
+			var cache = new AggregationCache(this, SensorId, Day, Day.AddDays(1));
 
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                tasks[i] = GetHourAverageAsync(SensorId, Day.AddHours(i));
-            }
-
-            var measurements = await Task.WhenAll(tasks);
-
-            // Just use the mean to aggregate data here, because we have already removed
-            // outliers when computing the hour average.
-            return MeasurementAggregation.Aggregate(measurements, SensorId, Day, Enumerable.Average);
+			await cache.PrefetchHourAveragesAsync();
+			var result = await cache.GetDayAverageAsync(Day);
+			await cache.FlushHoursAsync();
+			return result;
         }
 
 		/// <summary>
-		/// Actually computes the the month average for the 
+		/// Actually computes the month average for the 
 		/// given sensor during the given month.
 		/// </summary>
 		private async Task<Measurement> ComputeMonthAverageAsync(int SensorId, DateTime Month)
 		{
-			var end = Month.AddMonths(1);
+			var cache = new AggregationCache(this, SensorId, Month, Month.AddMonths(1));
 
-			// Create one task per day, and have each task
-			// fetch a day average.
-			var tasks = new List<Task<Measurement>>();
-
-			var day = Month;
-			while (day < end)
-			{
-				tasks.Add(GetDayAverageAsync(SensorId, day));
-				day = day.AddDays(1);
-			}
-
-			var measurements = await Task.WhenAll(tasks);
-
-			// Just use the mean to aggregate data here, because we have already removed
-			// outliers when computing the hour average.
-			return MeasurementAggregation.Aggregate(measurements, SensorId, Month, Enumerable.Average);
+			await cache.PrefetchDayAveragesAsync();
+			var result = await cache.GetMonthAverageAsync(Month);
+			await cache.FlushDaysAsync();
+			return result;
 		}
 
 		/// <summary>
-		/// Actually computes the the month average for the 
+		/// Actually computes the month average for the 
 		/// given sensor during the given month.
 		/// </summary>
 		private async Task<Measurement> ComputeYearAverageAsync(int SensorId, DateTime Year)
@@ -689,19 +723,31 @@ namespace SmartHomeWeb
 		/// <param name="sensor"></param>
 		/// <returns></returns>
 		public async Task<IEnumerable<Measurement>> GetMeasurementsAsync(
-			int SensorId, DateTime Start, DateTime End)
+			string TableName, int SensorId, DateTime Start, DateTime End)
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
 				cmd.CommandText = @"
                     SELECT *
-                    FROM Measurement
-                    WHERE Measurement.sensorId = @id AND Measurement.unixtime >= @starttime AND Measurement.unixtime < @endtime";
+                    " + $"FROM {TableName} as m" + @"
+                    WHERE m.sensorId = @id AND m.unixtime >= @starttime AND m.unixtime < @endtime";
 				cmd.Parameters.AddWithValue("@id", SensorId);
 				cmd.Parameters.AddWithValue("@starttime", DatabaseHelpers.CreateUnixTimeStamp(Start));
 				cmd.Parameters.AddWithValue("@endtime", DatabaseHelpers.CreateUnixTimeStamp(End));
 				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMeasurement);
 			}
+		}
+
+		/// <summary>
+		/// Gets all measurements for a sensor with the given identifier,
+		/// within the given timespan.
+		/// </summary>
+		/// <param name="sensor"></param>
+		/// <returns></returns>
+		public Task<IEnumerable<Measurement>> GetMeasurementsAsync(
+			int SensorId, DateTime Start, DateTime End)
+		{
+			return GetMeasurementsAsync(MeasurementTableName, SensorId, Start, End);
 		}
 
         /// <summary>
@@ -841,7 +887,7 @@ namespace SmartHomeWeb
         /// Inserts the given measurement into the table with the given name.
         /// </summary>
         /// <param name="Data">The measurement to insert into the table.</param>
-        private async Task InsertMeasurementAsync(Measurement Data, string TableName)
+        public async Task InsertMeasurementAsync(Measurement Data, string TableName)
         {
             using (var cmd = sqlite.CreateCommand())
             {
@@ -985,7 +1031,7 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = @"
+				cmd.CommandText = $@"
                   SELECT t.tag
                   FROM {SensorTagTableName} as t
                   WHERE t.sensorId = @sensorId";
@@ -1002,14 +1048,14 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = @"
+				cmd.CommandText = $@"
                   SELECT COUNT(*)
                   FROM {SensorTagTableName} as t
                   WHERE t.sensorId = @sensorId AND t.tag = @tag
 				  LIMIT 1";
 				cmd.Parameters.AddWithValue("@sensorId", SensorId);
-				cmd.Parameters.AddWithValue("@sensorId", Tag.ToLowerInvariant());
-				return (int)(await cmd.ExecuteScalarAsync()) > 0;
+				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
+                return (Int64) await cmd.ExecuteScalarAsync() > 0;
 			}
 		}
 
@@ -1116,6 +1162,39 @@ namespace SmartHomeWeb
 			}
 		}
 
+        /// <summary>
+        /// Creates a task that fetches all messages to display on a given
+        /// user's feed, i.e. messages sent to that user by friends or by
+        /// themselves.
+        /// </summary>
+        public async Task<IEnumerable<Message>> GetNewsfeedMessagesAsync(Guid PersonGuid)
+        {
+            // TODO: does this work?
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $@"
+                    SELECT m.* FROM Message m WHERE
+                        m.recipient = @person
+                        AND (m.sender = @person
+                            OR EXISTS (SELECT 1 FROM {TwoWayFriendsTableName} t WHERE
+                                m.sender = t.personOne AND
+                                m.recipient = t.personTwo))";
+                cmd.Parameters.AddWithValue("@person", PersonGuid);
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
+            }
+        }
+        /// <summary>
+        /// Creates a task to fetch all wallposts for a given user. 
+        /// Messages sent to that user, currently no private messaging is implemented.
+        /// TODO: private messaging(?)
+        /// </summary>
+        public async Task<IEnumerable<Message>> GetWallPostsAsync(Guid personGuid)
+        {
+            var cmd = sqlite.CreateCommand();
+            cmd.CommandText = "SELECT * FROM Message WHERE recipient=@person";
+            cmd.Parameters.AddWithValue("@person", personGuid.ToString());
+            return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
+        }
         /// <summary>
         /// Close the database connection.
         /// </summary>

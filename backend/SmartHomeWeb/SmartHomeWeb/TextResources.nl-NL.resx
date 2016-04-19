@@ -351,4 +351,55 @@
   <data name="Submit" xml:space="preserve">
     <value>Verzenden</value>
   </data>
+  <data name="NewsfeedNoMessages" xml:space="preserve">
+    <value>Je nieuwsoverzicht is leeg.</value>
+  </data>
+  <data name="NewsfeedPageTitle" xml:space="preserve">
+    <value>Nieuwsoverzicht</value>
+  </data>
+  <data name="NoTagsText" xml:space="preserve">
+    <value>Geen tags</value>
+  </data>
+  <data name="SensorTagsLabel" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="WallPageTitle" xml:space="preserve">
+    <value>De muur van {0}</value>
+  </data>
+  <data name="WallNoMessages" xml:space="preserve">
+    <value>Er zijn geen berichten aanwezig op de muur van deze gebruiker.</value>
+  </data>
+  <data name="NewWallPostLabel" xml:space="preserve">
+    <value>Zet een bericht op de muur van {0}!</value>
+  </data>
+  <data name="FriendRequestAccepted" xml:space="preserve">
+    <value>Vriendschapsverzoek aanvaard.</value>
+  </data>
+  <data name="AddTag" xml:space="preserve">
+    <value>Voeg tag toe</value>
+  </data>
+  <data name="AddTagNotAuthenticated" xml:space="preserve">
+    <value>Je moet inloggen om een tag toe te voegen.</value>
+  </data>
+  <data name="AddTagPageTitle" xml:space="preserve">
+    <value>Voeg een tag toe aan een sensor</value>
+  </data>
+  <data name="PickASensor" xml:space="preserve">
+    <value>Kies een sensor</value>
+  </data>
+  <data name="SensorDoesNotExistError" xml:space="preserve">
+    <value>De sensor bestaat niet.</value>
+  </data>
+  <data name="TagAdded" xml:space="preserve">
+    <value>Tag toegevoegd!</value>
+  </data>
+  <data name="TagNameLabel" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="NewFriendRequestsLabel" xml:space="preserve">
+    <value>Nieuwe vriendschapsverzoeken</value>
+  </data>
+  <data name="PendingFriendRequestsLabel" xml:space="preserve">
+    <value>Onbeantwoorde vriendschapsverzoeken</value>
+  </data>
 </root>

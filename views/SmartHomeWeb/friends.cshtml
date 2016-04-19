@@ -1,10 +1,11 @@
 @using System.Collections.Generic
+@using System.Linq
 @using Nancy.Security
 @using Nancy.Session
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Person>>
+@inherits NancyRazorViewBase<Dictionary<FriendsState, IEnumerable<Person>>>
 
 <h1>@TextResources.FriendsPageTitle</h1>
 <h2>@TextResources.AddFriendTitle</h2>
@@ -14,31 +15,58 @@
     @Html.Partial("feedback-box.cshtml")
 
     <form method="post">
-        <div class="form-group">
-            <label for="friend">@TextResources.FriendUsernameLabel</label>
-            <input id="friend" name="friend-name" class="form-control"/>
-        </div>
-        <button type="submit" class="btn btn-primary">@TextResources.AddFriendButton</button>
+	    <div class="form-group">
+		    <label for="friend">@TextResources.FriendUsernameLabel</label>
+		    <input id="friend" name="friend-name" class="form-control"/>
+	    </div>
+	    <button type="submit" class="btn btn-primary">@TextResources.AddFriendButton</button>
     </form>
+
+    if (Model[FriendsState.FriendRequestRecieved].Any()) {
+        <h2>@TextResources.NewFriendRequestsLabel</h2>
+        <ul>
+            @foreach (var p in @Model[FriendsState.FriendRequestRecieved])
+            {
+                <li>@p.Data.Name (@p.Data.UserName)
+                    <form method="post" action="/friend-request">
+	                    <button type="submit" class="btn btn-primary" name="friend-name" value="@p.Data.UserName">
+		                    @TextResources.AcceptFriendRequestButton
+	                    </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    }
+
+    if (Model[FriendsState.FriendRequestSent].Any()) {
+        <h2>@TextResources.PendingFriendRequestsLabel</h2>
+        <ul>
+            @foreach (var p in @Model[FriendsState.FriendRequestSent])
+            {
+                <li>@p.Data.Name (@p.Data.UserName)</li>
+            }
+        </ul>
+    }
+
+    if (Model[FriendsState.Friends].Any()) {
+        <h2>@TextResources.AllFriendsLabel</h2>
+        <table class="table">
+            <tr class="tableHeader">
+                <th>@TextResources.PersonUserNameLabel</th>
+                <th>@TextResources.PersonNameLabel</th>
+            </tr>
+
+            @foreach (var p in @Model[FriendsState.Friends])
+            {
+                <tr>
+                    <th><a href="person=@p.Data.UserName">@p.Data.UserName</a></th>
+	                <td>@p.Data.Name</td>
+                </tr>
+            }
+        </table>
+    }
 }
 else
 {
     <text>@TextResources.ViewFriendsNotLoggedInError</text>
 }
-
-<h2>@TextResources.AllFriendsLabel</h2>
-<table class="table">
-
-        <tr class="tableHeader">
-            <th>@TextResources.PersonUserNameLabel</th>
-            <th>@TextResources.PersonNameLabel</th>
-        </tr>
-
-    @foreach (var p in @Model)
-    {
-        <tr>
-            <th><a href="person=@p.Data.UserName">@p.Data.UserName</a></th>
-	        <td>@p.Data.Name</td>
-        </tr>
-    }
-</table>

@@ -1,0 +1,46 @@
+@using System.Collections.Generic
+@using System.Linq
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@using SmartHomeWeb
+@inherits NancyRazorViewBase<System.Tuple<string, List<WallPost>, bool>>
+
+
+
+<h2>@string.Format(TextResources.WallPageTitle, Model.Item1)</h2>
+
+@if(Model.Item3)
+{
+    <form method="post">
+	    <label for="wallpost">@string.Format(TextResources.NewWallPostLabel, Model.Item1):</label>
+	    <input id="wallpost" name="wallpost" class="form-control"/>
+    </form>
+}
+@if (!Model.Item2.Any())
+{
+    <p>@TextResources.WallNoMessages</p>
+}
+else
+{
+    <ul class="media-list">
+        @foreach (var m in Model.Item2)
+        {
+            <li class="media">
+              <div class="media-left">
+                <a href="/person=@m.SourceUserName">
+	                <div class="profile-avatar-small"></div>
+                </a>
+              </div>
+              <div class="media-body">
+	              <h4 class="media-heading message-header">
+		              @string.Format(TextResources.MessageHeader, m.SourceUserName)
+	              </h4>
+	              <div class="bubble">
+		              @m.Message
+	              </div>
+              </div>
+            </li>
+        }
+    </ul>
+}
+

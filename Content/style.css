@@ -35,6 +35,26 @@ body {
 	padding-left: 6px;
 }
 
+span.tag {
+	color: #660044;
+	background-color:#FFBBDD;
+	padding:2px;
+	padding-left:4px;
+	padding-right:4px;
+	border-radius:4px;
+	line-height:18px;
+}
+
+span.tag:hover {
+	color: #440033;
+	background-color:#FF99CC;
+	padding:4px;
+}
+
+span.no-tags{
+	color: #999999;
+}
+
 .nav .debug-pages .dropdown-toggle, .nav .debug-pages .dropdown-toggle:focus{
 	color: #CC4466;
 }
@@ -47,7 +67,7 @@ body {
 	color: #AA1144;
 }
 
-div.profile-avatar-small {
+.profile-avatar-small {
 	width: 64px;
 	height: 64px;
 	background-image: url("profilepicsmall.png");
@@ -55,7 +75,7 @@ div.profile-avatar-small {
 	float: left;
 }
 
-div.profile-avatar {
+.profile-avatar {
 	width: 150px;
 	height: 150px;
 	background-image:url("profilepicsmall.png");

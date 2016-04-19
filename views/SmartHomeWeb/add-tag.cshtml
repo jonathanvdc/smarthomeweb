@@ -1,0 +1,31 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using Nancy.Session
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<Sensor>>
+
+<h1>@TextResources.AddTagPageTitle</h1>
+
+@Html.Partial("feedback-box.cshtml")
+
+<form method="post">
+    <div class="form-group">
+
+        <label for="sensor-id">@TextResources.PickASensor</label>
+        <select class="form-control" id="sensor-id" name="sensor-id">
+            @foreach (Sensor sensor in @Model)
+            {
+                <option @if ((int)ViewBag.HighlightedSensorId == (int)@sensor.Id) {<text>selected="selected" </text>} value = "@sensor.Id">@sensor.Data.Name (@sensor.Data.Description)</option>
+            }
+        </select>
+
+
+        <label for="tag-name">@(TextResources.TagNameLabel):</label>
+        <input id="tag-name" name="tag-name" class="form-control" />
+
+    </div>
+    <button type="submit" class="btn btn-primary">@TextResources.AddTag</button>
+</form>
+</form>

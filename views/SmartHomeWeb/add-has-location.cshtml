@@ -8,43 +8,16 @@
 <div>
     <h2>@TextResources.AddHasLocationPageTitle</h2>
 
-    <script>
-        var sendRequest = function(url, data)
-        {
-            var xhr = new XMLHttpRequest();
-
-            xhr.open('POST', url);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-
-            xhr.addEventListener('load', function () {
-                window.location.reload();
-            });
-
-            xhr.send(JSON.stringify(data));
-
-            return xhr;
-        };
-
-        var submitForm = function()
-        {
-            var locId = document.forms["add-location-form"]["sel"].value;
-            var persGuid = "@(((UserIdentity)@Html.RenderContext.Context.CurrentUser).Guid)";
-            sendRequest("/api/has-location/", [{ "locationId" : locId, "personGuid" : persGuid }]);
-        };
-    </script>
-
-    <form id="add-location-form">
+    <form id="add-location-form" method="post">
         <div class="form-group">
-            <label for="sel1">@TextResources.PickALocation:</label>
-            <select class="form-control" id="sel">
+            <label for="location">@TextResources.PickALocation</label>
+            <select class="form-control" id="location" name="location">
                 @foreach (var item in @Model)
                 {
                     <option value="@item.Id">@item.Data.Name</option>
                 }
             </select>
         </div>
-        <button type="submit" class="btn btn-primary" onclick="submitForm();">Add location</button>
+        <button type="submit" class="btn btn-primary" >Add location</button>
     </form>
-    <div id="responseDiv">
-    </div>
 </div>

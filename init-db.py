@@ -6,7 +6,6 @@ import json
 import os
 import platform
 import requests
-import time
 
 from subprocess import Popen
 from os.path import join
@@ -20,7 +19,7 @@ def log(s):
         formatter = '*** %s'
     else:
         formatter = '\x1b[36m*** %s\x1b[0m'
-    print formatter % s
+    print(formatter % s)
 
 def remove(path):
     try:
@@ -53,7 +52,7 @@ api = "http://localhost:8088/api/"
 
 def post_file(where, filepath):
     log('Posting %s' % filepath)
-    with open(filepath) as f:
+    with open(filepath, 'rb') as f:
         requests.post(api + where, data=f)
 
 def get_person_guid(username):
@@ -110,7 +109,7 @@ def post_elecsim():
     # Maps a (SensorName, LocationId, Time) to a measurement value.
     sensor_data = {}
 
-    for i in xrange(1, num_locations + 1):
+    for i in range(1, num_locations + 1):
         name = locations[i - 1]['data']['name']
         location_id = locations[i - 1]['id']
 
@@ -130,7 +129,7 @@ def post_elecsim():
         log('Processing sensor data.')
         with open(join('ElecSim', 'output.csv')) as f:
             reader = csv.reader(f, delimiter=';')
-            top = reader.next()
+            top = next(reader)
             sensor_names = top[2:-1]
 
             j = [{'name': name,
@@ -183,9 +182,9 @@ with open(sql_path) as f:
     log('Renewing database...')
     remove(join('backend', 'database', 'smarthomeweb.db'))
     Popen(
-        ['sqlite3', 'smarthomeweb.db'],
+        ['sqlite3',  'smarthomeweb.db'],
         cwd=join('backend', 'database'),
-        stdin=f, shell=True
+        stdin=f
     ).wait()
 
 log('Done.')
@@ -193,8 +192,16 @@ log('Done.')
 try:
     log('Launching server...')
     server = popen_mono(server_path)
-    time.sleep(4.0)
-    log('Server launched (PID=%d).' % server.pid)
+
+    # Wait for the server to come alive.
+    while True:
+        try:
+            requests.head('http://localhost:8088/', timeout=3.05)
+            log('Server launched (PID=%d).' % server.pid)
+            break
+        except requests.exceptions.RequestException:
+            # log('Waiting for server...')
+            pass
 
     post_file('persons', join('example-files', 'person-data.json'))
     create_location('De G.10', 'bgoethals')

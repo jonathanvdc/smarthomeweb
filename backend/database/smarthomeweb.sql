@@ -8,7 +8,6 @@ create table Person (
     city text not null,
     zipcode text not null
 );
-
 create table Friends (
     -- A tuple in this table is interpreted as follows:
     --
@@ -20,6 +19,33 @@ create table Friends (
     personTwo text not null references Person(guid),
     primary key (personOne, personTwo)
 );
+
+
+-- (A, B) is in this table if and only if:
+-- both (A, B) and (B, A) are in Friends.
+
+create table Groep ( -- 'Group' is a keyword, ghetto fix
+	id integer primary key autoincrement,
+	name text not null
+);
+create table BelongsTo (
+	groep integer not null references Groep(id),
+	person text not null references Person(guid),
+	primary key (groep, person)
+);
+-- (A, B) is in this table if and only if both (A, B) and (B, A) are in Friends.
+
+create view TwoWayFriends as
+    select * from Friends a where exists
+        (select 1 from Friends b where
+            a.personOne = b.personTwo and a.personTwo = b.personOne);
+
+-- (A, B) is in this table if and only if:
+-- A has sent a friend request to B, but B has not responded.
+create view PendingFriendRequest as
+    select * from Friends a where not exists
+        (select 1 from Friends b where
+            a.personOne = b.personTwo and a.personTwo = b.personOne);
 
 create table Message (
     id integer primary key autoincrement,

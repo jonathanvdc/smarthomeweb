@@ -119,7 +119,6 @@
     <Compile Include="Modules\API\ApiMessagesModule.cs" />
     <Compile Include="Modules\API\ApiModule.cs" />
     <Compile Include="Modules\API\ApiPersonsModule.cs" />
-    <Compile Include="Modules\SecureModule.cs" />
     <Compile Include="UserStore.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -140,6 +139,7 @@
     <Compile Include="Modules\API\ApiTagsModule.cs" />
     <Compile Include="Modules\API\ApiMonthAverageModule.cs" />
     <Compile Include="Modules\API\ApiYearAverageModule.cs" />
+    <Compile Include="AggregationCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
@@ -150,6 +150,9 @@
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\add-person.cshtml">
       <Link>View Links\add-person.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\add-tag.cshtml">
+      <Link>View Links\add-tag.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\dashboard.cshtml">
       <Link>View Links\dashboard.cshtml</Link>
@@ -178,6 +181,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\message.cshtml">
       <Link>View Links\message.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\newsfeed.cshtml">
+      <Link>View Links\newsfeed.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\person.cshtml">
       <Link>View Links\person.cshtml</Link>
     </None>
@@ -186,6 +192,9 @@
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\sensor.cshtml">
       <Link>View Links\sensor.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\wall.cshtml">
+      <Link>View Links\wall.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\_ViewStart.cshtml">
       <Link>View Links\_ViewStart.cshtml</Link>
@@ -238,8 +247,11 @@
     <EmbeddedResource Include="TextResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>TextResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="TextResources.en-US.resx" />
-    <EmbeddedResource Include="TextResources.nl-NL.resx" />
+    <EmbeddedResource Include="TextResources.nl-NL.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
