@@ -53,7 +53,7 @@
 			<ul class="nav navbar-nav navbar-right">
 				@if (@Context.CurrentUser.IsAuthenticated())
 				{
-				    <li><a href="/person=@Html.RenderContext.Context.CurrentUser.UserName">
+				    <li><a href="/person/@Html.RenderContext.Context.CurrentUser.UserName">
 					    @Html.RenderContext.Context.CurrentUser.UserName
 				    </a></li>
 				    <li><a href="/logout">

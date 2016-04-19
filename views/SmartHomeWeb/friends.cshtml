@@ -59,7 +59,7 @@
             @foreach (var p in @Model[FriendsState.Friends])
             {
                 <tr>
-                    <th><a href="person=@p.Data.UserName">@p.Data.UserName</a></th>
+                    <th><a href="/person/@p.Data.UserName">@p.Data.UserName</a></th>
 	                <td>@p.Data.Name</td>
                 </tr>
             }

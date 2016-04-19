@@ -45,18 +45,18 @@ namespace SmartHomeWeb.Modules
                 return View["person.cshtml", persons];
             };
 
-            Get["/person={username}", true] = GetProfile;
+            Get["/person/{username}", true] = GetProfile;
 
-            Post["/person={username}", true] = async (parameters, ct) =>
+            Post["/person/{username}", true] = async (parameters, ct) =>
             {
                 this.RequiresAuthentication();
                 await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
                 return await GetProfile(parameters, ct);
             };
             
-            Get["/person={username}/wall", true] = GetWall;
+            Get["/person/{username}/wall", true] = GetWall;
 
-            Post["/person={username}/wall", true] = PostWall;
+            Post["/person/{username}/wall", true] = PostWall;
 
             Get["/location", true] = async (parameters, ct) =>
             {
@@ -302,7 +302,7 @@ namespace SmartHomeWeb.Modules
                 UserIdentity user;
                 UserMapper.FindUser(username, password, out user);
                 // Everything went fine. Log in and redirect to the profile page.
-                return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/person=" + username);
+                return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1), "/person/" + username);
             }
             else
             {
