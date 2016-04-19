@@ -6,7 +6,9 @@ import json
 import os
 import platform
 import requests
+import time
 
+from datetime import*
 from subprocess import Popen
 from os.path import join
 
@@ -97,7 +99,8 @@ def add_message(sender, recipient, body):
 def post_elecsim():
     locations = json.loads(requests.get(api + 'locations').text)
     num_locations = len(locations)
-
+    currentdate = date.today()
+	
     Popen(
         ['python3', 'main.py',
          '--mode=configure',
@@ -117,8 +120,8 @@ def post_elecsim():
              '--mode=generate',
              '--config_file=configuration.json',
              '--household=%d' % i,
-             '--from=2016-01-10T00:00',
-             '--to=2016-01-11T00:00',
+             '--from=' + str(currentdate - timedelta(days = 1)) + 'T00:00',
+             '--to=' + str(currentdate) + 'T00:00',
              '--output=output.csv'],
             cwd='ElecSim'
         ).wait()
