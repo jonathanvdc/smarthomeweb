@@ -6,6 +6,19 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Tuple<Sensor, IEnumerable<string>>>>
 
+<script>
+
+    function deleteTag(sensorId, tag) {
+        var request = new XMLHttpRequest();
+        request.open('POST', "/api/sensor-tags/delete/" + sensorId.toString());
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send('"' + tag + '"');
+        document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;
+    }
+
+</script>
+
+
 <h1>@TextResources.SensorsPageTitle</h1>
 
 <table class="table">
@@ -29,15 +42,19 @@
             <td>@sensor.Data.Description</td>
             <td>@sensor.Data.Notes</td>
             <td>
-                <form action="/add-tag/@sensor.Id" style="display:inline">
-                    <input class="btn-xs btn-info" type="submit" value="+">
-                </form>
+                <a href="/add-tag/@sensor.Id" class="add-tag" style="display:inline">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
                 @{var tags = p.Item2;}
                 @if (tags.Count() != 0)
                 {
                     @for (int i = 0; i < tags.Count(); i++)
                     {
-                        <span class="tag">@tags.ElementAt(i)</span>
+                        <span id="tag-@sensor.Id-@tags.ElementAt(i)" class="tag">@tags.ElementAt(i) 
+                            <a href="#" onclick="deleteTag(@sensor.Id, '@tags.ElementAt(i)')">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        </span>
                     }
                 }
                 else

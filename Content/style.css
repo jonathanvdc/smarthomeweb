@@ -6,9 +6,9 @@ body {
 	opacity: 0.7;
 }
 
-.navbar-brand:hover #navbar-logo {
-	opacity: 1;
-}
+	.navbar-brand:hover #navbar-logo {
+		opacity: 1;
+	}
 
 .bubble {
     position: relative;
@@ -18,38 +18,73 @@ body {
     -moz-border-radius: 10px;
     border-radius: 10px;
 }
-.bubble:after {
-    content: '';
-    position: absolute;
-    border-style: solid;
-    border-width: 10px 10px 10px 0;
-    border-color: transparent #CFCFFF;
-    display: block;
-    width: 0;
-    z-index: 1;
-    left: -9px;
-    top: 10px;
-}
+
+	.bubble:after {
+		content: '';
+		position: absolute;
+		border-style: solid;
+		border-width: 10px 10px 10px 0;
+		border-color: transparent #CFCFFF;
+		display: block;
+		width: 0;
+		z-index: 1;
+		left: -9px;
+		top: 10px;
+	}
 
 .message-header{
 	padding-left: 6px;
 }
 
 span.tag {
-	color: #660044;
+	color: #881166;
+	font-size:12px;
 	background-color:#FFBBDD;
+	
 	padding:2px;
-	padding-left:4px;
-	padding-right:4px;
+	padding-left:5px;
+	padding-right:5px;
+	
 	border-radius:4px;
+	margin:2px;
 	line-height:18px;
+	cursor:pointer;
 }
 
-span.tag:hover {
-	color: #440033;
-	background-color:#FF99CC;
-	padding:4px;
+	span.tag:hover {
+		color: #FFF8FF;
+		background-color:#DD88AA;
+		padding:6px;
+		margin:1px;
+	}
+
+	span.tag a:hover{	
+		text-decoration:none;
+	}
+
+	.tag .glyphicon{
+		font-size:10px;
+		color: #DD88CC;
+		margin-left: 1px;
+		margin-right:-3px;
+	}
+
+		.tag:hover .glyphicon{
+			color: #FFAABB;
+		}
+
+		.tag .glyphicon:hover{
+			color: #660044;	
+		}
+
+a.add-tag{
+	color:#DD88BB;
 }
+
+	a.add-tag:hover{
+		color:#AA4488;	
+		text-decoration:none;
+	}
 
 span.no-tags{
 	color: #999999;
@@ -59,13 +94,13 @@ span.no-tags{
 	color: #CC4466;
 }
 
-.nav .debug-pages .dropdown-toggle:hover, .nav .debug-pages.open .dropdown-toggle, .nav .debug-pages.open .dropdown-toggle:hover,  .nav .debug-pages.open .dropdown-toggle:focus{
-	color: #FF88AA;
-}
+	.nav .debug-pages .dropdown-toggle:hover, .nav .debug-pages.open .dropdown-toggle, .nav .debug-pages.open .dropdown-toggle:hover,  .nav .debug-pages.open .dropdown-toggle:focus{
+		color: #FF88AA;
+	}
 
-.nav .debug-pages ul li a{
-	color: #AA1144;
-}
+	.nav .debug-pages ul li a{
+		color: #AA1144;
+	}
 
 .profile-avatar-small {
 	width: 64px;

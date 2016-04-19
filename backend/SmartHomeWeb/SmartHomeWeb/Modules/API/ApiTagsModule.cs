@@ -9,8 +9,10 @@ namespace SmartHomeWeb.Modules.API
 		{
 			ApiGet("/{id}/", (p, dc) => dc.GetSensorTagsAsync((int)p["id"]));
 
-			ApiPost<List<string>, object>("/{id}/", (p, items, dc) => dc.InsertSensorTagAsync((int)((dynamic)p)["id"], items));
-		}
+            ApiPost<List<string>, object>("/{id}/", (p, items, dc) => dc.InsertSensorTagAsync((int)((dynamic)p)["id"], items));
+
+            ApiPost<string, object>("/delete/{id}/", (p, item, dc) => dc.RemoveSensorTagAsync((int)((dynamic)p)["id"], item));
+        }
 	}
 }
 
