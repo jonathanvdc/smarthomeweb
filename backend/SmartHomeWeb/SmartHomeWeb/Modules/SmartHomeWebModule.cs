@@ -97,7 +97,7 @@ namespace SmartHomeWeb.Modules
 
             Post["/add-tag/{id?}", true] = PostAddTag;
 
-                Get["/measurement", true] = async (parameters, ct) =>
+            Get["/measurement", true] = async (parameters, ct) =>
             {
                 var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
                 return View["measurement.cshtml", measurements];
@@ -125,7 +125,18 @@ namespace SmartHomeWeb.Modules
                 return View["graph.cshtml", measurements];
             };
 
-			Get["/add-location", true] = GetAddLocation;
+            //TODO this junk
+            Get["/groups", true] = GetGroups;
+
+            Post["/groups", true] = PostGroups;
+
+            Get["/groups/{groupid}", true] = GetGroup;
+
+            //Get["/groups/{groupid}/invite", true] = GetGroupInvite;
+
+            //Post["/groups/{groupid}/invite", true] = PostGroupInvite;
+
+            Get["/add-location", true] = GetAddLocation;
 
 			Post["/add-location", true] = PostAddLocation;
 
@@ -159,11 +170,46 @@ namespace SmartHomeWeb.Modules
             };
             
         }
+        private async Task<dynamic> GetGroup(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            Tuple<bool, IEnumerable<Person>, IEnumerable<WallPost>, string> tuple;
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                IEnumerable<Person> memberList = await dc.GetMembersForGroupAsync(parameters.groupid);
+                IEnumerable<WallPost> postList = await dc.GetPostsForGroupAsync(parameters.groupid);
+                var isMember = false;
+                foreach (var m in memberList)
+                {
+                    if (m.Guid == CurrentUserGuid()) isMember = true;
+                }
+                tuple = new Tuple<bool, IEnumerable<Person>, IEnumerable<WallPost>, string>(isMember, memberList, postList, (await dc.GetGroupByIdAsync(parameters.groupid)).Name);
+            }
+            
+            return View["groupprofile", tuple];
+        }
+        private async Task<dynamic> GetWall(dynamic parameters, CancellationToken ct)
+        {
+            // this.RequiresAuthentication(); // Disabled because the wall should be publicly viewable. We can hide things from users using a DB flag later.
+            // Maybe an int 0 = public, 1 = logged in users only, 2 = friends only, 3 = private message
+            // Or some other variation thereof. Loads of options!
+
+            // Get all messages addressed to the current user
+            IEnumerable<WallPost> posts;
+            var signedIn = Context.CurrentUser.IsAuthenticated();
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                Person recipient = await dc.GetPersonByUsernameAsync(parameters.username);
+                posts = await dc.GetWallPostsAsync(recipient.Guid);
+            }
+            var viewstuff = new Tuple<string, IEnumerable<WallPost>, bool>(parameters.username, posts, signedIn);
+            return View["wall.cshtml", viewstuff];
+        }
         private async Task<dynamic> PostWall(dynamic parameters, CancellationToken ct)
         {
             using (var dc = await DataConnection.CreateAsync())
             {
-                var recipient = await dc.GetPersonByUsernameAsync(parameters.username);
+                var recipient = (await dc.GetPersonByUsernameAsync(parameters.username)).Guid;
                 var sender = CurrentUserGuid();
                 var message = FormHelpers.GetString(Request.Form, "wallpost");
 
@@ -173,34 +219,41 @@ namespace SmartHomeWeb.Modules
                 }
                 else
                 {
-                    await dc.InsertMessageAsync(new MessageData(sender, recipient.Guid, message));
+                    await dc.InsertMessageAsync(new MessageData(sender, recipient, message));
                 }
             }
 
             return await GetWall(parameters, ct);
         }
-        private async Task<dynamic> GetWall(dynamic parameters, CancellationToken ct)
+        private async Task<dynamic> GetGroups(dynamic parameters, CancellationToken ct)
         {
-            // this.RequiresAuthentication(); // Disabled because the wall should be publicly viewable. We can hide things from users using a DB flag later.
-            // Maybe an int 0 = public, 1 = logged in users only, 2 = friends only, 3 = private message
-            // Or some other variation thereof. Loads of options!
-
-            // Get all messages addressed to the current user
-            var posts = new List<WallPost>();
-            var signedIn = Context.CurrentUser.IsAuthenticated();
+            this.RequiresAuthentication();
+            List<Group> groups;
             using (var dc = await DataConnection.CreateAsync())
             {
-                Person recipient = await dc.GetPersonByUsernameAsync(parameters.username);
-                var messages = await dc.GetWallPostsAsync(recipient.Guid);
-                foreach (var m in messages)
-                {
-                    var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
-                    posts.Add(new WallPost(sender.Data.UserName, recipient.Data.UserName, m.Data.Message));
-                }
+                groups = (await dc.GetGroupsForUserAsync(CurrentUserGuid())).ToList();
+
             }
-            var viewstuff = new Tuple<string, List<WallPost>, bool>(parameters.username, posts, signedIn);
-            return View["wall.cshtml", viewstuff];
+            
+            return View["Group", groups];
         }
+        private async Task<dynamic> PostGroups(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                var name = FormHelpers.GetString(Request.Form, "NG_name");
+                var description = FormHelpers.GetString(Request.Form, "NG_description");
+                var members = new List<Person> {await dc.GetPersonByGuidAsync(CurrentUserGuid())};
+                var group = new Group(-1, name, description, members);
+                await dc.InsertGroupAsync(group);
+            }
+
+
+            return await GetGroups(parameters, ct);
+        }
+        
         private async Task<dynamic> GetAddHasLocation(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();

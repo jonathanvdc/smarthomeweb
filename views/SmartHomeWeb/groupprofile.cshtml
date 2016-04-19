@@ -1,0 +1,85 @@
+@using System.Collections.Generic
+@using System.Linq
+@using System.Security.Cryptography
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@using SmartHomeWeb
+@inherits NancyRazorViewBase<System.Tuple<bool, IEnumerable<Person>, IEnumerable<WallPost>, string>>
+
+<h2>@string.Format(TextResources.GroupProfilePageTitle, Model.Item4)</h2>
+<table class="table">
+	<tr class="tableHeader">
+		<th class="text-center col-md-3">
+			<head>
+				<title>Messages:</title>
+                Messages:
+			</head>
+        </th>
+		<th class="text-center col-md-1">
+			<head>
+				<title>Members:</title>
+				Members:
+			</head>
+		</th>
+	</tr>
+	<tr>
+		@if (Model.Item1)
+		{
+		    <td class="col-md-3">
+			    <ul class="media-list">
+				    @foreach (var m in Model.Item3)
+				    {
+				        <li class="media">
+					        <div class="media-left">
+						        <table>
+							        <td>
+								        <a href="/person/@m.SourceUserName">
+									        <div class="profile-avatar-small"></div>
+								        </a>
+							        </td>
+							        <td>
+								        <div class="glyphicon glyphicon-chevron-right"></div>
+							        </td>
+							        <td>
+								        <a href="/person/@m.DestinationUserName">
+									        <div class="profile-avatar-small"></div>
+								        </a>
+							        </td>
+						        </table>
+					        </div>
+					        <div class="media-body">
+						        <h4 class="media-heading message-header">
+							        @string.Format(TextResources.GroupPostHeader, m.SourceUserName, m.DestinationUserName)
+						        </h4>
+						        <div class="bubble">
+							        @m.Message
+						        </div>
+					        </div>
+
+				        </li>
+				    }
+			    </ul>
+		    </td>
+		}
+		<td class="col-md-1">
+			@if (Model.Item2.Any())
+			{
+			    <ul class="media-list">
+				    @foreach (var m in Model.Item2)
+				    {
+				        <li class="media">
+						    <a href="/person/@m.Data.UserName">
+							    <div class="profile-avatar-small-centered"></div>
+						    </a>
+				        </li>
+				    }
+			    </ul>
+			}
+			else
+			{
+			    @string.Format(TextResources.GroupProfileNoPosts, Model.Item4)
+			}
+
+		</td>
+	</tr>
+</table>

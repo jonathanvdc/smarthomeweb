@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
@@ -71,6 +72,17 @@ namespace SmartHomeWeb
                     GetString(Record, "name"), GetDateTime(Record, "birthdate"),
                     GetString(Record, "address"), GetString(Record, "city"), 
                     GetString(Record, "zipcode")));
+        }
+        /// <summary>
+        /// Reads a group entity from the given record.
+        /// </summary>
+        public static Group ReadGroup(IDataRecord Record)
+        {
+            return new Group(
+                GetInt32(Record, "id"),
+                GetString(Record, "name"),
+                GetString(Record, "description")
+            );
         }
 
         /// <summary>

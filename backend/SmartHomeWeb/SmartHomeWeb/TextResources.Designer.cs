@@ -367,6 +367,51 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You aren&apos;t a member of any groups yet. Click the button above to make one!.
+        /// </summary>
+        public static string GroupOverviewNoGroups {
+            get {
+                return ResourceManager.GetString("GroupOverviewNoGroups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Groups.
+        /// </summary>
+        public static string GroupOverviewPageTitle {
+            get {
+                return ResourceManager.GetString("GroupOverviewPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message from {0} to {1}.
+        /// </summary>
+        public static string GroupPostHeader {
+            get {
+                return ResourceManager.GetString("GroupPostHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are no posts yet by or to users in {0}..
+        /// </summary>
+        public static string GroupProfileNoPosts {
+            get {
+                return ResourceManager.GetString("GroupProfileNoPosts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group: {0}.
+        /// </summary>
+        public static string GroupProfilePageTitle {
+            get {
+                return ResourceManager.GetString("GroupProfilePageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Language.
         /// </summary>
         public static string Language {
@@ -534,6 +579,24 @@ namespace SmartHomeWeb {
         public static string NewFriendRequestsLabel {
             get {
                 return ResourceManager.GetString("NewFriendRequestsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description.
+        /// </summary>
+        public static string NewGroupDescriptionLabel {
+            get {
+                return ResourceManager.GetString("NewGroupDescriptionLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group Name.
+        /// </summary>
+        public static string NewGroupNameLabel {
+            get {
+                return ResourceManager.GetString("NewGroupNameLabel", resourceCulture);
             }
         }
         

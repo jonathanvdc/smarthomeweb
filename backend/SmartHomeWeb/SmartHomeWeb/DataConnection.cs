@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Mono.Data.Sqlite;
@@ -1183,18 +1184,142 @@ namespace SmartHomeWeb
                 return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
             }
         }
+        private async Task<IEnumerable<WallPost>> ConvertMessagesToWallPosts(IEnumerable<Message> messages)
+        {
+            var wallposts = new List<WallPost>();
+            foreach (var m in messages)
+            {
+                wallposts.Add(new WallPost(
+                    (await GetPersonByGuidAsync(m.Data.SenderGuid)).Data.UserName,
+                    (await GetPersonByGuidAsync(m.Data.RecipientGuid)).Data.UserName,
+                    m.Data.Message)
+                );
+            }
+            return wallposts;
+        } 
         /// <summary>
         /// Creates a task to fetch all wallposts for a given user. 
-        /// Messages sent to that user, currently no private messaging is implemented.
+        /// Retrieves all messages sent to that user, currently no private messaging is implemented.
         /// TODO: private messaging(?)
         /// </summary>
-        public async Task<IEnumerable<Message>> GetWallPostsAsync(Guid personGuid)
+        public async Task<IEnumerable<WallPost>> GetWallPostsAsync(Guid personGuid)
         {
             var cmd = sqlite.CreateCommand();
             cmd.CommandText = "SELECT * FROM Message WHERE recipient=@person";
             cmd.Parameters.AddWithValue("@person", personGuid.ToString());
-            return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
+            return await ConvertMessagesToWallPosts(await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage));
         }
+        /// <summary>
+        /// Creates a task to fetch all the groups for a given user.
+        /// ie, all the groups that that user is a member of
+        /// </summary>
+        
+        public async Task<IEnumerable<Group>> GetGroupsForUserAsync(Guid personGuid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+            
+                cmd.CommandText = @"SELECT * 
+                FROM PersonGroup 
+                WHERE @personGuid 
+                IN (
+                SELECT person 
+                FROM BelongsTo 
+                WHERE PersonGroup.id=BelongsTo.personGroup)";
+                cmd.Parameters.AddWithValue("@personGuid", personGuid.ToString());
+                var groups = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGroup);
+                foreach (var group in groups)
+                {
+                    group.MemberList = (await GetMembersForGroupAsync(group.Id)).ToList();
+                }
+
+                return groups;
+            }
+        }
+        public async Task<IEnumerable<WallPost>> GetPostsForGroupAsync(long groupid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM Message WHERE recipient IN (
+                SELECT person FROM BelongsTo WHERE personGroup=@groupid) 
+                OR sender IN (
+                SELECT person FROM BelongsTo WHERE personGroup=@groupid)";
+                cmd.Parameters.AddWithValue("@groupid", groupid);
+
+                return await ConvertMessagesToWallPosts(await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage));
+            }
+        }
+        /// <summary>
+        /// Creates a task to fetch a group entity from its id
+        /// </summary>
+        public async Task<Group> GetGroupByIdAsync(long groupid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM PersonGroup WHERE id=@groupid";
+                cmd.Parameters.AddWithValue("@groupid", groupid);
+                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGroup);
+            }
+        }
+
+        /// <summary>
+        /// Creates a task to fetch the members for a group
+        /// </summary>
+        public async Task<IEnumerable<Person>> GetMembersForGroupAsync(long groupid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM Person WHERE Person.guid IN (
+                SELECT person FROM BelongsTo WHERE BelongsTo.personGroup=@groupid)";
+                cmd.Parameters.AddWithValue("@groupid", groupid);
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+            }
+        }
+        /// <summary>
+        /// Inserts a group with name and description, taken from the group object.
+        /// </summary>
+        public async Task InsertGroupAsync(Group g)
+        {
+            
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"INSERT INTO PersonGroup (name, description)
+                VALUES (@name, @desc)";
+                cmd.Parameters.AddWithValue("@name", g.Name);
+                cmd.Parameters.AddWithValue("@desc", g.Description);
+                await cmd.ExecuteNonQueryAsync();
+                cmd.CommandText = "SELECT last_insert_rowid()";
+                var i = await cmd.ExecuteScalarAsync();
+                cmd.CommandText = "SELECT id from PersonGroup WHERE rowid=" + (long)i;
+                i = await cmd.ExecuteScalarAsync();
+                Console.WriteLine(i);
+                g.Id = (long)i;
+                
+                await InsertGroupMembersAsync(g);
+            }
+
+        }
+        /// <summary>
+        /// Inserts the members present in the group object (Group::MemberList) into the database
+        /// </summary>
+        private async Task InsertGroupMembersAsync(Group g)
+        {
+            foreach (var m in g.MemberList)
+            {
+                using (var cmd = sqlite.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO BelongsTo (personGroup, person)
+                VALUES (@groupId, @personGuid)";
+                    cmd.Parameters.AddWithValue("@groupId", g.Id);
+                    cmd.Parameters.AddWithValue("@personGuid", m.Guid.ToString());
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                    
+            }
+        }
+
+
         /// <summary>
         /// Close the database connection.
         /// </summary>

@@ -22,10 +22,17 @@ create table Friends (
 
 create table PersonGroup (
 	id integer primary key autoincrement,
-	name text not null
+	name text not null,
+	description text not null
 );
 
 create table BelongsTo (
+	personGroup integer not null references PersonGroup(id),
+	person text not null references Person(guid),
+	primary key (personGroup, person)
+);
+
+create table GroupInvite (
 	personGroup integer not null references PersonGroup(id),
 	person text not null references Person(guid),
 	primary key (personGroup, person)

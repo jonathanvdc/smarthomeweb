@@ -163,6 +163,12 @@
     <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
       <Link>View Links\friends.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\group.cshtml">
+      <Link>View Links\group.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\groupprofile.cshtml">
+      <Link>View Links\groupprofile.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
       <Link>View Links\home.cshtml</Link>
     </None>

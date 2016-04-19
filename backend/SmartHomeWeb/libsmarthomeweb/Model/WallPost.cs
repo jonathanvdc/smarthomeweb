@@ -1,4 +1,6 @@
-﻿namespace SmartHomeWeb.Model
+﻿using System;
+
+namespace SmartHomeWeb.Model
 {
     public class WallPost
     {
@@ -12,5 +14,6 @@
             DestinationUserName = dest;
             Message = message;
         }
+
     }
 }

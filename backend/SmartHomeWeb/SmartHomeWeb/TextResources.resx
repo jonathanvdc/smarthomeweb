@@ -402,4 +402,25 @@
   <data name="PendingFriendRequestsLabel" xml:space="preserve">
     <value>Pending friend requests</value>
   </data>
+  <data name="GroupOverviewNoGroups" xml:space="preserve">
+    <value>You aren't a member of any groups yet. Click the button above to make one!</value>
+  </data>
+  <data name="GroupOverviewPageTitle" xml:space="preserve">
+    <value>Groups</value>
+  </data>
+  <data name="GroupPostHeader" xml:space="preserve">
+    <value>Message from {0} to {1}</value>
+  </data>
+  <data name="GroupProfilePageTitle" xml:space="preserve">
+    <value>Group: {0}</value>
+  </data>
+  <data name="NewGroupDescriptionLabel" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="NewGroupNameLabel" xml:space="preserve">
+    <value>Group Name</value>
+  </data>
+  <data name="GroupProfileNoPosts" xml:space="preserve">
+    <value>There are no posts yet by or to users in {0}.</value>
+  </data>
 </root>

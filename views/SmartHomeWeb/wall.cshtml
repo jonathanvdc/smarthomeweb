@@ -3,7 +3,7 @@
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @using SmartHomeWeb
-@inherits NancyRazorViewBase<System.Tuple<string, List<WallPost>, bool>>
+@inherits NancyRazorViewBase<System.Tuple<string, IEnumerable<WallPost>, bool>>
 
 
 
@@ -14,6 +14,7 @@
     <form method="post">
 	    <label for="wallpost">@string.Format(TextResources.NewWallPostLabel, Model.Item1):</label>
 	    <input id="wallpost" name="wallpost" class="form-control"/>
+		<button type="submit" class="btn btn-primary">@TextResources.Submit</button>
     </form>
 }
 @if (!Model.Item2.Any())

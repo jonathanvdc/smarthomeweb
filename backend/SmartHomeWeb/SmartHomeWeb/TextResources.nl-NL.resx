@@ -402,4 +402,25 @@
   <data name="PendingFriendRequestsLabel" xml:space="preserve">
     <value>Onbeantwoorde vriendschapsverzoeken</value>
   </data>
+  <data name="GroupOverviewNoGroups" xml:space="preserve">
+    <value>Je bent nog geen lid van een groep. Klik op de knop hierboven om een groep aan te maken.</value>
+  </data>
+  <data name="GroupOverviewPageTitle" xml:space="preserve">
+    <value>Groepen</value>
+  </data>
+  <data name="GroupProfilePageTitle" xml:space="preserve">
+    <value>Groep: {0}</value>
+  </data>
+  <data name="NewGroupDescriptionLabel" xml:space="preserve">
+    <value>Beschrijving</value>
+  </data>
+  <data name="NewGroupNameLabel" xml:space="preserve">
+    <value>Groepsnaam</value>
+  </data>
+  <data name="GroupPostHeader" xml:space="preserve">
+    <value>Bericht van {0} naar {1}</value>
+  </data>
+  <data name="GroupProfileNoPosts" xml:space="preserve">
+    <value>Er zijn nog geen berichten van of naar gebruikers in {0}.</value>
+  </data>
 </root>
