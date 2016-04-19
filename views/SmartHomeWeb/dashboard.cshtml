@@ -11,7 +11,7 @@
 var timeframe = "minutes";
 var currentsensor = null;
 
-	function test(){
+	function updatesensordescription(){
 		var xmlhttp = new XMLHttpRequest();
 		var url = "/api/sensors/" + currentsensor.toString();
 		xmlhttp.open("GET", url, false);
@@ -193,6 +193,9 @@ else
 		  <li onClick='setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
 		  <li onClick='setFrame("months")'><a href="#" data-toggle="tab">Months</a></li>
 		</ul>
+		
+		<input type="text" value="test"></input>
+		<input type="text" value="test"></input>
 		</div>
 		<div class="col-sm-8">
 		    <div id="chart_div"></div>
@@ -215,7 +218,7 @@ else
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
-				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="test()"></a></li>
+				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription()"></a></li>
 				}
 			</ul>
 		  </div>
