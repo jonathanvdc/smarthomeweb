@@ -106,9 +106,6 @@ def post_elecsim():
         cwd='ElecSim'
     ).wait()
 
-    # Maps a (SensorName, LocationId, Time) to a measurement value.
-    sensor_data = {}
-
     for i in range(1, num_locations + 1):
         name = locations[i - 1]['data']['name']
         location_id = locations[i - 1]['id']
@@ -126,6 +123,9 @@ def post_elecsim():
             cwd='ElecSim'
         ).wait()
 
+        # Maps a (SensorName, Time) to a measurement value.
+        sensor_data = {}
+
         log('Processing sensor data.')
         with open(join('ElecSim', 'output.csv')) as f:
             reader = csv.reader(f, delimiter=';')
@@ -141,7 +141,7 @@ def post_elecsim():
 
             for line in reader:
                 for i, name in enumerate(sensor_names, 2):
-                    key = (name, location_id, line[0])
+                    key = (name, line[0])
                     sensor_data[key] = float(line[i])
 
         sensors = json.loads(requests.get(api + 'sensors').text)
@@ -153,8 +153,8 @@ def post_elecsim():
                 s['data']['locationId']] = s['id']
 
         measurements = []
-        for (name, loc_id, time), value in sensor_data.items():
-            sensor_id = sensor_data_to_id[name, loc_id]
+        for (name, time), value in sensor_data.items():
+            sensor_id = sensor_data_to_id[name, location_id]
             measurements.append({
                 'sensorId': sensor_id,
                 'timestamp': time.replace(' ', 'T') + 'Z',
