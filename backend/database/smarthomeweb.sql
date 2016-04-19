@@ -20,21 +20,19 @@ create table Friends (
     primary key (personOne, personTwo)
 );
 
-
--- (A, B) is in this table if and only if:
--- both (A, B) and (B, A) are in Friends.
-
-create table Groep ( -- 'Group' is a keyword, ghetto fix
+create table PersonGroup (
 	id integer primary key autoincrement,
 	name text not null
 );
-create table BelongsTo (
-	groep integer not null references Groep(id),
-	person text not null references Person(guid),
-	primary key (groep, person)
-);
--- (A, B) is in this table if and only if both (A, B) and (B, A) are in Friends.
 
+create table BelongsTo (
+	personGroup integer not null references PersonGroup(id),
+	person text not null references Person(guid),
+	primary key (personGroup, person)
+);
+
+-- (A, B) is in this table if and only if: 
+-- both (A, B) and (B, A) are in Friends.
 create view TwoWayFriends as
     select * from Friends a where exists
         (select 1 from Friends b where
