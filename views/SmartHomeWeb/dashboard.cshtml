@@ -8,8 +8,8 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
-var timeframe = "minutes";
-var currentsensor = null;
+	var timeframe = "minutes";
+	var currentsensor = null;
 
 	function test(){
 		var xmlhttp = new XMLHttpRequest();
@@ -110,12 +110,7 @@ var currentsensor = null;
 
     // Set a callback to run when the Google Visualization API is loaded.
 	@if (@Model.Count != 0) {
-		if (@Model[0].Sensors.Count == 0) {
-			@:chartDiv.innerHTML = noDataSavedHtml;
-		}
-		else {
-			@:google.charts.setOnLoadCallback(function() { drawChart() });
-		}
+		@:google.charts.setOnLoadCallback(function() { drawChart() });
 	}
 
 	function drawData(json) {
@@ -180,10 +175,9 @@ else
 {
     <div class="container col-sm-12">
         <ul class="nav nav-tabs col-sm-12">
-		  <li class="active"><a data-toggle="tab" href="#u_0">@Model[0].Location.Data.Name</a></li>
-	    @for(var x = 1; x < @Model.Count; ++x)
+	    @for(var x = 0; x < @Model.Count; ++x)
 		{
-		  <li><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
+		  <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
 		}
 		</ul>
 		<div class="col-sm-12">
@@ -198,20 +192,10 @@ else
 		    <div id="chart_div"></div>
 		</div>
 		<div class="tab-content col-sm-4">
-
-
-		  <div id="u_0"  class="tab-pane fade in active" style="height: 55%; overflow:auto;">
-			<ul class="nav nav-pills nav-stacked">
-				@foreach (var y in @Model[0].Sensors)
-				{
-				  <li id="@y.Id" onClick="setId(this.id)"><a data-toggle="tab">@y.Data.Name</a></li>
-				}
-			</ul>
-		  </div>
-
-		@for (var x = 1; x < @Model.Count; ++x)
+		  
+		@for (int x = 0; x < @Model.Count; ++x)
 		{
-		  <div id="u_@x" class="tab-pane fade" style="height: 55%; overflow:auto;">
+		  <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height: 55%; overflow:auto;">
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
