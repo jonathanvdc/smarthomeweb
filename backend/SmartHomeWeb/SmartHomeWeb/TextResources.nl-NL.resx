@@ -154,7 +154,7 @@
     <value>Locatie aan je profiel toevoegen</value>
   </data>
   <data name="AcceptFriendRequestButton" xml:space="preserve">
-    <value>Aanvaard vriendschapsverzoek</value>
+    <value>Aanvaarden</value>
   </data>
   <data name="AddedLocationMessage" xml:space="preserve">
     <value>De locatie is geregistreerd.</value>

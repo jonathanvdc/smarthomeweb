@@ -27,12 +27,15 @@
         <ul>
             @foreach (var p in @Model[FriendsState.FriendRequestRecieved])
             {
-                <li>@p.Data.Name (@p.Data.UserName)
-                    <form method="post" action="/friend-request">
-	                    <button type="submit" class="btn btn-primary" name="friend-name" value="@p.Data.UserName">
-		                    @TextResources.AcceptFriendRequestButton
-	                    </button>
-                    </form>
+                <li>
+	                <form class="form-inline" method="post" action="/friend-request">
+		                <div class="form-group">
+			                <button type="submit" class="btn btn-primary" name="friend-name" value="@p.Data.UserName">
+				                @TextResources.AcceptFriendRequestButton
+			                </button>
+		                </div>
+	                </form>
+                    @p.Data.Name (@p.Data.UserName)
                 </li>
             }
         </ul>

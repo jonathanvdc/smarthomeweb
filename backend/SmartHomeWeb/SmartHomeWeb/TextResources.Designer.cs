@@ -61,7 +61,7 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Accept friend request.
+        ///   Looks up a localized string similar to Accept.
         /// </summary>
         public static string AcceptFriendRequestButton {
             get {

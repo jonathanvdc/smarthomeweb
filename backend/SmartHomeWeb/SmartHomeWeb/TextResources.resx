@@ -232,7 +232,7 @@
     <value>Create profile</value>
   </data>
   <data name="AcceptFriendRequestButton" xml:space="preserve">
-    <value>Accept friend request</value>
+    <value>Accept</value>
   </data>
   <data name="AddFriendButton" xml:space="preserve">
     <value>Add friend</value>
