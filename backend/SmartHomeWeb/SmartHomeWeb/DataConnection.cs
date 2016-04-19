@@ -791,6 +791,26 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
+        /// Updates the sensor in the database
+        /// </summary>
+        /// <param name="sensor"></param>
+        public async Task UpdateSensorAsync(Sensor sensor)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"UPDATE {SensorTableName} " +
+                    "SET title = @title, description = @description, notes = @notes " +
+                    "WHERE id = @id";
+
+                cmd.Parameters.AddWithValue("@title", sensor.Data.Name);
+                cmd.Parameters.AddWithValue("@description", sensor.Data.Description);
+                cmd.Parameters.AddWithValue("@notes", sensor.Data.Notes);
+                cmd.Parameters.AddWithValue("@id", sensor.Id);
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
         /// Inserts the given sensor data into the Sensor table.
         /// </summary>
         /// <param name="Data">The sensor data to insert into the table.</param>

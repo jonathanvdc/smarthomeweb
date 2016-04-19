@@ -8,9 +8,24 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
-var timeframe = "minutes";
-var currentsensor = @Model[0].Sensors[0].Id;
 
+function test(){
+	var xmlhttp = new XMLHttpRequest();
+	var url = "/api/sensors/" + currentsensor.toString();
+	xmlhttp.open("GET", url, false);
+	xmlhttp.send();
+	var response = JSON.parse(xmlhttp.responseText);
+	var newdescription = prompt("New description", response.data.description);
+	alert(newdescription);
+	response.data.description = newdescription;
+	alert(JSON.stringify(response));
+	var xhr = new XMLHttpRequest();
+    xhr.open('PUT', "/api/sensors/");
+    xhr.setRequestHeader('Content-Type', 'application/json');
+	
+	xhr.send(JSON.stringify(response));
+	alert(xhr.responseText);
+}
 
 function setFrame(x){
 	timeframe = x;
@@ -71,7 +86,7 @@ function timeString(time)
 }
 
 
-
+	var timeframe = "minutes";
 
     // Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
@@ -83,6 +98,7 @@ function timeString(time)
 		if (@Model[0].Sensors.Count == 0){
 			@:chartDiv.innerHTML = noDataSavedHtml;
 		}else{
+			@:var currentsensor = @Model[0].Sensors[0].Id;
 			@:google.charts.setOnLoadCallback(function(){ drawChart() });
 		}
 	}
@@ -181,11 +197,18 @@ else
 		}
 		</ul>
 		<div class="col-sm-12">
-		<ul class="nav nav-pills">
-		  <li class="active" onClick='setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
-		  <li onClick='setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
-		  <li onClick='setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
-		</ul>
+			<ul class="nav nav-pills">
+			  <li class="active" onClick='setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
+			  <li onClick='setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
+			  <li onClick='setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
+			</ul>
+			<p>From:<input type="date"></input></p>
+			<p>To:<input type="date"></input></p>
+			<button data-toggle="collapse" data-target="#demo">Collapsible</button>
+
+			<div id="demo" class="collapse">
+			Lorem ipsum dolor text....
+			</div>
 		</div>
 		<div class="col-sm-8">
 		    <div id="chart_div"></div>
@@ -193,23 +216,23 @@ else
 		<div class="tab-content col-sm-4">
 
 
-		  <div id="u_0"  class="tab-pane fade in active">
+		  <div id="u_0"  class="tab-pane fade in active" style="height: 55%; overflow:auto;">
 			<ul class="nav nav-pills nav-stacked">
-				<li class="active" id="@Model[0].Sensors[0].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[0].Data.Name</a></li>
+				<li class="active" id="@Model[0].Sensors[0].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[0].Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="test()"></a></li>
 			@for (var x = 1; x < @Model[0].Sensors.Count; x++)
 			{
-				<li id="@Model[0].Sensors[x].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[x].Data.Name</a></li>
+				<li id="@Model[0].Sensors[x].Id" onClick="setId(this.id)"><a data-toggle="tab">@Model[0].Sensors[x].Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="test()"></a></li>
 			}
 			</ul>
 		  </div>
 
 		@for(var x = 1; x < @Model.Count; ++x)
 		{
-		  <div id="u_@x" class="tab-pane fade">
+		  <div id="u_@x" class="tab-pane fade" style="height: 55%; overflow:auto;">
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
-				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name</a></li>
+				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="test()"></a></li>
 				}
 			</ul>
 		  </div>
