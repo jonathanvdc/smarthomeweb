@@ -96,11 +96,16 @@ def add_message(sender, recipient, body):
 ### ElecSim
 ######################################################################
 
+def printDateTime(dt):
+    return dt.strftime("%Y-%m-%dT%H:%M")
+
 def post_elecsim():
     locations = json.loads(requests.get(api + 'locations').text)
     num_locations = len(locations)
-    currentdate = date.today()
-	
+    now = datetime.now()
+
+    log("Current time: " + printDateTime(now))
+
     Popen(
         ['python3', 'main.py',
          '--mode=configure',
@@ -120,8 +125,8 @@ def post_elecsim():
              '--mode=generate',
              '--config_file=configuration.json',
              '--household=%d' % i,
-             '--from=' + str(currentdate - timedelta(days = 1)) + 'T00:00',
-             '--to=' + str(currentdate) + 'T00:00',
+             '--from=' + printDateTime(now - timedelta(days = 1)),
+             '--to=' + printDateTime(now),
              '--output=output.csv'],
             cwd='ElecSim'
         ).wait()
