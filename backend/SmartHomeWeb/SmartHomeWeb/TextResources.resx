@@ -423,4 +423,16 @@
   <data name="GroupProfileNoPosts" xml:space="preserve">
     <value>There are no posts yet by or to users in {0}.</value>
   </data>
+  <data name="AddSensor" xml:space="preserve">
+    <value>Add sensor</value>
+  </data>
+  <data name="AddSensorPageTitle" xml:space="preserve">
+    <value>Add a sensor</value>
+  </data>
+  <data name="LocationDoesNotExist" xml:space="preserve">
+    <value>The location does not exist.</value>
+  </data>
+  <data name="SensorAdded" xml:space="preserve">
+    <value>Sensor \"{0}\" added!</value>
+  </data>
 </root>

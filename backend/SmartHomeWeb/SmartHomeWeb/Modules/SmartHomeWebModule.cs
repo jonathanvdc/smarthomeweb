@@ -92,7 +92,11 @@ namespace SmartHomeWeb.Modules
                 }
                 return View["sensor.cshtml", items];
             };
-            
+
+            Get["/add-sensor/{id?}", true] = GetAddSensor;
+
+            Post["/add-sensor/{id?}", true] = PostAddSensor;
+
             Get["/add-tag/{id?}", true] = GetAddTag;
 
             Post["/add-tag/{id?}", true] = PostAddTag;
@@ -574,7 +578,48 @@ namespace SmartHomeWeb.Modules
                     }
                 }
             }
-            return Response.AsRedirect(String.Format("/add-tag/{0}", (string)Request.Form["sensor-id"]));
+            return await GetAddTag(parameters, ct);
+            //return Response.AsRedirect(String.Format("/add-tag/{0}", (string)Request.Form["sensor-id"]));
+            // Removed as it prevented viewbag messages from displaying, although it was cute
+        }
+
+        private async Task<dynamic> PostAddSensor(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            ViewBag.Error = "";
+            ViewBag.Success = "";
+
+            if (!Context.CurrentUser.IsAuthenticated())
+            {
+                ViewBag.Error = TextResources.AddTagNotAuthenticated;
+            }
+            else
+            {
+                using (var dc = await DataConnection.CreateAsync())
+                {
+                    int locationId = (int)Request.Form["location-id"];
+                    string sensorName = FormHelpers.GetString(Request.Form, "sensor-name");
+                    string sensorDesc = FormHelpers.GetString(Request.Form, "sensor-description");
+                    string sensorNotes = FormHelpers.GetString(Request.Form, "sensor-notes");
+
+                    Console.WriteLine("Adding Sensor \"{0}\" to location {1}", sensorName, locationId);
+
+                    var location = await dc.GetLocationByIdAsync(locationId);
+
+                    if (location == null)
+                    {
+                        ViewBag.Error = TextResources.LocationDoesNotExist;
+                    }
+                    else
+                    {
+                        await dc.InsertSensorAsync(new SensorData(sensorName, sensorDesc, sensorNotes, locationId));
+                        ViewBag.Success = String.Format(TextResources.SensorAdded, sensorName);
+                    }
+                }
+            }
+            return await GetAddSensor(parameters, ct);
+            // return Response.AsRedirect(String.Format("/add-sensor/{0}", (string)Request.Form["location-id"]));
+            // Removed as it prevented viewbag messages from displaying, although it was cute
         }
 
 #pragma warning disable 1998
@@ -588,7 +633,7 @@ namespace SmartHomeWeb.Modules
 		private async Task<dynamic> GetAddPerson(dynamic parameters, CancellationToken ct)
 		{
 			return View["add-person.cshtml"];
-		}
+        }
 
         private async Task<dynamic> GetAddTag(dynamic parameters, CancellationToken ct)
         {
@@ -598,6 +643,16 @@ namespace SmartHomeWeb.Modules
 
             ViewBag.HighlightedSensorId = parameters.id;
             return View["add-tag.cshtml", sensors];
+        }
+
+        private async Task<dynamic> GetAddSensor(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+
+            var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
+
+            ViewBag.HighlightedLocationId = parameters.id;
+            return View["add-sensor.cshtml", locations];
         }
 #pragma warning restore 1998
 

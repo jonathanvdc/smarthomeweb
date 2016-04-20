@@ -178,6 +178,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add sensor.
+        /// </summary>
+        public static string AddSensor {
+            get {
+                return ResourceManager.GetString("AddSensor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a sensor.
+        /// </summary>
+        public static string AddSensorPageTitle {
+            get {
+                return ResourceManager.GetString("AddSensorPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add tag.
         /// </summary>
         public static string AddTag {
@@ -426,6 +444,15 @@ namespace SmartHomeWeb {
         public static string LocationAlreadyExistsError {
             get {
                 return ResourceManager.GetString("LocationAlreadyExistsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The location does not exist..
+        /// </summary>
+        public static string LocationDoesNotExist {
+            get {
+                return ResourceManager.GetString("LocationDoesNotExist", resourceCulture);
             }
         }
         
@@ -777,6 +804,15 @@ namespace SmartHomeWeb {
         public static string SendMessageNotAuthenticatedText {
             get {
                 return ResourceManager.GetString("SendMessageNotAuthenticatedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensor \&quot;{0}\&quot; added!.
+        /// </summary>
+        public static string SensorAdded {
+            get {
+                return ResourceManager.GetString("SensorAdded", resourceCulture);
             }
         }
         
