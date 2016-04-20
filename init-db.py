@@ -76,8 +76,8 @@ def get_location_id(name):
         raise KeyError('no location called %r' % name)
 
 def create_location(name, username):
-    log('Creating location %s for user %s.' % (name, username))
     guid = get_person_guid(username)
+    log('Creating location %s for user %s (guid: %s).' % (name, username, guid))
     j = [{'ownerGuid': guid, 'name': name}]
     requests.post(api + 'locations', json=j)
     location_id = get_location_id(name)
