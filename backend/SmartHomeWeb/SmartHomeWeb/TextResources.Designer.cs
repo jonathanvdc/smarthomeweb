@@ -619,6 +619,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to My profile.
+        /// </summary>
+        public static string MyProfileTitle {
+            get {
+                return ResourceManager.GetString("MyProfileTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to New friend requests.
         /// </summary>
         public static string NewFriendRequestsLabel {

@@ -10,7 +10,12 @@
 {
     Person user = @Model.Item1;
     
-    <h1>@user.Data.Name (@user.Data.UserName)</h1>
+    <h1>@user.Data.Name (@user.Data.UserName) 
+        @if (Context.CurrentUser.IsAuthenticated() && user.Data.UserName == Context.CurrentUser.UserName)
+        { 
+            <a style="font-size:18px" class="glyphicon glyphicon-cog" href="/editprofile"></a>
+        }
+    </h1>
 
     @Html.Partial("feedback-box.cshtml")
 
@@ -36,7 +41,7 @@
 		           ("<address>", "", "<zip>") -> "<address>, <zip>"
 		        *@
 	        	@(string.Join(
-	        		",", 
+	        		", ", 
 	        		new string[] { user.Data.Address, user.Data.ZipCode + " " + user.Data.City }
 	        		.Select(item => item.Trim()).Where(item => !string.IsNullOrEmpty(item))))
 	        	</li>

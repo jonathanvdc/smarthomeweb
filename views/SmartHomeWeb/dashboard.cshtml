@@ -72,7 +72,7 @@ else
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
-				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription(this.parentNode.parentNode.id)"></a></li>
+				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription(this.parentNode.parentNode.id)"></span></a></li>
 				}
 			</ul>
 		  </div>

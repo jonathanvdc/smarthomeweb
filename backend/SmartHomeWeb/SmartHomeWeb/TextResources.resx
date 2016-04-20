@@ -438,6 +438,9 @@
   <data name="LocationDoesNotExist" xml:space="preserve">
     <value>The location does not exist.</value>
   </data>
+  <data name="MyProfileTitle" xml:space="preserve">
+    <value>My profile</value>
+  </data>
   <data name="PasswordPlease" xml:space="preserve">
     <value>Please enter your password</value>
   </data>

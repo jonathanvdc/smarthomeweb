@@ -733,10 +733,6 @@ namespace SmartHomeWeb.Modules
             {
                 ViewBag.Error = TextResources.EmptyNameError;
             }
-            else if (string.IsNullOrWhiteSpace(password))
-            {
-                ViewBag.Error = TextResources.EmptyPasswordError;
-            }
             else if (updatePassword && (newPassword != repeatNewPassword))
             {
                 ViewBag.Error = TextResources.PasswordMismatchError;
@@ -747,9 +743,6 @@ namespace SmartHomeWeb.Modules
             }
             else
             {
-
-                Console.WriteLine("Updating user {0} to be named {1}", person.Data.UserName, name);
-
                 await DataConnection.Ask(async dc =>
                     await dc.UpdatePersonAsync(
                         new Person(person.Guid,
