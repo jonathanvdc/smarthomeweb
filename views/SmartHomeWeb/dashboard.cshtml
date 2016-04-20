@@ -6,27 +6,26 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="/Content/js/moment.min.js"></script> 
+<script src="/Content/js/combodate.js"></script> 
+
 
 <script type="text/javascript">
 	var timeframe = "minutes";
 	var currentsensor = null;
-
-	function updatesensordescription(){
+	
+	function updatesensordescription(x){
 		var xmlhttp = new XMLHttpRequest();
-		var url = "/api/sensors/" + currentsensor.toString();
+		var url = "/api/sensors/" + x.toString();
 		xmlhttp.open("GET", url, false);
 		xmlhttp.send();
 		var response = JSON.parse(xmlhttp.responseText);
 		var newdescription = prompt("New description", response.data.description);
-		alert(newdescription);
 		response.data.description = newdescription;
-		alert(JSON.stringify(response));
 		var xhr = new XMLHttpRequest();
 		xhr.open('PUT', "/api/sensors/");
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		
 		xhr.send(JSON.stringify(response));
-		alert(xhr.responseText);
 	}
 
 	function setFrame(x) {
@@ -61,30 +60,47 @@
 		xmlhttp.send(null);
 	}
 
-	function drawRawMeasurements() {
-		currentDate = new Date();
-		currentDate2 = new Date();
-		currentDate2.setHours(currentDate2.getHours() - 1);
+	function drawRawMeasurements(currentDate = new Date(), currentDate2 = null) {
+		if(currentDate2 === null)
+		{
+		  currentDate2 = new Date();
+		  currentDate2.setHours(currentDate2.getHours()-1);
+		}
 		var url = "/api/measurements/" + currentsensor.toString() + "/" + timeString(currentDate2) + "/" + timeString(currentDate);
 		return requestData(url, drawData);
 	}
 
-	function drawHours() {
-		currentDate = new Date();
-		currentDate.setDate(currentDate.getDate() - 1);
-		currentDate.setHours(currentDate.getHours()+1);
-		var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/24";
+	function drawHours(currentDate = new Date(), currentDate2 = null) {
+	    if(currentDate2 === null)
+		{
+			currentDate.setDate(currentDate.getDate() - 1);
+			currentDate.setHours(currentDate.getHours()+1);
+			var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/24";		
+		}
+		else
+		{
+			var x = Math.abs(currentDate - currentDate2) / 36e5;
+			var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate2) + "/" + x.toString();				
+		}
 		return requestData(url, drawData);
 	}
 
-	function drawDays() {
-		currentDate = new Date();
-		currentDate.setMonth(currentDate.getMonth() - 1);
-		var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/30";
+	function drawDays(currentDate = new Date(), currentDate2 = null) {
+		if(currentDate2 === null)
+		{
+		  currentDate.setMonth(currentDate.getMonth() - 1);
+		  var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/30";		
+		}
+		else
+		{
+		  x = Math.ceil(Math.abs(currentDate - currentDate2) / (36e5*24));		  
+		  var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate2) + "/" + x.toString();		
+		}
+		alert(url);
 		return requestData(url, drawData);
 	}
 
-	function drawMonths() {
+	function drawMonths(currentDate = new Date(), currentDate2 = null) {
 		currentDate = new Date();
 		currentDate.setFullYear(currentDate.getFullYear() - 1);
 		var url = "/api/month-average/" + currentsensor.toString() + "/" + timeString(currentDate) + "/12";
@@ -153,9 +169,19 @@
 			document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
 			return;
 		}
-
 		var f = { 'minutes' : drawRawMeasurements, 'hours' : drawHours, 'days' : drawDays, 'months' : drawMonths }[timeframe];
 		f();
+    }
+	
+	function drawcustomChart() {
+    	if (currentsensor === null) {
+			document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
+			return;
+		}
+		dateone = new Date(document.getElementById('date2').value);
+		datetwo = new Date(document.getElementById('date1').value);	
+		var f = { 'minutes' : drawRawMeasurements, 'hours' : drawHours, 'days' : drawDays, 'months' : drawMonths }[timeframe];
+		f(dateone, datetwo);
     }
 	  
 </script>
@@ -180,29 +206,35 @@ else
 		  <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
 		}
 		</ul>
-		<div class="col-sm-12">
-		<ul class="nav nav-pills">
+		<div style="margin: 5px;" class="col-sm-12">
+		<ul style="margin: 5px;" class="nav nav-pills">
 		  <li class="active" onClick='setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
 		  <li onClick='setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
 		  <li onClick='setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
 		  <li onClick='setFrame("months")'><a href="#" data-toggle="tab">Months</a></li>
 		</ul>
 		
-		<input type="text" value="test"></input>
-		<input type="text" value="test"></input>
+		<table>
+		  <tr>
+		    <td>From:</td><td><input id="date1" type="text" value="2016-04-20T12:00"></td>
+		  </tr>
+		  <tr>
+		    <td>To:</td><td><input id="date2" type="text" value="2016-04-20T13:00"></td> 
+		  </tr>
+		</table>
+		<button onClick="drawcustomChart()">Submit</button>
 		</div>
 		<div class="col-sm-8">
 		    <div id="chart_div"></div>
 		</div>
 		<div class="tab-content col-sm-4">
-		  
 		@for (int x = 0; x < @Model.Count; ++x)
 		{
 		  <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height: 55%; overflow:auto;">
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
-				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription()"></a></li>
+				  <li id="@y.Id" onClick="setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription(this.parentNode.parentNode.id)"></a></li>
 				}
 			</ul>
 		  </div>
