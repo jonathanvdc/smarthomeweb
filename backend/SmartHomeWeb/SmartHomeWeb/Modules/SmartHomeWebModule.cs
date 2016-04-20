@@ -721,7 +721,7 @@ namespace SmartHomeWeb.Modules
             string zipcode = FormHelpers.GetString(Request.Form, "personzipcode");
             string password = FormHelpers.GetRawString(Request.Form, "personpassword");
 
-            bool updatePassword = String.IsNullOrWhiteSpace(newPassword);
+            bool updatePassword = !string.IsNullOrWhiteSpace(newPassword);
 
             Person person = await DataConnection.Ask(x => x.GetPersonByUsernameAsync(Context.CurrentUser.UserName));
 
