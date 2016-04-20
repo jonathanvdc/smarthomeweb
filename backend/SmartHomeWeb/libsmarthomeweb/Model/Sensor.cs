@@ -8,10 +8,11 @@ namespace SmartHomeWeb.Model
 	/// </summary>
 	public sealed class Sensor : IEquatable<Sensor>
 	{
-		// AsyncPoco demands a parameterless constructor.
+		// Serialization demands a parameterless constructor.
+		[JsonConstructor]
 		private Sensor()
 		{
-			// Initialize this to keep AsyncPoco from running
+			// Initialize this to keep the deserializer from running
 			// into trouble.
 			this.Data = new SensorData(null, null, null, 0);
 		}

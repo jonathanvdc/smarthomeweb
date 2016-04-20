@@ -9,7 +9,8 @@ namespace SmartHomeWeb.Model
 	public sealed class SensorData
 	{
         // Empty constructor for serialization.
-        private SensorData()
+        [JsonConstructor]
+		private SensorData()
         { }
 
 		public SensorData(string Name, string Description, string Notes, int LocationId)

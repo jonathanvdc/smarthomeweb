@@ -8,7 +8,8 @@ namespace SmartHomeWeb.Model
 	/// </summary>
 	public sealed class Person : IEquatable<Person>
 	{
-		// AsyncPoco demands a parameterless constructor.
+		// Serialization demands a parameterless constructor.
+		[JsonConstructor]
 		private Person()
 		{ }
 

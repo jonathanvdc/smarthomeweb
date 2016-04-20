@@ -9,6 +9,10 @@ namespace SmartHomeWeb.Model
 	/// </summary>
 	public sealed class LocationData
 	{
+		[JsonConstructor]
+		private LocationData()
+		{ }
+
 		public LocationData(string Name, Guid OwnerGuid, double? ElectricityPrice)
 		{
 			this.Name = Name;
@@ -22,6 +26,12 @@ namespace SmartHomeWeb.Model
 		[JsonProperty("name", Required = Required.Always)]
 		public string Name { get; private set; }
 
+		/// <summary>
+		/// Gets the owner's globally unique identifier.
+		/// </summary>
+		[JsonIgnore]
+		public Guid OwnerGuid { get; private set; }
+
         /// <summary>
         /// Gets the owner's GUID string.
         /// </summary>
@@ -29,14 +39,8 @@ namespace SmartHomeWeb.Model
         public string OwnerGuidString
         {
             get { return OwnerGuid.ToString(); }
-            private set { OwnerGuid = new Guid(value); }
+			private set { OwnerGuid = new Guid(value); }
         }
-
-        /// <summary>
-        /// Gets the owner's globally unique identifier.
-        /// </summary>
-        [JsonIgnore]
-        public Guid OwnerGuid { get; private set; }
 
 		/// <summary>
 		/// Gets the electricity price for all sensors at this location,

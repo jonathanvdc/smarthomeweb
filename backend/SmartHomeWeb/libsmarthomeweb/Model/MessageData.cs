@@ -9,6 +9,10 @@ namespace SmartHomeWeb.Model
     /// </summary>
     public sealed class MessageData
     {
+		[JsonConstructor]
+		private MessageData()
+		{ }
+
         public MessageData(
             Guid SenderGuid, Guid RecipientGuid, 
             string Message)

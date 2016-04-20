@@ -9,7 +9,8 @@ namespace SmartHomeWeb.Model
     public sealed class Message : IEquatable<Message>
     {
         // Serialization demands a parameterless constructor.
-        private Message()
+		[JsonConstructor]
+		private Message()
         { }
 
         /// <summary>

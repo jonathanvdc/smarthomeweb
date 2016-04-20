@@ -10,9 +10,9 @@ namespace SmartHomeWeb.Model
 	/// </summary>
 	public sealed class PersonLocationPair
 	{
+		[JsonConstructor]
 		private PersonLocationPair()
-		{
-		}
+		{ }
 
 		public PersonLocationPair(Guid PersonGuid, int LocationId)
 		{
@@ -27,7 +27,7 @@ namespace SmartHomeWeb.Model
         public string PersonGuidString
         {
             get { return PersonGuid.ToString(); }
-            private set { PersonGuid = new Guid(value); }
+			private set { PersonGuid = new Guid(value); }
         }
 
 		/// <summary>

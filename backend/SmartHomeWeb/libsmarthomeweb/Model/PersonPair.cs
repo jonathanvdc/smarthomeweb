@@ -9,9 +9,9 @@ namespace SmartHomeWeb.Model
     /// </summary>
     public sealed class PersonPair
     {
+		[JsonConstructor]
         private PersonPair()
-        {
-        }
+        { }
 
         public PersonPair(Guid PersonOneGuid, Guid PersonTwoGuid)
         {

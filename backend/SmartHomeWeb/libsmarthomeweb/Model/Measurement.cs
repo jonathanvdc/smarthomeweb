@@ -9,7 +9,8 @@ namespace SmartHomeWeb.Model
     public sealed class Measurement
     {
         // Private constructor for serialization purposes.
-        private Measurement()
+		[JsonConstructor]
+		private Measurement()
         { }
 
         public Measurement(
