@@ -10,7 +10,7 @@
 
     function deleteTag(sensorId, tag) {
         var request = new XMLHttpRequest();
-        request.open('POST', "/api/sensor-tags/delete/" + sensorId.toString());
+        request.open('DELETE', "/api/sensor-tags/" + sensorId.toString());
         request.setRequestHeader('Content-Type', 'application/json');
         request.send('"' + tag + '"');
         document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;

@@ -83,5 +83,11 @@ namespace SmartHomeWeb.Modules.API
 		{
 			Put[path, true] = Recieve<T, TParam>(operation);
 		}
+
+		protected void ApiDelete<T, TParam>(
+			string path, Func<TParam, T, DataConnection, Task> operation)
+		{
+			Delete[path, true] = Recieve<T, TParam>(operation);
+		}
     }
 }
