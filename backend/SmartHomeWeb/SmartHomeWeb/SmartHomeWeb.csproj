@@ -160,6 +160,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\dashboard.cshtml">
       <Link>View Links\dashboard.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\edit-person.cshtml">
+      <Link>View Links\edit-person.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\feedback-box.cshtml">
       <Link>View Links\feedback-box.cshtml</Link>
     </None>

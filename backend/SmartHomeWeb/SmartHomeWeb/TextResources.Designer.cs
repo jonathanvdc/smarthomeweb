@@ -295,6 +295,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit profile.
+        /// </summary>
+        public static string EditPersonButtonText {
+            get {
+                return ResourceManager.GetString("EditPersonButtonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit your profile.
+        /// </summary>
+        public static string EditPersonPageTitle {
+            get {
+                return ResourceManager.GetString("EditPersonPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Seems kind of lonely in here..
         /// </summary>
         public static string EmptyDashboardTitle {
@@ -673,6 +691,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please enter your password.
+        /// </summary>
+        public static string PasswordPlease {
+            get {
+                return ResourceManager.GetString("PasswordPlease", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pending friend requests.
         /// </summary>
         public static string PendingFriendRequestsLabel {
@@ -736,11 +763,29 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New password.
+        /// </summary>
+        public static string PersonNewPasswordLabel {
+            get {
+                return ResourceManager.GetString("PersonNewPasswordLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
         public static string PersonPasswordLabel {
             get {
                 return ResourceManager.GetString("PersonPasswordLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repeat new password.
+        /// </summary>
+        public static string PersonRepeatNewPasswordLabel {
+            get {
+                return ResourceManager.GetString("PersonRepeatNewPasswordLabel", resourceCulture);
             }
         }
         

@@ -859,6 +859,29 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Updates the person in the database
+        /// </summary>
+        /// <param name="person">The person that's updated</param>
+        public async Task UpdatePersonAsync(Person person)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"UPDATE {PersonTableName} " +
+                    "SET name = @name, birthdate = @birthdate, address = @address, city = @city, zipcode = @zipcode, password = @password " +
+                    "WHERE username = @username";
+
+                cmd.Parameters.AddWithValue("@name", person.Data.Name);
+                cmd.Parameters.AddWithValue("@birthdate", DatabaseHelpers.CreateUnixTimeStamp(person.Data.Birthdate));
+                cmd.Parameters.AddWithValue("@address", person.Data.Address);
+                cmd.Parameters.AddWithValue("@city", person.Data.City);
+                cmd.Parameters.AddWithValue("@zipcode", person.Data.ZipCode);
+                cmd.Parameters.AddWithValue("@password", person.Data.Password);
+                cmd.Parameters.AddWithValue("@username", person.Data.UserName);
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
         /// Inserts the given sensor data into the Sensor table.
         /// </summary>
         /// <param name="Data">The sensor data to insert into the table.</param>

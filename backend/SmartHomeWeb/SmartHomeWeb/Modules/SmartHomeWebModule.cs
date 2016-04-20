@@ -47,6 +47,10 @@ namespace SmartHomeWeb.Modules
 
             Get["/person/{username}", true] = GetProfile;
 
+            Get["/editprofile", true] = GetEditProfile;
+
+            Post["/editprofile", true] = UpdateProfile;
+
             Post["/person/{username}", true] = async (parameters, ct) =>
             {
                 this.RequiresAuthentication();
@@ -693,6 +697,73 @@ namespace SmartHomeWeb.Modules
                 Tuple<Person, FriendsState> tuple = Tuple.Create(person, state);
                 return View["profile.cshtml", tuple];
             }
+        }
+
+        private async Task<dynamic> GetEditProfile(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+
+            Person currentUser = await DataConnection.Ask(x => x.GetPersonByUsernameAsync(Context.CurrentUser.UserName));
+            return View["edit-person.cshtml", currentUser];
+        }
+
+        private async Task<dynamic> UpdateProfile(dynamic parameters, CancellationToken ct)
+        {
+            ViewBag.Success = "";
+            ViewBag.Error = "";
+
+            string name = FormHelpers.GetString(Request.Form, "personname");
+            string newPassword = FormHelpers.GetRawString(Request.Form, "personnewpassword");
+            string repeatNewPassword = FormHelpers.GetRawString(Request.Form, "personnewpasswordrepeat");
+            string address = FormHelpers.GetString(Request.Form, "personaddress");
+            DateTime? birthdate = FormHelpers.GetDate(Request.Form, "personbirthdate");
+            string city = FormHelpers.GetString(Request.Form, "personcity");
+            string zipcode = FormHelpers.GetString(Request.Form, "personzipcode");
+            string password = FormHelpers.GetRawString(Request.Form, "personpassword");
+
+            bool updatePassword = String.IsNullOrWhiteSpace(newPassword);
+
+            Person person = await DataConnection.Ask(x => x.GetPersonByUsernameAsync(Context.CurrentUser.UserName));
+
+            if (password != person.Data.Password)
+            {
+                ViewBag.Error = TextResources.PasswordMismatchError;
+            }
+            else if (string.IsNullOrWhiteSpace(name))
+            {
+                ViewBag.Error = TextResources.EmptyNameError;
+            }
+            else if (string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = TextResources.EmptyPasswordError;
+            }
+            else if (updatePassword && (newPassword != repeatNewPassword))
+            {
+                ViewBag.Error = TextResources.PasswordMismatchError;
+            }
+            else if (!birthdate.HasValue)
+            {
+                ViewBag.Error = TextResources.BadlyFormattedBirthDateError;
+            }
+            else
+            {
+
+                Console.WriteLine("Updating user {0} to be named {1}", person.Data.UserName, name);
+
+                await DataConnection.Ask(async dc =>
+                    await dc.UpdatePersonAsync(
+                        new Person(person.Guid,
+                            new PersonData(
+                                person.Data.UserName,
+                                updatePassword ? newPassword : person.Data.Password,
+                                name, birthdate.Value, address, city, zipcode, person.Data.IsAdministrator
+                            )
+                        )
+                    )
+                );
+            }
+
+            return await GetEditProfile(parameters, ct);
         }
 
         public static string NotAuthorizedPage => @"

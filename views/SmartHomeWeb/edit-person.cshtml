@@ -1,0 +1,44 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using Nancy.Session
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<Person>
+@{ Person person = @Model;}
+
+<h1>@TextResources.EditPersonPageTitle</h1>
+
+@Html.Partial("feedback-box.cshtml")
+
+<form method="post">
+    <div class="form-group">
+        <label for="personname">@(TextResources.PersonNameLabel):</label>
+        <input id="personname" name="person-name" class="form-control" value="@person.Data.Name"/>
+
+        <label for="personnewpassword">@(TextResources.PersonNewPasswordLabel):</label>
+        <input type="password" id="personnewpassword" name="person-new-password" class="form-control"/>
+
+        <label for="personpassnewwordrepeat">@(TextResources.PersonRepeatNewPasswordLabel):</label>
+        <input type="password" id="personnewpasswordrepeat" name="person-new-password-repeat" class="form-control"/>
+
+        <label for="personbirthdate">@(TextResources.PersonBirthdateLabel):</label>
+        <input type="date" id="personbirthdate" name="person-birthdate" class="form-control" value="@String.Format("{0:yyyy-MM-dd}", @person.Data.Birthdate)"/>
+
+        <label for="personaddress">@(TextResources.PersonAddressLabel):</label>
+        <input id="personaddress" name="person-address" class="form-control" value="@person.Data.Address"/>
+
+        <label for="personcity">@(TextResources.PersonCityLabel):</label>
+        <input id="personcity" name="person-city" class="form-control" value="@person.Data.City"/>
+
+        <label for="personzipcode">@(TextResources.PersonZipCodeLabel):</label>
+        <input id="personzipcode" name="person-zipcode" class="form-control" value="@person.Data.ZipCode"/>
+
+        <div style="margin-top:60px;">
+            <h4>@TextResources.PasswordPlease</h4>
+            <label for="personpassword">@(TextResources.PersonPasswordLabel):</label>
+            <input type="password" id="personpassword" name="person-password" class="form-control" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">@TextResources.EditPersonButtonText</button>
+</form>

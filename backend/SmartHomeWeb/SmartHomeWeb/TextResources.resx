@@ -429,8 +429,23 @@
   <data name="AddSensorPageTitle" xml:space="preserve">
     <value>Add a sensor</value>
   </data>
+  <data name="EditPersonButtonText" xml:space="preserve">
+    <value>Edit profile</value>
+  </data>
+  <data name="EditPersonPageTitle" xml:space="preserve">
+    <value>Edit your profile</value>
+  </data>
   <data name="LocationDoesNotExist" xml:space="preserve">
     <value>The location does not exist.</value>
+  </data>
+  <data name="PasswordPlease" xml:space="preserve">
+    <value>Please enter your password</value>
+  </data>
+  <data name="PersonNewPasswordLabel" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="PersonRepeatNewPasswordLabel" xml:space="preserve">
+    <value>Repeat new password</value>
   </data>
   <data name="SensorAdded" xml:space="preserve">
     <value>Sensor '{0}' added!</value>
