@@ -119,12 +119,6 @@ namespace SmartHomeWeb.Modules
 
             Get["/nopass"] = parameter => NotAuthorizedPage;
 
-            Get["/graphing", true] = async (parameters, ct) =>
-            {
-                var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
-                return View["graph.cshtml", measurements];
-            };
-
             //TODO this junk
             Get["/groups", true] = GetGroups;
 
