@@ -80,14 +80,14 @@
 	function drawDays() {
 		currentDate = new Date();
 		currentDate.setMonth(currentDate.getMonth() - 1);
-		var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/30";
+		var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/31";
 		return requestData(url, drawData);
 	}
 
 	function drawMonths() {
 		currentDate = new Date();
 		currentDate.setFullYear(currentDate.getFullYear() - 1);
-		var url = "/api/month-average/" + currentsensor.toString() + "/" + timeString(currentDate) + "/12";
+		var url = "/api/month-average/" + currentsensor.toString() + "/" + timeString(currentDate) + "/13";
 		return requestData(url, drawData);
 	}
 
