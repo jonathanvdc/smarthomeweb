@@ -5,23 +5,22 @@
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
 <script type="text/javascript">
-	function updatesensordescription(){
+	function updatesensordescription(x){
 		var xmlhttp = new XMLHttpRequest();
-		var url = "/api/sensors/" + currentsensor.toString();
+		var url = "/api/sensors/" + x.toString();
 		xmlhttp.open("GET", url, false);
 		xmlhttp.send();
 		var response = JSON.parse(xmlhttp.responseText);
 		var newdescription = prompt("New description", response.data.description);
-		alert(newdescription);
 		response.data.description = newdescription;
-		alert(JSON.stringify(response));
 		var xhr = new XMLHttpRequest();
 		xhr.open('PUT', "/api/sensors/");
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		
 		xhr.send(JSON.stringify(response));
-		alert(xhr.responseText);
 	}	  
 </script>
 
@@ -45,29 +44,35 @@ else
 		  <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
 		}
 		</ul>
-		<div class="col-sm-12">
-		<ul class="nav nav-pills">
+		<div style="margin: 5px;" class="col-sm-12">
+		<ul style="margin: 5px;" class="nav nav-pills">
 		  <li class="active" onClick='measurementsGraph.setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
 		  <li onClick='measurementsGraph.setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
 		  <li onClick='measurementsGraph.setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
 		  <li onClick='measurementsGraph.setFrame("months")'><a href="#" data-toggle="tab">Months</a></li>
 		</ul>
 		
-		<input type="text" value="test"></input>
-		<input type="text" value="test"></input>
+		<table>
+		  <tr>
+		    <td>From:</td><td><input id="date1" type="text" value="2016-04-20T12:00"></td>
+		  </tr>
+		  <tr>
+		    <td>To:</td><td><input id="date2" type="text" value="2016-04-20T13:00"></td> 
+		  </tr>
+		</table>
+		<button onClick='measurementsGraph.drawcustomChart()'>Submit</button>
 		</div>
 		<div class="col-sm-8">
 			@Html.Partial("graph.cshtml")
 		</div>
 		<div class="tab-content col-sm-4">
-		  
 		@for (int x = 0; x < @Model.Count; ++x)
 		{
 		  <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height: 55%; overflow:auto;">
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
-				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription()"></a></li>
+				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription(this.parentNode.parentNode.id)"></a></li>
 				}
 			</ul>
 		  </div>
