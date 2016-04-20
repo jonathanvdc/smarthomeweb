@@ -10,13 +10,14 @@ namespace SmartHomeWeb.Model
 	public sealed class PersonData
 	{
         // Empty constructor is required for serialization.
+		[JsonConstructor]
         private PersonData()
         { }
 
         public PersonData(
             string UserName, string Password, string Name, 
             DateTime Birthdate, string Address, string City, 
-            string ZipCode)
+			string ZipCode, bool IsAdministrator)
 		{
             this.UserName = UserName;
             this.Password = Password;
@@ -25,6 +26,7 @@ namespace SmartHomeWeb.Model
             this.Address = Address;
             this.City = City;
             this.ZipCode = ZipCode;
+			this.IsAdministrator = IsAdministrator;
 		}
 
         /// <summary>
@@ -73,6 +75,13 @@ namespace SmartHomeWeb.Model
         /// <remarks>Not all countries have number-only zip codes.</remarks>
         [JsonProperty("zipcode")]
         public string ZipCode { get; private set; }
+
+		/// <summary>
+		/// Gets a value indicating whether this person is an administrator.
+		/// </summary>
+		/// <value><c>true</c> if this person is an administrator; otherwise, <c>false</c>.</value>
+		[JsonProperty("isAdmin")]
+		public bool IsAdministrator { get; private set; }
 	}
 }
 

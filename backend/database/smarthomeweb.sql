@@ -2,11 +2,16 @@ create table Person (
     guid text primary key not null,
     username text not null unique,
     name text,
-    password text not null, -- We store plaintext for now
-    birthdate integer not null, -- In Unix time
-    address text not null, -- Street and number
+    password text not null,
+    -- In Unix time
+    birthdate integer not null,
+    -- Street and number
+    address text not null,
     city text not null,
-    zipcode text not null
+    zipcode text not null,
+    -- A boolean value that tells whether
+    -- this person is an administrator.
+    isAdmin boolean not null
 );
 create table Friends (
     -- A tuple in this table is interpreted as follows:
@@ -38,7 +43,7 @@ create table GroupInvite (
 	primary key (personGroup, person)
 );
 
--- (A, B) is in this table if and only if: 
+-- (A, B) is in this table if and only if:
 -- both (A, B) and (B, A) are in Friends.
 create view TwoWayFriends as
     select * from Friends a where exists

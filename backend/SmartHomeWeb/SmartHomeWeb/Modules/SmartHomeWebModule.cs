@@ -336,7 +336,7 @@ namespace SmartHomeWeb.Modules
                     }
                     else
                     {
-                        var personData = new PersonData(username, password, name, birthdate.Value, address, city, zipcode);
+                        var personData = new PersonData(username, password, name, birthdate.Value, address, city, zipcode, false);
                         // Create the person
                         await dc.InsertPersonAsync(personData);
                         ViewBag.Success = TextResources.AddedPersonMessage;

@@ -39,6 +39,11 @@ namespace SmartHomeWeb
             return Record.GetInt64(Record.GetOrdinal(Name));
         }
 
+		public static bool GetBoolean(IDataRecord Record, string Name)
+		{
+			return Record.GetBoolean(Record.GetOrdinal(Name));
+		}
+
         public static double GetFloat64(IDataRecord Record, string Name)
         {
             return Record.GetDouble(Record.GetOrdinal(Name));
@@ -71,7 +76,7 @@ namespace SmartHomeWeb
                     GetString(Record, "username"), GetString(Record, "password"),
                     GetString(Record, "name"), GetDateTime(Record, "birthdate"),
                     GetString(Record, "address"), GetString(Record, "city"), 
-                    GetString(Record, "zipcode")));
+					GetString(Record, "zipcode"), GetBoolean(Record, "isAdmin")));
         }
         /// <summary>
         /// Reads a group entity from the given record.

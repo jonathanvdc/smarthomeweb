@@ -662,7 +662,7 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"
-                  SELECT pers.guid, pers.username, pers.name, pers.password, pers.birthdate, pers.address, pers.city, pers.zipcode
+                  SELECT pers.guid, pers.username, pers.name, pers.password, pers.birthdate, pers.address, pers.city, pers.zipcode, pers.isAdmin
                   FROM HasLocation as hasLoc, Person as pers
                   WHERE pers.guid = hasLoc.personGuid AND hasLoc.locationId = @locId";
                 cmd.Parameters.AddWithValue("@locId", LocationId);
@@ -759,8 +759,8 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"INSERT INTO {PersonTableName}(guid, username, name, password, birthdate, address, city, zipcode) " +
-                    "VALUES (@guid, @username, @name, @password, @birthdate, @address, @city, @zipcode)";
+                cmd.CommandText = $"INSERT INTO {PersonTableName}(guid, username, name, password, birthdate, address, city, zipcode, isAdmin) " +
+                    "VALUES (@guid, @username, @name, @password, @birthdate, @address, @city, @zipcode, @isAdmin)";
                 cmd.Parameters.AddWithValue("@guid", Guid.NewGuid().ToString());
                 cmd.Parameters.AddWithValue("@username", Data.UserName);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
@@ -769,7 +769,8 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@address", Data.Address);
                 cmd.Parameters.AddWithValue("@city", Data.City);
                 cmd.Parameters.AddWithValue("@zipcode", Data.ZipCode);
-                await cmd.ExecuteNonQueryAsync();
+				cmd.Parameters.AddWithValue("@isAdmin", Data.IsAdministrator);
+				await cmd.ExecuteNonQueryAsync();
             }
         }
 

@@ -1,11 +1,21 @@
 [
     {
+        "name" : "admin",
+        "username" : "admin",
+        "password" : "ozymandias",
+        "address" : "0x0",
+        "city" : "The Matrix",
+        "zipcode" : "0000",
+        "isAdmin" : true
+    },
+    {
         "name" : "Bart Goethals",
         "username" : "bgoethals",
         "password" : "topsecret",
         "address" : "De G.10",
         "city" : "Antwerpen",
-        "zipcode" : "2000"
+        "zipcode" : "2000",
+        "isAdmin" : false
     },
     {
         "name" : "Jon Sneyers",
@@ -13,7 +23,8 @@
         "password" : "topsecret",
         "address" : "UAntwerpen",
         "city" : "Antwerpen",
-        "zipcode" : "2000"
+        "zipcode" : "2000",
+        "isAdmin" : false
     },
     {
         "name" : "Len Feremans",
@@ -21,7 +32,8 @@
         "password" : "topsecret",
         "address" : "UAntwerpen",
         "city" : "Antwerpen",
-        "zipcode" : "2000"
+        "zipcode" : "2000",
+        "isAdmin" : false
     },
     {
         "name" : "Benny Van Houdt",
@@ -29,7 +41,8 @@
         "password" : "topsecret",
         "address" : "UAntwerpen",
         "city" : "Houdt",
-        "zipcode" : "2001"
+        "zipcode" : "2001",
+        "isAdmin" : false
     },
     {
         "name" : "Hans Van Gheluwe",
@@ -37,6 +50,7 @@
         "password" : "topsecret",
         "address" : "UAntwerpen",
         "city" : "Antwerpen",
-        "zipcode" : "2000"
+        "zipcode" : "2000",
+        "isAdmin" : false
     }
 ]
