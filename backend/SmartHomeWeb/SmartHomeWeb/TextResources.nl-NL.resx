@@ -433,6 +433,6 @@
     <value>De locatie bestaat niet.</value>
   </data>
   <data name="SensorAdded" xml:space="preserve">
-    <value>Sensor \"{0}\" toegevoegd!</value>
+    <value>Sensor '{0}' toegevoegd!</value>
   </data>
 </root>

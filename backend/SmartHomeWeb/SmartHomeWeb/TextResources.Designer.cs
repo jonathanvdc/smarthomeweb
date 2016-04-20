@@ -808,7 +808,7 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sensor \&quot;{0}\&quot; added!.
+        ///   Looks up a localized string similar to Sensor &apos;{0}&apos; added!.
         /// </summary>
         public static string SensorAdded {
             get {
