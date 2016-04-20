@@ -90,17 +90,18 @@ span.no-tags{
 	color: #DDCCCC;
 }
 
-.nav .debug-pages .dropdown-toggle, .nav .debug-pages .dropdown-toggle:focus{
-	color: #CC4466;
+.navbar-nav>li>a.debug-page{
+	color:#FF6688;
 }
 
-	.nav .debug-pages .dropdown-toggle:hover, .nav .debug-pages.open .dropdown-toggle, .nav .debug-pages.open .dropdown-toggle:hover,  .nav .debug-pages.open .dropdown-toggle:focus{
-		color: #FF88AA;
+.dropdown-menu>li>a.debug-page{
+	color: #AA1144;
+}
+	
+	.dropdown-menu>li>a.debug-page:hover{
+		background-color:#FFDDDD;
 	}
 
-	.nav .debug-pages ul li a{
-		color: #AA1144;
-	}
 
 .profile-avatar-small {
 	width: 64px;
