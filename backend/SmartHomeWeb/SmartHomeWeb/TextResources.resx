@@ -453,6 +453,18 @@
   <data name="SensorAdded" xml:space="preserve">
     <value>Sensor '{0}' added!</value>
   </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Sensorsfromuser" xml:space="preserve">
+    <value>My sensors</value>
+  </data>
+  <data name="EditSensorPageTitle" xml:space="preserve">
+    <value>Edit this Sensor</value>
+  </data>
+  <data name="EditSensorButtonText" xml:space="preserve">
+    <value>Update Sensor</value>
+  </data>
   <data name="LocationsAdminPageTitle" xml:space="preserve">
     <value>Manage locations</value>
   </data>
@@ -461,5 +473,8 @@
   </data>
   <data name="UsersAdminPageTitle" xml:space="preserve">
     <value>Manage users</value>
+  </data>
+  <data name="UpdateSensorLabel" xml:space="preserve">
+    <value>Edit sensor</value>
   </data>
 </root>

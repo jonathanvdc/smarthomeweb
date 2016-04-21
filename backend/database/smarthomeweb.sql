@@ -20,8 +20,8 @@ create table Friends (
     --
     -- The relation need therefore not be symmetric. Two people are "friends"
     -- if they have sent each other a friend request.
-    personOne text not null references Person(guid),
-    personTwo text not null references Person(guid),
+    personOne text not null references Person(guid) on delete cascade,
+    personTwo text not null references Person(guid) on delete cascade,
     primary key (personOne, personTwo)
 );
 
@@ -33,13 +33,13 @@ create table PersonGroup (
 
 create table BelongsTo (
 	personGroup integer not null references PersonGroup(id),
-	person text not null references Person(guid),
+	person text not null references Person(guid) on delete cascade,
 	primary key (personGroup, person)
 );
 
 create table GroupInvite (
 	personGroup integer not null references PersonGroup(id),
-	person text not null references Person(guid),
+	person text not null references Person(guid) on delete cascade,
 	primary key (personGroup, person)
 );
 
@@ -59,8 +59,8 @@ create view PendingFriendRequest as
 
 create table Message (
     id integer primary key autoincrement,
-    sender text not null references Person(guid),
-    recipient text not null references Person(guid),
+    sender text not null references Person(guid) on delete cascade,
+    recipient text not null references Person(guid) on delete cascade,
     message text not null
     -- 'usage messages' as described in assignment can simply insert a link into message.
 );
@@ -76,13 +76,13 @@ create table Location (
     -- persons who are interested in a location's energy consumption.
     -- (for example, family members may want to know if they left the
     -- lights on, etc)
-    owner text not null references Person(guid)
+    owner text references Person(guid) on delete set null,
 );
 
 -- "Person A has location B" is an N:N relation, so we need a separate table
 -- to store its tuples.
 create table HasLocation (
-    personGuid text not null references Person(guid),
+    personGuid text not null references Person(guid) on delete cascade,
     locationId integer not null references Location(id),
     primary key (personGuid, locationId)
 );

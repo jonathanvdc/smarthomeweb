@@ -99,9 +99,38 @@ namespace SmartHomeWeb.Modules
                 return View["sensor.cshtml", items];
             };
 
+            Get["/mysensors", true] = GetmySensors;
+
             Get["/add-sensor/{id?}", true] = GetAddSensor;
 
             Post["/add-sensor/{id?}", true] = PostAddSensor;
+
+            Get["/edit-sensor/{id}", true] = async (parameters, ct) =>
+            {
+                this.RequiresAuthentication();
+                Sensor calledsensor = await DataConnection.Ask(x => x.GetSensorByIdAsync((int)parameters["id"]));
+                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetSensorTagsAsync(calledsensor.Id));
+                Tuple<Sensor, IEnumerable<string>> items = new Tuple<Sensor, IEnumerable<string>>(calledsensor, tags);
+                return View["editsensor.cshtml", items];
+            };
+
+            Post["/edit-sensor/{id}", true] = async (parameters, ct) =>
+            {
+                this.RequiresAuthentication();
+                string name = FormHelpers.GetString(Request.Form, "sensortitle");
+                string description = FormHelpers.GetRawString(Request.Form, "descriptiontitle");
+                string notes = FormHelpers.GetRawString(Request.Form, "notestitle");
+
+                Sensor original = await DataConnection.Ask(x => x.GetSensorByIdAsync((int)parameters["id"]));
+                SensorData updatebis = new SensorData(name, description, notes, original.Data.LocationId);
+                Sensor update = new Sensor(original.Id, updatebis);
+
+                await DataConnection.Ask(x => x.UpdateSensorAsync(update));
+
+                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetSensorTagsAsync(update.Id));
+                Tuple<Sensor, IEnumerable<string>> items = new Tuple<Sensor, IEnumerable<string>>(update, tags);
+                return View["editsensor.cshtml", items];
+            };
 
             Get["/add-tag/{id?}", true] = GetAddTag;
 
@@ -380,6 +409,21 @@ namespace SmartHomeWeb.Modules
             }
 
             return View["dashboard.cshtml", locationsWithSensors];
+        }
+
+        private async Task<dynamic> GetmySensors(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
+            var locationsWithSensors = new List<LocationWithSensors>();
+
+            foreach (var location in locations)
+            {
+                var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocationAsync(location));
+                locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
+            }
+
+            return View["usersensor.cshtml", locationsWithSensors];
         }
 
         private async Task<dynamic> PostAddLocation(dynamic parameters, CancellationToken ct)

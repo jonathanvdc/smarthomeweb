@@ -295,6 +295,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit profile.
         /// </summary>
         public static string EditPersonButtonText {
@@ -309,6 +318,24 @@ namespace SmartHomeWeb {
         public static string EditPersonPageTitle {
             get {
                 return ResourceManager.GetString("EditPersonPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Sensor.
+        /// </summary>
+        public static string EditSensorButtonText {
+            get {
+                return ResourceManager.GetString("EditSensorButtonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit this Sensor.
+        /// </summary>
+        public static string EditSensorPageTitle {
+            get {
+                return ResourceManager.GetString("EditSensorPageTitle", resourceCulture);
             }
         }
         
@@ -943,6 +970,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to My sensors.
+        /// </summary>
+        public static string Sensorsfromuser {
+            get {
+                return ResourceManager.GetString("Sensorsfromuser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sensors.
         /// </summary>
         public static string SensorsPageTitle {
@@ -993,6 +1029,15 @@ namespace SmartHomeWeb {
         public static string TagNameLabel {
             get {
                 return ResourceManager.GetString("TagNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit sensor.
+        /// </summary>
+        public static string UpdateSensorLabel {
+            get {
+                return ResourceManager.GetString("UpdateSensorLabel", resourceCulture);
             }
         }
         

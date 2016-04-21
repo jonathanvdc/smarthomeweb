@@ -811,6 +811,21 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Delete the person with the given GUID from the Persons table.
+        /// </summary>
+        /// <param name="guid">The person's GUID.</param>
+        public async Task DeletePersonAsync(Guid guid)
+        {
+            await Console.Out.WriteLineAsync("komen we hier zelfs");
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"DELETE FROM {PersonTableName} WHERE guid = @guid";
+                cmd.Parameters.AddWithValue("@guid", guid.ToString());
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
         /// Inserts the given location data into the Locations table.
         /// </summary>
         /// <param name="Data">The location data to insert into the table.</param>
@@ -954,12 +969,12 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
-		/// Removes the measurement made by the given sensor at the given time 
+		/// Deletes the measurement made by the given sensor at the given time 
 		/// from the table with the given name.  
 		/// </summary>
 		/// <remarks>
 		/// This method's intended use case is that of clearing the aggregation cache,
-		/// not to remove tuples from the Measurements table.
+		/// not to delete tuples from the Measurements table.
 		/// </remarks>
 		private async Task DeleteMeasurementAsync(string TableName, int SensorId, DateTime Time)
 		{
@@ -1225,10 +1240,10 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Removes the given tag from the sensor with the 
+		/// Deletes the given tag from the sensor with the 
 		/// given identifier.
 		/// </summary>
-		public async Task RemoveSensorTagAsync(int SensorId, string Tag)
+		public async Task DeleteSensorTagAsync(int SensorId, string Tag)
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
@@ -1241,10 +1256,10 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Removes all tags from the sensor with the given
+		/// Deletes all tags from the sensor with the given
 		/// identifier.
 		/// </summary>
-		public async Task ClearSensorTagsAsync(int SensorId)
+		public async Task DeleteAllSensorTagsAsync(int SensorId)
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
