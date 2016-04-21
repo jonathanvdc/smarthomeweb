@@ -102,6 +102,14 @@ span.no-tags{
 		background-color:#FFDDDD;
 	}
 
+.dropdown-menu>li>a.main-page{
+	color: #1172D6;
+}
+
+	.dropdown-menu>li>a.main-page:hover{
+		background-color:#DDDDFF;
+	}
+
 
 .profile-avatar-small {
 	width: 64px;
