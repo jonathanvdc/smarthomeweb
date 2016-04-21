@@ -1071,19 +1071,19 @@ namespace SmartHomeWeb
 
 					// Invalidate the aggregation cache first...
 					deleteHourCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteHourCommand.Parameters["@unixtime"].Value = MeasurementAggregation.Quantize(m.Time, TimeSpan.FromHours(1));
+					deleteHourCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.Quantize(m.Time, TimeSpan.FromHours(1)));
 					deleteHourCommand.ExecuteNonQuery();
 
 					deleteDayCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteDayCommand.Parameters["@unixtime"].Value = MeasurementAggregation.Quantize(m.Time, TimeSpan.FromDays(1));
+					deleteDayCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.Quantize(m.Time, TimeSpan.FromDays(1)));
 					deleteDayCommand.ExecuteNonQuery();
 
 					deleteMonthCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteMonthCommand.Parameters["@unixtime"].Value = MeasurementAggregation.QuantizeMonth(m.Time);
+					deleteMonthCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.QuantizeMonth(m.Time));
 					deleteMonthCommand.ExecuteNonQuery();
 
 					deleteYearCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteYearCommand.Parameters["@unixtime"].Value = MeasurementAggregation.QuantizeYear(m.Time);
+					deleteYearCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.QuantizeYear(m.Time));
 					deleteYearCommand.ExecuteNonQuery();
 
 					// ... then insert a tuple into the Measurement table.
@@ -1094,7 +1094,8 @@ namespace SmartHomeWeb
 					insertCommand.ExecuteNonQuery();
 				}
 			}
-			return Task.FromResult(false);
+
+			return Task.FromResult(true);
         }
 
         /// <summary>
