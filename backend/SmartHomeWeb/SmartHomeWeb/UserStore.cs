@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Nancy;
 using Nancy.Authentication.Forms;
 using Nancy.Security;
@@ -34,7 +35,12 @@ namespace SmartHomeWeb
 
         public string UserName => Person.Data.UserName;
         public string Password => Person.Data.Password;
-        public IEnumerable<string> Claims => Enumerable.Empty<string>();
+
+        public IEnumerable<string> Claims
+        {
+            get { if (Person.Data.IsAdministrator) yield return "admin"; }
+        }
+
         public Guid Guid => Person.Guid;
 
         public UserIdentity(Person person)

@@ -1,0 +1,67 @@
+@using System.Collections.Generic
+@using System.Linq
+@using Nancy.Security
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<System.Tuple<Sensor, IEnumerable<string>>>>
+
+<script>
+
+    function deleteTag(sensorId, tag) {
+        var request = new XMLHttpRequest();
+        request.open('DELETE', "/api/sensor-tags/" + sensorId.toString());
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send('"' + tag + '"');
+        document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;
+    }
+
+</script>
+
+
+<h1>@TextResources.SensorsAdminPageTitle</h1>
+
+<table class="table">
+
+        <tr class="tableHeader">
+            <th>@TextResources.SensorIDLabel</th>
+            <th>@TextResources.SensorNameLabel</th>
+            <th>@TextResources.SensorLocationLabel</th>
+            <th>@TextResources.SensorDescriptionLabel</th>
+            <th>@TextResources.SensorNotesLabel</th>
+            <th>@TextResources.SensorTagsLabel</th>
+        </tr>      
+		
+    @foreach (var p in @Model)
+    {
+        <tr>
+            @{var sensor = p.Item1;}
+	        <th>@sensor.Id</th>
+            <th>@sensor.Data.Name</th>
+            <td>@sensor.Data.LocationId </td>
+            <td>@sensor.Data.Description</td>
+            <td>@sensor.Data.Notes</td>
+            <td>
+                <a href="/add-tag/@sensor.Id" class="add-tag" style="display:inline">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
+                @{var tags = p.Item2;}
+                @if (tags.Count() != 0)
+                {
+                    for (int i = 0; i < tags.Count(); i++)
+                    {
+                        <span id="tag-@sensor.Id-@tags.ElementAt(i)" class="tag">@tags.ElementAt(i) 
+                            <a href="#" onclick="deleteTag(@sensor.Id, '@tags.ElementAt(i)')">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        </span>
+                    }
+                }
+                else
+                {
+                    <span class="no-tags">(@TextResources.NoTagsText)</span>
+                }
+            </td>
+        </tr>
+    }
+</table>

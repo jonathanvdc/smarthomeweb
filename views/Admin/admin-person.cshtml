@@ -1,0 +1,36 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<Person>>
+
+<h1>@TextResources.UsersAdminPageTitle</h1>
+
+<table class="table">
+
+        <tr class="tableHeader">
+            <th>@TextResources.PersonGUIDLabel</th>
+            <th>@TextResources.PersonUserNameLabel</th>
+            <th>@TextResources.PersonNameLabel</th>
+            <th>@TextResources.PersonBirthdateLabel</th>
+            <th>@TextResources.PersonPasswordLabel</th>
+            <th>@TextResources.PersonAddressLabel</th>
+            <th>@TextResources.PersonCityLabel</th>
+            <th>@TextResources.PersonZipCodeLabel</th>
+        </tr>      
+		
+    @foreach (var p in @Model)
+    {
+        <tr>
+	        <th><samp>@p.Guid</samp></th>
+	        <th><a href="/person/@p.Data.UserName">@p.Data.UserName</a></th>
+	        <td>@p.Data.Name</td>
+	        <td>@p.Data.Birthdate.ToLongDateString()</td>
+	        <td>@p.Data.Password</td>
+	        <td>@p.Data.Address</td>
+	        <td>@p.Data.City</td>
+	        <td>@p.Data.ZipCode</td>
+        </tr>
+    }
+</table>

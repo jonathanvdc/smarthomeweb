@@ -1,0 +1,24 @@
+﻿@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<IEnumerable<Location>>
+
+<h1>@TextResources.LocationsAdminPageTitle</h1>
+
+<table class="table">
+
+        <tr class="tableHeader">
+            <th>@TextResources.LocationNameLabel</th>
+            <th>@TextResources.LocationOwnerGuidLabel</th>
+        </tr>
+		
+    @foreach (var p in @Model)
+    {
+        <tr>
+            <td>@p.Data.Name</td>
+            <td><samp>@p.Data.OwnerGuid</samp></td>
+        </tr>
+    }
+</table>

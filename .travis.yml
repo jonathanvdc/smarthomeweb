@@ -8,6 +8,5 @@ solution: backend/SmartHomeWeb/SmartHomeWeb.sln
 #     - python3 -V
 script:
     - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
-    - nuget restore json-utils/json-utils.sln
-    - xbuild /p:Configuration=Release json-utils/json-utils.sln
-    - ./init-db.sh
+    - sudo pip install requests
+    - python init-db.py

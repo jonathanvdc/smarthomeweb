@@ -170,7 +170,7 @@ def post_elecsim():
             })
 
         log('Posting measurements to server.')
-        log('Uploading %s...' % size_format(len(json.dumps(measurements))))
+        log('Uploading %d measurements... (%s)' % (len(measurements), size_format(len(json.dumps(measurements)))))
         requests.post(api + 'measurements', json=measurements)
 
 ######################################################################

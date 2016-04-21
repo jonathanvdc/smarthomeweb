@@ -33,41 +33,43 @@
 		</div>
 		<div id="navbar" class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
+				@if (Context.CurrentUser.HasClaim("admin"))
+				{
+				    <li class="dropdown">
+					    <a href="#" class="dropdown-toggle debug-page" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						    @TextResources.AdminPagesTitle<span class="caret"></span>
+					    </a>
+					    <ul class="dropdown-menu">
+						    <li><a class="debug-page" href="/admin/person"> @TextResources.UsersAdminPageTitle</a></li>
+						    <li><a class="debug-page" href="/admin/location"> @TextResources.LocationsAdminPageTitle</a></li>
+						    <li><a class="debug-page" href="/admin/sensor"> @TextResources.SensorsAdminPageTitle</a></li>
+					    </ul>
+				    </li>
+				}
+
 				<li class="dropdown">
-					<a href="#" class="dropdown-toggle debug-page" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        @TextResources.AdminPagesTitle<span class="caret"></span>
-                    </a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						@TextResources.UsersPageTitle<span class="caret"></span>
+					</a>
 					<ul class="dropdown-menu">
 						<li><a class="debug-page" href="/person"> @TextResources.UsersPageTitle</a></li>
-						<li><a class="debug-page" href="/location"> @TextResources.LocationsPageTitle</a></li>
-						<li><a class="debug-page" href="/message"> @TextResources.MessagesPageTitle</a></li>
-						<li><a class="debug-page" href="/sensor"> @TextResources.SensorsPageTitle</a></li>
-						<li><a class="debug-page" href="/measurement"> @TextResources.MeasurementsPageTitle</a></li>
+						<li><a href="/add-person"> @TextResources.AddPersonPageTitle</a></li>
+						<li><a href="/friends"> @TextResources.FriendsPageTitle</a></li>
 					</ul>
 				</li>
 
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        @TextResources.UsersPageTitle<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="debug-page" href="/person"> @TextResources.UsersPageTitle</a></li>
-                        <li><a href="/add-person"> @TextResources.AddPersonPageTitle</a></li>
-                        <li><a href="/friends"> @TextResources.FriendsPageTitle</a></li>
-                    </ul>
-                </li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						@TextResources.LocationsPageTitle<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a class="debug-page" href="/location"> @TextResources.LocationsPageTitle</a></li>
+						<li><a href="/add-location"> @TextResources.AddLocationPageTitle</a></li>
+						<li><a href="/add-has-location"> @TextResources.AddHasLocationPageTitle</a></li>
+					</ul>
+				</li>
 
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        @TextResources.LocationsPageTitle<span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="debug-page" href="/location"> @TextResources.LocationsPageTitle</a></li>
-                        <li><a href="/add-location"> @TextResources.AddLocationPageTitle</a></li>
-                        <li><a href="/add-has-location"> @TextResources.AddHasLocationPageTitle</a></li>
-                    </ul>
-                </li>
-
+<<<<<<< HEAD:views/SmartHomeWeb/layout.cshtml
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         @TextResources.SensorsPageTitle<span class="caret"></span>
@@ -80,6 +82,19 @@
                     </ul>
                 </li>
 			    <li><a href="/dashboard"> @TextResources.DashboardPageTitle</a></li>
+=======
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						@TextResources.SensorsPageTitle<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a class="debug-page" href="/sensor"> @TextResources.SensorsPageTitle</a></li>
+						<li><a href="/add-sensor"> @TextResources.AddSensorPageTitle</a></li>
+						<li><a href="/add-tag"> @TextResources.AddTagPageTitle</a></li>
+					</ul>
+				</li>
+				<li><a href="/dashboard"> @TextResources.DashboardPageTitle</a></li>
+>>>>>>> origin/master:views/layout.cshtml
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				@if (@Context.CurrentUser.IsAuthenticated())

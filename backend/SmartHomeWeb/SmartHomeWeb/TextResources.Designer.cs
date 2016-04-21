@@ -223,6 +223,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Admin pages.
+        /// </summary>
+        public static string AdminPagesTitle {
+            get {
+                return ResourceManager.GetString("AdminPagesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All friends.
         /// </summary>
         public static string AllFriendsLabel {
@@ -282,15 +291,6 @@ namespace SmartHomeWeb {
         public static string DashboardPageTitle {
             get {
                 return ResourceManager.GetString("DashboardPageTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Debug pages.
-        /// </summary>
-        public static string DebugPagesTitle {
-            get {
-                return ResourceManager.GetString("DebugPagesTitle", resourceCulture);
             }
         }
         
@@ -507,6 +507,15 @@ namespace SmartHomeWeb {
         public static string LocationOwnerGuidLabel {
             get {
                 return ResourceManager.GetString("LocationOwnerGuidLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage locations.
+        /// </summary>
+        public static string LocationsAdminPageTitle {
+            get {
+                return ResourceManager.GetString("LocationsAdminPageTitle", resourceCulture);
             }
         }
         
@@ -943,6 +952,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Manage sensors.
+        /// </summary>
+        public static string SensorsAdminPageTitle {
+            get {
+                return ResourceManager.GetString("SensorsAdminPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to My sensors.
         /// </summary>
         public static string Sensorsfromuser {
@@ -1020,6 +1038,15 @@ namespace SmartHomeWeb {
         public static string UserNameNotFoundError {
             get {
                 return ResourceManager.GetString("UserNameNotFoundError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage users.
+        /// </summary>
+        public static string UsersAdminPageTitle {
+            get {
+                return ResourceManager.GetString("UsersAdminPageTitle", resourceCulture);
             }
         }
         

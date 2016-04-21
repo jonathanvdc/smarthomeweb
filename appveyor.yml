@@ -1,16 +1,88 @@
+# From https://github.com/ogrisel/python-appveyor-demo/blob/master/appveyor.yml
+# =============================================================================
+environment:
+    matrix:
+        # Python 2.7.10 is the latest version and is not pre-installed.
+
+        - PYTHON: "C:\\Python27.10"
+          PYTHON_VERSION: "2.7.10"
+          PYTHON_ARCH: "32"
+
+        - PYTHON: "C:\\Python27.10-x64"
+          PYTHON_VERSION: "2.7.10"
+          PYTHON_ARCH: "64"
+
+        # Pre-installed Python versions, which Appveyor may upgrade to
+        # a later point release.
+        # See: http://www.appveyor.com/docs/installed-software#python
+
+        - PYTHON: "C:\\Python27"
+          PYTHON_VERSION: "2.7.x" # currently 2.7.9
+          PYTHON_ARCH: "32"
+
+        - PYTHON: "C:\\Python27-x64"
+          PYTHON_VERSION: "2.7.x" # currently 2.7.9
+          PYTHON_ARCH: "64"
+
+        - PYTHON: "C:\\Python33"
+          PYTHON_VERSION: "3.3.x" # currently 3.3.5
+          PYTHON_ARCH: "32"
+
+        - PYTHON: "C:\\Python33-x64"
+          PYTHON_VERSION: "3.3.x" # currently 3.3.5
+          PYTHON_ARCH: "64"
+
+        - PYTHON: "C:\\Python34"
+          PYTHON_VERSION: "3.4.x" # currently 3.4.3
+          PYTHON_ARCH: "32"
+
+        - PYTHON: "C:\\Python34-x64"
+          PYTHON_VERSION: "3.4.x" # currently 3.4.3
+          PYTHON_ARCH: "64"
+
+        # Python versions not pre-installed
+
+        # Python 2.6.6 is the latest Python 2.6 with a Windows installer
+        # See: https://github.com/ogrisel/python-appveyor-demo/issues/10
+
+        - PYTHON: "C:\\Python266"
+          PYTHON_VERSION: "2.6.6"
+          PYTHON_ARCH: "32"
+
+        - PYTHON: "C:\\Python266-x64"
+          PYTHON_VERSION: "2.6.6"
+          PYTHON_ARCH: "64"
+
+        - PYTHON: "C:\\Python35"
+          PYTHON_VERSION: "3.5.0"
+          PYTHON_ARCH: "32"
+
+        - PYTHON: "C:\\Python35-x64"
+          PYTHON_VERSION: "3.5.0"
+          PYTHON_ARCH: "64"
+
+        # Major and minor releases (i.e x.0.0 and x.y.0) prior to 3.3.0 use
+        # a different naming scheme.
+
+        - PYTHON: "C:\\Python270"
+          PYTHON_VERSION: "2.7.0"
+          PYTHON_ARCH: "32"
+
+        - PYTHON: "C:\\Python270-x64"
+          PYTHON_VERSION: "2.7.0"
+          PYTHON_ARCH: "64"
+# =============================================================================
+
 before_build:
     - nuget restore backend/SmartHomeWeb/SmartHomeWeb.sln
-    - nuget restore json-utils/json-utils.sln
 
 configuration:
-  - Release
+    - Release
 
 build:
     project: backend/SmartHomeWeb/SmartHomeWeb.sln
 
 after_build:
-    # Build json-utils
-    - msbuild /p:Configuration=Release json-utils/json-utils.sln
     # Install sqlite3
     - curl -L http://www.sqlite.org/2016/sqlite-dll-win32-x86-3110100.zip > sqlite-dll.zip
     - 7z x sqlite-dll.zip -obackend/SmartHomeWeb/SmartHomeWeb/bin/Release
@@ -20,5 +92,27 @@ after_build:
     - dir backend\database\sqlite-tools-win32-x86-3110100
     - move backend\database\sqlite-tools-win32-x86-3110100\sqlite3.exe backend\database\sqlite3.exe
 
+    # From https://github.com/ogrisel/python-appveyor-demo/blob/master/appveyor.yml
+    # =============================================================================
+    # Install Python (from the official .msi of http://python.org) and pip when
+    # not already installed.
+    - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+
+    # Prepend newly installed Python to the PATH of this build (this cannot be
+    # done from inside the powershell script as it would require to restart
+    # the parent CMD process).
+    - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+    # Check that we have the expected version and architecture for Python
+    - "python --version"
+    - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+    # Upgrade to the latest version of pip to avoid it displaying warnings
+    # about it being out of date.
+    - "pip install --disable-pip-version-check --user --upgrade pip"
+    # =============================================================================
+
+    - pip install requests
+
 test_script:
-    - ps: ./init-db.ps1
+    - python init-db.py
