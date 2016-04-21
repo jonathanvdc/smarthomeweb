@@ -1,0 +1,56 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage{pxfonts}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\author{Sibert Aerts\\
+Ken Bauwens\\
+Pieter Hendriks\\
+Jonathan Van der Cruysse\\
+Mauris Van Hauwe}
+\title{Project Databases: Verslag 8}
+\date{}
+\newcommand{\red}[1]{{\color{red!80!green}#1}}
+\newcommand{\green}[1]{{\color{green!60!blue}#1}}
+
+\begin{document}
+  \maketitle
+  \section{Aanwezigheden}
+  Iedereen was aanwezig op de vergadering van 21 april. 
+  
+  \section{Status en onderwerpen}
+  
+  Sinds deze week kunnen we tags toevoegen aan, en wegnemen van, sensoren. Dit is intussen zowel in de \emph{front-end} als in de \emph{back-end} ge\"implementeerd.
+  
+  Daarnaast kunnen we nu ook data aanpassen van personen en sensoren. De \emph{front-end} is inmiddels zo goed als volledig tweetalig.
+  
+  Verder hebben we ook gewerkt aan aggregatie: die gebeurt nu ook per maand en per jaar. Aggregatie gebeurt momenteel nog volledig \emph{on-demand}, om ook met de meest recente data rekening te kunnen houden. Bij een \textsc{insert} in de database wordt de aggregatie-cache voor het uur, dag, maand en jaar van de measurement ge\"invalideerd.
+  
+  Outliers worden nu conform met de specificatie uit de metingen verwijderd.
+  
+  \section{Afspraken en planning}
+  Voor volgende week staan deze punten op de agenda:
+  
+  \begin{itemize}
+  	
+  	\item Sensoren filteren op \emph{tags}. (Sibert)
+  	
+  	\item Data van meerdere sensoren tegelijkertijd beschouwen. (Ken)
+  	
+  	\item Samenvoegen van verbruik van alle gebruikers, voor admins. (Jonathan)
+  	
+  	\item Coherenter maken van de \emph{front-end}. (Sibert, Pieter en Jonathan)
+  	
+  	\item Verderzetting van taak vorige week: admin-mode aanmaken. (Mauris en Sibert)
+  	
+  	\item Verderzetting van taak vorige week: het sociale aspect van de site verbeteren: een ``wall'' maken, en daarop berichten tonen en delen. Daarnaast ook grafieken aan de ``wall'' toevoegen. (Pieter)
+  	
+  \end{itemize}
+  
+\end{document}
