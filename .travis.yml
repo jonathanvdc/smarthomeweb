@@ -8,4 +8,5 @@ solution: backend/SmartHomeWeb/SmartHomeWeb.sln
 #     - python3 -V
 script:
     - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
+    - pip install requests
     - python init-db.py
