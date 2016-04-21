@@ -75,6 +75,8 @@ namespace SmartHomeWeb.Modules
 
             Post["/friends", true] = PostFriends;
 
+			Get["/friend-request"] = _ => Response.AsRedirect("/friends");
+
             Post["/friend-request", true] = async (parameters, ct) =>
             {
                 this.RequiresAuthentication();
