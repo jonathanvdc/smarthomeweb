@@ -55,17 +55,21 @@ else
 				@foreach (var y in @Model[x].Sensors)
 				{
 				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)">
-				      <a>
-							    <div>
-				              @y.Data.Name
-							  <a href="/edit-sensor/@y.Id" class="add-tag" style="display:inline">
-								<span class="glyphicon glyphicon-cog"  style="float: right;"></span>
-							  </a>
-                  </div>
+				  	<div style="width: 100%; display: table;">
+						<div style="display: table-row">
+							<a style="display: table-cell;">
+								<div>
+									@y.Data.Name
 									<div id="@(y.Id)-description" class="sensor-desciption">
-				              @y.Data.Description
-				          </div>
-				      </a>
+							              @y.Data.Description
+									</div>
+								</div>
+							</a>
+							<a href="/edit-sensor/@y.Id" class="add-tag" style="width: 25px; display: table-cell;">
+								<span class="glyphicon glyphicon-cog"  style="float: right;" />
+							</a>
+						</div>
+					</div>
 			      </li>
 				}
 			</ul>
