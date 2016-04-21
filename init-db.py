@@ -125,7 +125,7 @@ def post_elecsim():
              '--mode=generate',
              '--config_file=configuration.json',
              '--household=%d' % i,
-             '--from=' + printDateTime(now - timedelta(days = 1)),
+             '--from=' + printDateTime(now - timedelta(days = 60)),
              '--to=' + printDateTime(now),
              '--output=output.csv'],
             cwd='ElecSim'
