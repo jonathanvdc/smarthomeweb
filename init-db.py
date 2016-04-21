@@ -173,6 +173,12 @@ def post_elecsim():
         log('Uploading %d measurements... (%s)' % (len(measurements), size_format(len(json.dumps(measurements)))))
         requests.post(api + 'measurements', json=measurements)
 
+        log('Aggregating data...')
+        for s in sensors:
+            if s['data']['locationId'] == location_id:
+                log('Aggregating data for sensor %s' % s['data']['name'])
+                requests.get(api + 'year-average/%d/%s' % (s['id'], now.isoformat()))
+
 ######################################################################
 ### Main script
 ######################################################################
