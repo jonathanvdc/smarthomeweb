@@ -456,6 +456,15 @@
   <data name="Delete" xml:space="preserve">
     <value>Verwijderen</value>
   </data>
+  <data name="Sensorsfromuser" xml:space="preserve">
+    <value>Mijn sensoren</value>
+  </data>
+  <data name="EditSensorPageTitle" xml:space="preserve">
+    <value>Bewerk de Sensor</value>
+  </data>
+  <data name="EditSensorButtonText" xml:space="preserve">
+    <value>Bewerk Sensor</value>
+  </data>
   <data name="LocationsAdminPageTitle" xml:space="preserve">
     <value>Locaties beheren</value>
   </data>
