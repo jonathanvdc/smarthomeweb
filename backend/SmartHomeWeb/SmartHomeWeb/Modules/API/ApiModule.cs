@@ -44,6 +44,14 @@ namespace SmartHomeWeb.Modules.API
             };
         }
 
+        public static Func<dynamic, CancellationToken, Task<dynamic>> Ask(
+            Func<dynamic, DataConnection, Task> operation)
+        {
+            return Ask<int>(async (p, dc) => {
+                await operation(p, dc); return 0;
+            });
+        }
+
         /// <summary>
         /// Register an API GET operation: <code>ApiGet(path, f)</code> is
         /// short for <code>Get[path, true] = Ask(f)</code>.
@@ -89,5 +97,11 @@ namespace SmartHomeWeb.Modules.API
 		{
 			Delete[path, true] = Recieve<T, TParam>(operation);
 		}
+
+        protected void ApiDelete(
+            string path, Func<dynamic, DataConnection, Task> operation)
+        {
+            Delete[path, true] = Ask(operation);
+        }
     }
 }

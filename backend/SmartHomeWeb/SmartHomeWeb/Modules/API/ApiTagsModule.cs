@@ -11,7 +11,7 @@ namespace SmartHomeWeb.Modules.API
 
             ApiPost<List<string>, object>("/{id}/", (p, items, dc) => dc.InsertSensorTagAsync((int)((dynamic)p)["id"], items));
 
-            ApiDelete<string, object>("/{id}/", (p, item, dc) => dc.RemoveSensorTagAsync((int)((dynamic)p)["id"], item));
+            ApiDelete<string, object>("/{id}/", (p, item, dc) => dc.DeleteSensorTagAsync((int)((dynamic)p)["id"], item));
         }
 	}
 }

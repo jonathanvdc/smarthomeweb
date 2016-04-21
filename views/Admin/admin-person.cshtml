@@ -5,10 +5,20 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Person>>
 
+<script type="text/javascript">
+    function deleteUser(guid) {
+        var request = new XMLHttpRequest();
+        request.open('DELETE', "/api/persons/" + guid);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send();
+        console.log(request.responseText);
+        document.getElementById("row-" + guid).hidden = true;
+    }
+</script>
+
 <h1>@TextResources.UsersAdminPageTitle</h1>
 
 <table class="table">
-
         <tr class="tableHeader">
             <th>@TextResources.PersonGUIDLabel</th>
             <th>@TextResources.PersonUserNameLabel</th>
@@ -17,12 +27,13 @@
             <th>@TextResources.PersonPasswordLabel</th>
             <th>@TextResources.PersonAddressLabel</th>
             <th>@TextResources.PersonCityLabel</th>
-            <th>@TextResources.PersonZipCodeLabel</th>
+	        <th>@TextResources.PersonZipCodeLabel</th>
+	        <th>@TextResources.Delete</th>
         </tr>      
 		
     @foreach (var p in @Model)
     {
-        <tr>
+        <tr id="row-@p.Guid">
 	        <th><samp>@p.Guid</samp></th>
 	        <th><a href="/person/@p.Data.UserName">@p.Data.UserName</a></th>
 	        <td>@p.Data.Name</td>
@@ -31,6 +42,11 @@
 	        <td>@p.Data.Address</td>
 	        <td>@p.Data.City</td>
 	        <td>@p.Data.ZipCode</td>
+	        <td>
+		        <button onclick="deleteUser('@p.Guid')" type="button" class="btn btn-danger">
+			        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+		        </button>
+	        </td>
         </tr>
     }
 </table>
