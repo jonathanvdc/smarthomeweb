@@ -6,33 +6,6 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-
-<script type="text/javascript">
-	function updatesensordescription(x){
-		var xmlhttp = new XMLHttpRequest();
-		var url = "/api/sensors/" + x.toString();
-		xmlhttp.open("GET", url, false);
-		xmlhttp.send();
-		var response = JSON.parse(xmlhttp.responseText);
-		var newdescription = prompt("New description", response.data.description);
-		response.data.description = newdescription;
-		var xhr = new XMLHttpRequest();
-		xhr.open('PUT', "/api/sensors/");
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.send(JSON.stringify(response));
-
-		// Assume that the database has been updated correctly,
-		// and update the element's description in the UI.
-		var el = document.getElementById(x + "-description");
-		while (el.firstChild)
-		    // Remove all the things.
-		    el.removeChild(el.firstChild);
-
-		 el.appendChild(document.createTextNode(newdescription));
-	}
-</script>
-
 <h2>@TextResources.MeasurementsPageTitle</h2>
 
 @if (@Model.Count == 0)
@@ -85,7 +58,9 @@ else
 				      <a>
 							    <div>
 				              @y.Data.Name
-				              <span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription(@y.Id)" />
+							  <a href="/edit-sensor/@y.Id" class="add-tag" style="display:inline">
+								<span class="glyphicon glyphicon-cog"  style="float: right;"></span>
+							  </a>
                   </div>
 									<div id="@(y.Id)-description" class="sensor-desciption">
 				              @y.Data.Description

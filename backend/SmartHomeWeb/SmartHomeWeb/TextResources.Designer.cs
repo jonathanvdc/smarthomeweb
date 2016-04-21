@@ -313,6 +313,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Update Sensor.
+        /// </summary>
+        public static string EditSensorButtonText {
+            get {
+                return ResourceManager.GetString("EditSensorButtonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit this Sensor.
+        /// </summary>
+        public static string EditSensorPageTitle {
+            get {
+                return ResourceManager.GetString("EditSensorPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Seems kind of lonely in here..
         /// </summary>
         public static string EmptyDashboardTitle {
@@ -921,6 +939,15 @@ namespace SmartHomeWeb {
         public static string SensorNotesLabel {
             get {
                 return ResourceManager.GetString("SensorNotesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to My sensors.
+        /// </summary>
+        public static string Sensorsfromuser {
+            get {
+                return ResourceManager.GetString("Sensorsfromuser", resourceCulture);
             }
         }
         
