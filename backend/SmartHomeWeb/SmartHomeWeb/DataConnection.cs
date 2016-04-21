@@ -384,6 +384,20 @@ namespace SmartHomeWeb
             return GetAverageAsync(SensorId, Hour, HourAverageTableName, ComputeHourAverageAsync);
         }
 
+		/// <summary>
+		/// Creates a task that fetches or computes a number of hour averages for the 
+		/// given sensor during the given hours.
+		/// </summary>
+		public async Task<IEnumerable<Measurement>> GetHourAveragesAsync(int SensorId, DateTime StartHour, int Count)
+		{
+			var cache = new AggregationCache(this, SensorId, StartHour, StartHour.AddHours(Count));
+
+			await cache.PrefetchHourAveragesAsync();
+			var result = await cache.GetHourAveragesAsync(StartHour, Count);
+			await cache.FlushHoursAsync();
+			return result;
+		}
+
         /// <summary>
         /// Creates a task that fetches or computes the day average for the 
         /// given sensor during the given day.
@@ -394,6 +408,20 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
+		/// Creates a task that fetches or computes a number of hour-averages for the 
+		/// given sensor during the given hours.
+		/// </summary>
+		public async Task<IEnumerable<Measurement>> GetDayAveragesAsync(int SensorId, DateTime StartDay, int Count)
+		{
+			var cache = new AggregationCache(this, SensorId, StartDay, StartDay.AddDays(Count));
+
+			await cache.PrefetchHourAveragesAsync();
+			var result = await cache.GetDayAveragesAsync(StartDay, Count);
+			await cache.FlushDaysAsync();
+			return result;
+		}
+
+		/// <summary>
 		/// Creates a task that fetches or computes the month average for the 
 		/// given sensor during the given month.
 		/// </summary>
@@ -401,7 +429,6 @@ namespace SmartHomeWeb
 		{
 			return GetAverageAsync(SensorId, Month, MonthAverageTableName, ComputeMonthAverageAsync);
 		}
-
 
 		/// <summary>
 		/// Creates a task that fetches or computes the year average for the 
@@ -959,6 +986,12 @@ namespace SmartHomeWeb
 			await DeleteMeasurementAsync(
 				DayAverageTableName, Data.SensorId, 
 				MeasurementAggregation.Quantize(Data.Time, TimeSpan.FromDays(1)));
+			await DeleteMeasurementAsync(
+				MonthAverageTableName, Data.SensorId, 
+				MeasurementAggregation.QuantizeMonth(Data.Time));
+			await DeleteMeasurementAsync(
+				YearAverageTableName, Data.SensorId, 
+				MeasurementAggregation.QuantizeYear(Data.Time));
 			// ... then insert a tuple into the Measurement table.
             await InsertMeasurementAsync(Data, MeasurementTableName);
         }
@@ -969,7 +1002,84 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of measurements to insert into the table.</param>
         public Task InsertMeasurementAsync(IEnumerable<Measurement> Data)
         {
-			return InsertManyAsync(Data, InsertMeasurementAsync);
+			// This has to be really fast. 
+			// That means that there will be no more half-measures.
+			//
+			// What follows is a horribly monolithic
+			// piece of code that has been contructed to extract
+			// every bit of performance from the database.
+			//
+			// Abandon all hope, ye who enter here. 
+			// Read at your own peril.
+
+			// Create five commands, which we will re-use
+			using (SqliteCommand insertCommand = sqlite.CreateCommand(), 
+				deleteHourCommand = sqlite.CreateCommand(),
+				deleteDayCommand = sqlite.CreateCommand(),
+				deleteMonthCommand = sqlite.CreateCommand(),
+				deleteYearCommand = sqlite.CreateCommand())
+			{
+				// Initialize the commands
+				insertCommand.CommandText = $"INSERT INTO {MeasurementTableName}(sensorId, unixtime, measured, notes) " +
+					"VALUES (@sensorId, @unixtime, @measured, @notes)";
+				insertCommand.Parameters.AddWithValue("@sensorId", 0);
+				insertCommand.Parameters.AddWithValue("@unixtime", 0);
+				insertCommand.Parameters.AddWithValue("@measured", 0.0);
+				insertCommand.Parameters.AddWithValue("@notes", "");
+				
+				deleteHourCommand.CommandText = $"DELETE FROM {HourAverageTableName} " +
+					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+				deleteHourCommand.Parameters.AddWithValue("@sensorId", 0);
+				deleteHourCommand.Parameters.AddWithValue("@unixtime", 0);
+
+				deleteDayCommand.CommandText = $"DELETE FROM {DayAverageTableName} " +
+					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+				deleteDayCommand.Parameters.AddWithValue("@sensorId", 0);
+				deleteDayCommand.Parameters.AddWithValue("@unixtime", 0);
+
+				deleteMonthCommand.CommandText = $"DELETE FROM {MonthAverageTableName} " +
+					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+				deleteMonthCommand.Parameters.AddWithValue("@sensorId", 0);
+				deleteMonthCommand.Parameters.AddWithValue("@unixtime", 0);
+
+				deleteYearCommand.CommandText = $"DELETE FROM {YearAverageTableName} " +
+					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+				deleteYearCommand.Parameters.AddWithValue("@sensorId", 0);
+				deleteYearCommand.Parameters.AddWithValue("@unixtime", 0);
+
+				foreach (var m in Data)
+				{
+					// We will now update these commands' parameters,
+					// and execute them _synchronously_. SQLite 
+					// locks the database during a write operation anyway,
+					// so there's really no point in task-based parallelism.
+
+					// Invalidate the aggregation cache first...
+					deleteHourCommand.Parameters["@sensorId"].Value = m.SensorId;
+					deleteHourCommand.Parameters["@unixtime"].Value = MeasurementAggregation.Quantize(m.Time, TimeSpan.FromHours(1));
+					deleteHourCommand.ExecuteNonQuery();
+
+					deleteDayCommand.Parameters["@sensorId"].Value = m.SensorId;
+					deleteDayCommand.Parameters["@unixtime"].Value = MeasurementAggregation.Quantize(m.Time, TimeSpan.FromDays(1));
+					deleteDayCommand.ExecuteNonQuery();
+
+					deleteMonthCommand.Parameters["@sensorId"].Value = m.SensorId;
+					deleteMonthCommand.Parameters["@unixtime"].Value = MeasurementAggregation.QuantizeMonth(m.Time);
+					deleteMonthCommand.ExecuteNonQuery();
+
+					deleteYearCommand.Parameters["@sensorId"].Value = m.SensorId;
+					deleteYearCommand.Parameters["@unixtime"].Value = MeasurementAggregation.QuantizeYear(m.Time);
+					deleteYearCommand.ExecuteNonQuery();
+
+					// ... then insert a tuple into the Measurement table.
+					insertCommand.Parameters["@sensorId"].Value = m.SensorId;
+					insertCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(m.Time);
+					insertCommand.Parameters["@measured"].Value = m.MeasuredData;
+					insertCommand.Parameters["@notes"].Value = m.Notes;
+					insertCommand.ExecuteNonQuery();
+				}
+			}
+			return Task.FromResult(false);
         }
 
         /// <summary>

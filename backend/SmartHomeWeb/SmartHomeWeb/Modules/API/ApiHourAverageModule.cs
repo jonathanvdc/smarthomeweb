@@ -39,7 +39,7 @@ namespace SmartHomeWeb.Modules.API
         /// given quantized start time, and further measurements are produced
         /// by incrementally adding the time quantum to this initial time. 
         /// </summary>
-        public Task<IEnumerable<Measurement>> GetAggregatedRangeAsync(DataConnection Connection, int SensorId, DateTime StartTime, int ResultCount)
+        public virtual Task<IEnumerable<Measurement>> GetAggregatedRangeAsync(DataConnection Connection, int SensorId, DateTime StartTime, int ResultCount)
         {
             var results = new Task<Measurement>[ResultCount];
             var time = StartTime;
@@ -100,5 +100,11 @@ namespace SmartHomeWeb.Modules.API
         {
             return Connection.GetHourAverageAsync(SensorId, Time);
         }
+
+		public override Task<IEnumerable<Measurement>> GetAggregatedRangeAsync(
+			DataConnection Connection, int SensorId, DateTime StartTime, int ResultCount)
+		{
+			return Connection.GetHourAveragesAsync(SensorId, StartTime, ResultCount);
+		}
     }
 }

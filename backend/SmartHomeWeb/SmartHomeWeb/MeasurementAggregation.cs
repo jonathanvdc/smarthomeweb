@@ -18,6 +18,16 @@ namespace SmartHomeWeb
 			return new DateTime(tTicks - tTicks % Quantum.Ticks, Time.Kind);
 		}
 
+		public static DateTime QuantizeMonth(DateTime Time)
+		{
+			return new DateTime(Time.Year, Time.Month, 1, 0, 0, 0, 0, Time.Kind);
+		}
+
+		public static DateTime QuantizeYear(DateTime Time)
+		{
+			return new DateTime(Time.Year, 1, 1, 0, 0, 0, 0, Time.Kind);
+		}
+
         /// <summary>
         /// Return a measurement that represents an aggregation of all
         /// measurements in the input.
