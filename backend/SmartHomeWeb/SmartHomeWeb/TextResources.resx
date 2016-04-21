@@ -144,8 +144,8 @@
   <data name="UserNameNotFoundError" xml:space="preserve">
     <value>I couldn't find your username in the database.</value>
   </data>
-  <data name="DebugPagesTitle" xml:space="preserve">
-    <value>Debug pages</value>
+  <data name="AdminPagesTitle" xml:space="preserve">
+    <value>Admin pages</value>
   </data>
   <data name="UsersPageTitle" xml:space="preserve">
     <value>Users</value>
@@ -452,5 +452,14 @@
   </data>
   <data name="SensorAdded" xml:space="preserve">
     <value>Sensor '{0}' added!</value>
+  </data>
+  <data name="LocationsAdminPageTitle" xml:space="preserve">
+    <value>Manage locations</value>
+  </data>
+  <data name="SensorsAdminPageTitle" xml:space="preserve">
+    <value>Manage sensors</value>
+  </data>
+  <data name="UsersAdminPageTitle" xml:space="preserve">
+    <value>Manage users</value>
   </data>
 </root>

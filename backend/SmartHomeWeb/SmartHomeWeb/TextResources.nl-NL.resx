@@ -123,8 +123,8 @@
   <data name="LogOut" xml:space="preserve">
     <value>Uitloggen</value>
   </data>
-  <data name="DebugPagesTitle" xml:space="preserve">
-    <value>Debug pagina's</value>
+  <data name="AdminPagesTitle" xml:space="preserve">
+    <value>Administratiepagina's</value>
   </data>
   <data name="UsersPageTitle" xml:space="preserve">
     <value>Gebruikers</value>
@@ -452,5 +452,14 @@
   </data>
   <data name="SensorAdded" xml:space="preserve">
     <value>Sensor '{0}' toegevoegd!</value>
+  </data>
+  <data name="LocationsAdminPageTitle" xml:space="preserve">
+    <value>Locaties beheren</value>
+  </data>
+  <data name="SensorsAdminPageTitle" xml:space="preserve">
+    <value>Sensoren beheren</value>
+  </data>
+  <data name="UsersAdminPageTitle" xml:space="preserve">
+    <value>Gebruikers beheren</value>
   </data>
 </root>
