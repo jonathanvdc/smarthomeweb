@@ -40,11 +40,11 @@ span.tag {
 	color: #881166;
 	font-size:12px;
 	background-color:#FFBBDD;
-	
+
 	padding:2px;
 	padding-left:5px;
 	padding-right:5px;
-	
+
 	border-radius:4px;
 	margin:2px;
 	line-height:18px;
@@ -58,7 +58,7 @@ span.tag {
 		margin:1px;
 	}
 
-	span.tag a:hover{	
+	span.tag a:hover{
 		text-decoration:none;
 	}
 
@@ -74,7 +74,7 @@ span.tag {
 		}
 
 		.tag .glyphicon:hover{
-			color: #660044;	
+			color: #660044;
 		}
 
 a.add-tag{
@@ -82,7 +82,7 @@ a.add-tag{
 }
 
 	a.add-tag:hover{
-		color:#AA4488;	
+		color:#AA4488;
 		text-decoration:none;
 	}
 
@@ -97,7 +97,7 @@ span.no-tags{
 .dropdown-menu>li>a.debug-page{
 	color: #AA1144;
 }
-	
+
 	.dropdown-menu>li>a.debug-page:hover{
 		background-color:#FFDDDD;
 	}
@@ -127,4 +127,8 @@ span.no-tags{
     background-size: 150px 150px;
 	float: left;
 	margin-right:32px;
+}
+
+.sensor-desciption {
+	color: #AAAAAA;
 }

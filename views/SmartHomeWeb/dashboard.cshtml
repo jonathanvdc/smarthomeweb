@@ -21,7 +21,16 @@
 		xhr.open('PUT', "/api/sensors/");
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		xhr.send(JSON.stringify(response));
-	}	  
+
+		// Assume that the database has been updated correctly,
+		// and update the element's description in the UI.
+		var el = document.getElementById(x + "-description");
+		while (el.firstChild)
+		    // Remove all the things.
+		    el.removeChild(el.firstChild);
+
+		 el.appendChild(document.createTextNode(newdescription));
+	}
 </script>
 
 <h2>@TextResources.MeasurementsPageTitle</h2>
@@ -51,13 +60,13 @@ else
 		  <li onClick='measurementsGraph.setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
 		  <li onClick='measurementsGraph.setFrame("months")'><a href="#" data-toggle="tab">Months</a></li>
 		</ul>
-		
+
 		<table>
 		  <tr>
-		    <td>From:</td><td><input id="date1" type="text" value="2016-04-20T12:00"></td>
+		    <td>From:</td><td><input id="date1" type="datetime" value="2016-04-20T12:00"></td>
 		  </tr>
 		  <tr>
-		    <td>To:</td><td><input id="date2" type="text" value="2016-04-20T13:00"></td> 
+		    <td>To:</td><td><input id="date2" type="datetime" value="2016-04-20T13:00"></td>
 		  </tr>
 		</table>
 		<button onClick='measurementsGraph.drawcustomChart()'>Submit</button>
@@ -72,12 +81,21 @@ else
 			<ul class="nav nav-pills nav-stacked">
 				@foreach (var y in @Model[x].Sensors)
 				{
-				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)"><a>@y.Data.Name<span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription(this.parentNode.parentNode.id)"></span></a></li>
+				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)">
+				      <a>
+							    <div>
+				              @y.Data.Name
+				              <span class="glyphicon glyphicon-cog" style="float: right;" onClick="updatesensordescription(@y.Id)" />
+                  </div>
+									<div id="@(y.Id)-description" class="sensor-desciption">
+				              @y.Data.Description
+				          </div>
+				      </a>
+			      </li>
 				}
 			</ul>
 		  </div>
 		}
-		</div> 
+		</div>
     </div>
 }
-
