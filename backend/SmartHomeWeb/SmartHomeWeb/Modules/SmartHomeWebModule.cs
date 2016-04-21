@@ -65,7 +65,7 @@ namespace SmartHomeWeb.Modules
             Get["/location", true] = async (parameters, ct) =>
             {
                 var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
-                return View["locations.cshtml", locations];
+                return View["location.cshtml", locations];
             };
             Get["/message", true] = GetMessage;
 
