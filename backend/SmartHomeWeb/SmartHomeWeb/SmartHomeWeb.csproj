@@ -143,76 +143,85 @@
     <Compile Include="AggregationCache.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
-      <Link>View Links\add-has-location.cshtml</Link>
+    <None Include="..\..\..\views\Admin\admin-location.cshtml">
+      <Link>View Links\Admin\admin-location.cshtml</Link>
     </None>
-    <None Include="..\..\..\views\SmartHomeWeb\add-location.cshtml">
-      <Link>View Links\add-location.cshtml</Link>
+    <None Include="..\..\..\views\Admin\admin-person.cshtml">
+      <Link>View Links\Admin\admin-person.cshtml</Link>
     </None>
-    <None Include="..\..\..\views\SmartHomeWeb\add-person.cshtml">
-      <Link>View Links\add-person.cshtml</Link>
+    <None Include="..\..\..\views\Admin\admin-sensor.cshtml">
+      <Link>View Links\Admin\admin-sensor.cshtml</Link>
     </None>
-    <None Include="..\..\..\views\SmartHomeWeb\add-sensor.cshtml">
-      <Link>View Links\add-sensor.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\add-tag.cshtml">
-      <Link>View Links\add-tag.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\dashboard.cshtml">
-      <Link>View Links\dashboard.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\edit-person.cshtml">
-      <Link>View Links\edit-person.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\feedback-box.cshtml">
-      <Link>View Links\feedback-box.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
-      <Link>View Links\friends.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\graph.cshtml">
-      <Link>View Links\graph.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\group.cshtml">
-      <Link>View Links\group.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\groupprofile.cshtml">
-      <Link>View Links\groupprofile.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
-      <Link>View Links\home.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\layout.cshtml">
+    <None Include="..\..\..\views\layout.cshtml">
       <Link>View Links\layout.cshtml</Link>
     </None>
-    <None Include="..\..\..\views\SmartHomeWeb\locations.cshtml">
-      <Link>View Links\locations.cshtml</Link>
+    <None Include="..\..\..\views\SmartHomeWeb\add-has-location.cshtml">
+      <Link>View Links\SmartHomeWeb\add-has-location.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\add-location.cshtml">
+      <Link>View Links\SmartHomeWeb\add-location.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\add-person.cshtml">
+      <Link>View Links\SmartHomeWeb\add-person.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\add-sensor.cshtml">
+      <Link>View Links\SmartHomeWeb\add-sensor.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\add-tag.cshtml">
+      <Link>View Links\SmartHomeWeb\add-tag.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\dashboard.cshtml">
+      <Link>View Links\SmartHomeWeb\dashboard.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\edit-person.cshtml">
+      <Link>View Links\SmartHomeWeb\edit-person.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\feedback-box.cshtml">
+      <Link>View Links\SmartHomeWeb\feedback-box.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
+      <Link>View Links\SmartHomeWeb\friends.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\graph.cshtml">
+      <Link>View Links\SmartHomeWeb\graph.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\group.cshtml">
+      <Link>View Links\SmartHomeWeb\group.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\groupprofile.cshtml">
+      <Link>View Links\SmartHomeWeb\groupprofile.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
+      <Link>View Links\SmartHomeWeb\home.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\location.cshtml">
+      <Link>View Links\SmartHomeWeb\location.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\login.cshtml">
-      <Link>View Links\login.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\login.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\measurement.cshtml">
-      <Link>View Links\measurement.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\measurement.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\message.cshtml">
-      <Link>View Links\message.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\message.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\newsfeed.cshtml">
-      <Link>View Links\newsfeed.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\newsfeed.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\person.cshtml">
-      <Link>View Links\person.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\person.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\profile.cshtml">
-      <Link>View Links\profile.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\profile.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\sensor.cshtml">
-      <Link>View Links\sensor.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\sensor.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\wall.cshtml">
-      <Link>View Links\wall.cshtml</Link>
+      <Link>View Links\SmartHomeWeb\wall.cshtml</Link>
     </None>
-    <None Include="..\..\..\views\SmartHomeWeb\_ViewStart.cshtml">
+    <None Include="..\..\..\views\_ViewStart.cshtml">
       <Link>View Links\_ViewStart.cshtml</Link>
     </None>
     <None Include="App.config" />
@@ -246,7 +255,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\..\Content\style.css">
-      <Link>View Links\style.css</Link>
+      <Link>View Links\SmartHomeWeb\style.css</Link>
     </Content>
   </ItemGroup>
   <Import Project="..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets" Condition="Exists('..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets')" />

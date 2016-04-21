@@ -2,7 +2,7 @@
     {
         "name" : "admin",
         "username" : "admin",
-        "password" : "ozymandias",
+        "password" : "1",
         "address" : "0x0",
         "city" : "The Matrix",
         "zipcode" : "0000",
