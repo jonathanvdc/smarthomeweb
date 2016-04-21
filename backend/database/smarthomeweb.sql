@@ -76,7 +76,7 @@ create table Location (
     -- persons who are interested in a location's energy consumption.
     -- (for example, family members may want to know if they left the
     -- lights on, etc)
-    owner text references Person(guid) on delete set null,
+    owner text references Person(guid) on delete set null
 );
 
 -- "Person A has location B" is an N:N relation, so we need a separate table
