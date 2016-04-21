@@ -474,4 +474,7 @@
   <data name="UsersAdminPageTitle" xml:space="preserve">
     <value>Gebruikers beheren</value>
   </data>
+  <data name="UpdateSensorLabel" xml:space="preserve">
+    <value>Sensor aanpassen</value>
+  </data>
 </root>

@@ -109,7 +109,9 @@ namespace SmartHomeWeb.Modules
             {
                 this.RequiresAuthentication();
                 Sensor calledsensor = await DataConnection.Ask(x => x.GetSensorByIdAsync((int)parameters["id"]));
-                return View["editsensor.cshtml", calledsensor];
+                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetSensorTagsAsync(calledsensor.Id));
+                Tuple<Sensor, IEnumerable<string>> items = new Tuple<Sensor, IEnumerable<string>>(calledsensor, tags);
+                return View["editsensor.cshtml", items];
             };
 
             Post["/edit-sensor/{id}", true] = async (parameters, ct) =>
@@ -124,7 +126,10 @@ namespace SmartHomeWeb.Modules
                 Sensor update = new Sensor(original.Id, updatebis);
 
                 await DataConnection.Ask(x => x.UpdateSensorAsync(update));
-                return View["editsensor.cshtml", update];
+
+                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetSensorTagsAsync(update.Id));
+                Tuple<Sensor, IEnumerable<string>> items = new Tuple<Sensor, IEnumerable<string>>(update, tags);
+                return View["editsensor.cshtml", items];
             };
 
             Get["/add-tag/{id?}", true] = GetAddTag;

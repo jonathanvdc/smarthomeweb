@@ -36,7 +36,7 @@ else
 						<th>@TextResources.SensorNameLabel</th>
 						<th>@TextResources.SensorDescriptionLabel</th>
 						<th>@TextResources.SensorNotesLabel</th>
-						<th>@TextResources.SensorTagsLabel</th>
+						<th>@TextResources.UpdateSensorLabel</th>
 					</tr>
 					@foreach (var y in @Model[x].Sensors)
 					{
@@ -46,7 +46,7 @@ else
 						<td>@y.Data.Notes</td>
 						<td>
 							<a href="/edit-sensor/@y.Id" class="add-tag" style="display:inline">
-								<span class="glyphicon glyphicon-cog"></span>
+								<span class="glyphicon glyphicon-cog" style="float:right;"></span>
 							</a>
 						</td>
 					  </tr>
