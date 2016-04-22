@@ -107,6 +107,21 @@ def aggregateMeasurements(sensors, time):
         log('Aggregating data for sensor %s' % s['data']['name'])
         requests.get(api + 'year-average/%d/%s' % (s['id'], time.isoformat()))
 
+# Creates sensors with the given names for the location with the given
+# identifier.
+def createSensors(sensor_names, location_id):
+    preexisting = set([s['data']['name'] for s in json.loads(requests.get(api + 'sensors/at-location/%d' % location_id).text)])
+
+    j = [{'name': name,
+          'description': name,
+          'locationId': location_id}
+         for name in sensor_names
+         if name not in preexisting]
+
+    if len(j) > 0:
+        log('Creating %d sensors...' % len(j))
+        requests.post(api + 'sensors', json=j)
+
 def post_elecsim():
     locations = json.loads(requests.get(api + 'locations').text)
     num_locations = len(locations)
@@ -148,12 +163,7 @@ def post_elecsim():
             top = next(reader)
             sensor_names = top[2:-1]
 
-            j = [{'name': name,
-                  'description': name,
-                  'locationId': location_id}
-                 for name in sensor_names]
-
-            requests.post(api + 'sensors', json=j)
+            createSensors(sensor_names, location_id)
 
             for line in reader:
                 for i, name in enumerate(sensor_names, 2):
