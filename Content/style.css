@@ -140,3 +140,19 @@ span.no-tags{
 .sensor-desciption {
 	color: #AAAAAA;
 }
+
+/* For list items that can be clicked. */
+.clickable-item {
+	border-radius: 4px;
+	position: relative;
+    display: block;
+    padding: 10px 15px;
+	color: #337ab7;
+	text-decoration: none;
+	background-color: transparent;
+}
+
+	.clickable-item:hover {
+	    text-decoration: none;
+	    background-color: #eee;
+	}
