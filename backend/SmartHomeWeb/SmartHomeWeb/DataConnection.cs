@@ -26,6 +26,7 @@ namespace SmartHomeWeb
 		public const string MonthAverageTableName = "MonthAverage";
 		public const string YearAverageTableName = "YearAverage";
 		public const string SensorTagTableName = "SensorTag";
+		public const string FrozenPeriodTableName = "FrozenPeriod";
 
         // TODO: put this in some kind of configuration file.
         private const string ConnectionString = "Data Source=backend/database/smarthomeweb.db";
@@ -1003,6 +1004,9 @@ namespace SmartHomeWeb
         /// <param name="Data">The measurement to insert into the table.</param>
         public async Task InsertMeasurementAsync(Measurement Data)
         {
+			if (await IsFrozenAsync(Data.Time))
+				throw new ArgumentOutOfRangeException($"{nameof(Data)}'s timestamp was frozen.");
+
 			// Invalidate the aggregation cache first...
 			await DeleteMeasurementAsync(
 				HourAverageTableName, Data.SensorId, 
@@ -1020,11 +1024,48 @@ namespace SmartHomeWeb
             await InsertMeasurementAsync(Data, MeasurementTableName);
         }
 
+		private bool HasMeasurementDuring(string TableName, DateTime StartTime, DateTime EndTime, HashSet<int> SensorIds)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"SELECT COUNT(*) FROM {TableName} " +
+					"WHERE @startTime <= unixtime AND @endTime >= unixTime AND @sensorId = sensorId " +
+					"LIMIT 1";
+				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				cmd.Parameters.AddWithValue("@sensorId", 0);
+
+				foreach (var id in SensorIds)
+				{
+					cmd.Parameters["@sensorId"].Value = id;
+					if ((long)cmd.ExecuteScalar() > 0)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		private bool OverlapsWithFrozenPeriod(DateTime StartTime, DateTime EndTime)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"SELECT COUNT(*) FROM {FrozenPeriodTableName} as frozen " +
+					"WHERE (frozen.startTime >= @startTime AND frozen.startTime <= @endTime) " +
+					"   OR (frozen.endTime >= @startTime AND frozen.endTime <= @endTime) " +
+					"LIMIT 1";
+				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				return (long)cmd.ExecuteScalar() > 0;
+			}
+		}
+
         /// <summary>
         /// Inserts all measurements in the given list into the Measurement table.
         /// </summary>
         /// <param name="Data">The list of measurements to insert into the table.</param>
-        public Task InsertMeasurementAsync(IEnumerable<Measurement> Data)
+        public async Task InsertMeasurementAsync(IEnumerable<Measurement> Data)
         {
 			// This has to be really fast. 
 			// That means that there will be no more half-measures.
@@ -1033,15 +1074,23 @@ namespace SmartHomeWeb
 			// piece of code that has been contructed to extract
 			// every bit of performance from the database.
 			//
-			// Abandon all hope, ye who enter here. 
-			// Read at your own peril.
+			// Additionally, it uses a number of tricks to
+			// make the common case very fast, especially
+			// for large data sets: checks are skipped and
+			// caches are not invalidated, if the algorithm 
+			// determines that doing so is not necessary.
 
-			// Create five commands, which we will re-use
-			using (SqliteCommand insertCommand = sqlite.CreateCommand(), 
-				deleteHourCommand = sqlite.CreateCommand(),
-				deleteDayCommand = sqlite.CreateCommand(),
-				deleteMonthCommand = sqlite.CreateCommand(),
-				deleteYearCommand = sqlite.CreateCommand())
+			// Compute a time period that encompasses all measurements,
+			// and find the measurements' sensor identifiers.
+			// We'll use this later on to avoid doing unnecessary work.
+			// This will be parallelized heavily, because we're probably
+			// working with a pretty big data set.
+			var period = await TimeHelpers.ComputeConflictPeriodAsync(Data);
+
+			// Create six commands, which we will re-use.
+			SqliteCommand insertCommand = sqlite.CreateCommand(), deleteHourCommand = null, deleteDayCommand = null, 
+				deleteMonthCommand = null, deleteYearCommand = null, checkFrozenCommand = null;
+			try
 			{
 				// Initialize the commands
 				insertCommand.CommandText = $"INSERT INTO {MeasurementTableName}(sensorId, unixtime, measured, notes) " +
@@ -1050,26 +1099,56 @@ namespace SmartHomeWeb
 				insertCommand.Parameters.AddWithValue("@unixtime", 0);
 				insertCommand.Parameters.AddWithValue("@measured", 0.0);
 				insertCommand.Parameters.AddWithValue("@notes", "");
+
+				// We will initialize and execute these commands if we 
+				// can't know for sure that we won't have to.
+				// We have a good idea of which caches we may have to 
+				// invalidate, based on the conflict periods we have 
+				// already computed.
+				if (period == null || HasMeasurementDuring(HourAverageTableName, period.Item1, period.Item2, period.Item3))
+				{
+					deleteHourCommand = sqlite.CreateCommand();
+					deleteHourCommand.CommandText = $"DELETE FROM {HourAverageTableName} " +
+						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+					deleteHourCommand.Parameters.AddWithValue("@sensorId", 0);
+					deleteHourCommand.Parameters.AddWithValue("@unixtime", 0);
+				}
 				
-				deleteHourCommand.CommandText = $"DELETE FROM {HourAverageTableName} " +
-					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
-				deleteHourCommand.Parameters.AddWithValue("@sensorId", 0);
-				deleteHourCommand.Parameters.AddWithValue("@unixtime", 0);
+				if (period == null || HasMeasurementDuring(DayAverageTableName, period.Item1, period.Item2, period.Item3))
+				{
+					deleteDayCommand = sqlite.CreateCommand();
+					deleteDayCommand.CommandText = $"DELETE FROM {DayAverageTableName} " +
+						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+					deleteDayCommand.Parameters.AddWithValue("@sensorId", 0);
+					deleteDayCommand.Parameters.AddWithValue("@unixtime", 0);
+				}
 
-				deleteDayCommand.CommandText = $"DELETE FROM {DayAverageTableName} " +
-					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
-				deleteDayCommand.Parameters.AddWithValue("@sensorId", 0);
-				deleteDayCommand.Parameters.AddWithValue("@unixtime", 0);
+				if (period == null || HasMeasurementDuring(MonthAverageTableName, period.Item1, period.Item2, period.Item3))
+				{
+					deleteMonthCommand = sqlite.CreateCommand();
+					deleteMonthCommand.CommandText = $"DELETE FROM {MonthAverageTableName} " +
+						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+					deleteMonthCommand.Parameters.AddWithValue("@sensorId", 0);
+					deleteMonthCommand.Parameters.AddWithValue("@unixtime", 0);
+				}
 
-				deleteMonthCommand.CommandText = $"DELETE FROM {MonthAverageTableName} " +
-					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
-				deleteMonthCommand.Parameters.AddWithValue("@sensorId", 0);
-				deleteMonthCommand.Parameters.AddWithValue("@unixtime", 0);
+				if (period == null || HasMeasurementDuring(YearAverageTableName, period.Item1, period.Item2, period.Item3))
+				{
+					deleteYearCommand = sqlite.CreateCommand();
+					deleteYearCommand.CommandText = $"DELETE FROM {YearAverageTableName} " +
+						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
+					deleteYearCommand.Parameters.AddWithValue("@sensorId", 0);
+					deleteYearCommand.Parameters.AddWithValue("@unixtime", 0);
+				}
 
-				deleteYearCommand.CommandText = $"DELETE FROM {YearAverageTableName} " +
-					"WHERE sensorId = @sensorId AND unixtime = @unixtime";
-				deleteYearCommand.Parameters.AddWithValue("@sensorId", 0);
-				deleteYearCommand.Parameters.AddWithValue("@unixtime", 0);
+				if (period == null || OverlapsWithFrozenPeriod(period.Item1, period.Item2))
+				{
+					checkFrozenCommand = sqlite.CreateCommand();
+					checkFrozenCommand.CommandText = $"SELECT COUNT(*) FROM {FrozenPeriodTableName} as frozen " +
+						"WHERE frozen.startTime <= @time AND frozen.endTime >= @time " +
+						"LIMIT 1";
+					checkFrozenCommand.Parameters.AddWithValue("@time", 0);
+				}
 
 				foreach (var m in Data)
 				{
@@ -1079,21 +1158,39 @@ namespace SmartHomeWeb
 					// so there's really no point in task-based parallelism.
 
 					// Invalidate the aggregation cache first...
-					deleteHourCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteHourCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.Quantize(m.Time, TimeSpan.FromHours(1)));
-					deleteHourCommand.ExecuteNonQuery();
-
-					deleteDayCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteDayCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.Quantize(m.Time, TimeSpan.FromDays(1)));
-					deleteDayCommand.ExecuteNonQuery();
-
-					deleteMonthCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteMonthCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.QuantizeMonth(m.Time));
-					deleteMonthCommand.ExecuteNonQuery();
-
-					deleteYearCommand.Parameters["@sensorId"].Value = m.SensorId;
-					deleteYearCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.QuantizeYear(m.Time));
-					deleteYearCommand.ExecuteNonQuery();
+					if (deleteHourCommand != null)
+					{
+						deleteHourCommand.Parameters["@sensorId"].Value = m.SensorId;
+						deleteHourCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.Quantize(m.Time, TimeSpan.FromHours(1)));
+						deleteHourCommand.ExecuteNonQuery();
+					}
+					if (deleteDayCommand != null)
+					{
+						deleteDayCommand.Parameters["@sensorId"].Value = m.SensorId;
+						deleteDayCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.Quantize(m.Time, TimeSpan.FromDays(1)));
+						deleteDayCommand.ExecuteNonQuery();
+					}
+					if (deleteMonthCommand != null)
+					{
+						deleteMonthCommand.Parameters["@sensorId"].Value = m.SensorId;
+						deleteMonthCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.QuantizeMonth(m.Time));
+						deleteMonthCommand.ExecuteNonQuery();
+					}
+					if (deleteYearCommand != null)
+					{
+						deleteYearCommand.Parameters["@sensorId"].Value = m.SensorId;
+						deleteYearCommand.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(MeasurementAggregation.QuantizeYear(m.Time));
+						deleteYearCommand.ExecuteNonQuery();
+					}
+					if (checkFrozenCommand != null)
+					{
+						checkFrozenCommand.Parameters["@time"].Value = DatabaseHelpers.CreateUnixTimeStamp(m.Time);
+						if ((long)checkFrozenCommand.ExecuteScalar() > 0)
+						{
+							throw new InvalidOperationException(
+								$"Timestamp of {m} overlaps with a known frozen location.");
+						}
+					}
 
 					// ... then insert a tuple into the Measurement table.
 					insertCommand.Parameters["@sensorId"].Value = m.SensorId;
@@ -1103,9 +1200,76 @@ namespace SmartHomeWeb
 					insertCommand.ExecuteNonQuery();
 				}
 			}
-
-			return Task.FromResult(true);
+			finally
+			{
+				insertCommand.Dispose();
+				if (deleteHourCommand != null)
+				{
+					deleteHourCommand.Dispose();
+				}
+				if (deleteDayCommand != null)
+				{
+					deleteDayCommand.Dispose();
+				}
+				if (deleteMonthCommand != null)
+				{
+					deleteMonthCommand.Dispose();
+				}
+				if (deleteYearCommand != null)
+				{
+					deleteYearCommand.Dispose();
+				}
+				if (checkFrozenCommand != null)
+				{
+					checkFrozenCommand.Dispose();
+				}
+			}
         }
+
+		/// <summary>
+		/// Determines if the specified timestamp has been frozen: no more
+		/// measurements can be inserted at that time.
+		/// </summary>
+		/// <returns><c>true</c> if the given timestamp is frozen; otherwise, <c>false</c>.</returns>
+		public async Task<bool> IsFrozenAsync(DateTime Time)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"SELECT COUNT(*) FROM {FrozenPeriodTableName} as frozen " +
+					"WHERE frozen.startTime <= @time AND frozen.endTime >= @time " +
+					"LIMIT 1";
+				cmd.Parameters.AddWithValue("@time", DatabaseHelpers.CreateUnixTimeStamp(Time));
+				return (long)await cmd.ExecuteScalarAsync() > 0;
+			}
+		}
+
+		/// <summary>
+		/// Freezes the period of time specified by the given start-time
+		/// and end-time.
+		/// </summary>
+		public async Task FreezeAsync(DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"DELETE FROM {FrozenPeriodTableName} " +
+					"WHERE startTime >= @startTime AND endTime <= @endTime";
+				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				await cmd.ExecuteNonQueryAsync();
+			}
+
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"INSERT INTO {FrozenPeriodTableName}(startTime, endTime) " +
+					"VALUES (@startTime, @endTime)";
+				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
 
         /// <summary>
         /// Inserts the given message  into the Message table.
@@ -1215,7 +1379,7 @@ namespace SmartHomeWeb
 				  LIMIT 1";
 				cmd.Parameters.AddWithValue("@sensorId", SensorId);
 				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
-                return (Int64) await cmd.ExecuteScalarAsync() > 0;
+                return (long)await cmd.ExecuteScalarAsync() > 0;
 			}
 		}
 

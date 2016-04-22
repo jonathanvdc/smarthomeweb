@@ -55,6 +55,11 @@ namespace SmartHomeWeb.Model
             var time = this.Time.Subtract(new TimeSpan(epoch.Ticks));
             return (long)(time.Ticks / 10000);
         }
+
+		public override string ToString()
+		{
+			return string.Format("[Measurement: SensorId={0}, Time={1}, MeasuredData={2}, Notes={3}]", SensorId, Time, MeasuredData, Notes);
+		}
     }
 }
 
