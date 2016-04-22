@@ -175,3 +175,21 @@ create table YearAverage (
     notes text,
     primary key (sensorId, unixtime)
 );
+
+-- A table that describes periods of time during
+-- which no more measurements can be inserted.
+-- This is used to make sure that measurements
+-- are not meddled with, once the original
+-- measurements have been discarded in favor
+-- of aggregate measurements.
+-- These periods of time shouldn't overlap,
+-- and the server makes sure they don't.
+create table FrozenPeriod (
+    -- The start-time of the period, in
+    -- unix time.
+    startTime integer not null,
+    -- The end-time of the period, in
+    -- unix time.
+    endTime integer not null,
+    primary key (startTime, endTime)
+);
