@@ -783,6 +783,8 @@ namespace SmartHomeWeb.Modules
             }
             else
             {
+                ViewBag.Success = TextResources.ProfileEditSuccess;
+
                 await DataConnection.Ask(async dc =>
                     await dc.UpdatePersonAsync(
                         new Person(person.Guid,

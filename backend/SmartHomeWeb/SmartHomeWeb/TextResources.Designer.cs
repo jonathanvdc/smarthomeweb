@@ -898,6 +898,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your profile has been updated!.
+        /// </summary>
+        public static string ProfileEditSuccess {
+            get {
+                return ResourceManager.GetString("ProfileEditSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send {0} a friend request.
         /// </summary>
         public static string SendFriendRequestButton {

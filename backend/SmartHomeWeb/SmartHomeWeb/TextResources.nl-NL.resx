@@ -480,4 +480,7 @@
   <data name="EditedSensorSuccess" xml:space="preserve">
     <value>Sensor aangepast!</value>
   </data>
+  <data name="ProfileEditSuccess" xml:space="preserve">
+    <value>Je profiel is bijgewerkt!</value>
+  </data>
 </root>

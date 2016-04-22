@@ -483,4 +483,7 @@
   <data name="IDLabel" xml:space="preserve">
     <value>ID</value>
   </data>
+  <data name="ProfileEditSuccess" xml:space="preserve">
+    <value>Your profile has been updated!</value>
+  </data>
 </root>
