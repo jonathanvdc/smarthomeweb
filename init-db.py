@@ -109,7 +109,18 @@ def add_message(sender, recipient, body):
           'recipientId': recipient_id,
           'message': body}]
     postChecked(api + 'messages', json=j)
+	
+def add_friend_request(sender, recipient):
+    sender_id = get_person_guid(sender)
+    recipient_id = get_person_guid(recipient)
+    j = [{'personOneGuid': sender_id,
+          'personTwoGuid': recipient_id}]
+    postChecked(api + 'friends', json=j)
 
+def add_friendship(person1, person2):
+    add_friend_request(person1, person2)
+    add_friend_request(person2, person1)
+	
 ######################################################################
 ### ElecSim
 ######################################################################
@@ -318,6 +329,11 @@ try:
     add_message('jonsneyers', 'bgoethals', 'Dag dag')
     add_message('jonsneyers', 'hans', 'Hallo, ik ben een test post!')
     add_message('bgoethals', 'hans', 'Goedendag, ik POST graag posts!')
+	
+    log('Creating friendships...')
+    add_friend_request('bgoethals','hans')
+    add_friend_request('jonsneyers','hans')
+    add_friendship('lilferemans','hans')
 
     post_elecsim(arg)
     log('Success!')
