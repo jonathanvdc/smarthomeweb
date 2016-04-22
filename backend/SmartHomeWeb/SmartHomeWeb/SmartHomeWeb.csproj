@@ -142,6 +142,7 @@
     <Compile Include="Modules\API\ApiYearAverageModule.cs" />
     <Compile Include="AggregationCache.cs" />
     <Compile Include="ConflictHelpers.cs" />
+    <Compile Include="Modules\API\ApiFrozenModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\Admin\admin-location.cshtml">
