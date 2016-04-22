@@ -44,6 +44,13 @@ namespace SmartHomeWeb
         {
             var result = new DataConnection();
             await result.sqlite.OpenAsync();
+			using (var cmd = result.sqlite.CreateCommand())
+			{
+				cmd.CommandText = "PRAGMA journal_mode = MEMORY";
+				cmd.ExecuteNonQuery();
+				cmd.CommandText = "PRAGMA synchronous = OFF";
+				cmd.ExecuteNonQuery();
+			}
             return result;
         }
 

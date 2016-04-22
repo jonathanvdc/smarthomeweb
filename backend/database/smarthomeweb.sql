@@ -1,3 +1,8 @@
+-- These pragmas can improve write performance slightly.
+-- They must also be used when opening a database connection.
+PRAGMA journal_mode = MEMORY;
+PRAGMA synchronous = OFF;
+
 create table Person (
     guid text primary key not null,
     username text not null unique,
