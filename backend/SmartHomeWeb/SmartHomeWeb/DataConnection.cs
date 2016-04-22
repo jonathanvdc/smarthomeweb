@@ -324,20 +324,8 @@ namespace SmartHomeWeb
 		/// </summary>
 		private async Task<Measurement> ComputeYearAverageAsync(int SensorId, DateTime Year)
 		{
-			var end = Year.AddYears(1);
-
-			// Create one task per day, and have each task
-			// fetch a day average.
-			var tasks = new List<Task<Measurement>>();
-
-			var month = Year;
-			while (month < end)
-			{
-				tasks.Add(GetMonthAverageAsync(SensorId, month));
-				month = month.AddMonths(1);
-			}
-
-			var measurements = await Task.WhenAll(tasks);
+			// Fetch twelve months worth of data from the database, and aggregate those.
+			var measurements = await GetMonthAveragesAsync(SensorId, Year, 12);
 
 			// Just use the mean to aggregate data here, because we have already removed
 			// outliers when computing the hour average.
@@ -435,6 +423,20 @@ namespace SmartHomeWeb
 		public Task<Measurement> GetMonthAverageAsync(int SensorId, DateTime Month)
 		{
 			return GetAverageAsync(SensorId, Month, MonthAverageTableName, ComputeMonthAverageAsync);
+		}
+
+		/// <summary>
+		/// Creates a task that fetches or computes a number of month averages for the 
+		/// given sensor during the given month.
+		/// </summary>
+		public async Task<IEnumerable<Measurement>> GetMonthAveragesAsync(int SensorId, DateTime StartMonth, int Count)
+		{
+			var cache = new AggregationCache(this, SensorId, StartMonth, StartMonth.AddMonths(Count));
+
+			await cache.PrefetchMonthAveragesAsync();
+			var result = await cache.GetMonthAveragesAsync(StartMonth, Count);
+			await cache.FlushMonthsAsync();
+			return result;
 		}
 
 		/// <summary>
