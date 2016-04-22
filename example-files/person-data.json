@@ -52,5 +52,32 @@
         "city" : "Antwerpen",
         "zipcode" : "2000",
         "isAdmin" : false
+    },
+    {
+        "name" : "Tom Peters",
+        "username" : "tom",
+        "password" : "topsecret",
+        "address" : "Tuinstraat 14",
+        "city" : "Edegem",
+        "zipcode" : "2650",
+        "isAdmin" : false
+    },
+    {
+        "name" : "Fred Janssens",
+        "username" : "fred",
+        "password" : "topsecret",
+        "address" : "Liersesteenweg 78",
+        "city" : "Lint",
+        "zipcode" : "2574",
+        "isAdmin" : false
+    },
+    {
+        "name" : "Tim De Schrijver",
+        "username" : "tim",
+        "password" : "topsecret",
+        "address" : "Kontich Kazerne",
+        "city" : "Duffelsesteenweg 66",
+        "zipcode" : "2550",
+        "isAdmin" : false
     }
 ]

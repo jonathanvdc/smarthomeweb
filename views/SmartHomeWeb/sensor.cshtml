@@ -1,13 +1,16 @@
-@using System.Collections.Generic
+@using System
 @using System.Linq
+@using System.Collections.Generic
 @using Nancy.Security
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Tuple<Sensor, IEnumerable<string>>>>
+@inherits NancyRazorViewBase<List<Tuple<Location, List<Tuple<Sensor, IEnumerable<string>>>>>>
+@{ var items = @Model;}
 
-<script>
+<script type="text/javascript">
 
+    // Simple script which makes an API call to delete a tag
     function deleteTag(sensorId, tag) {
         var request = new XMLHttpRequest();
         request.open('DELETE', "/api/sensor-tags/" + sensorId.toString());
@@ -18,50 +21,86 @@
 
 </script>
 
-
-<h1>@TextResources.SensorsPageTitle</h1>
-
-<table class="table">
-
-        <tr class="tableHeader">
-            <th>@TextResources.SensorIDLabel</th>
-            <th>@TextResources.SensorNameLabel</th>
-            <th>@TextResources.SensorLocationLabel</th>
-            <th>@TextResources.SensorDescriptionLabel</th>
-            <th>@TextResources.SensorNotesLabel</th>
-            <th>@TextResources.SensorTagsLabel</th>
-        </tr>      
+@if (@items.Count == 0)
+{
+    <h3>@TextResources.EmptyDashboardTitle</h3>
+    <div>
+	    @TextResources.DashboardAddLocationPre
+	    <a href="/add-has-location">@TextResources.DashboardAddLocation</a>
+        @TextResources.DashboardAddLocationPost
+    </div>
+}
+else
+{
+    <div class="container col-sm-12" style="margin-top: 3%;">
+        <ul class="nav nav-tabs col-sm-12">
+	    @for(var x = 0; x < @items.Count; ++x)
+		{
+		    <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))>
+            <a data-toggle="tab" href="#u_@x">@items[@x].Item1.Data.Name</a></li>
+		}
+		</ul>
 		
-    @foreach (var p in @Model)
-    {
-        <tr>
-            @{var sensor = p.Item1;}
-	        <th>@sensor.Id</th>
-            <th>@sensor.Data.Name</th>
-            <td>@sensor.Data.LocationId </td>
-            <td>@sensor.Data.Description</td>
-            <td>@sensor.Data.Notes</td>
-            <td>
-                <a href="/add-tag/@sensor.Id" class="add-tag" style="display:inline">
-                    <span class="glyphicon glyphicon-plus"></span>
-                </a>
-                @{var tags = p.Item2;}
-                @if (tags.Count() != 0)
-                {
-                    @for (int i = 0; i < tags.Count(); i++)
-                    {
-                        <span id="tag-@sensor.Id-@tags.ElementAt(i)" class="tag">@tags.ElementAt(i) 
-                            <a href="#" onclick="deleteTag(@sensor.Id, '@tags.ElementAt(i)')">
-                                <span class="glyphicon glyphicon-remove"></span>
+		<div class="tab-content col-sm-12">
+			@for (int x = 0; x < @items.Count; ++x)
+			{
+			  <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
+			  	<table class="table">
+
+					<tr class="tableHeader">
+                        <th>&shy;</th>  <!-- Edit sensor button -->
+						<th>@TextResources.SensorNameLabel</th>
+						<th>@TextResources.SensorDescriptionLabel</th>
+                        <th>@TextResources.SensorNotesLabel</th>
+                        <th>@TextResources.SensorTagsLabel</th>
+					</tr>
+
+					@foreach (var item in @items[x].Item2)
+					{
+                        @{ 
+                            // Well named variables makes reading html easier
+                            var sensor = item.Item1;
+                            var tags = item.Item2;
+                        }
+
+					  <tr>
+                        <td>
+                            <a href="/edit-sensor/@sensor.Id" style="display:inline">
+                                <span class="glyphicon glyphicon-cog" style="float:right;"></span>
                             </a>
-                        </span>
-                    }
-                }
-                else
-                {
-                    <span class="no-tags">(@TextResources.NoTagsText)</span>
-                }
-            </td>
-        </tr>
-    }
-</table>
+                        </td>
+
+						<th>@sensor.Data.Name</th>
+                        <td>@sensor.Data.Description</td>
+                        <td>@sensor.Data.Notes</td>
+
+                        <td>
+                            <a href="/add-tag/@sensor.Id" class="add-tag" style="display:inline">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </a>
+
+                            @if (tags.Count() != 0)
+                            {
+                                @for (int i = 0; i < tags.Count(); i++)
+                                {
+                                    <span id="tag-@sensor.Id-@tags.ElementAt(i)" class="tag">
+                                        @tags.ElementAt(i)
+                                        <a href="#" onclick="deleteTag(@sensor.Id, '@tags.ElementAt(i)')">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </a>
+                                    </span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="no-tags">(@TextResources.NoTagsText)</span>
+                            }
+                        </td>
+					  </tr>
+					}
+				</table>
+			  </div>
+			}
+		</div>
+    </div>
+}

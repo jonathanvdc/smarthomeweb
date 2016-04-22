@@ -89,17 +89,7 @@ namespace SmartHomeWeb.Modules
                 return await GetFriends(parameters, ct);
             };
 
-            Get["/sensor", true] = async (parameters, ct) =>
-            {
-                IEnumerable<Tuple<Sensor, IEnumerable<string>>> items;
-                using (var dc = await DataConnection.CreateAsync())
-                {
-                    items = await dc.GetSensorTagsPairsAsync();
-                }
-                return View["sensor.cshtml", items];
-            };
-
-            Get["/mysensors", true] = GetmySensors;
+            Get["/sensor", true] = GetSensors;
 
             Get["/add-sensor/{id?}", true] = GetAddSensor;
 
@@ -411,19 +401,22 @@ namespace SmartHomeWeb.Modules
             return View["dashboard.cshtml", locationsWithSensors];
         }
 
-        private async Task<dynamic> GetmySensors(dynamic parameters, CancellationToken ct)
+        private async Task<dynamic> GetSensors(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
             var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
-            var locationsWithSensors = new List<LocationWithSensors>();
+            var items = new List<Tuple<Location,List<Tuple<Sensor, IEnumerable<string>>>>>();
 
             foreach (var location in locations)
             {
                 var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocationAsync(location));
-                locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
+                var taggedSensors = new List<Tuple<Sensor, IEnumerable<string>>>();
+                foreach (var sensor in sensors)
+                    taggedSensors.Add(new Tuple<Sensor, IEnumerable<string>>(sensor, await DataConnection.Ask(x => x.GetSensorTagsAsync(sensor.Id))));
+                items.Add(new Tuple<Location, List<Tuple<Sensor, IEnumerable<string>>>>( location, taggedSensors));
             }
 
-            return View["usersensor.cshtml", locationsWithSensors];
+            return View["sensor.cshtml", items];
         }
 
         private async Task<dynamic> PostAddLocation(dynamic parameters, CancellationToken ct)
