@@ -249,7 +249,7 @@ namespace SmartHomeWeb
 			}
 			if (rem > 0)
 			{
-				int startIndex = Count - rem;
+				int startIndex = Offset + Count - rem;
 				await FetchMeasurementsAsync(Start.AddHours(startIndex));
 				await ComputeInCacheHourAveragesAsync(
 					Start, startIndex, rem, Target);
