@@ -102,15 +102,22 @@ def printDateTime(dt):
 # Aggregates all measurements made during the given year by the given
 # list of sensors.
 def aggregateMeasurements(sensors, time):
-    log('Aggregating data...')
     for s in sensors:
-        log('Aggregating data for sensor %s' % s['data']['name'])
+        log('Aggregating data for %s at location %d...' % (s['data']['name'], s['data']['locationId']))
         requests.get(api + 'year-average/%d/%s' % (s['id'], time.isoformat()))
+
+# Gets all sensors at the given location if a location identifier is given,
+# Otherwise, gets all sensors in the database.
+def getSensors(location_id = None):
+    if location_id is None:
+        return json.loads(requests.get(api + 'sensors').text)
+    else:
+        return json.loads(requests.get(api + 'sensors/at-location/%d' % location_id).text)
 
 # Creates sensors with the given names for the location with the given
 # identifier.
 def createSensors(sensor_names, location_id):
-    preexisting = set([s['data']['name'] for s in json.loads(requests.get(api + 'sensors/at-location/%d' % location_id).text)])
+    preexisting = set([s['data']['name'] for s in getSensors(location_id)])
 
     j = [{'name': name,
           'description': name,
@@ -121,6 +128,24 @@ def createSensors(sensor_names, location_id):
     if len(j) > 0:
         log('Creating %d sensors...' % len(j))
         requests.post(api + 'sensors', json=j)
+
+# Generates a csv file filled with measurements for the given location object.
+# Measurements are limited to the given timespan.
+def generateData(location, startTime, endTime):
+    name = location['data']['name']
+    location_id = location['id']
+    log('=' * 70)
+    log('Generating ElecSim data for household %d (%s), timespan: %s - %s...' % (location_id, name, printDateTime(startTime), printDateTime(endTime)))
+    Popen(
+        ['python3', 'main.py',
+         '--mode=generate',
+         '--config_file=configuration.json',
+         '--household=%d' % location_id,
+         '--from=' + printDateTime(startTime),
+         '--to=' + printDateTime(endTime),
+         '--output=output.csv'],
+        cwd='ElecSim'
+    ).wait()
 
 def post_elecsim():
     locations = json.loads(requests.get(api + 'locations').text)
@@ -141,18 +166,7 @@ def post_elecsim():
         name = locations[i - 1]['data']['name']
         location_id = locations[i - 1]['id']
 
-        log('=' * 70)
-        log('Generating ElecSim data for household %d (%s).' % (i, name))
-        Popen(
-            ['python3', 'main.py',
-             '--mode=generate',
-             '--config_file=configuration.json',
-             '--household=%d' % i,
-             '--from=' + printDateTime(now - timedelta(days = 15)),
-             '--to=' + printDateTime(now),
-             '--output=output.csv'],
-            cwd='ElecSim'
-        ).wait()
+        generateData(locations[i - 1], now - timedelta(days = 15), now)
 
         # Maps a (SensorName, Time) to a measurement value.
         sensor_data = {}
@@ -170,17 +184,12 @@ def post_elecsim():
                     key = (name, line[0])
                     sensor_data[key] = float(line[i])
 
-        sensors = json.loads(requests.get(api + 'sensors').text)
-        sensor_data_to_id = {}
-
-        for s in sensors:
-            sensor_data_to_id[
-                s['data']['name'],
-                s['data']['locationId']] = s['id']
+        sensors = getSensors(location_id)
+        sensor_data_to_id = { s['data']['name'] : s['id'] for s in sensors }
 
         measurements = []
         for (name, time), value in sensor_data.items():
-            sensor_id = sensor_data_to_id[name, location_id]
+            sensor_id = sensor_data_to_id[name]
             measurements.append({
                 'sensorId': sensor_id,
                 'timestamp': time.replace(' ', 'T') + 'Z',
@@ -191,7 +200,7 @@ def post_elecsim():
         log('Uploading %d measurements... (%s)' % (len(measurements), size_format(len(json.dumps(measurements)))))
         requests.post(api + 'measurements', json=measurements)
 
-        aggregateMeasurements([s for s in sensors if s['data']['locationId'] == location_id], now)
+        aggregateMeasurements(sensors, now)
 
 ######################################################################
 ### Main script
