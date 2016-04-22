@@ -9,15 +9,33 @@
     function search() {
         var query = document.getElementById('search-box').value;
         var request = new XMLHttpRequest();
-        request.open('GET', "/api/persons/search/" + query);
+        var path = query === '' ? '/' : '/search/' + query;
+        request.open('GET', '/api/persons' + path);
+        request.responseType = 'json';
+        request.onload = function (e) {
+            console.log(request.response);
+            var searchNames = [];
+            var i;
+            for (i = request.response.length - 1; i >= 0; i--) {
+                searchNames.push(request.response[i]['data']['username']);
+            }
+
+            var personRows = document.getElementsByClassName('person-row');
+            for (i = personRows.length - 1; i >= 0; i--) {
+                var userName = personRows[i].childNodes[1].innerText;
+                console.log(searchNames.indexOf(userName));
+                personRows[i].style.display = searchNames.indexOf(userName) > -1 ? 'table-row' : 'none';
+            }
+		};
         request.send();
 
+        
     }
 </script>
 
 <h1>@TextResources.UsersPageTitle</h1>
 
-Search: <input id "search-box" onchange="search()" type="text"/>
+Search: <input id="search-box" oninput="search()" type="text"/>
 
 <table class="table">
 
@@ -31,7 +49,7 @@ Search: <input id "search-box" onchange="search()" type="text"/>
 		
     @foreach (var p in @Model)
     {
-        <tr>
+        <tr class="person-row">
 	        <th><a href="/person/@p.Data.UserName">@p.Data.UserName</a></th>
 	        <td>@p.Data.Name</td>
 	        <td>@p.Data.Address</td>
