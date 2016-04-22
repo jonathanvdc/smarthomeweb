@@ -177,6 +177,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\edit-person.cshtml">
       <Link>View Links\SmartHomeWeb\edit-person.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\edit-sensor.cshtml">
+      <Link>View Links\SmartHomeWeb\edit-sensor.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\feedback-box.cshtml">
       <Link>View Links\SmartHomeWeb\feedback-box.cshtml</Link>
     </None>

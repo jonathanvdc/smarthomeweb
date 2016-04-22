@@ -1,0 +1,28 @@
+@using System
+@using System.Linq
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<Sensor>
+
+
+<h1>@TextResources.EditSensorPageTitle</h1>
+
+@Html.Partial("feedback-box.cshtml")
+
+<form method="post">
+    <div class="form-group">
+		@{var sensor = @Model;}
+        <label for="title">@(TextResources.SensorNameLabel):</label>
+        <input id="title" name="sensortitle" class="form-control" value="@sensor.Data.Name"/>
+
+        <label for="description">@(TextResources.SensorDescriptionLabel):</label>
+        <textarea id="sensordescription" name="descriptiontitle" class="form-control" rows="5">@sensor.Data.Description</textarea>
+
+        <label for="notes">@(TextResources.SensorNotesLabel):</label>
+        <textarea id="sensornotes" name="notestitle" class="form-control" rows="5">@sensor.Data.Notes</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">@TextResources.EditSensorButtonText</button>
+</form>

@@ -304,6 +304,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edited sensor!.
+        /// </summary>
+        public static string EditedSensorSuccess {
+            get {
+                return ResourceManager.GetString("EditedSensorSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit profile.
         /// </summary>
         public static string EditPersonButtonText {
@@ -471,6 +480,15 @@ namespace SmartHomeWeb {
         public static string GroupProfilePageTitle {
             get {
                 return ResourceManager.GetString("GroupProfilePageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID.
+        /// </summary>
+        public static string IDLabel {
+            get {
+                return ResourceManager.GetString("IDLabel", resourceCulture);
             }
         }
         

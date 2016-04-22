@@ -99,13 +99,14 @@ namespace SmartHomeWeb.Modules
             {
                 this.RequiresAuthentication();
                 Sensor calledsensor = await DataConnection.Ask(x => x.GetSensorByIdAsync((int)parameters["id"]));
-                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetSensorTagsAsync(calledsensor.Id));
-                Tuple<Sensor, IEnumerable<string>> items = new Tuple<Sensor, IEnumerable<string>>(calledsensor, tags);
-                return View["editsensor.cshtml", items];
+                return View["edit-sensor.cshtml", calledsensor];
             };
 
             Post["/edit-sensor/{id}", true] = async (parameters, ct) =>
             {
+                ViewBag.Success = "";
+                ViewBag.Error = "";
+
                 this.RequiresAuthentication();
                 string name = FormHelpers.GetString(Request.Form, "sensortitle");
                 string description = FormHelpers.GetRawString(Request.Form, "descriptiontitle");
@@ -117,9 +118,9 @@ namespace SmartHomeWeb.Modules
 
                 await DataConnection.Ask(x => x.UpdateSensorAsync(update));
 
-                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetSensorTagsAsync(update.Id));
-                Tuple<Sensor, IEnumerable<string>> items = new Tuple<Sensor, IEnumerable<string>>(update, tags);
-                return View["editsensor.cshtml", items];
+                ViewBag.Success = TextResources.EditedSensorSuccess;
+
+                return View["edit-sensor.cshtml", update];
             };
 
             Get["/add-tag/{id?}", true] = GetAddTag;

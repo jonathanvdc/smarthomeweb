@@ -49,7 +49,11 @@ else
 
 					<tr class="tableHeader">
                         <th>&shy;</th>  <!-- Edit sensor button -->
-						<th>@TextResources.SensorNameLabel</th>
+                        <th width="5%">@TextResources.IDLabel
+                            <a href="#" class="tooltip-questionmark" data-toggle="tooltip" 
+                               title="Set your sensors to upload data to their respective IDs">?</a>
+                        </th>
+                        <th>@TextResources.SensorNameLabel</th>
 						<th>@TextResources.SensorDescriptionLabel</th>
                         <th>@TextResources.SensorNotesLabel</th>
                         <th>@TextResources.SensorTagsLabel</th>
@@ -70,6 +74,7 @@ else
                             </a>
                         </td>
 
+                        <td class="unimportant-info">@sensor.Id</td>
 						<th>@sensor.Data.Name</th>
                         <td>@sensor.Data.Description</td>
                         <td>@sensor.Data.Notes</td>

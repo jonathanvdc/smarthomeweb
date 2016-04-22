@@ -157,3 +157,28 @@ span.no-tags{
 	    text-decoration: none;
 	    background-color: #eee;
 	}
+	
+.tooltip-questionmark{
+	font-size:11px;
+	color:#4488CC;
+	border-bottom: 1px dotted #4488CC;
+}
+		
+	.tooltip-questionmark:hover{
+		text-decoration:none;
+		border-bottom: 1px solid #4488CC;
+	}
+
+.unimportant-info{
+	font-size:13px;
+	color:#666666;
+}
+
+
+
+
+
+
+
+
+

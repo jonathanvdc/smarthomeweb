@@ -477,4 +477,7 @@
   <data name="UpdateSensorLabel" xml:space="preserve">
     <value>Sensor aanpassen</value>
   </data>
+  <data name="EditedSensorSuccess" xml:space="preserve">
+    <value>Sensor aangepast!</value>
+  </data>
 </root>

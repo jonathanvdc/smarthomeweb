@@ -477,4 +477,10 @@
   <data name="UpdateSensorLabel" xml:space="preserve">
     <value>Edit sensor</value>
   </data>
+  <data name="EditedSensorSuccess" xml:space="preserve">
+    <value>Edited sensor!</value>
+  </data>
+  <data name="IDLabel" xml:space="preserve">
+    <value>ID</value>
+  </data>
 </root>
