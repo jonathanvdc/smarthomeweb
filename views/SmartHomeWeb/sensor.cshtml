@@ -1,14 +1,27 @@
 @using System
+@using System.Linq
 @using System.Collections.Generic
 @using Nancy.Security
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<List<LocationWithSensors>>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+@inherits NancyRazorViewBase<List<Tuple<Location, List<Tuple<Sensor, IEnumerable<string>>>>>>
+@{ var items = @Model;}
 
+<script type="text/javascript">
 
-@if (@Model.Count == 0)
+    // Simple script which makes an API call to delete a tag
+    function deleteTag(sensorId, tag) {
+        var request = new XMLHttpRequest();
+        request.open('DELETE', "/api/sensor-tags/" + sensorId.toString());
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send('"' + tag + '"');
+        document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;
+    }
+
+</script>
+
+@if (@items.Count == 0)
 {
     <h3>@TextResources.EmptyDashboardTitle</h3>
     <div>
@@ -21,34 +34,68 @@ else
 {
     <div class="container col-sm-12" style="margin-top: 3%;">
         <ul class="nav nav-tabs col-sm-12">
-	    @for(var x = 0; x < @Model.Count; ++x)
+	    @for(var x = 0; x < @items.Count; ++x)
 		{
-		  <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
+		    <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))>
+            <a data-toggle="tab" href="#u_@x">@items[@x].Item1.Data.Name</a></li>
 		}
 		</ul>
 		
 		<div class="tab-content col-sm-12">
-			@for (int x = 0; x < @Model.Count; ++x)
+			@for (int x = 0; x < @items.Count; ++x)
 			{
 			  <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
 			  	<table class="table">
+
 					<tr class="tableHeader">
+                        <th>&shy;</th>  <!-- Edit sensor button -->
 						<th>@TextResources.SensorNameLabel</th>
 						<th>@TextResources.SensorDescriptionLabel</th>
-						<th>@TextResources.SensorNotesLabel</th>
-						<th>@TextResources.UpdateSensorLabel</th>
+                        <th>@TextResources.SensorNotesLabel</th>
+                        <th>@TextResources.SensorTagsLabel</th>
 					</tr>
-					@foreach (var y in @Model[x].Sensors)
+
+					@foreach (var item in @items[x].Item2)
 					{
+                        @{ 
+                            // Well named variables makes reading html easier
+                            var sensor = item.Item1;
+                            var tags = item.Item2;
+                        }
+
 					  <tr>
-						<th>@y.Data.Name</th>
-						<td>@y.Data.Description</td>
-						<td>@y.Data.Notes</td>
-						<td>
-							<a href="/edit-sensor/@y.Id" class="add-tag" style="display:inline">
-								<span class="glyphicon glyphicon-cog" style="float:right;"></span>
-							</a>
-						</td>
+                        <td>
+                            <a href="/edit-sensor/@sensor.Id" style="display:inline">
+                                <span class="glyphicon glyphicon-cog" style="float:right;"></span>
+                            </a>
+                        </td>
+
+						<th>@sensor.Data.Name</th>
+                        <td>@sensor.Data.Description</td>
+                        <td>@sensor.Data.Notes</td>
+
+                        <td>
+                            <a href="/add-tag/@sensor.Id" class="add-tag" style="display:inline">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </a>
+
+                            @if (tags.Count() != 0)
+                            {
+                                @for (int i = 0; i < tags.Count(); i++)
+                                {
+                                    <span id="tag-@sensor.Id-@tags.ElementAt(i)" class="tag">
+                                        @tags.ElementAt(i)
+                                        <a href="#" onclick="deleteTag(@sensor.Id, '@tags.ElementAt(i)')">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </a>
+                                    </span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="no-tags">(@TextResources.NoTagsText)</span>
+                            }
+                        </td>
 					  </tr>
 					}
 				</table>
