@@ -89,17 +89,7 @@ namespace SmartHomeWeb.Modules
                 return await GetFriends(parameters, ct);
             };
 
-            Get["/sensor", true] = async (parameters, ct) =>
-            {
-                IEnumerable<Tuple<Sensor, IEnumerable<string>>> items;
-                using (var dc = await DataConnection.CreateAsync())
-                {
-                    items = await dc.GetSensorTagsPairsAsync();
-                }
-                return View["sensor.cshtml", items];
-            };
-
-            Get["/mysensors", true] = GetmySensors;
+            Get["/sensor", true] = GetSensors;
 
             Get["/add-sensor/{id?}", true] = GetAddSensor;
 
@@ -411,7 +401,7 @@ namespace SmartHomeWeb.Modules
             return View["dashboard.cshtml", locationsWithSensors];
         }
 
-        private async Task<dynamic> GetmySensors(dynamic parameters, CancellationToken ct)
+        private async Task<dynamic> GetSensors(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
             var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
@@ -423,7 +413,7 @@ namespace SmartHomeWeb.Modules
                 locationsWithSensors.Add(new LocationWithSensors(location, sensors.ToList()));
             }
 
-            return View["usersensor.cshtml", locationsWithSensors];
+            return View["sensor.cshtml", locationsWithSensors];
         }
 
         private async Task<dynamic> PostAddLocation(dynamic parameters, CancellationToken ct)
