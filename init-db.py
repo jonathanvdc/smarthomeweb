@@ -4,6 +4,7 @@ import csv
 import errno
 import json
 import os
+import sys
 import platform
 import requests
 import time
@@ -147,7 +148,56 @@ def generateData(location, startTime, endTime):
         cwd='ElecSim'
     ).wait()
 
-def post_elecsim():
+# Generates and processes data for the given location.
+# A dictionary is returned that maps (SensorName, Time) tuples
+# to measurement values.
+def generateAndProcessData(location, startTime, endTime):
+    location_id = location['id']
+    generateData(location, startTime, endTime)
+
+    # Maps a (SensorName, Time) to a measurement value.
+    sensor_data = {}
+
+    log('Processing sensor data...')
+    with open(join('ElecSim', 'output.csv')) as f:
+        reader = csv.reader(f, delimiter=';')
+        top = next(reader)
+        sensor_names = top[2:-1]
+
+        createSensors(sensor_names, location_id)
+
+        for line in reader:
+            for i, name in enumerate(sensor_names, 2):
+                key = (name, line[0])
+                sensor_data[key] = float(line[i])
+
+    return sensor_data
+
+# Generates, processes, and POSTs data to the server.
+# The set of sensors for which data was generated, is returned.
+def generateAndUploadData(location, startTime, endTime):
+    # Generate data.
+    # sensor_data maps a (SensorName, Time) to a measurement value.
+    sensor_data = generateAndProcessData(location, startTime, endTime)
+
+    sensors = getSensors(location['id'])
+    sensor_data_to_id = { s['data']['name'] : s['id'] for s in sensors }
+
+    measurements = []
+    for (name, time), value in sensor_data.items():
+        sensor_id = sensor_data_to_id[name]
+        measurements.append({
+            'sensorId': sensor_id,
+            'timestamp': time.replace(' ', 'T') + 'Z',
+            'measurement': value
+        })
+
+    log('Posting measurements to server.')
+    log('Uploading %d measurements... (%s)' % (len(measurements), size_format(len(json.dumps(measurements)))))
+    requests.post(api + 'measurements', json=measurements)
+    return sensors
+
+def post_elecsim(day_count):
     locations = json.loads(requests.get(api + 'locations').text)
     num_locations = len(locations)
     now = datetime.now()
@@ -166,45 +216,43 @@ def post_elecsim():
         name = locations[i - 1]['data']['name']
         location_id = locations[i - 1]['id']
 
-        generateData(locations[i - 1], now - timedelta(days = 15), now)
+        # We will generate measurements for five days at a time.
+        # I reckon this is a good compromise between database interaction
+        # and memory use for measurements.
+        data_size = 5
+        j = 0
+        endTime = now
+        while j < day_count - day_count % data_size:
+            # Generate data for five days at once.
+            startTime = endTime - timedelta(days = data_size)
+            sensors = generateAndUploadData(locations[i - 1], startTime, endTime)
+            endTime = startTime
+            j += data_size
 
-        # Maps a (SensorName, Time) to a measurement value.
-        sensor_data = {}
-
-        log('Processing sensor data.')
-        with open(join('ElecSim', 'output.csv')) as f:
-            reader = csv.reader(f, delimiter=';')
-            top = next(reader)
-            sensor_names = top[2:-1]
-
-            createSensors(sensor_names, location_id)
-
-            for line in reader:
-                for i, name in enumerate(sensor_names, 2):
-                    key = (name, line[0])
-                    sensor_data[key] = float(line[i])
-
-        sensors = getSensors(location_id)
-        sensor_data_to_id = { s['data']['name'] : s['id'] for s in sensors }
-
-        measurements = []
-        for (name, time), value in sensor_data.items():
-            sensor_id = sensor_data_to_id[name]
-            measurements.append({
-                'sensorId': sensor_id,
-                'timestamp': time.replace(' ', 'T') + 'Z',
-                'measurement': value
-            })
-
-        log('Posting measurements to server.')
-        log('Uploading %d measurements... (%s)' % (len(measurements), size_format(len(json.dumps(measurements)))))
-        requests.post(api + 'measurements', json=measurements)
+        if j < day_count:
+            # Generate data for the remaining days.
+            startTime = endTime - timedelta(days = day_count - j)
+            sensors = generateAndUploadData(locations[i - 1], startTime, endTime)
 
         aggregateMeasurements(sensors, now)
+
+# Parses command-line arguments.
+# The number of days to generate measurements for
+# is returned.
+def parse_args():
+    args = sys.argv
+    if len(args) == 1:
+        return 30
+    elif len(args) == 2:
+        return int(args[1])
+    else:
+        raise Exception("Invalid number of command-line arguments. Expected just one: the number of days to generate measurements for.")
 
 ######################################################################
 ### Main script
 ######################################################################
+
+arg = parse_args()
 
 sql_path = join('backend', 'database', 'smarthomeweb.sql')
 server_path = os.path.abspath(join(
@@ -250,7 +298,7 @@ try:
     add_message('bgoethals', 'jonsneyers', 'Hallo')
     add_message('jonsneyers', 'bgoethals', 'Dag dag')
 
-    post_elecsim()
+    post_elecsim(arg)
     log('Success!')
 
 finally:
