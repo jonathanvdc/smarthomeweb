@@ -573,6 +573,24 @@ namespace SmartHomeWeb
             GetSingleByKeyAsync(PersonTableName, "username", username, DatabaseHelpers.ReadPerson);
 
         /// <summary>
+        /// Creates a task that returns persons from the database whose username or name fields
+        /// contain the given search string.
+        /// </summary>
+        public async Task<IEnumerable<Person>> GetPersonsBySearchString(string search)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $@"
+                    SELECT * FROM {PersonTableName} p
+                    WHERE p.name LIKE '%' || @search || '%'
+                       OR p.userName LIKE '%' || @search || '%'";
+                cmd.Parameters.AddWithValue("search", search);
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+            }
+        }
+
+
+        /// <summary>
         /// Creates a task that looks up a username/password pair in the database, and returns
         /// a corresponding UserIdentity, if it exists. Otherwise, `null` is returned.
         /// </summary>
@@ -825,7 +843,6 @@ namespace SmartHomeWeb
         /// <param name="guid">The person's GUID.</param>
         public async Task DeletePersonAsync(Guid guid)
         {
-            await Console.Out.WriteLineAsync("komen we hier zelfs");
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = $"DELETE FROM {PersonTableName} WHERE guid = @guid";
