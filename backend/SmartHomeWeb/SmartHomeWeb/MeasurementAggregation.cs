@@ -18,6 +18,16 @@ namespace SmartHomeWeb
 			return new DateTime(tTicks - tTicks % Quantum.Ticks, Time.Kind);
 		}
 
+		public static DateTime QuantizeMonth(DateTime Time)
+		{
+			return new DateTime(Time.Year, Time.Month, 1, 0, 0, 0, 0, Time.Kind);
+		}
+
+		public static DateTime QuantizeYear(DateTime Time)
+		{
+			return new DateTime(Time.Year, 1, 1, 0, 0, 0, 0, Time.Kind);
+		}
+
         /// <summary>
         /// Return a measurement that represents an aggregation of all
         /// measurements in the input.
@@ -48,8 +58,15 @@ namespace SmartHomeWeb
         {
             var array = Measurements as Measurement[] ?? Measurements.ToArray();
 
-            var dataPoints = array.Select(m => m.MeasuredData).Where(m => m.HasValue).Select(m => m.Value);
-            double? aggrData = dataPoints.Any() ? AggregateData(dataPoints) : (double?)null;
+			var dataPoints = new List<double>(array.Length);
+			foreach (var m in array)
+			{
+				var data = m.MeasuredData;
+				if (data.HasValue)
+					dataPoints.Add(data.Value);
+			}
+
+            double? aggrData = dataPoints.Count != 0 ? AggregateData(dataPoints) : (double?)null;
 
             var notesBuilder = new StringBuilder();
             foreach (var measurement in array)
@@ -151,8 +168,10 @@ namespace SmartHomeWeb
         private static double NonOutlierMean(IEnumerable<double> data)
         {
             var array = data as double[] ?? data.ToArray();
-            if (array.Length < 1)
-                throw new ArgumentException("NonOutlierMean of empty list");
+			if (array.Length < 1)
+				throw new ArgumentException("NonOutlierMean of empty list");
+			else if (array.Length == 1)
+				return array[0];
 
             var quartiles = Quartiles(array);
             var q1 = quartiles.Item1;
@@ -161,7 +180,19 @@ namespace SmartHomeWeb
             double lowerBound = 2.5 * q1 - 1.5 * q3 - tol;
             double upperBound = 2.5 * q3 - 1.5 * q1 + tol;
 
-            return array.Where(x => x >= lowerBound && x <= upperBound).Average();
+			// Use an old-fashioned foreach loop to speed 
+			// things up here a bit.
+			long count = 0;
+			double result = 0.0;
+			foreach (var x in array)
+			{
+				if (x >= lowerBound && x <= upperBound)
+				{
+					result += x;
+					count++;
+				}
+			}
+			return result / count;
         }
     }
 }

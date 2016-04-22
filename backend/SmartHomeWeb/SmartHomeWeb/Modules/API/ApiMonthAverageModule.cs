@@ -15,7 +15,7 @@ namespace SmartHomeWeb.Modules.API
 		/// </summary>
 		public override DateTime Quantize(DateTime Time)
 		{
-			return new DateTime(Time.Year, Time.Month, 1, 0, 0, 0, 0, Time.Kind);
+			return MeasurementAggregation.QuantizeMonth(Time);
 		}
 
 		/// <summary>
@@ -33,6 +33,11 @@ namespace SmartHomeWeb.Modules.API
 		public override Task<Measurement> GetAggregatedAsync(DataConnection Connection, int SensorId, DateTime Time)
 		{
 			return Connection.GetMonthAverageAsync(SensorId, Time);
+		}
+
+		public override Task<IEnumerable<Measurement>> GetAggregatedRangeAsync(DataConnection Connection, int SensorId, DateTime StartTime, int ResultCount)
+		{
+			return Connection.GetMonthAveragesAsync(SensorId, StartTime, ResultCount);
 		}
 	}
 }

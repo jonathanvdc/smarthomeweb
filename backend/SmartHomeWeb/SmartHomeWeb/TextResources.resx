@@ -474,4 +474,7 @@
   <data name="UsersAdminPageTitle" xml:space="preserve">
     <value>Manage users</value>
   </data>
+  <data name="UpdateSensorLabel" xml:space="preserve">
+    <value>Edit sensor</value>
+  </data>
 </root>

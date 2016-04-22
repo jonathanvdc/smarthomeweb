@@ -1033,6 +1033,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit sensor.
+        /// </summary>
+        public static string UpdateSensorLabel {
+            get {
+                return ResourceManager.GetString("UpdateSensorLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to That user does not exist..
         /// </summary>
         public static string UserDoesNotExistError {

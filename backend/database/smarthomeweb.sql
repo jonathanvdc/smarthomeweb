@@ -1,3 +1,8 @@
+-- These pragmas can improve write performance slightly.
+-- They must also be used when opening a database connection.
+PRAGMA journal_mode = MEMORY;
+PRAGMA synchronous = OFF;
+
 create table Person (
     guid text primary key not null,
     username text not null unique,
@@ -76,7 +81,7 @@ create table Location (
     -- persons who are interested in a location's energy consumption.
     -- (for example, family members may want to know if they left the
     -- lights on, etc)
-    owner text references Person(guid) on delete set null,
+    owner text references Person(guid) on delete set null
 );
 
 -- "Person A has location B" is an N:N relation, so we need a separate table

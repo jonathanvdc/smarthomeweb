@@ -6,14 +6,44 @@ using SmartHomeWeb.Model;
 
 namespace SmartHomeWeb
 {
+	// When reading source code pertaining to aggregation, it
+	// is useful to keep in mind that aggregation relies on a
+	// hierarchical tree-like structure:
+	// 
+	//                    year-average
+	//                         ^
+	//                         |
+	//                    month-average
+	//                         ^
+	//                         |
+	//                    day-average
+	//                         ^
+	//                         |
+	//                    hour-average
+	//                         ^
+	//                         |
+	//                    measurements
+	//
+	// When computing an average, all required averages in the
+	// layer below the current average layer will be computed 
+	// first, and will then be used to compute the requested
+	// average. Additionally, all averages are cached. 
+	// Therefore, computing a year-average is very efficient if
+	// the month-averages for that year have already been computed.
+
+
 	/// <summary>
 	/// A data structure that caches data that pertains to 
 	/// aggregation in-memory.
 	/// </summary>
-	public class AggregationCache
+	public sealed class AggregationCache
 	{
-		// Pre-fetch data up to 512 hours of measurements.
+		// Pre-fetch data for up to 512 hours of measurements.
 		private const int PrefetchSize = 512;
+		
+		// Have every task process up to 64 hours of measurements
+		// when computing hour averages in parallel.
+		private const int ParallelComputeSize = 64;
 
 		public AggregationCache(
 			DataConnection Database, int SensorId, 
@@ -27,8 +57,10 @@ namespace SmartHomeWeb
 			this.hourData = new Dictionary<DateTime, List<Measurement>>();
 			this.hourAverages = new Dictionary<DateTime, Measurement>();
 			this.dayAverages = new Dictionary<DateTime, Measurement>();
+			this.monthAverages = new Dictionary<DateTime, Measurement>();
 			this.precomputedHours = new HashSet<DateTime>();
 			this.precomputedDays = new HashSet<DateTime>();
+			this.precomputedMonths = new HashSet<DateTime>();
 		}
 
 		public DataConnection Database { get; private set; }
@@ -50,13 +82,25 @@ namespace SmartHomeWeb
 		public DateTime CacheEnd { get; private set; }
 
 		public int TotalHours { get { return (int)(CacheEnd - CacheStart).TotalHours; } }
+		public int TotalDays { get { return (int)(CacheEnd - CacheStart).TotalDays; } }
+		public int TotalMonths
+		{
+			get
+			{
+				int yearDiff = CacheEnd.Year - CacheStart.Year;
+				int monthDiff = CacheEnd.Month - CacheStart.Month;
+				return yearDiff * 12 + monthDiff;
+			}
+		}
 
 		private Dictionary<DateTime, List<Measurement>> hourData;
 		private Dictionary<DateTime, Measurement> hourAverages;
 		private Dictionary<DateTime, Measurement> dayAverages;
+		private Dictionary<DateTime, Measurement> monthAverages;
 
 		private HashSet<DateTime> precomputedHours;
 		private HashSet<DateTime> precomputedDays;
+		private HashSet<DateTime> precomputedMonths;
 
 		/// <summary>
 		/// Prefetches precomputed hour average data from the database.
@@ -77,11 +121,28 @@ namespace SmartHomeWeb
 				dayAverages, precomputedDays, 
 				DataConnection.DayAverageTableName);
 			
-			if (dayAverages.Count < TotalHours)
-				// If the number of cached hours in the day-average cache 
-				// does not equal the total number of hours, then we will
-				// also prefetch the entire hour-average cache.
+			if (dayAverages.Count < TotalDays)
+				// If the number of cached days in the day-average cache 
+				// does not equal the total number of days, then we will
+				// also prefetch the entire hour-average cache for this
+				// cache's timespan.
 				await PrefetchHourAveragesAsync();
+		}
+
+		/// <summary>
+		/// Prefetches precomputed months average data from the database.
+		/// </summary>
+		public async Task PrefetchMonthAveragesAsync()
+		{
+			await PrefetchAveragesAsync(
+				monthAverages, precomputedMonths, 
+				DataConnection.MonthAverageTableName);
+
+			if (monthAverages.Count < TotalMonths)
+				// If the number of cached months in the month-average cache 
+				// does not equal the total number of months, then we will
+				// also prefetch the entire day-average cache.
+				await PrefetchDayAveragesAsync();
 		}
 
 		private async Task PrefetchAveragesAsync(
@@ -156,16 +217,156 @@ namespace SmartHomeWeb
 			}
 		}
 
-		private Task<Measurement[]> GetManyAveragesAsync(
+		/// <summary>
+		/// Computes the given number of 
+		/// </summary>
+		private void ComputeInCacheHourAverages(
+			DateTime Start, int Offset, int Count, Measurement[] Target)
+		{
+			for (int i = 0; i < Count; i++)
+			{
+				var hour = Start.AddHours(i + Offset);
+				Target[i + Offset] = MeasurementAggregation.Aggregate(hourData[hour], SensorId, hour);
+			}
+		}
+
+		private Task ComputeInCacheHourAveragesAsync(
+			DateTime Start, int Offset, int Count, Measurement[] Target)
+		{
+			int taskCount = Count / ParallelComputeSize;
+			int rem = Count % ParallelComputeSize;
+			var tasks = new Task[taskCount + (rem > 0 ? 1 : 0)];
+			for (int i = 0; i < taskCount; i++)
+			{
+				int startIndex = Offset + i * ParallelComputeSize;
+				tasks[i] = Task.Run(() => ComputeInCacheHourAverages(
+					Start, startIndex, ParallelComputeSize, Target));
+			}
+			if (rem > 0)
+			{
+				int startIndex = Offset + taskCount * ParallelComputeSize;
+				tasks[taskCount] = Task.Run(() => ComputeInCacheHourAverages(
+					Start, startIndex, rem, Target));
+			}
+			return Task.WhenAll(tasks);
+		}
+
+		/// <summary>
+		/// Computes hour averages for a sizeable number of hours. 
+		/// Results are stored in the given array.
+		/// </summary>
+		private async Task ComputeHourAveragesAsync(DateTime Start, int Offset, int Count, Measurement[] Target)
+		{
+			if (Count < ParallelComputeSize)
+			{
+				// Don't even try to parallelize if it's not worth the effort.
+				for (int i = 0; i < Count; i++)
+				{
+					Target[i + Offset] = await GetHourAverageAsync(Start.AddHours(i));
+				}
+				return;
+			}
+
+			// Since we'll be aggregating lots of data, we'll
+			// distribute the workload across multiple threads.
+			int rem = Count % PrefetchSize;
+			int iters = Count / PrefetchSize;
+			for (int i = 0; i < iters; i++)
+			{
+				int startIndex = Offset + i * PrefetchSize;
+				await FetchMeasurementsAsync(Start.AddHours(startIndex));
+				await ComputeInCacheHourAveragesAsync(
+					Start, startIndex, PrefetchSize, Target);
+			}
+			if (rem > 0)
+			{
+				int startIndex = Offset + Count - rem;
+				await FetchMeasurementsAsync(Start.AddHours(startIndex));
+				await ComputeInCacheHourAveragesAsync(
+					Start, startIndex, rem, Target);
+			}
+
+			// Update the hour-averages dictionary.
+			for (int i = 0; i < Count; i++)
+			{
+				var item = Target[i + Offset];
+				hourAverages[item.Time] = item;
+			}
+		}
+
+		/// <summary>
+		/// Computes hour averages for a sizeable number of hours. 
+		/// </summary>
+		private async Task<Measurement[]> ComputeHourAveragesAsync(DateTime Start, int Count)
+		{
+			var results = new Measurement[Count];
+			await ComputeHourAveragesAsync(Start, 0, Count, results);
+			return results;
+		}
+
+		/// <summary>
+		/// Gets the hour averages for a sizeable number of hours.
+		/// </summary>
+		public async Task<IEnumerable<Measurement>> GetHourAveragesAsync(DateTime Start, int Count)
+		{
+			// We want to compute _only_ those averages which
+			// are already present in the cache.
+			var results = new Measurement[Count];
+			int regionSize = 0;
+			for (int i = 0; i < Count; i++)
+			{
+				var key = Start.AddHours(i);
+				if (hourAverages.TryGetValue(key, out results[i]))
+				{
+					if (regionSize > 0)
+					{
+						int regionStart = i - regionSize;
+						await ComputeHourAveragesAsync(
+							Start, regionStart, regionSize, results);
+						regionSize = 0;
+					}
+				}
+				else
+				{
+					// This item is not present in the cache.
+					// Don't compute it just yet, though.
+					// We'd much rather group the aggregations
+					// together, and do them in parallel.
+					regionSize++;
+				}
+			}
+			if (regionSize > 0)
+			{
+				int regionStart = Count - regionSize;
+				await ComputeHourAveragesAsync(
+					Start, regionStart, regionSize, results);
+			}
+			return results;
+		}
+
+		private async Task<Measurement[]> GetManyAveragesAsync(
 			DateTime Start, DateTime End, TimeSpan Delta,
 			Func<DateTime, Task<Measurement>> GetAverageAsync)
 		{
-			var results = new List<Task<Measurement>>();
+			var results = new List<Measurement>();
 			for (DateTime i = Start; i < End; i += Delta)
 			{
-				results.Add(GetAverageAsync(i));
+				results.Add(await GetAverageAsync(i));
 			}
-			return Task.WhenAll(results);
+			return results.ToArray();
+		}
+
+		private async Task<IEnumerable<Measurement>> GetManyAveragesAsync(
+			DateTime Start, int Count, Func<DateTime, int, DateTime> AddQuanta,
+			Func<DateTime, Task<Measurement>> GetAverageAsync)
+		{
+			var results = new Measurement[Count];
+			for (int i = 0; i < Count; i++)
+			{
+				var time = AddQuanta(Start, i);
+				results[i] = await GetAverageAsync(time);
+			}
+			return results;
 		}
 
 		/// <summary>
@@ -181,7 +382,7 @@ namespace SmartHomeWeb
 			else
 			{
 				result = MeasurementAggregation.Aggregate(
-					await GetManyAveragesAsync(Day, Day.AddDays(1), TimeSpan.FromHours(1), GetHourAverageAsync), 
+					await GetHourAveragesAsync(Day, 24), 
 					SensorId, Day, Enumerable.Average);
 				dayAverages[Day] = result;
 				return result;
@@ -189,13 +390,83 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
+		/// Gets the day averages for the given days.
+		/// </summary>
+		public async Task<IEnumerable<Measurement>> GetDayAveragesAsync(DateTime StartDay, int Count)
+		{
+			// We want to compute _only_ those averages which
+			// are not present yet in the cache, but we also
+			// want to do that in parallel.
+			var results = new Measurement[Count];
+			int regionSize = 0;
+			for (int i = 0; i < Count; i++)
+			{
+				var key = StartDay.AddDays(i);
+				if (dayAverages.TryGetValue(key, out results[i]))
+				{
+					if (regionSize > 0)
+					{
+						int regionStart = i - regionSize;
+						var regionStartDay = StartDay.AddDays(regionStart);
+						await ComputeHourAveragesAsync(
+							regionStartDay, 24 * regionSize);
+						for (int j = regionStart; j < i; j++)
+						{
+							results[j] = await GetDayAverageAsync(regionStartDay.AddDays(j));
+						}
+						regionSize = 0;
+					}
+				}
+				else
+				{
+					// This item is not present in the cache.
+					// Don't compute it just yet, though.
+					// We'd much rather group the aggregations
+					// together, and do them in parallel.
+					regionSize++;
+				}
+			}
+			if (regionSize > 0)
+			{
+				int regionStart = Count - regionSize;
+				var regionStartDay = StartDay.AddDays(regionStart);
+				await ComputeHourAveragesAsync(
+					regionStartDay, 24 * regionSize);
+				for (int j = regionStart; j < Count; j++)
+				{
+					results[j] = await GetDayAverageAsync(regionStartDay.AddDays(j));
+				}
+			}
+			return results;
+		}
+
+		/// <summary>
 		/// Gets the month average for the given month.
 		/// </summary>
 		public async Task<Measurement> GetMonthAverageAsync(DateTime Month)
 		{
-			return MeasurementAggregation.Aggregate(
-				await GetManyAveragesAsync(Month, Month.AddMonths(1), TimeSpan.FromDays(1), GetDayAverageAsync), 
-				SensorId, Month, Enumerable.Average);
+			Measurement result;
+			if (monthAverages.TryGetValue(Month, out result))
+			{
+				return result;
+			}
+			else
+			{
+				var timeSpan = Month.AddMonths(1) - Month;
+				result = MeasurementAggregation.Aggregate(
+					await GetDayAveragesAsync(Month, (int)timeSpan.TotalDays), 
+					SensorId, Month, Enumerable.Average);
+				monthAverages[Month] = result;
+				return result;
+			}
+		}
+
+		/// <summary>
+		/// Gets the month averages for the given months.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetMonthAveragesAsync(DateTime StartMonth, int Count)
+		{
+			return GetManyAveragesAsync(StartMonth, Count, (dt, i) => dt.AddMonths(i), GetMonthAverageAsync);
 		}
 
 		/// <summary>
@@ -223,6 +494,21 @@ namespace SmartHomeWeb
 				if (!precomputedDays.Contains(item.Key))
 				{
 					await Database.InsertMeasurementAsync(item.Value, DataConnection.DayAverageTableName);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Writes data from this aggregation cache to the database.
+		/// </summary>
+		public async Task FlushMonthsAsync()
+		{
+			await FlushDaysAsync();
+			foreach (var item in monthAverages)
+			{
+				if (!precomputedMonths.Contains(item.Key))
+				{
+					await Database.InsertMeasurementAsync(item.Value, DataConnection.MonthAverageTableName);
 				}
 			}
 		}

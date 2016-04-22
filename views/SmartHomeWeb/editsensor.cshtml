@@ -1,25 +1,58 @@
 @using System
+@using System.Linq
 @using System.Collections.Generic
 @using Nancy.Security
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<Sensor>
+@inherits NancyRazorViewBase<Tuple<Sensor, IEnumerable<string>>>
+
+<script>
+
+    function deleteTag(sensorId, tag) {
+        var request = new XMLHttpRequest();
+        request.open('DELETE', "/api/sensor-tags/" + sensorId.toString());
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send('"' + tag + '"');
+        document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;
+    }
+
+</script>
 
 <h1>@TextResources.EditSensorPageTitle</h1>
 
 
 <form method="post">
     <div class="form-group">
+		@{var sensor = Model.Item1;}
         <label for="title">@(TextResources.SensorNameLabel):</label>
-        <input id="title" name="sensortitle" class="form-control" value="@Model.Data.Name"/>
+        <input id="title" name="sensortitle" class="form-control" value="@sensor.Data.Name"/>
 
         <label for="description">@(TextResources.SensorDescriptionLabel):</label>
-        <textarea id="sensordescription" name="descriptiontitle" class="form-control" rows="5">@Model.Data.Description</textarea>
+        <textarea id="sensordescription" name="descriptiontitle" class="form-control" rows="5">@sensor.Data.Description</textarea>
 
         <label for="notes">@(TextResources.SensorNotesLabel):</label>
-        <textarea id="sensornotes" name="notestitle" class="form-control" rows="5">@Model.Data.Notes</textarea>
+        <textarea id="sensornotes" name="notestitle" class="form-control" rows="5">@sensor.Data.Notes</textarea>
 
+		<a href="/add-tag/@sensor.Id" class="add-tag" style="display:inline">
+			<span class="glyphicon glyphicon-plus"></span>
+		</a>
+		@{var tags = Model.Item2;}
+		@if (tags.Count() != 0)
+		{
+			@for (int i = 0; i < tags.Count(); i++)
+			{
+				<span id="tag-@sensor.Id-@tags.ElementAt(i)" class="tag">@tags.ElementAt(i) 
+					<a href="#" onclick="deleteTag(@sensor.Id, '@tags.ElementAt(i)')">
+						<span class="glyphicon glyphicon-remove"></span>
+					</a>
+				</span>
+			}
+		}
+		else
+		{
+			<span class="no-tags">(@TextResources.NoTagsText)</span>
+		}
     </div>
     <button type="submit" class="btn btn-primary">@TextResources.EditSensorButtonText</button>
 </form>
