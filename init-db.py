@@ -99,6 +99,14 @@ def add_message(sender, recipient, body):
 def printDateTime(dt):
     return dt.strftime("%Y-%m-%dT%H:%M")
 
+# Aggregates all measurements made during the given year by the given
+# list of sensors.
+def aggregateMeasurements(sensors, time):
+    log('Aggregating data...')
+    for s in sensors:
+        log('Aggregating data for sensor %s' % s['data']['name'])
+        requests.get(api + 'year-average/%d/%s' % (s['id'], time.isoformat()))
+
 def post_elecsim():
     locations = json.loads(requests.get(api + 'locations').text)
     num_locations = len(locations)
@@ -173,11 +181,7 @@ def post_elecsim():
         log('Uploading %d measurements... (%s)' % (len(measurements), size_format(len(json.dumps(measurements)))))
         requests.post(api + 'measurements', json=measurements)
 
-        log('Aggregating data...')
-        for s in sensors:
-            if s['data']['locationId'] == location_id:
-                log('Aggregating data for sensor %s' % s['data']['name'])
-                requests.get(api + 'year-average/%d/%s' % (s['id'], now.isoformat()))
+        aggregateMeasurements([s for s in sensors if s['data']['locationId'] == location_id], now)
 
 ######################################################################
 ### Main script
