@@ -307,14 +307,17 @@ try:
             pass
 
     post_file('persons', join('example-files', 'person-data.json'))
-    create_location('De G.10', 'bgoethals')
-    create_location('Functionele Huis', 'bennyvh')
-    create_location('Slimme Huis', 'hans')
-    post_file('sensors', join('example-files', 'sensor-data.json'))
-    post_file('measurements', join('example-files', 'measurement-data.json'))
+	
+    log('Creating locations...')
+    create_location('Serverroom', 'bgoethals')
+    create_location('Graafschap van Houdt', 'bennyvh')
+    create_location('Casa de Hans', 'hans')
 
+    log('Creating posts...')
     add_message('bgoethals', 'jonsneyers', 'Hallo')
     add_message('jonsneyers', 'bgoethals', 'Dag dag')
+    add_message('jonsneyers', 'hans', 'Hallo, ik ben een test post!')
+    add_message('bgoethals', 'hans', 'Goedendag, ik POST graag posts!')
 
     post_elecsim(arg)
     log('Success!')
