@@ -17,11 +17,11 @@ from os.path import join
 ### Helper functions
 ######################################################################
 
-def log(s):
+def log(s, color_code = 36):
     if os.name == 'nt':
         formatter = '*** %s'
     else:
-        formatter = '\x1b[36m*** %s\x1b[0m'
+        formatter = '\x1b[' + str(color_code) + 'm*** %s\x1b[0m'
     print(formatter % s)
 
 def remove(path):
@@ -47,6 +47,23 @@ def size_format(num, suffix='B'):
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
+# Makes sure that the given response was not an error.
+def checkResponse(response):
+    if response.status_code < 200 or response.status_code >= 300:
+        log("Error: %s %s" % (response.request.method, response.url), 31)
+        log("Status code: %d (%s)" % (response.status_code, response.reason), 31)
+        print(response.text)
+        raise Exception()
+    return response
+
+# Performs a GET request, and checks the response.
+def getChecked(url, **kwargs):
+    return checkResponse(requests.get(url, **kwargs))
+
+# Performs a POST request, and checks the response.
+def postChecked(url, **kwargs):
+    return checkResponse(requests.post(url, **kwargs))
+
 ######################################################################
 ### API stuff
 ######################################################################
@@ -56,10 +73,10 @@ api = "http://localhost:8088/api/"
 def post_file(where, filepath):
     log('Posting %s' % filepath)
     with open(filepath, 'rb') as f:
-        requests.post(api + where, data=f)
+        postChecked(api + where, data=f)
 
 def get_person_guid(username):
-    persons = json.loads(requests.get(api + 'persons').text)
+    persons = json.loads(getChecked(api + 'persons').text)
     try:
         return next(p['personGuid']
                     for p in persons
@@ -68,7 +85,7 @@ def get_person_guid(username):
         raise KeyError('no user called %r' % username)
 
 def get_location_id(name):
-    locations = json.loads(requests.get(api + 'locations').text)
+    locations = json.loads(getChecked(api + 'locations').text)
     try:
         return next(l['id']
                     for l in locations
@@ -80,9 +97,9 @@ def create_location(name, username):
     guid = get_person_guid(username)
     log('Creating location %s for user %s (guid: %s).' % (name, username, guid))
     j = [{'ownerGuid': guid, 'name': name}]
-    requests.post(api + 'locations', json=j)
+    postChecked(api + 'locations', json=j)
     location_id = get_location_id(name)
-    requests.post(api + 'has-location', json=[{'personGuid': guid},
+    postChecked(api + 'has-location', json=[{'personGuid': guid},
                                               {'locationId': location_id}])
 
 def add_message(sender, recipient, body):
@@ -91,7 +108,7 @@ def add_message(sender, recipient, body):
     j = [{'senderId': sender_id,
           'recipientId': recipient_id,
           'message': body}]
-    requests.post(api + 'messages', json=j)
+    postChecked(api + 'messages', json=j)
 
 ######################################################################
 ### ElecSim
@@ -105,15 +122,16 @@ def printDateTime(dt):
 def aggregateMeasurements(sensors, time):
     for s in sensors:
         log('Aggregating data for %s at location %d...' % (s['data']['name'], s['data']['locationId']))
-        requests.get(api + 'year-average/%d/%s' % (s['id'], time.isoformat()))
+        url = api + 'year-average/%d/%s' % (s['id'], time.isoformat())
+        checkResponse(getChecked(url))
 
 # Gets all sensors at the given location if a location identifier is given,
 # Otherwise, gets all sensors in the database.
 def getSensors(location_id = None):
     if location_id is None:
-        return json.loads(requests.get(api + 'sensors').text)
+        return json.loads(getChecked(api + 'sensors').text)
     else:
-        return json.loads(requests.get(api + 'sensors/at-location/%d' % location_id).text)
+        return json.loads(getChecked(api + 'sensors/at-location/%d' % location_id).text)
 
 # Creates sensors with the given names for the location with the given
 # identifier.
@@ -128,7 +146,7 @@ def createSensors(sensor_names, location_id):
 
     if len(j) > 0:
         log('Creating %d sensors...' % len(j))
-        requests.post(api + 'sensors', json=j)
+        postChecked(api + 'sensors', json=j)
 
 # Generates a csv file filled with measurements for the given location object.
 # Measurements are limited to the given timespan.
@@ -194,11 +212,11 @@ def generateAndUploadData(location, startTime, endTime):
 
     log('Posting measurements to server.')
     log('Uploading %d measurements... (%s)' % (len(measurements), size_format(len(json.dumps(measurements)))))
-    requests.post(api + 'measurements', json=measurements)
+    postChecked(api + 'measurements', json=measurements)
     return sensors
 
 def post_elecsim(day_count):
-    locations = json.loads(requests.get(api + 'locations').text)
+    locations = json.loads(getChecked(api + 'locations').text)
     num_locations = len(locations)
     now = datetime.now()
 
