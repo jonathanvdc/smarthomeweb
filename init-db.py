@@ -23,13 +23,6 @@ if __name__ == "__main__":
     arg = parse_args()
 
     sql_path = join('backend', 'database', 'smarthomeweb.sql')
-    server_path = os.path.abspath(join(
-        'backend',
-        'SmartHomeWeb',
-        'SmartHomeWeb',
-        'bin',
-        'Release',
-        'SmartHomeWeb.exe'))
 
     with open(sql_path) as f:
         log('Renewing database...')

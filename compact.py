@@ -6,8 +6,9 @@ from libclient import *
 # A period of time to compact is returned.
 def parse_args():
     args = sys.argv
-    if len(args) == 2:
-        return time.strftime("%Y-%m-%d", args[0]), time.strftime("%Y-%m-%d", args[1])
+    if len(args) == 3:
+        dateformat = "%Y-%m-%d"
+        return datetime.strptime(args[1], dateformat), datetime.strptime(args[2], dateformat)
     else:
         log("Invalid number of command-line arguments. Expected exactly two: the start and end date-time to compact.", 31)
         sys.exit(1)

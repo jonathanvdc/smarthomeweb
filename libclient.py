@@ -64,6 +64,10 @@ def getChecked(url, **kwargs):
 def postChecked(url, **kwargs):
     return checkResponse(requests.post(url, **kwargs))
 
+# Performs a PUT request, and checks the response.
+def putChecked(url, **kwargs):
+    return checkResponse(requests.put(url, **kwargs))
+
 ######################################################################
 ### API stuff
 ######################################################################
@@ -142,7 +146,8 @@ def aggregateMeasurements(sensors, time, day_count):
 
 # Compacts all measurements that were made during the given period of time.
 def compactMeasurements(start_time, end_time):
-    getChecked(api + 'compact/measurements/%s/%s' % (start_time.isoformat(), end_time.isoformat()))
+    log('Compacting measurements for time period %s - %s' % (start_time.isoformat(), end_time.isoformat()))
+    putChecked(api + 'compact/measurements/%s/%s' % (start_time.isoformat(), end_time.isoformat()))
 
 # Gets all sensors at the given location if a location identifier is given,
 # Otherwise, gets all sensors in the database.
@@ -276,6 +281,14 @@ def post_elecsim(day_count):
 # Launches the server, and does not return until it is ready to handle
 # requests.
 def startServer():
+    server_path = os.path.abspath(join(
+        'backend',
+        'SmartHomeWeb',
+        'SmartHomeWeb',
+        'bin',
+        'Release',
+        'SmartHomeWeb.exe'))
+
     log('Launching server...')
     server = popen_mono(server_path)
 
