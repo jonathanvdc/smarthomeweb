@@ -191,5 +191,15 @@ create table FrozenPeriod (
     -- The end-time of the period, in
     -- unix time.
     endTime integer not null,
+    -- An integer that identifies this period's
+    -- "compaction level," i.e. the degree to which
+    -- measurements have been compacted. The following
+    -- compaction levels are legal:
+    --
+    --     0 - No compaction
+    --     1 - Measurement compaction
+    --     2 - Hour-average compaction
+    --     3 - Day-average compaction
+    compactionLevel integer not null,
     primary key (startTime, endTime)
 );

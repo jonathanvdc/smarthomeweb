@@ -153,6 +153,17 @@ namespace SmartHomeWeb
         {
             return new PersonPair(GetGuid(Record, "personOne"), GetGuid(Record, "personTwo"));
         }
+
+		/// <summary>
+		/// Reads a frozen period of time from the database.
+		/// </summary>
+		public static FrozenPeriod ReadFrozenPeriod(IDataRecord Record)
+		{
+			return new FrozenPeriod(
+				GetDateTime(Record, "startTime"), 
+				GetDateTime(Record, "endTime"), 
+				(CompactionLevel)GetInt32(Record, "compactionLevel"));
+		}
     }
 }
 

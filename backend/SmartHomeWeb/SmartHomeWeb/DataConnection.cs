@@ -1287,10 +1287,19 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
+		/// Reads all frozen periods from the database.
+		/// </summary>
+		public Task<FrozenPeriod> GetFrozenPeriodsAsync()
+		{
+			return GetTableAsync(FrozenPeriodTableName, DatabaseHelpers.ReadFrozenPeriod);
+		}
+
+		/// <summary>
 		/// Freezes the period of time specified by the given start-time
 		/// and end-time.
 		/// </summary>
-		public async Task FreezeAsync(DateTime StartTime, DateTime EndTime)
+		public async Task FreezeAsync(
+			DateTime StartTime, DateTime EndTime, CompactionLevel Compaction = CompactionLevel.None)
 		{
 			if (EndTime < StartTime)
 				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
@@ -1298,9 +1307,11 @@ namespace SmartHomeWeb
 			using (var cmd = sqlite.CreateCommand())
 			{
 				cmd.CommandText = $"DELETE FROM {FrozenPeriodTableName} " +
-					"WHERE startTime >= @startTime AND endTime <= @endTime";
+					"WHERE startTime >= @startTime AND endTime <= @endTime " +
+					"  AND compactionLevel <= @compactionLevel";
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				cmd.Parameters.AddWithValue("@compactionLevel", (int)Compaction);
 				await cmd.ExecuteNonQueryAsync();
 			}
 
@@ -1311,21 +1322,32 @@ namespace SmartHomeWeb
 				// one.
 				cmd.CommandText = $"SELECT COUNT (*) FROM {FrozenPeriodTableName} " +
 					"WHERE startTime <= @startTime AND endTime >= @endTime " +
+					"  AND compactionLevel >= @compactionLevel " +
 					"LIMIT 1";
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				cmd.Parameters.AddWithValue("@compactionLevel", (int)Compaction);
 				if ((long)await cmd.ExecuteNonQueryAsync() > 0)
 					return;
 			}
 
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = $"INSERT INTO {FrozenPeriodTableName}(startTime, endTime) " +
-					"VALUES (@startTime, @endTime)";
+				cmd.CommandText = $"INSERT INTO {FrozenPeriodTableName}(startTime, endTime, compactionLevel) " +
+					"VALUES (@startTime, @endTime, @compactionLevel)";
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				cmd.Parameters.AddWithValue("@compactionLevel", (int)Compaction);
 				await cmd.ExecuteNonQueryAsync();
 			}
+		}
+
+		/// <summary>
+		/// Freezes the given period of time.
+		/// </summary>
+		public Task FreezeAsync(FrozenPeriod Period)
+		{
+			return FreezeAsync(Period.StartTime, Period.EndTime, Period.Compaction);
 		}
 
 		/// <summary>
@@ -1354,7 +1376,7 @@ namespace SmartHomeWeb
 			}
 
 			// Freeze this period of time.
-			await FreezeAsync(StartTime, EndTime);
+			await FreezeAsync(StartTime, EndTime, CompactionLevel.Measurements);
 		}
 
         /// <summary>
