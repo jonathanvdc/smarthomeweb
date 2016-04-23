@@ -63,7 +63,7 @@
 					var date = new Date(sensorData.timestamp);
 					var hmsstring = date.toISOString().substring(11, 19);
 					var data = sensorData.measurement === null ? 0 : sensorData.measurement;
-					var notespre = "Time: " + hmsstring + "\nMeasurement: " + data + "\n" + "Notes:\n" ;
+					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + data + "<br/><b>Notes:</b>\n";
 					var notes = sensorData.notes === null ? notespre : notespre + sensorData.notes;
 					array.push([hmsstring, data, notes]);
 				}
@@ -71,11 +71,12 @@
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Time');
 				data.addColumn('number', 'Usage');
-				data.addColumn({type: 'string', role: 'tooltip'});
+				data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
 				data.addRows(array);
 				// Set chart options
 				var options = {'width':600,
-								'height':500};
+								'height':500,
+								tooltip: {isHtml: true}};
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
