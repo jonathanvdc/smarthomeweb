@@ -109,7 +109,7 @@ def add_message(sender, recipient, body):
           'recipientId': recipient_id,
           'message': body}]
     postChecked(api + 'messages', json=j)
-	
+
 def add_friend_request(sender, recipient):
     sender_id = get_person_guid(sender)
     recipient_id = get_person_guid(recipient)
@@ -120,7 +120,7 @@ def add_friend_request(sender, recipient):
 def add_friendship(person1, person2):
     add_friend_request(person1, person2)
     add_friend_request(person2, person1)
-	
+
 ######################################################################
 ### ElecSim
 ######################################################################
@@ -128,12 +128,16 @@ def add_friendship(person1, person2):
 def printDateTime(dt):
     return dt.strftime("%Y-%m-%dT%H:%M")
 
-# Aggregates all measurements made during the given year by the given
+# Aggregates all measurements made by the given
 # list of sensors.
-def aggregateMeasurements(sensors, time):
+def aggregateMeasurements(sensors, time, day_count):
     for s in sensors:
         log('Aggregating data for %s at location %d...' % (s['data']['name'], s['data']['locationId']))
-        url = api + 'year-average/%d/%s' % (s['id'], time.isoformat())
+        # First, aggregate days...
+        url = api + 'day-average/%d/%s/%d' % (s['id'], (time - timedelta(days = day_count)).isoformat(), day_count)
+        checkResponse(getChecked(url))
+        # Next, aggregate thirteen months.
+        url = api + 'month-average/%d/%s/13' % (s['id'], time.isoformat())
         checkResponse(getChecked(url))
 
 # Gets all sensors at the given location if a location identifier is given,
@@ -263,7 +267,7 @@ def post_elecsim(day_count):
             startTime = endTime - timedelta(days = day_count - j)
             sensors = generateAndUploadData(locations[i - 1], startTime, endTime)
 
-        aggregateMeasurements(sensors, now)
+        aggregateMeasurements(sensors, now, day_count)
 
 # Parses command-line arguments.
 # The number of days to generate measurements for
@@ -318,7 +322,7 @@ try:
             pass
 
     post_file('persons', join('example-files', 'person-data.json'))
-	
+
     log('Creating locations...')
     create_location('Serverroom', 'bgoethals')
     create_location('Graafschap van Houdt', 'bennyvh')
@@ -329,7 +333,7 @@ try:
     add_message('jonsneyers', 'bgoethals', 'Dag dag')
     add_message('jonsneyers', 'hans', 'Hallo, ik ben een test post!')
     add_message('bgoethals', 'hans', 'Goedendag, ik POST graag posts!')
-	
+
     log('Creating friendships...')
     add_friend_request('bgoethals','hans')
     add_friend_request('jonsneyers','hans')
