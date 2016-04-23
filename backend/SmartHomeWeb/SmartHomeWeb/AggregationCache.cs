@@ -412,7 +412,7 @@ namespace SmartHomeWeb
 							regionStartDay, 24 * regionSize);
 						for (int j = regionStart; j < i; j++)
 						{
-							results[j] = await GetDayAverageAsync(regionStartDay.AddDays(j));
+							results[j] = await GetDayAverageAsync(StartDay.AddDays(j));
 						}
 						regionSize = 0;
 					}
@@ -434,7 +434,7 @@ namespace SmartHomeWeb
 					regionStartDay, 24 * regionSize);
 				for (int j = regionStart; j < Count; j++)
 				{
-					results[j] = await GetDayAverageAsync(regionStartDay.AddDays(j));
+					results[j] = await GetDayAverageAsync(StartDay.AddDays(j));
 				}
 			}
 			return results;
