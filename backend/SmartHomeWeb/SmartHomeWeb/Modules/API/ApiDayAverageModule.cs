@@ -19,5 +19,10 @@ namespace SmartHomeWeb.Modules.API
         {
             return Connection.GetDayAverageAsync(SensorId, Time);
         }
+
+		public override Task<IEnumerable<Measurement>> GetAggregatedRangeAsync(DataConnection Connection, int SensorId, DateTime StartTime, int ResultCount)
+		{
+			return Connection.GetDayAveragesAsync(SensorId, StartTime, ResultCount);
+		}
     }
 }
