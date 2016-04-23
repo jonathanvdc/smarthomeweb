@@ -1289,7 +1289,7 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Reads all frozen periods from the database.
 		/// </summary>
-		public Task<FrozenPeriod> GetFrozenPeriodsAsync()
+		public Task<IEnumerable<FrozenPeriod>> GetFrozenPeriodsAsync()
 		{
 			return GetTableAsync(FrozenPeriodTableName, DatabaseHelpers.ReadFrozenPeriod);
 		}
