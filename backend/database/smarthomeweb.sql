@@ -1,5 +1,5 @@
 -- These pragmas can improve write performance slightly.
--- They must also be used when opening a database connection.
+-- They should also be used when opening a database connection.
 PRAGMA journal_mode = MEMORY;
 PRAGMA synchronous = OFF;
 

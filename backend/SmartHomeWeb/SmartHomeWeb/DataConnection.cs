@@ -41,19 +41,28 @@ namespace SmartHomeWeb
         /// <summary>
         /// Asynchronously creates a database connection.
         /// </summary>
-        public static async Task<DataConnection> CreateAsync()
+		public static async Task<DataConnection> CreateAsync(
+			string JournalMode = "MEMORY", string Synchronous = "NORMAL")
         {
             var result = new DataConnection();
             await result.sqlite.OpenAsync();
-			using (var cmd = result.sqlite.CreateCommand())
-			{
-				cmd.CommandText = "PRAGMA journal_mode = MEMORY";
-				cmd.ExecuteNonQuery();
-				cmd.CommandText = "PRAGMA synchronous = OFF";
-				cmd.ExecuteNonQuery();
-			}
+			result.SetJournalingMode(JournalMode, Synchronous);
             return result;
         }
+
+		/// <summary>
+		/// Sets the journaling mode.
+		/// </summary>
+		public void SetJournalingMode(string Mode, string Synchronous)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"PRAGMA journal_mode = {Mode}";
+				cmd.ExecuteNonQuery();
+				cmd.CommandText = $"PRAGMA synchronous = {Synchronous}";
+				cmd.ExecuteNonQuery();
+			}
+		}
 
         /// <summary>
         /// Creates a task that executes an SqliteCommand, and interprets the results.
@@ -1719,9 +1728,11 @@ namespace SmartHomeWeb
         /// asynchronously retrieving the result. The operation is wrapped
 		/// in a transaction.
         /// </summary>
-        public static async Task<T> Ask<T>(Func<DataConnection, Task<T>> operation)
+		public static async Task<T> Ask<T>(
+			Func<DataConnection, Task<T>> operation, 
+			string JournalMode = "MEMORY", string Synchronous = "NORMAL")
         {
-            using (var dc = await CreateAsync())
+            using (var dc = await CreateAsync(JournalMode, Synchronous))
                 return await dc.PerformTransaction(operation);
         }
 
@@ -1729,9 +1740,11 @@ namespace SmartHomeWeb
         /// Open a database connection, perform a single operation, and close it.
 		/// The operation is wrapped in a transaction.
         /// </summary>
-        public static async Task Ask(Func<DataConnection, Task> operation)
+        public static async Task Ask(
+			Func<DataConnection, Task> operation, 
+			string JournalMode = "MEMORY", string Synchronous = "NORMAL")
         {
-            using (var dc = await CreateAsync())
+            using (var dc = await CreateAsync(JournalMode, Synchronous))
 				await dc.PerformTransaction(operation);
         }
     }

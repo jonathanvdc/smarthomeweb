@@ -26,11 +26,13 @@ namespace SmartHomeWeb.Modules.API
         /// <param name="operation">The operation to wrap around.</param>
         /// <returns>A route handler.</returns>
         public static Func<dynamic, CancellationToken, Task<dynamic>> Ask<T>(
-            Func<dynamic, DataConnection, Task<T>> operation)
+            Func<dynamic, DataConnection, Task<T>> operation,
+			string JournalMode = "MEMORY", string Synchronous = "NORMAL")
         {
             return async (parameters, ct) =>
             {
-                T result = await DataConnection.Ask<T>(dc => operation(parameters, dc));
+				T result = await DataConnection.Ask<T>(
+					dc => operation(parameters, dc), JournalMode, Synchronous);
                 var json = JsonConvert.SerializeObject(result);
 
                 var statusCode = result == null
@@ -45,11 +47,12 @@ namespace SmartHomeWeb.Modules.API
         }
 
         public static Func<dynamic, CancellationToken, Task<dynamic>> Ask(
-            Func<dynamic, DataConnection, Task> operation)
+            Func<dynamic, DataConnection, Task> operation,
+			string JournalMode = "MEMORY", string Synchronous = "NORMAL")
         {
             return Ask<int>(async (p, dc) => {
                 await operation(p, dc); return 0;
-            });
+            }, JournalMode, Synchronous);
         }
 
         /// <summary>

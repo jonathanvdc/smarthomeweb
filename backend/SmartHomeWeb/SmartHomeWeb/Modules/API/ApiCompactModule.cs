@@ -7,7 +7,7 @@ namespace SmartHomeWeb.Modules.API
 		public ApiCompactModule() : base("api/compact")
 		{
 			// PUT, because compaction is idempotent
-			Put["/measurements/{start}/{end}", true] = Ask((p, dc) => dc.CompactAsync((DateTime)p["start"], (DateTime)p["end"]));
+			Put["/measurements/{start}/{end}", true] = Ask((p, dc) => dc.CompactAsync((DateTime)p["start"], (DateTime)p["end"]), "WAL", "NORMAL");
 		}
 	}
 }
