@@ -220,7 +220,7 @@ pip-log.txt
 *.userprefs
 
 # Database files
-backend/database/smarthomeweb.db
+backend/database/*.db
 backend/database/sqlite3.exe
 
 # Doxygen
