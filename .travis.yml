@@ -9,4 +9,5 @@ solution: backend/SmartHomeWeb/SmartHomeWeb.sln
 script:
     - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
     - sudo pip install requests
-    - python init-db.py
+    - python init-db.py 60
+    - python compact.py $(date -I --date "60 days ago") $(date -I --date "7 days ago")
