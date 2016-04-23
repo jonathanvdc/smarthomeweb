@@ -143,6 +143,7 @@
     <Compile Include="AggregationCache.cs" />
     <Compile Include="ConflictHelpers.cs" />
     <Compile Include="Modules\API\ApiFrozenModule.cs" />
+    <Compile Include="Modules\API\ApiCompactModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\views\Admin\admin-location.cshtml">

@@ -1015,6 +1015,23 @@ namespace SmartHomeWeb
 			}
 		}
 
+		/// <summary>
+		/// Deletes the measurement made by the given sensor during the given period of time 
+		/// from the table with the given name.  
+		/// </summary>
+		private async Task DeleteMeasurementAsync(string TableName, int SensorId, DateTime StartTime, DateTime EndTime)
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"DELETE FROM {TableName} " +
+					"WHERE sensorId = @sensorId AND unixtime >= @startTime AND unixtime <= @endTime";
+				cmd.Parameters.AddWithValue("@sensorId", SensorId);
+				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
+
         /// <summary>
         /// Inserts the given measurement into the Measurement table.
         /// </summary>
@@ -1286,6 +1303,35 @@ namespace SmartHomeWeb
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
 				await cmd.ExecuteNonQueryAsync();
 			}
+		}
+
+		/// <summary>
+		/// Compacts the given period of time. First, all data in the given
+		/// period of time is aggregated, then all measurements are deleted. 
+		/// The given period of time is subsequently frozen: further 
+		/// measurement insertion is disallowed during this period.
+		/// </summary>
+		public async Task CompactAsync(DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			// Get all sensors in the database.
+			var allSensors = await GetSensorsAsync();
+
+			// Compute hour averages.
+			int hourCount = (int)Math.Ceiling((EndTime - StartTime).TotalHours);
+			await Task.WhenAll(allSensors.Select(
+				item => (Task)GetHourAveragesAsync(item.Id, StartTime, hourCount)));
+
+			// Discard measurements.
+			foreach (var item in allSensors)
+			{
+				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
+			}
+
+			// Freeze this period of time.
+			await FreezeAsync(StartTime, EndTime);
 		}
 
         /// <summary>
