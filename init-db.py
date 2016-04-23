@@ -135,10 +135,10 @@ def aggregateMeasurements(sensors, time, day_count):
         log('Aggregating data for %s at location %d...' % (s['data']['name'], s['data']['locationId']))
         # First, aggregate days...
         url = api + 'day-average/%d/%s/%d' % (s['id'], (time - timedelta(days = day_count)).isoformat(), day_count)
-        checkResponse(getChecked(url))
+        getChecked(url)
         # Next, aggregate thirteen months.
         url = api + 'month-average/%d/%s/13' % (s['id'], time.isoformat())
-        checkResponse(getChecked(url))
+        getChecked(url)
 
 # Gets all sensors at the given location if a location identifier is given,
 # Otherwise, gets all sensors in the database.
