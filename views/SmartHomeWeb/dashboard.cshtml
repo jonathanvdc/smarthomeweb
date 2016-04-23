@@ -113,7 +113,7 @@ else
     $(function () {
         $('input[name="daterange"]').daterangepicker({
             locale: {
-                format: 'YYYY/MM/DD HH:mm:ss'
+                format: 'YYYY/MM/DD HH:mm'
             },
             timePicker24Hour: true,
             timePicker: true,
@@ -130,8 +130,8 @@ else
             startDate: moment(),
             endDate: moment()
         }, function (start, end, label) {
-            var date1 = new Date(start.format('YYYY-MM-DD HH:mm:ss'));
-            var date2 = new Date(end.format('YYYY-MM-DD HH:mm:ss'));
+            var date1 = new Date(start.format('YYYY-MM-DDTHH:mm:ss'));
+            var date2 = new Date(end.format('YYYY-MM-DDTHH:mm:ss'));
             measurementsGraph.setTimeframe(date1, date2);
         });
     });
