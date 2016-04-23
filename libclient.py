@@ -273,14 +273,19 @@ def post_elecsim(day_count):
 
         aggregateMeasurements(sensors, now, day_count)
 
-# Parses command-line arguments.
-# The number of days to generate measurements for
-# is returned.
-def parse_args():
-    args = sys.argv
-    if len(args) == 1:
-        return 30
-    elif len(args) == 2:
-        return int(args[1])
-    else:
-        raise Exception("Invalid number of command-line arguments. Expected just one: the number of days to generate measurements for.")
+# Launches the server, and does not return until it is ready to handle
+# requests.
+def startServer():
+    log('Launching server...')
+    server = popen_mono(server_path)
+
+    # Wait for the server to come alive.
+    while True:
+        try:
+            requests.head('http://localhost:8088/', timeout=3.05)
+            log('Server launched (PID=%d).' % server.pid)
+            break
+        except requests.exceptions.RequestException:
+            # log('Waiting for server...')
+            pass
+    return server

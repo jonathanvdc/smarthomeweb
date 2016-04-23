@@ -2,6 +2,19 @@
 
 from libclient import *
 
+# Parses command-line arguments.
+# The number of days to generate measurements for
+# is returned.
+def parse_args():
+    args = sys.argv
+    if len(args) == 1:
+        return 30
+    elif len(args) == 2:
+        return int(args[1])
+    else:
+        log("Invalid number of command-line arguments. Expected at most one: the number of days to generate measurements for.", 31)
+        sys.exit(1)
+
 ######################################################################
 ### Main script
 ######################################################################
@@ -30,18 +43,7 @@ if __name__ == "__main__":
     log('Done.')
 
     try:
-        log('Launching server...')
-        server = popen_mono(server_path)
-
-        # Wait for the server to come alive.
-        while True:
-            try:
-                requests.head('http://localhost:8088/', timeout=3.05)
-                log('Server launched (PID=%d).' % server.pid)
-                break
-            except requests.exceptions.RequestException:
-                # log('Waiting for server...')
-                pass
+        server = startServer()
 
         post_file('persons', join('example-files', 'person-data.json'))
 
