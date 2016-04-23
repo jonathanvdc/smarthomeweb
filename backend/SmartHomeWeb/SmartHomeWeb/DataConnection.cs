@@ -1306,6 +1306,20 @@ namespace SmartHomeWeb
 
 			using (var cmd = sqlite.CreateCommand())
 			{
+				// Don't insert a tuple into the database if there
+				// is a pre-existing tuple that encompasses this
+				// one.
+				cmd.CommandText = $"SELECT COUNT (*) FROM {FrozenPeriodTableName} " +
+					"WHERE startTime <= @startTime AND endTime >= @endTime " +
+					"LIMIT 1";
+				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				if ((long)await cmd.ExecuteNonQueryAsync() > 0)
+					return;
+			}
+
+			using (var cmd = sqlite.CreateCommand())
+			{
 				cmd.CommandText = $"INSERT INTO {FrozenPeriodTableName}(startTime, endTime) " +
 					"VALUES (@startTime, @endTime)";
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
