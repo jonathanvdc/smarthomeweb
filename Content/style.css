@@ -140,6 +140,10 @@ span.no-tags{
 .sensor-desciption {
 	color: #AABBCC;
 }
+	li.active .sensor-desciption{
+		color: #CCDDEE;
+	}
+
 
 /* For list items that can be clicked. */
 .clickable-item {
@@ -156,6 +160,11 @@ span.no-tags{
 	.clickable-item:hover {
 	    text-decoration: none;
 	    background-color: #eee;
+	}
+	
+	li.active .clickable-item{
+		color: #fff;
+		background-color: #337ab7;
 	}
 	
 .tooltip-questionmark{

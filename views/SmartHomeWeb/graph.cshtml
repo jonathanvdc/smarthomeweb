@@ -10,7 +10,7 @@
 
 <script type="text/javascript">
 	measurementsGraph = new function() {
-		var timeframe = "minutes";
+		var timeframe = "hours";
 		var currentsensor = null;
 
 		// Replaces measurement data that consists of 'null'
@@ -54,7 +54,7 @@
 			}
 			else
 			{
-				var x = (Math.abs(currentDate - currentDate2) / 36e5)+1;
+				var x = Math.round(Math.abs(currentDate - currentDate2) / 36e5)+1;
 				var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate2) + "/" + x.toString();				
 			}
 			return requestData(url, drawData);
@@ -131,20 +131,20 @@
 				document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
 				return;
 			}
-
 			var f = { 'minutes' : drawRawMeasurements, 'hours' : drawHours, 'days' : drawDays, 'months' : drawMonths }[timeframe];
 			f();
 	    }		
 
-		this.drawcustomChart = function() {
+		this.drawcustomChart = function(date1, date2) {
 		    if (currentsensor === null) {
 				document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
 				return;
-			}
-			dateone = new Date(document.getElementById('date2').value);
-			datetwo = new Date(document.getElementById('date1').value);	
+		    }
+            
+		    console.log('Attempting to draw chart from ' + date1.toString() + " to " + date2.toString());
+
 			var f = { 'minutes' : drawRawMeasurements, 'hours' : drawHours, 'days' : drawDays, 'months' : drawMonths }[timeframe];
-			f(dateone, datetwo);
+			f(date2, date1);
 		}
 		
 		

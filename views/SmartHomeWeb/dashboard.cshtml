@@ -5,7 +5,12 @@
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<List<LocationWithSensors>>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<!-- Include Date Range Picker -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
 <h2>@TextResources.MeasurementsPageTitle</h2>
 
 @if (@Model.Count == 0)
@@ -19,60 +24,132 @@
 }
 else
 {
-    <div class="container col-sm-12">
-        <ul class="nav nav-tabs col-sm-12">
-	    @for(var x = 0; x < @Model.Count; ++x)
-		{
-		  <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>
-		}
-		</ul>
-		<div style="margin: 5px;" class="col-sm-12">
-		<ul style="margin: 5px;" class="nav nav-pills">
-		  <li class="active" onClick='measurementsGraph.setFrame("minutes")'><a href="#" data-toggle="tab">Minutes</a></li>
-		  <li onClick='measurementsGraph.setFrame("hours")'><a href="#" data-toggle="tab">Hours</a></li>
-		  <li onClick='measurementsGraph.setFrame("days")'><a href="#" data-toggle="tab">Days</a></li>
-		  <li onClick='measurementsGraph.setFrame("months")'><a href="#" data-toggle="tab">Months</a></li>
-		</ul>
+    <ul class="nav nav-tabs col-sm-12">
+        @for (var x = 0; x < @Model.Count; ++x)
+        {
+            <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>    }
+    </ul>
 
-		<table>
-		  <tr>
-		    <td>From:</td><td><input id="date1" type="datetime" value="2016-04-20T12:00"></td>
-		  </tr>
-		  <tr>
-		    <td>To:</td><td><input id="date2" type="datetime" value="2016-04-20T13:00"></td>
-		  </tr>
-		</table>
-		<button onClick='measurementsGraph.drawcustomChart()'>Submit</button>
-		</div>
-		<div class="col-sm-8">
-			@Html.Partial("graph.cshtml")
-		</div>
-		<div class="tab-content col-sm-4">
-		@for (int x = 0; x < @Model.Count; ++x)
-		{
-		  <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height: 55%; overflow:auto;">
-			<ul class="nav nav-pills nav-stacked">
-				@foreach (var y in @Model[x].Sensors)
-				{
-				  <li id="@y.Id" onClick="measurementsGraph.setId(this.id)">
-				  	<div class="clickable-item" style="width: 100%; display: table;">
-						<div style="display: table-row">
-							<div style="display: table-cell;">
-								@y.Data.Name
-								<div id="@(y.Id)-description" class="sensor-desciption">
-						              @y.Data.Description
-								</div>
-							</div>
-							<a href="/edit-sensor/@y.Id" class="add-tag" style="width: 25px; display: table-cell;">
-								<span class="glyphicon glyphicon-cog"  style="float: right;" />
-							</a>
-						</div>
-					</div>
-			      </li>
-				}
-			</ul>
-		  </div>
-		}
-		</div>
+    <div class="container col-sm-12">
+
+        <div style="margin-top: 15px;">
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">@(TextResources.RangeSelectorTitle)</div>
+                    <div class="panel-body">
+                        <input id="daterange" name="daterange" size="39">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-sm-8">
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">@(TextResources.TagSelectorTitle)</div>
+                    <div class="panel-body">
+                        <input type="text" id="tagselector">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">@(TextResources.GraphTitle)</div>
+                <div class="panel-body">
+                    @Html.Partial("graph.cshtml")
+                </div>
+            </div>
+        </div>
+
+		<div class="col-sm-4">
+            <div class="panel panel-default">
+
+                <div class="panel-heading">@(TextResources.SensorSelectorTitle)</div>
+
+                <div class="panel-body tab-content">
+
+                    @for (int x = 0; x < @Model.Count; ++x)
+                    {
+                        <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height: 55%; overflow:auto;">
+                            <ul class="nav nav-pills nav-stacked">
+
+                                @foreach (var y in @Model[x].Sensors)
+                                {
+                                    <li id="@y.Id" onClick="measurementsGraph.setId(this.id)">
+                                        <div class="clickable-item" style="width: 100%; display: table;">
+                                            <div style="display: table-row">
+                                                <div style="display: table-cell;">
+                                                    @y.Data.Name
+                                                    <div id="@(y.Id)-description" class="sensor-desciption">
+                                                        @y.Data.Description
+                                                    </div>
+                                                </div>
+                                                <a href="/edit-sensor/@y.Id" class="add-tag" style="width: 25px; display: table-cell;">
+                                                    <span class="glyphicon glyphicon-cog" style="float: right;" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+
+                            </ul>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
     </div>
 }
+
+<script type="text/javascript">
+
+    var now = Date();
+
+    $(function () {
+        $('input[name="daterange"]').daterangepicker({
+            locale: {
+                format: 'YYYY/MM/DD HH:mm:ss'
+            },
+            timePicker24Hour: true,
+            timePicker: true,
+            autoApply: true,
+            linkedCalendars: false,
+            ranges:{
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            startDate: moment(),
+            endDate: moment()
+        }, function (start, end, label) {
+            var date1 = new Date(start.format('YYYY-MM-DD HH:mm:ss'));
+            var date2 = new Date(end.format('YYYY-MM-DD HH:mm:ss'));
+            measurementsGraph.drawcustomChart(date1, date2);
+        });
+    });
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.nav li .clickable-item').click(function (e) {
+            
+            var $parent = $(this).parent();
+            var $holder = $parent.parent();
+            $holder.children().removeClass('active');
+
+            if (!$parent.hasClass('active')) {
+                $parent.addClass('active');
+            }
+            e.preventDefault();
+        });
+    });
+</script>

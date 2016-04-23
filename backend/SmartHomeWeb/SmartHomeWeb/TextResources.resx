@@ -486,4 +486,16 @@
   <data name="ProfileEditSuccess" xml:space="preserve">
     <value>Your profile has been updated!</value>
   </data>
+  <data name="GraphTitle" xml:space="preserve">
+    <value>Graph</value>
+  </data>
+  <data name="RangeSelectorTitle" xml:space="preserve">
+    <value>Range select</value>
+  </data>
+  <data name="SensorSelectorTitle" xml:space="preserve">
+    <value>Sensor select</value>
+  </data>
+  <data name="TagSelectorTitle" xml:space="preserve">
+    <value>Tag select</value>
+  </data>
 </root>

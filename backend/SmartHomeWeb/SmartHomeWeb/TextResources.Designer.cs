@@ -439,6 +439,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Graph.
+        /// </summary>
+        public static string GraphTitle {
+            get {
+                return ResourceManager.GetString("GraphTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You aren&apos;t a member of any groups yet. Click the button above to make one!.
         /// </summary>
         public static string GroupOverviewNoGroups {
@@ -907,6 +916,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Range select.
+        /// </summary>
+        public static string RangeSelectorTitle {
+            get {
+                return ResourceManager.GetString("RangeSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send {0} a friend request.
         /// </summary>
         public static string SendFriendRequestButton {
@@ -997,6 +1015,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sensor select.
+        /// </summary>
+        public static string SensorSelectorTitle {
+            get {
+                return ResourceManager.GetString("SensorSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to My sensors.
         /// </summary>
         public static string Sensorsfromuser {
@@ -1056,6 +1083,15 @@ namespace SmartHomeWeb {
         public static string TagNameLabel {
             get {
                 return ResourceManager.GetString("TagNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag select.
+        /// </summary>
+        public static string TagSelectorTitle {
+            get {
+                return ResourceManager.GetString("TagSelectorTitle", resourceCulture);
             }
         }
         
