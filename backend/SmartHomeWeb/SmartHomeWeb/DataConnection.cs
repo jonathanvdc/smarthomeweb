@@ -420,7 +420,7 @@ namespace SmartHomeWeb
 		{
 			var cache = new AggregationCache(this, SensorId, StartDay, StartDay.AddDays(Count));
 
-			await cache.PrefetchHourAveragesAsync();
+			await cache.PrefetchDayAveragesAsync();
 			var result = await cache.GetDayAveragesAsync(StartDay, Count);
 			await cache.FlushDaysAsync();
 			return result;
@@ -456,6 +456,22 @@ namespace SmartHomeWeb
 		public Task<Measurement> GetYearAverageAsync(int SensorId, DateTime Year)
 		{
 			return GetAverageAsync(SensorId, Year, YearAverageTableName, ComputeYearAverageAsync);
+		}
+
+		/// <summary>
+		/// Creates a task that fetches or computes the year average for the 
+		/// given sensor during the given year.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetYearAveragesAsync(int SensorId, DateTime StartYear, int Count)
+		{
+			var results = new Task<Measurement>[Count];
+			var time = StartYear;
+			for (int i = 0; i < Count; i++)
+			{
+				results[i] = GetYearAverageAsync(SensorId, time);
+				time = time.AddYears(1);
+			}
+			return Task.WhenAll(results).ContinueWith<IEnumerable<Measurement>>(t => t.Result);
 		}
 
         /// <summary>
@@ -1749,7 +1765,6 @@ namespace SmartHomeWeb
                     
             }
         }
-
 
         /// <summary>
         /// Close the database connection.
