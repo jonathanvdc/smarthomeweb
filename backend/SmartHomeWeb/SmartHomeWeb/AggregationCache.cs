@@ -30,7 +30,12 @@ namespace SmartHomeWeb
 	// average. Additionally, all averages are cached. 
 	// Therefore, computing a year-average is very efficient if
 	// the month-averages for that year have already been computed.
-
+	//
+	// This is analogous to how `make` behaves: the initial build
+	// is typically slow, but incremental changes can be compiled
+	// very quickly. Likewise, the  initial aggregation pass may 
+	// take a bit of time, small to medium-sized additions to 
+	// the pool of measurements can be processed very efficiently.
 
 	/// <summary>
 	/// A data structure that caches data that pertains to 
