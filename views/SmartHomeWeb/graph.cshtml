@@ -10,7 +10,10 @@
 
 <script type="text/javascript">
 	measurementsGraph = new function() {
-		var timeframe = "hours";
+		var measurementCount = 30;
+		var endTime = new Date();
+		var startTime = new Date();
+		startTime.setHours(endTime.getHours() - 1);
 		var currentsensor = null;
 
 		// Replaces measurement data that consists of 'null'
@@ -35,52 +38,7 @@
 			xmlhttp.send(null);
 		}
 
-		var drawRawMeasurements = function(currentDate = new Date(), currentDate2 = null) {
-			if(currentDate2 === null)
-			{
-			  currentDate2 = new Date();
-			  currentDate2.setHours(currentDate2.getHours()-1);
-			}
-			var url = "/api/measurements/" + currentsensor.toString() + "/" + timeString(currentDate2) + "/" + timeString(currentDate);
-			return requestData(url, drawData);
-		}
-
-		var drawHours = function(currentDate = new Date(), currentDate2 = null) {
-			if(currentDate2 === null)
-			{
-				currentDate.setDate(currentDate.getDate() - 1);
-				currentDate.setHours(currentDate.getHours()+1);
-				var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/24";		
-			}
-			else
-			{
-				var x = Math.round(Math.abs(currentDate - currentDate2) / 36e5)+1;
-				var url = "/api/hour-average/" + currentsensor.toString()+ "/" + timeString(currentDate2) + "/" + x.toString();				
-			}
-			return requestData(url, drawData);
-		}
-
-		var drawDays = function(currentDate = new Date(), currentDate2 = null) {
-			if(currentDate2 === null)
-			{
-			  currentDate.setMonth(currentDate.getMonth() - 1);
-			  var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate) + "/31";		
-			}
-			else
-			{
-			  x = Math.ceil(Math.abs(currentDate - currentDate2) / (36e5*24));		  
-			  var url = "/api/day-average/" + currentsensor.toString()+ "/" + timeString(currentDate2) + "/" + x.toString();		
-			}
-			return requestData(url, drawData);
-		}
-
-		var drawMonths = function(currentDate = new Date(), currentDate2 = null) {
-			currentDate = new Date();
-			currentDate.setFullYear(currentDate.getFullYear() - 1);
-			var url = "/api/month-average/" + currentsensor.toString() + "/" + timeString(currentDate) + "/13";
-			return requestData(url, drawData);
-		}
-
+		// Formats the given date-time instance as an ISO date-time string.
 		var timeString = function(time) {
 			var seconds = time.getSeconds() < 10 ? "0"+time.getSeconds().toString() : time.getSeconds().toString();
 			var minutes = time.getMinutes() < 10 ? "0"+time.getMinutes().toString() : time.getMinutes().toString();
@@ -92,6 +50,8 @@
 			return datestring;
 		}
 
+		// Actually draws the chart, based on the given array
+		// of JSON measurements.
 		var drawData = function(json) {
 			if (json.length === 0) {
 			    document.getElementById('chart_div').innerHTML = noDataSavedHtml;
@@ -131,22 +91,10 @@
 				document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
 				return;
 			}
-			var f = { 'minutes' : drawRawMeasurements, 'hours' : drawHours, 'days' : drawDays, 'months' : drawMonths }[timeframe];
-			f();
-	    }		
 
-		this.drawcustomChart = function(date1, date2) {
-		    if (currentsensor === null) {
-				document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
-				return;
-		    }
-            
-		    console.log('Attempting to draw chart from ' + date1.toString() + " to " + date2.toString());
-
-			var f = { 'minutes' : drawRawMeasurements, 'hours' : drawHours, 'days' : drawDays, 'months' : drawMonths }[timeframe];
-			f(date2, date1);
-		}
-		
+			var url = "/api/autofit/" + currentsensor.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
+			return requestData(url, drawData);
+	    }
 		
 	    // Load the Visualization API and the corechart package.
 	    google.charts.load('current', {'packages':['corechart']});
@@ -159,11 +107,18 @@
 		// Sets the time frame to 'minutes', 'hours',
 		// 'days' or 'months', and renders the chart. 
 		// This function is part of the public API.
-		this.setFrame = function(x) {
-			timeframe = x;
+		this.setTimeframe = function(start_time, end_time) {
+			startTime = start_time;
+			endTime = end_time;
 			drawChart();
 		}
 
+		// Sets the maximal number of measurements that
+		// is rendered by this chart.
+		this.setMaxMeasurementCount = function(n) {
+			measurementCount = n;
+			drawChart();
+		}
 
 		// Sets the ID of the sensor whose data is
 		// to be rendered, and renders the chart
@@ -173,6 +128,9 @@
 			currentsensor = x;
 			drawChart();
 		}
+
+		// Re-renders this chart.
+		this.draw = drawChart;
 	}
 	  
 </script>

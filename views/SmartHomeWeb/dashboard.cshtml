@@ -132,7 +132,7 @@ else
         }, function (start, end, label) {
             var date1 = new Date(start.format('YYYY-MM-DD HH:mm:ss'));
             var date2 = new Date(end.format('YYYY-MM-DD HH:mm:ss'));
-            measurementsGraph.drawcustomChart(date1, date2);
+            measurementsGraph.setTimeframe(date1, date2);
         });
     });
 
