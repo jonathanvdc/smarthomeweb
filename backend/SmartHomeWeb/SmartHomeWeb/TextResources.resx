@@ -537,4 +537,7 @@
   <data name="EditLocationButtonText" xml:space="preserve">
     <value>Edit location</value>
   </data>
+  <data name="InvalidLoginError" xml:space="preserve">
+    <value>Invalid username or password.</value>
+  </data>
 </root>

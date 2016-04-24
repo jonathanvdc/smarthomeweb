@@ -207,13 +207,13 @@ namespace SmartHomeWeb.Modules
                 string pass = Request.Form.password;
                 UserIdentity user;
 
-                return userMapper.FindUser(name, pass, out user)
-                    ? this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1))
-                    : Response.AsRedirect("/nopass");
+                if (userMapper.FindUser(name, pass, out user))
+                    return this.LoginAndRedirect(user.Guid, DateTime.Now.AddYears(1));
+
+                ViewBag.Error = TextResources.InvalidLoginError;
+                return View["login.cshtml"];
             };
             Get["/logout"] = parameter => this.Logout("/");
-
-            Get["/nopass"] = parameter => NotAuthorizedPage;
 
             //TODO this junk
             Get["/groups", true] = GetGroups;
@@ -890,12 +890,5 @@ namespace SmartHomeWeb.Modules
 
             return await GetEditProfile(parameters, ct);
         }
-
-        public static string NotAuthorizedPage => @"
-                <html>
-                    <body>
-                        <h1>You shall not pass.</h1>
-                    </body>
-                </html>";
     }    
 }

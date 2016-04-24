@@ -534,4 +534,7 @@
   <data name="EditLocationButtonText" xml:space="preserve">
     <value>Locatie aanpassen</value>
   </data>
+  <data name="InvalidLoginError" xml:space="preserve">
+    <value>Ongeldige gebruikersnaam of wachtwoord.</value>
+  </data>
 </root>

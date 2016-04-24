@@ -1,9 +1,12 @@
 @using SmartHomeWeb
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
 
 <div>
     <h2>@TextResources.LogIn</h2>
 
-    <form role="form" method="post" action="">
+    @Html.Partial("feedback-box.cshtml")
+
+	<form role="form" method="post" action="">
         <div class="form-group">
             <label for="user-input">@TextResources.LogIn</label>
             <input id="user-input" type="text" name="username" class="form-control"/>
