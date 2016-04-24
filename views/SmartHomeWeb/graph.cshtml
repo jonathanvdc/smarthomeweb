@@ -6,9 +6,33 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<dynamic>
 
+<div id="chart_wrapper">
+    <div id="no-sensor-message">
+        <h3>@TextResources.NoSensorSelected</h3>
+        <span class="subtitle-text">@TextResources.NoSensorSelectedHelpText</span>
+    </div>
+
+    <div id="no-data-message" hidden>
+        <h3>@TextResources.NoSensorData</h3>
+        <span class="subtitle-text">@TextResources.NoSensorDataHelpText</span>
+    </div>
+
+    <div id="loading-message" style="position: relative; top:50px;" hidden>
+        <img class="center-block loading-image" width="200px" src="/content/loading.gif" />
+        <h3 class="text-center">@TextResources.Loading</h3>
+    </div>
+
+    <div id="chart_div" hidden>
+        <!-- Graph goes here -->
+    </div>
+</div>
+
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
+    
+    var chartElement = document.getElementById("chart_div");
+
 	measurementsGraph = new function() {
 		var measurementCount = 60;
 		var endTime = new Date();
@@ -54,7 +78,7 @@
 		// of JSON measurements.
 		var drawData = function(json) {
 			if (json.length === 0) {
-			    document.getElementById('chart_div').innerHTML = noDataSavedHtml;
+			    showNoDataSaved();
 			}
 			else {
 				var array = [];
@@ -77,8 +101,9 @@
 				var options = {'width':600,
 								'height':500,
 								tooltip: {isHtml: true}};
-				// Instantiate and draw our chart, passing in some options.
-				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			    // Instantiate and draw our chart, passing in some options.
+				showChart();
+				var chart = new google.visualization.LineChart(chartElement);
 
 				chart.draw(data, options);
 			}
@@ -89,18 +114,19 @@
 	    // draws it.
 	    var drawChart = function() {
 	    	if (currentsensor === null) {
-				document.getElementById('chart_div').innerHTML = noSensorSelectedHtml;
+	    	    showNoSensorSelected();
 				return;
-			}
-
+	    	}
+	    	
+	    	showLoading();
+            
 			var url = "/api/autofit/" + currentsensor.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
 			return requestData(url, drawData);
+
 	    }
 		
 	    // Load the Visualization API and the corechart package.
 	    google.charts.load('current', {'packages':['corechart']});
-	    var noDataSavedHtml = "<h3>This sensor hasn't made any measurements yet.</h3>";
-	    var noSensorSelectedHtml = "<h3>Select a sensor to inspect its measurements.</h3>";
 
 	    // Set a callback to run when the Google Visualization API is loaded.
 		google.charts.setOnLoadCallback(function() { drawChart() });
@@ -133,7 +159,28 @@
 		// Re-renders this chart.
 		this.draw = drawChart;
 	}
-	  
-</script>
 
-<div id="chart_div"></div>
+	function showElement(index) {
+	    chartElement.hidden = !(index == 0);
+	    document.getElementById("no-data-message").hidden = !(index == 1);
+	    document.getElementById("no-sensor-message").hidden = !(index == 2);
+	    document.getElementById("loading-message").hidden = !(index == 3);
+	}
+    
+	function showChart() {
+	    showElement(0);
+	}
+
+	function showNoDataSaved() {
+	    showElement(1);
+	}
+
+	function showNoSensorSelected() {
+	    showElement(2);
+	}
+
+	function showLoading() {
+	    showElement(3);
+	}
+
+</script>
