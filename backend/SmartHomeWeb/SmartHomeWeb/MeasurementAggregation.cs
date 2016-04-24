@@ -18,6 +18,16 @@ namespace SmartHomeWeb
 			return new DateTime(tTicks - tTicks % Quantum.Ticks, Time.Kind);
 		}
 
+		public static DateTime QuantizeHour(DateTime Time)
+		{
+			return Quantize(Time, TimeSpan.FromHours(1));
+		}
+
+		public static DateTime QuantizeDay(DateTime Time)
+		{
+			return Quantize(Time, TimeSpan.FromDays(1));
+		}
+
 		public static DateTime QuantizeMonth(DateTime Time)
 		{
 			return new DateTime(Time.Year, Time.Month, 1, 0, 0, 0, 0, Time.Kind);
@@ -26,6 +36,33 @@ namespace SmartHomeWeb
 		public static DateTime QuantizeYear(DateTime Time)
 		{
 			return new DateTime(Time.Year, 1, 1, 0, 0, 0, 0, Time.Kind);
+		}
+
+		public static DateTime CeilingHour(DateTime Time)
+		{
+			long tTicks = Time.Ticks;
+			long hTicks = TimeSpan.FromHours(1).Ticks;
+			long rem = tTicks % hTicks;
+			if (rem == 0)
+				return Time;
+			else
+				return new DateTime(tTicks - rem + hTicks, Time.Kind);
+		}
+
+		public static DateTime CeilingDay(DateTime Time)
+		{
+			if (Time.TimeOfDay == TimeSpan.Zero)
+				return Time;
+			else
+				return QuantizeDay(Time).AddDays(1);
+		}
+
+		public static DateTime CeilingMonth(DateTime Time)
+		{
+			if (Time.Day == 1 && Time.TimeOfDay == TimeSpan.Zero)
+				return Time;
+			else
+				return QuantizeMonth(Time).AddMonths(1);
 		}
 
         /// <summary>

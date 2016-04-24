@@ -167,7 +167,9 @@ namespace SmartHomeWeb
 		{
 			return FetchAveragesAsync(
 				ref hourAverages, ref precomputedHours,
-				DataConnection.HourAverageTableName);
+				DataConnection.HourAverageTableName,
+				MeasurementAggregation.QuantizeHour,
+				MeasurementAggregation.CeilingHour);
 		}
 
 		/// <summary>
@@ -177,7 +179,9 @@ namespace SmartHomeWeb
 		{
 			return FetchAveragesAsync(
 				ref dayAverages, ref precomputedDays, 
-				DataConnection.DayAverageTableName);
+				DataConnection.DayAverageTableName,
+				MeasurementAggregation.QuantizeDay,
+				MeasurementAggregation.CeilingDay);
 		}
 
 		/// <summary>
@@ -187,12 +191,16 @@ namespace SmartHomeWeb
 		{
 			return FetchAveragesAsync(
 				ref monthAverages, ref precomputedMonths, 
-				DataConnection.MonthAverageTableName);
+				DataConnection.MonthAverageTableName,
+				MeasurementAggregation.QuantizeMonth,
+				MeasurementAggregation.CeilingMonth);
 		}
 
 		private Task FetchAveragesAsync(
 			ref Dictionary<DateTime, Measurement> Cache, 
-			ref HashSet<DateTime> PrecomputedSet, string TableName)
+			ref HashSet<DateTime> PrecomputedSet, string TableName,
+			Func<DateTime, DateTime> QuantizeFloor, 
+			Func<DateTime, DateTime> QuantizeCeiling)
 		{
 			if (Cache != null)
 				// Don't fetch twice.
@@ -200,15 +208,20 @@ namespace SmartHomeWeb
 
 			Cache = new Dictionary<DateTime, Measurement>();
 			PrecomputedSet = new HashSet<DateTime>();
-			return FetchAveragesImplAsync(Cache, PrecomputedSet, TableName);
+			return FetchAveragesImplAsync(
+				Cache, PrecomputedSet, TableName, 
+				QuantizeFloor, QuantizeCeiling);
 		}
 
 		private async Task FetchAveragesImplAsync(
 			Dictionary<DateTime, Measurement> Cache, 
-			HashSet<DateTime> PrecomputedSet, string TableName)
+			HashSet<DateTime> PrecomputedSet, string TableName,
+			Func<DateTime, DateTime> QuantizeFloor, 
+			Func<DateTime, DateTime> QuantizeCeiling)
 		{
 			foreach (var item in await Database.GetMeasurementsAsync(
-				TableName, SensorId, CacheStart, CacheEnd))
+				TableName, SensorId, QuantizeFloor(CacheStart), 
+				QuantizeCeiling(CacheEnd)))
 			{
 				Cache[item.Time] = item;
 				PrecomputedSet.Add(item.Time);
@@ -526,7 +539,8 @@ namespace SmartHomeWeb
 					var results = new List<Measurement>();
 					for (var day = Period.StartTime; day < Period.EndTime; day = day.AddDays(1))
 					{
-						results.Add(await GetMonthAverageAsync(MeasurementAggregation.QuantizeMonth(day)));
+						var monthMeasurement = await GetMonthAverageAsync(MeasurementAggregation.QuantizeMonth(day));
+						results.Add(new Measurement(SensorId, day, monthMeasurement.MeasuredData, monthMeasurement.Notes));
 					}
 					return results;
 
@@ -544,16 +558,21 @@ namespace SmartHomeWeb
 		/// number of times.
 		/// </summary>
 		private IEnumerable<Measurement> ReplicateEach(
-			IEnumerable<Measurement> Items, int TotalCount, 
-			int ReplicationCount)
+			IEnumerable<Measurement> Items, DateTime StartTime,
+			DateTime EndTime, TimeSpan Delta, int ReplicationCount)
 		{
-			int count = 0;
+			var t = StartTime;
 			foreach (var item in Items)
 			{
-				for (int i = 0; i < ReplicationCount && count < TotalCount; i++)
+				for (int i = 0; i < ReplicationCount; i++)
 				{
-					yield return item;
-					count++;
+					if (t >= EndTime)
+						yield break;
+
+					yield return new Measurement(
+						item.SensorId, t, 
+						item.MeasuredData, item.Notes);
+					t += Delta;
 				}
 			}
 		}
@@ -568,8 +587,10 @@ namespace SmartHomeWeb
 				case CompactionLevel.HourAverages:
 					// We'll re-create hour-average data by replicating 
 					// day-average data.
-					var results = await GetDayAveragesAsync(Period.StartTime, (int)Math.Ceiling(Period.Duration.TotalDays));
-					return ReplicateEach(results, (int)Period.Duration.TotalHours, HoursPerDay);
+					var results = await GetDayAveragesAsync(
+						MeasurementAggregation.Quantize(Period.StartTime, TimeSpan.FromDays(1)),
+						(int)Math.Ceiling(Period.Duration.TotalDays));
+					return ReplicateEach(results, Period.StartTime, Period.EndTime, TimeSpan.FromHours(1), HoursPerDay).ToArray();
 
 				case CompactionLevel.Measurements:
 				case CompactionLevel.None:
@@ -590,9 +611,11 @@ namespace SmartHomeWeb
 				case CompactionLevel.Measurements:
 					// We'll re-create measurement data by replicating 
 					// hour-average data.
-					var results = await GetHourAveragesAsync(Period.StartTime, (int)Math.Ceiling(Period.Duration.TotalHours));
-					return ReplicateEach(results, (int)Period.Duration.TotalMinutes, MinutesPerHour);
-
+					var results = await GetHourAveragesAsync(
+	                    MeasurementAggregation.Quantize(Period.StartTime, TimeSpan.FromHours(1)), 
+	                    (int)Math.Ceiling(Period.Duration.TotalHours));
+					return ReplicateEach(results, Period.StartTime, Period.EndTime, TimeSpan.FromMinutes(1), MinutesPerHour).ToArray();
+					
 				case CompactionLevel.None:
 				default:
 					// We can just fetch real measurements from the database.

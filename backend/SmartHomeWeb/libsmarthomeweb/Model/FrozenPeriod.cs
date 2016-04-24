@@ -107,6 +107,11 @@ namespace SmartHomeWeb
 			return Other.StartTime <= this.EndTime && this.StartTime <= Other.EndTime;
 		}
 
+		public override string ToString()
+		{
+			return string.Format("[FrozenPeriod: StartTime={0}, EndTime={1}, Compaction={2}]", StartTime, EndTime, Compaction);
+		}
+
 		public static CompactionLevel Max(CompactionLevel Left, CompactionLevel Right)
 		{
 			if ((int)Left < (int)Right)
