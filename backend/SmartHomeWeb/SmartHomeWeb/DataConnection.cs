@@ -202,7 +202,7 @@ namespace SmartHomeWeb
         /// <summary>
         /// Creates a task that fetches all measurements in the database.
         /// </summary>
-        public Task<IEnumerable<Measurement>> GetMeasurementsAsync()
+        public Task<IEnumerable<Measurement>> GetRawMeasurementsAsync()
         {
             return GetTableAsync(MeasurementTableName, DatabaseHelpers.ReadMeasurement);
         }
@@ -349,6 +349,22 @@ namespace SmartHomeWeb
                 return result;
             }
         }
+
+		/// <summary>
+		/// Gets all measurements made in the period defined by
+		/// the given start and end date-times. If these measurements
+		/// have been compacted, then they will be synthesized from
+		/// hour-average data.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetMeasurementsAsync(
+			int SensorId, DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
+
+			var cache = new AggregationCache(this, SensorId, StartTime, EndTime);
+			return cache.GetMeasurementsAsync(StartTime, EndTime);
+		}
 
         /// <summary>
         /// Creates a task that fetches or computes the hour average for the 
@@ -631,7 +647,7 @@ namespace SmartHomeWeb
         /// <summary>
         /// Creates a task that fetches a single measurement from the database.
         /// </summary>
-        public Task<Measurement> GetMeasurementAsync(int sensorId, long timestamp)
+        public Task<Measurement> GetRawMeasurementAsync(int sensorId, long timestamp)
         {
             var keys = new Dictionary<string, object>
             {
@@ -644,9 +660,9 @@ namespace SmartHomeWeb
         /// <summary>
         /// Creates a task that fetches a single measurement from the database.
         /// </summary>
-        public Task<Measurement> GetMeasurementAsync(int sensorId, DateTime timestamp)
+		public Task<Measurement> GetRawMeasurementAsync(int sensorId, DateTime timestamp)
         {
-            return GetMeasurementAsync(sensorId, DatabaseHelpers.CreateUnixTimeStamp(timestamp));
+			return GetRawMeasurementAsync(sensorId, DatabaseHelpers.CreateUnixTimeStamp(timestamp));
         }
 
         /// <summary>
@@ -751,7 +767,7 @@ namespace SmartHomeWeb
         /// </summary>
         /// <param name="sensor"></param>
         /// <returns></returns>
-		public async Task<IEnumerable<Measurement>> GetMeasurementsAsync(int SensorId)
+		public async Task<IEnumerable<Measurement>> GetRawMeasurementsAsync(int SensorId)
         {
 			using (var cmd = sqlite.CreateCommand())
 			{
@@ -792,7 +808,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		/// <param name="sensor"></param>
 		/// <returns></returns>
-		public Task<IEnumerable<Measurement>> GetMeasurementsAsync(
+		public Task<IEnumerable<Measurement>> GetRawMeasurementsAsync(
 			int SensorId, DateTime Start, DateTime End)
 		{
 			return GetMeasurementsAsync(MeasurementTableName, SensorId, Start, End);

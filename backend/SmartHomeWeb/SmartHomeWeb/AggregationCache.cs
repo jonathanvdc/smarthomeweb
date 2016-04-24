@@ -232,7 +232,7 @@ namespace SmartHomeWeb
 			}
 			
 			// Fetch raw data.
-			var measurements = await Database.GetMeasurementsAsync(SensorId, Hour, endHour);
+			var measurements = await Database.GetRawMeasurementsAsync(SensorId, Hour, endHour);
 
 			// Insert data into cache.
 			foreach (var item in measurements)
@@ -568,7 +568,7 @@ namespace SmartHomeWeb
 				case CompactionLevel.HourAverages:
 					// We'll re-create hour-average data by replicating 
 					// day-average data.
-					var results = await GetRealDayAveragesAsync(Period.StartTime, (int)Math.Ceiling(Period.Duration.TotalDays));
+					var results = await GetDayAveragesAsync(Period.StartTime, (int)Math.Ceiling(Period.Duration.TotalDays));
 					return ReplicateEach(results, (int)Period.Duration.TotalHours, HoursPerDay);
 
 				case CompactionLevel.Measurements:
@@ -576,6 +576,27 @@ namespace SmartHomeWeb
 				default:
 					// We can just fetch or create "real" hour-average data.
 					return await GetRealHourAveragesAsync(Period.StartTime, (int)Period.Duration.TotalHours);
+			}
+		}
+
+		private async Task<IEnumerable<Measurement>> GetMeasurementsAsync(FrozenPeriod Period)
+		{
+			const int MinutesPerHour = 60;
+
+			switch (Period.Compaction)
+			{
+				case CompactionLevel.DayAverages:
+				case CompactionLevel.HourAverages:
+				case CompactionLevel.Measurements:
+					// We'll re-create measurement data by replicating 
+					// hour-average data.
+					var results = await GetHourAveragesAsync(Period.StartTime, (int)Math.Ceiling(Period.Duration.TotalHours));
+					return ReplicateEach(results, (int)Period.Duration.TotalMinutes, MinutesPerHour);
+
+				case CompactionLevel.None:
+				default:
+					// We can just fetch real measurements from the database.
+					return await Database.GetRawMeasurementsAsync(SensorId, Period.StartTime, Period.EndTime);
 			}
 		}
 
@@ -597,7 +618,20 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Gets the hour-averages for the given hours.
+		/// Gets all measurements made in the period defined by
+		/// the given start and end date-times. If these measurements
+		/// have been compacted, then they will be synthesized from
+		/// hour-average data.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetMeasurementsAsync(DateTime StartTime, DateTime EndTime)
+		{
+			return GetOptionallyCompactedAsync(StartTime, EndTime, GetMeasurementsAsync);
+		}
+
+		/// <summary>
+		/// Gets the hour-averages for the given hours. If these
+		/// averages have been compacted, then they will be synthesized
+		/// from day-average data.
 		/// </summary>
 		public Task<IEnumerable<Measurement>> GetHourAveragesAsync(DateTime StartHour, int Count)
 		{
@@ -605,7 +639,9 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Gets the day-averages for the given days.
+		/// Gets the day-averages for the given days. If these
+		/// averages have been compacted, then they will be synthesized
+		/// from month-average data.
 		/// </summary>
 		public Task<IEnumerable<Measurement>> GetDayAveragesAsync(DateTime StartDay, int Count)
 		{

@@ -129,7 +129,7 @@ namespace SmartHomeWeb.Modules
 
             Get["/measurement", true] = async (parameters, ct) =>
             {
-                var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
+                var measurements = await DataConnection.Ask(x => x.GetRawMeasurementsAsync());
                 return View["measurement.cshtml", measurements];
             };
 
