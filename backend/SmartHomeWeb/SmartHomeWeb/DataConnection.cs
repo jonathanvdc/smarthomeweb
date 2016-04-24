@@ -157,6 +157,24 @@ namespace SmartHomeWeb
             return GetTableAsync(LocationTableName, DatabaseHelpers.ReadLocation);
         }
 
+		/// <summary>
+		/// Creates a task that fetches all locations and their owner usernames
+		/// in the database.
+		/// </summary>
+		public async Task<IEnumerable<Tuple<Location, string>>> GetLocationsAndOwnerNamesAsync()
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $@"
+                  SELECT loc.*, p.username FROM 
+				  {LocationTableName} as loc, {PersonTableName} as p 
+				  WHERE loc.owner = p.guid";
+
+				return await ExecuteCommandAsync(cmd, item => 
+					Tuple.Create(DatabaseHelpers.ReadLocation(item), DatabaseHelpers.GetString(item, "username")));
+			}
+		}
+
         /// <summary>
         /// Creates a task that fetches all person-location pairs
         /// from the has-location table.

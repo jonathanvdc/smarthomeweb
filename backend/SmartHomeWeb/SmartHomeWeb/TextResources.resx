@@ -318,6 +318,9 @@
   <data name="LocationOwnerGuidLabel" xml:space="preserve">
     <value>Owner GUID</value>
   </data>
+  <data name="LocationOwnerLabel" xml:space="preserve">
+    <value>Owner</value>
+  </data>
   <data name="MessageComposerBodyLabel" xml:space="preserve">
     <value>Body</value>
   </data>

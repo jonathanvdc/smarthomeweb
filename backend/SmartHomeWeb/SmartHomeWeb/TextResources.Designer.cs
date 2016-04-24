@@ -448,6 +448,12 @@ namespace SmartHomeWeb {
             }
         }
         
+        public static string LocationOwnerLabel {
+            get {
+                return ResourceManager.GetString("LocationOwnerLabel", resourceCulture);
+            }
+        }
+        
         public static string MessageComposerBodyLabel {
             get {
                 return ResourceManager.GetString("MessageComposerBodyLabel", resourceCulture);
