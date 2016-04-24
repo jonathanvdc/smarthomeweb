@@ -179,15 +179,13 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<Tuple<Sensor, IEnumerable<string>>>> GetSensorTagsPairsAsync()
         {
-            var sensors = await Ask(x => x.GetSensorsAsync());
+            var sensors = await GetSensorsAsync();
             var items = new List<Tuple<Sensor, IEnumerable<string>>>();
-            for (int i = 0; i < sensors.Count(); i++)
-            {
-                var sensor = sensors.ElementAt(i);
-                var tags = await Ask(x => x.GetSensorTagsAsync(sensor.Id));
-                items.Add(Tuple.Create(sensor, tags));
-            }
-
+			foreach (var sensor in sensors)
+			{
+				var tags = await GetSensorTagsAsync(sensor.Id);
+				items.Add(Tuple.Create(sensor, tags));
+			}
             return items;
         }
 
@@ -895,9 +893,9 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = $"UPDATE {LocationTableName} " +
-					"SET name = @name, owner = @owner, electricityPrice = @electricityPrice" +
-					"WHERE id = @id";
+				cmd.CommandText = $@"UPDATE {LocationTableName}
+					SET name = @name, owner = @owner, electricityPrice = @electricityPrice
+					WHERE id = @id";
 				cmd.Parameters.AddWithValue("@id", Location.Id);
 				cmd.Parameters.AddWithValue("@name", Location.Data.Name);
 				cmd.Parameters.AddWithValue("@owner", Location.Data.OwnerGuidString);
@@ -974,22 +972,24 @@ namespace SmartHomeWeb
 
 
         /// <summary>
-        /// Updates the measurement in the database
+        /// Updates the notes of the measurement in the database whose 
+		/// sensor ID and timestamp match the given measurement.
         /// </summary>
-        /// <param name="person">The person that's updated</param>
-        public async Task UpdateMeasurementTagsAsync(Measurement measurement, string tablename)
+        public async Task UpdateMeasurementNotesAsync(Measurement measurement, string tablename)
         {
             Console.WriteLine(tablename);
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = $"UPDATE " + tablename + 
-                    " SET notes = '" + measurement.Notes + 
-                    "' WHERE sensorId = " + measurement.SensorId + " and unixtime = "+ DatabaseHelpers.CreateUnixTimeStamp(measurement.Time);
+                cmd.CommandText = $@"UPDATE {tablename}
+                    SET notes = @notes
+					WHERE sensorId =  @sensor  AND unixtime = @time";
+                cmd.Parameters.AddWithValue("@notes", measurement.Notes);
+                cmd.Parameters.AddWithValue("@sensor", measurement.SensorId);
+                cmd.Parameters.AddWithValue("@time", DatabaseHelpers.CreateUnixTimeStamp(measurement.Time));
                 Console.WriteLine(cmd.CommandText);
                 await cmd.ExecuteNonQueryAsync();
             }
         }
-
 
         /// <summary>
         /// Inserts the given sensor data into the Sensor table.
