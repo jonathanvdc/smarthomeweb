@@ -179,15 +179,13 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<Tuple<Sensor, IEnumerable<string>>>> GetSensorTagsPairsAsync()
         {
-            var sensors = await Ask(x => x.GetSensorsAsync());
+            var sensors = await GetSensorsAsync();
             var items = new List<Tuple<Sensor, IEnumerable<string>>>();
-            for (int i = 0; i < sensors.Count(); i++)
-            {
-                var sensor = sensors.ElementAt(i);
-                var tags = await Ask(x => x.GetSensorTagsAsync(sensor.Id));
-                items.Add(Tuple.Create(sensor, tags));
-            }
-
+			foreach (var sensor in sensors)
+			{
+				var tags = await GetSensorTagsAsync(sensor.Id);
+				items.Add(Tuple.Create(sensor, tags));
+			}
             return items;
         }
 
