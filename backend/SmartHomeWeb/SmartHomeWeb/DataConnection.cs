@@ -1387,28 +1387,42 @@ namespace SmartHomeWeb
 		/// The given period of time is subsequently frozen: further 
 		/// measurement insertion is disallowed during this period.
 		/// </summary>
-		public Task CompactAsync(DateTime StartTime, DateTime EndTime, CompactionLevel Level = CompactionLevel.Measurements)
+		public async Task CompactAsync(DateTime StartTime, DateTime EndTime, CompactionLevel Level = CompactionLevel.Measurements)
 		{
 			if (EndTime < StartTime)
 				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
 
+			var overlap = await GetFrozenPeriodsAsync(StartTime, EndTime);
+
+			foreach (var item in overlap)
+			{
+				if (!FrozenPeriod.IsEmptyRange(FrozenPeriod.Intersect(Tuple.Create(StartTime, EndTime), item.Range)) 
+					&& FrozenPeriod.Max(Level, item.Compaction) != Level)
+					throw new ArgumentException(
+						$"Period {item} was already compacted in a more aggressive manner, and overlaps with period {new FrozenPeriod(StartTime, EndTime, Level)}.");
+			}
+
 			switch (Level)
 			{
 				case CompactionLevel.DayAverages:
-					return CompactDayAveragesAsync(
+					await CompactDayAveragesAsync(
 						MeasurementAggregation.QuantizeMonth(StartTime), 
 						MeasurementAggregation.QuantizeMonth(EndTime));
+					break;
 				case CompactionLevel.HourAverages:
-					return CompactHourAveragesAsync(
+					await CompactHourAveragesAsync(
 						MeasurementAggregation.QuantizeDay(StartTime), 
 						MeasurementAggregation.QuantizeDay(EndTime));
+					break;
 				case CompactionLevel.Measurements:
-					return CompactMeasurementsAsync(
+					await CompactMeasurementsAsync(
 						MeasurementAggregation.QuantizeHour(StartTime), 
 						MeasurementAggregation.QuantizeHour(EndTime));
+					break;
 				case CompactionLevel.None:
 				default:
-					return FreezeAsync(StartTime, EndTime, Level);
+					await FreezeAsync(StartTime, EndTime, Level);
+					break;
 			}
 		}
 
