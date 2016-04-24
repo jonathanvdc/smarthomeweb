@@ -831,7 +831,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Delete the person with the given GUID from the Persons table.
+        /// Delete the person with the given GUID from the Person table.
         /// </summary>
         /// <param name="guid">The person's GUID.</param>
         public async Task DeletePersonAsync(Guid guid)
@@ -845,7 +845,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Inserts the given location data into the Locations table.
+        /// Inserts the given location data into the Location table.
         /// </summary>
         /// <param name="Data">The location data to insert into the table.</param>
         public async Task InsertLocationAsync(LocationData Data)
@@ -862,7 +862,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Inserts all location data in the given list into the Locations table.
+        /// Inserts all location data in the given list into the Location table.
         /// </summary>
         /// <param name="Data">The list of location data to insert into the table.</param>
         public Task InsertLocationAsync(IEnumerable<LocationData> Data)
@@ -871,7 +871,7 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
-		/// Updates the given location in the Locations table: the data of the location
+		/// Updates the given location in the Location table: the data of the location
 		/// with the given identifier is updated.
 		/// </summary>
 		/// <param name="Data">The location to update.</param>
@@ -890,11 +890,25 @@ namespace SmartHomeWeb
 			}
 		}
 
-		/// <summary>
-		/// Updates the given locations list of locations 
-		/// in the Locations table.
-		/// </summary>
-		public Task UpdateLocationAsync(IEnumerable<Location> Data)
+        /// <summary>
+        /// Delete the location with the given ID from the Location table.
+        /// </summary>
+        /// <param name="LocationId">The location's ID.</param>
+        public async Task DeleteLocationAsync(int LocationId)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"DELETE FROM {LocationTableName} WHERE id = @id";
+                cmd.Parameters.AddWithValue("@id", LocationId.ToString());
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
+        /// Updates the given locations list of locations 
+        /// in the Locations table.
+        /// </summary>
+        public Task UpdateLocationAsync(IEnumerable<Location> Data)
 		{
 			return InsertManyAsync(Data, UpdateLocationAsync);
 		}

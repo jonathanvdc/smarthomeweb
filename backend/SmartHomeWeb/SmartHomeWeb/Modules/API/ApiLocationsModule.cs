@@ -10,11 +10,11 @@ namespace SmartHomeWeb.Modules.API
             ApiGet("/", (_, dc) => dc.GetLocationsAsync());
             ApiGet("/{id}/", (p, dc) => dc.GetLocationByIdAsync((int)p["id"]));
 
-			// POST API to create new locations.
-            ApiPost<List<LocationData>, object>("/", (_, items, dc) => dc.InsertLocationAsync(items));
+			ApiPost<List<LocationData>, object>("/", (_, items, dc) => dc.InsertLocationAsync(items));
 
-			// PUT API to update existing locations.
-			ApiPut<List<Location>, object>("/", (_, items, dc) => dc.UpdateLocationAsync(items));
+            ApiDelete("/{id}/", (p, dc) => dc.DeleteLocationAsync((int)p["id"]));
+
+            ApiPut<List<Location>, object>("/", (_, items, dc) => dc.UpdateLocationAsync(items));
 			ApiPut<LocationData, dynamic>("/{id}/", (p, item, dc) => dc.UpdateLocationAsync(new Location((int)p["id"], item)));
         }
     }
