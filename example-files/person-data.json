@@ -2,82 +2,71 @@
     {
         "name" : "admin",
         "username" : "admin",
-        "password" : "1",
-        "address" : "0x0",
-        "city" : "The Matrix",
-        "zipcode" : "0000",
-        "isAdmin" : true
+        "password" : "admin",
+        "address" : "Space",
+        "city" : "Justice League Watchtower",
+        "zipcode" : "",
+        "isAdmin" : true,
+		"birthdate" : "0001-01-01T00:00:00.000Z"
     },
     {
-        "name" : "Bart Goethals",
-        "username" : "bgoethals",
-        "password" : "topsecret",
-        "address" : "De G.10",
-        "city" : "Antwerpen",
-        "zipcode" : "2000",
-        "isAdmin" : false
+        "name" : "Clark Kent",
+        "username" : "clark",
+        "password" : "superman",
+        "address" : "Kent farm",
+        "city" : "Smallville",
+        "zipcode" : "1938",
+        "isAdmin" : false,
+		"birthdate" : "1938-06-07T00:00:00.000Z"
     },
     {
-        "name" : "Jon Sneyers",
-        "username" : "jonsneyers",
-        "password" : "topsecret",
-        "address" : "UAntwerpen",
-        "city" : "Antwerpen",
-        "zipcode" : "2000",
-        "isAdmin" : false
+        "name" : "Bruce Wayne",
+        "username" : "bruce",
+        "password" : "TheGoddamnBatman39",
+        "address" : "Wayne Mansion",
+        "city" : "Gotham",
+        "zipcode" : "2121",
+        "isAdmin" : false,
+		"birthdate" : "1939-02-01T00:00:00.000Z"
     },
     {
-        "name" : "Len Feremans",
-        "username" : "lilferemans",
-        "password" : "topsecret",
-        "address" : "UAntwerpen",
-        "city" : "Antwerpen",
-        "zipcode" : "2000",
-        "isAdmin" : false
+        "name" : "Lex Luthor",
+        "username" : "lex",
+        "password" : "god",
+        "address" : "LexCorp Building",
+        "city" : "Metropolis",
+        "zipcode" : "3000",
+        "isAdmin" : false,
+		"birthdate" : "1958-11-23T00:00:00.000Z"
     },
     {
-        "name" : "Benny Van Houdt",
-        "username" : "bennyvh",
-        "password" : "topsecret",
-        "address" : "UAntwerpen",
-        "city" : "Houdt",
-        "zipcode" : "2001",
-        "isAdmin" : false
+        "name" : "Jimmy Olsen",
+        "username" : "jimmy",
+        "password" : "1234",
+        "address" : "25 3rd Street",
+        "city" : "Metropolis",
+        "zipcode" : "3000",
+        "isAdmin" : false,
+		"birthdate" : "1989-03-21T00:00:00.000Z"
     },
     {
-        "name" : "Hans Van Gheluwe",
-        "username" : "hans",
-        "password" : "topsecret",
-        "address" : "UAntwerpen",
-        "city" : "Antwerpen",
-        "zipcode" : "2000",
-        "isAdmin" : false
+        "name" : "Diana Prince",
+        "username" : "diana",
+        "password" : "wonderwoman",
+        "address" : "123 7th Street",
+        "city" : "Metropolis",
+        "zipcode" : "3000",
+        "isAdmin" : false,
+		"birthdate" : "1941-06-30T00:00:00.000Z"
     },
     {
-        "name" : "Tom Peters",
-        "username" : "tom",
-        "password" : "topsecret",
-        "address" : "Tuinstraat 14",
-        "city" : "Edegem",
-        "zipcode" : "2650",
-        "isAdmin" : false
-    },
-    {
-        "name" : "Fred Janssens",
-        "username" : "fred",
-        "password" : "topsecret",
-        "address" : "Liersesteenweg 78",
-        "city" : "Lint",
-        "zipcode" : "2574",
-        "isAdmin" : false
-    },
-    {
-        "name" : "Tim De Schrijver",
-        "username" : "tim",
-        "password" : "topsecret",
-        "address" : "Kontich Kazerne",
-        "city" : "Duffelsesteenweg 66",
-        "zipcode" : "2550",
-        "isAdmin" : false
+        "name" : "Lois Lane",
+        "username" : "lois",
+        "password" : "ilovesuperman",
+        "address" : "11 25th Street",
+        "city" : "Metropolis",
+        "zipcode" : "3000",
+        "isAdmin" : false,
+		"birthdate" : "1940-09-02T00:00:00.000Z"
     }
 ]
