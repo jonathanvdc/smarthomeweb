@@ -13,20 +13,23 @@
 }
 
 <ul class="media-list">
-@foreach (var m in Model)
+@for(int x = Model.Count()-1; x >= 0; x--)
 {
+    @{ 
+        NewsfeedPost post = Model.ElementAt(x);
+    }
     <li class="media">
       <div class="media-left">
-        <a href="/person/@m.UserName">
+        <a href="/person/@post.UserName">
 	        <div class="profile-avatar-small"></div>
         </a>
       </div>
       <div class="media-body">
 	      <h4 class="media-heading message-header">
-		      @string.Format(TextResources.MessageHeader, m.UserName)
+		      @string.Format(TextResources.MessageHeader, post.Name)
 	      </h4>
 	      <div class="bubble">
-		      @m.Message
+		      @post.Message
 	      </div>
       </div>
     </li>

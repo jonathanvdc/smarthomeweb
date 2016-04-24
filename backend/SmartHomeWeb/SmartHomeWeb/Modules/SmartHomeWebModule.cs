@@ -377,7 +377,7 @@ namespace SmartHomeWeb.Modules
                     if (recipient.Data.UserName == Context.CurrentUser.UserName)
                     {
                         var sender = await dc.GetPersonByGuidAsync(m.Data.SenderGuid);
-                        newsfeedPosts.Add(new NewsfeedPost(sender.Data.UserName, m.Data.Message));
+                        newsfeedPosts.Add(new NewsfeedPost(sender.Data.UserName, sender.Data.Name, m.Data.Message));
                     }
                 }
             }
