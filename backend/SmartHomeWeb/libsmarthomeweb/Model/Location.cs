@@ -50,5 +50,10 @@ namespace SmartHomeWeb.Model
 		{
 			return obj is Location && Equals((Location)obj);
 		}
+
+		public override string ToString()
+		{
+			return string.Format("[Location: Id={0}, Data={1}]", Id, Data);
+		}
 	}
 }
