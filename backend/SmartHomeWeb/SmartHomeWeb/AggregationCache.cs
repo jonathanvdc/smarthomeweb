@@ -742,6 +742,33 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
+		/// Discards all computed and cached hour-averages.
+		/// </summary>
+		public void DiscardHourAverages()
+		{
+			hourAverages = null;
+			precomputedHours = null;
+		}
+
+		/// <summary>
+		/// Discards all computed and cached day-averages.
+		/// </summary>
+		public void DiscardDayAverages()
+		{
+			dayAverages = null;
+			precomputedDays = null;
+		}
+
+		/// <summary>
+		/// Discards all computed and cached month-averages.
+		/// </summary>
+		public void DiscardMonthAverages()
+		{
+			monthAverages = null;
+			precomputedMonths = null;
+		}
+
+		/// <summary>
 		/// Writes data from this aggregation cache to the database.
 		/// </summary>
 		public void FlushResults()

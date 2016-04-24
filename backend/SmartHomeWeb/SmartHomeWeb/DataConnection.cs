@@ -1387,7 +1387,38 @@ namespace SmartHomeWeb
 		/// The given period of time is subsequently frozen: further 
 		/// measurement insertion is disallowed during this period.
 		/// </summary>
-		public async Task CompactAsync(DateTime StartTime, DateTime EndTime)
+		public Task CompactAsync(DateTime StartTime, DateTime EndTime, CompactionLevel Level = CompactionLevel.Measurements)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			switch (Level)
+			{
+				case CompactionLevel.DayAverages:
+					return CompactDayAveragesAsync(
+						MeasurementAggregation.QuantizeMonth(StartTime), 
+						MeasurementAggregation.QuantizeMonth(EndTime));
+				case CompactionLevel.HourAverages:
+					return CompactHourAveragesAsync(
+						MeasurementAggregation.QuantizeDay(StartTime), 
+						MeasurementAggregation.QuantizeDay(EndTime));
+				case CompactionLevel.Measurements:
+					return CompactMeasurementsAsync(
+						MeasurementAggregation.QuantizeHour(StartTime), 
+						MeasurementAggregation.QuantizeHour(EndTime));
+				case CompactionLevel.None:
+				default:
+					return FreezeAsync(StartTime, EndTime, Level);
+			}
+		}
+
+		/// <summary>
+		/// Compacts the given period of time. First, all data in the given
+		/// period of time is aggregated, then all measurements are deleted. 
+		/// The given period of time is subsequently frozen: further 
+		/// measurement insertion is disallowed during this period.
+		/// </summary>
+		private async Task CompactMeasurementsAsync(DateTime StartTime, DateTime EndTime)
 		{
 			if (EndTime < StartTime)
 				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
@@ -1398,7 +1429,8 @@ namespace SmartHomeWeb
 			// Compute hour averages.
 			int hourCount = (int)Math.Ceiling((EndTime - StartTime).TotalHours);
 			await Task.WhenAll(allSensors.Select(
-				item => (Task)GetHourAveragesAsync(item.Id, StartTime, hourCount)));
+				item => (Task)GetHourAveragesAsync(
+					item.Id, StartTime, hourCount)));
 
 			// Discard measurements.
 			foreach (var item in allSensors)
@@ -1408,6 +1440,75 @@ namespace SmartHomeWeb
 
 			// Freeze this period of time.
 			await FreezeAsync(StartTime, EndTime, CompactionLevel.Measurements);
+		}
+
+		/// <summary>
+		/// Compacts the given period of time. First, all data in the given
+		/// period of time is aggregated, then all measurements and hour-averages are deleted. 
+		/// The given period of time is subsequently frozen: further 
+		/// measurement insertion is disallowed during this period.
+		/// </summary>
+		private async Task CompactHourAveragesAsync(DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			// Get all sensors in the database.
+			var allSensors = await GetSensorsAsync();
+
+			// Compute hour averages.
+			int dayCount = (int)Math.Ceiling((EndTime - StartTime).TotalDays);
+
+			// Discard measurements.
+			foreach (var item in allSensors)
+			{
+				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
+				await cache.GetDayAveragesAsync(StartTime, dayCount);
+				cache.DiscardHourAverages();
+				cache.FlushResults();
+
+				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
+				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
+			}
+
+			// Freeze this period of time.
+			await FreezeAsync(StartTime, EndTime, CompactionLevel.HourAverages);
+		}
+
+		/// <summary>
+		/// Compacts the given period of time. First, all data in the given
+		/// period of time is aggregated, then all measurements, hour-averages
+		/// and day-averages are deleted. 
+		/// The given period of time is subsequently frozen: further 
+		/// measurement insertion is disallowed during this period.
+		/// </summary>
+		private async Task CompactDayAveragesAsync(DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			// Get all sensors in the database.
+			var allSensors = await GetSensorsAsync();
+
+			// Discard measurements.
+			foreach (var item in allSensors)
+			{
+				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
+				for (var t = StartTime; t < EndTime; t = t.AddMonths(1))
+				{
+					await cache.GetMonthAverageAsync(t);
+				}
+				cache.DiscardHourAverages();
+				cache.DiscardDayAverages();
+				cache.FlushResults();
+
+				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
+				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
+				await DeleteMeasurementAsync(DayAverageTableName, item.Id, StartTime, EndTime);
+			}
+
+			// Freeze this period of time.
+			await FreezeAsync(StartTime, EndTime, CompactionLevel.DayAverages);
 		}
 
         /// <summary>
