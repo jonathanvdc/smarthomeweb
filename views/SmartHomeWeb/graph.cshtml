@@ -25,6 +25,10 @@
     <div id="chart_div" hidden>
         <!-- Graph goes here -->
     </div>
+
+    <div id="price-div" hidden>
+    	<h3>Total price of electricity: ???</h3>
+    </div>
 </div>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -40,6 +44,39 @@
 		startTime.setHours(endTime.getHours() - 1);
 		var currentsensor = null;
 
+		var showElement = function(index) {
+		    chartElement.hidden = !(index == 0);
+		    document.getElementById("no-data-message").hidden = !(index == 1);
+		    document.getElementById("no-sensor-message").hidden = !(index == 2);
+		    document.getElementById("loading-message").hidden = !(index == 3);
+		};
+	    
+		var showChart = function() {
+		    showElement(0);
+		};
+
+		var showNoDataSaved = function() {
+		    showElement(1);
+		};
+
+		var showNoSensorSelected = function() {
+	    	showElement(2);
+		};
+
+		var showLoading = function() {
+	    	showElement(3);
+		};
+
+		var hidePrice = function() {
+			document.getElementById("price-div").hidden = true;
+		};
+
+		var showPrice = function(value) {
+			var elem = document.getElementById("price-div");
+			elem.innerHTML = "<h3>Total cost: $" + value.toString() + "</h3>";
+	    	elem.hidden = false;
+		};
+
 		// Replaces measurement data that consists of 'null'
 		// measurements only, by a simple empty array. This
 		// allows us to display an accurate error message.
@@ -49,7 +86,7 @@
 		            return json;
 		    }
 		    return [];
-		}
+		};
 
 		// Performs a GET REST call to our API,
 		// and parses the response as JSON.
@@ -60,7 +97,7 @@
 				callback(processData(JSON.parse(xmlhttp.responseText)));
 			};
 			xmlhttp.send(null);
-		}
+		};
 
 		// Formats the given date-time instance as an ISO date-time string.
 		var timeString = function(time) {
@@ -72,7 +109,60 @@
 			var year =	time.getFullYear().toString();
 			var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
 			return datestring;
-		}
+		};
+
+		// Gets the location that is associated with the given
+		// location identifier.
+		// The given callback handles the resulting value.
+		var getLocation = function(locationId, callback) {
+			var xmlhttp = new XMLHttpRequest();
+			var url = "/api/locations/" + locationId.toString();
+			xmlhttp.open("GET", url, true);
+			xmlhttp.onload = function (e) {
+				callback(JSON.parse(xmlhttp.responseText));
+			};
+			xmlhttp.send(null);
+		};
+
+		// Gets the location belonging to the given sensor.
+		// The given callback handles the resulting value.
+		var getSensorLocation = function(sensorId, callback) {
+			var xmlhttp = new XMLHttpRequest();
+			var url = "/api/sensors/" + sensorId.toString();
+			xmlhttp.open("GET", url, true);
+			xmlhttp.onload = function (e) {
+				getLocation(JSON.parse(xmlhttp.responseText).data.locationId, callback);
+			};
+			xmlhttp.send(null);
+		};
+
+		// Computes and displays the total electricity price
+		// for the given sensor and array of measurements.
+		var computePrice = function(sensorId, measurements) {
+			getSensorLocation(sensorId, function(loc) {
+				// A location stores its price per unit of electricity as currency/kWh.
+				// Since we want the total electricity price, we will multiply
+				// the location's price per unit by the total time, and the average
+				// electricity usage of the currently selected sensor.
+				var elecPrice = loc.data.electricityPrice;
+				if (elecPrice === null)
+					// This is kind of lame, really.
+					return;
+
+				var hourDiff = Math.abs(endTime.getTime() - startTime.getTime()) / 1000 / 3600;
+				var totalUsage = 0.0;
+				var n = 0;
+				for (var i = 0; i < measurements.length; i++) {
+					var sensorData = measurements[i];
+					if (sensorData.measurement !== null) {
+						totalUsage += sensorData.measurement;
+						n++;
+					}
+				}
+				var totalPrice = elecPrice * hourDiff * totalUsage / n;
+				showPrice(totalPrice);
+			});
+		};
 
 		// Actually draws the chart, based on the given array
 		// of JSON measurements.
@@ -106,8 +196,9 @@
 				var chart = new google.visualization.LineChart(chartElement);
 
 				chart.draw(data, options);
+				computePrice(currentsensor, data);
 			}
-		}
+		};
 		
 	    // Callback that creates and populates a data table,
 	    // instantiates the line chart, passes in the data and
@@ -117,13 +208,14 @@
 	    	    showNoSensorSelected();
 				return;
 	    	}
-	    	
+
+	    	hidePrice();
 	    	showLoading();
             
 			var url = "/api/autofit/" + currentsensor.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
 			return requestData(url, drawData);
 
-	    }
+	    };
 		
 	    // Load the Visualization API and the corechart package.
 	    google.charts.load('current', {'packages':['corechart']});
@@ -138,14 +230,14 @@
 			startTime = start_time;
 			endTime = end_time;
 			drawChart();
-		}
+		};
 
 		// Sets the maximal number of measurements that
 		// is rendered by this chart.
 		this.setMaxMeasurementCount = function(n) {
 			measurementCount = n;
 			drawChart();
-		}
+		};
 
 		// Sets the ID of the sensor whose data is
 		// to be rendered, and renders the chart
@@ -154,33 +246,10 @@
 		this.setId = function(x) {
 			currentsensor = x;
 			drawChart();
-		}
+		};
 
 		// Re-renders this chart.
 		this.draw = drawChart;
-	}
-
-	function showElement(index) {
-	    chartElement.hidden = !(index == 0);
-	    document.getElementById("no-data-message").hidden = !(index == 1);
-	    document.getElementById("no-sensor-message").hidden = !(index == 2);
-	    document.getElementById("loading-message").hidden = !(index == 3);
-	}
-    
-	function showChart() {
-	    showElement(0);
-	}
-
-	function showNoDataSaved() {
-	    showElement(1);
-	}
-
-	function showNoSensorSelected() {
-	    showElement(2);
-	}
-
-	function showLoading() {
-	    showElement(3);
-	}
+	};
 
 </script>
