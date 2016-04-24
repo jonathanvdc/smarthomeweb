@@ -1038,7 +1038,8 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Deletes the measurement made by the given sensor during the given period of time 
+		/// Deletes the measurement made by the given sensor during 
+		/// the given period of time [StartTime, EndTime)
 		/// from the table with the given name.  
 		/// </summary>
 		private async Task DeleteMeasurementAsync(string TableName, int SensorId, DateTime StartTime, DateTime EndTime)
@@ -1046,7 +1047,7 @@ namespace SmartHomeWeb
 			using (var cmd = sqlite.CreateCommand())
 			{
 				cmd.CommandText = $"DELETE FROM {TableName} " +
-					"WHERE sensorId = @sensorId AND unixtime >= @startTime AND unixtime <= @endTime";
+					"WHERE sensorId = @sensorId AND unixtime >= @startTime AND unixtime < @endTime";
 				cmd.Parameters.AddWithValue("@sensorId", SensorId);
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
