@@ -516,4 +516,19 @@
   <data name="TotalElectricityPrice" xml:space="preserve">
     <value>Geschatte totale elektriciteitskost</value>
   </data>
+  <data name="EditLocationSuccess" xml:space="preserve">
+    <value>Locatie aangepast!</value>
+  </data>
+  <data name="ElectricityPriceParseError" xml:space="preserve">
+    <value>'{0}' kon niet als decimaal getal ingelezen worden.</value>
+  </data>
+  <data name="EditLocationPageTitle" xml:space="preserve">
+    <value>Locatie aanpassen</value>
+  </data>
+  <data name="LocationElectricityPriceLabel" xml:space="preserve">
+    <value>Elektriciteitsprijs, in $/kWh</value>
+  </data>
+  <data name="EditLocationButtonText" xml:space="preserve">
+    <value>Locatie aanpassen</value>
+  </data>
 </root>

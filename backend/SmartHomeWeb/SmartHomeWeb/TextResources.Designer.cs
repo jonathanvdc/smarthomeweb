@@ -849,5 +849,35 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TotalElectricityPrice", resourceCulture);
             }
         }
+        
+        public static string EditLocationSuccess {
+            get {
+                return ResourceManager.GetString("EditLocationSuccess", resourceCulture);
+            }
+        }
+        
+        public static string ElectricityPriceParseError {
+            get {
+                return ResourceManager.GetString("ElectricityPriceParseError", resourceCulture);
+            }
+        }
+        
+        public static string EditLocationPageTitle {
+            get {
+                return ResourceManager.GetString("EditLocationPageTitle", resourceCulture);
+            }
+        }
+        
+        public static string LocationElectricityPriceLabel {
+            get {
+                return ResourceManager.GetString("LocationElectricityPriceLabel", resourceCulture);
+            }
+        }
+        
+        public static string EditLocationButtonText {
+            get {
+                return ResourceManager.GetString("EditLocationButtonText", resourceCulture);
+            }
+        }
     }
 }

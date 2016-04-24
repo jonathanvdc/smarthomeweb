@@ -893,9 +893,9 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = $"UPDATE {LocationTableName} " +
-					"SET name = @name, owner = @owner, electricityPrice = @electricityPrice" +
-					"WHERE id = @id";
+				cmd.CommandText = $@"UPDATE {LocationTableName}
+					SET name = @name, owner = @owner, electricityPrice = @electricityPrice
+					WHERE id = @id";
 				cmd.Parameters.AddWithValue("@id", Location.Id);
 				cmd.Parameters.AddWithValue("@name", Location.Data.Name);
 				cmd.Parameters.AddWithValue("@owner", Location.Data.OwnerGuidString);
