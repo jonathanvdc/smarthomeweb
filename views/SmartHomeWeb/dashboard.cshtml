@@ -1,10 +1,11 @@
 @using System
+@using System.Linq
 @using System.Collections.Generic
 @using Nancy.Security
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<List<LocationWithSensors>>
+@inherits NancyRazorViewBase<List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>>
 
 <!-- Include Date Range Picker -->
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -15,11 +16,13 @@
 
 @if (@Model.Count == 0)
 {
-    <h3>@TextResources.EmptyDashboardTitle</h3>
-    <div>
-	    @TextResources.DashboardAddLocationPre
-	    <a href="/add-has-location">@TextResources.DashboardAddLocation</a>
-        @TextResources.DashboardAddLocationPost
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h3>@TextResources.EmptyDashboardTitle</h3>
+            @TextResources.DashboardAddLocationPre
+            <a href="/add-has-location">@TextResources.DashboardAddLocation</a>
+            @TextResources.DashboardAddLocationPost
+        </div>
     </div>
 }
 else
@@ -27,7 +30,12 @@ else
     <ul class="nav nav-tabs col-sm-12">
         @for (var x = 0; x < @Model.Count; ++x)
         {
-            <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))><a data-toggle="tab" href="#u_@x">@Model[@x].Location.Data.Name</a></li>    }
+            <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))>
+                <a data-toggle="tab" data-target="#u_@x, #tags_@x">
+                    @Model[@x].Item1.Data.Name
+                </a>
+            </li>    
+        }
     </ul>
 
     <div class="container col-sm-12">
@@ -48,8 +56,28 @@ else
                 <div class="panel panel-default">
 
                     <div class="panel-heading">@(TextResources.TagSelectorTitle)</div>
-                    <div class="panel-body">
-                        <input type="text" id="tagselector">
+                    <div class="panel-body tab-content" style="min-height: 56px;">
+                        @for (int x = 0; x < @Model.Count; ++x)
+                        {
+                            @{ var tags = @Model[x].Item2;}
+
+                            <div id="tags_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
+                                @if (tags.Count() != 0)
+                                {
+                                    @for (int i = 0; i < tags.Count(); i++)
+                                    {
+                                        <span class="tag">
+                                            @tags.ElementAt(i)
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="no-tags">(@TextResources.NoTagsText)</span>
+                                }
+                            </div>
+                        }
+
                     </div>
 
                 </div>
@@ -74,21 +102,25 @@ else
 
                     @for (int x = 0; x < @Model.Count; ++x)
                     {
-                        <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height: 55%; overflow:auto;">
+                        <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height:560px; overflow:auto;">
                             <ul class="nav nav-pills nav-stacked">
 
-                                @foreach (var y in @Model[x].Sensors)
+                                @foreach (var item in @Model[x].Item3)
                                 {
-                                    <li id="@y.Id" onClick="measurementsGraph.setId(this.id)">
+                                    @{ 
+                                        var sensor = item.Item1;
+                                        var tags = item.Item2;
+                                    }
+                                    <li id="@sensor.Id" onClick="measurementsGraph.setId(this.id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
                                             <div style="display: table-row">
                                                 <div style="display: table-cell;">
-                                                    @y.Data.Name
-                                                    <div id="@(y.Id)-description" class="sensor-desciption">
-                                                        @y.Data.Description
+                                                    @sensor.Data.Name
+                                                    <div id="@(sensor.Id)-description" class="sensor-desciption">
+                                                        @sensor.Data.Description
                                                     </div>
                                                 </div>
-                                                <a href="/edit-sensor/@y.Id" class="add-tag" style="width: 25px; display: table-cell;">
+                                                <a href="/edit-sensor/@sensor.Id" class="add-tag" style="width: 25px; display: table-cell;">
                                                     <span class="glyphicon glyphicon-cog" style="float: right;" />
                                                 </a>
                                             </div>

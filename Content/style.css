@@ -43,20 +43,27 @@ span.tag {
 
 	padding:2px;
 	padding-left:5px;
-	padding-right:5px;
 
 	border-radius:4px;
 	margin:2px;
-	line-height:18px;
+	line-height:22px;
 	cursor:pointer;
 }
+	span.tag:last-child{
+		padding-right:5px;
+	}
 
 	span.tag:hover {
 		color: #FFF8FF;
 		background-color:#DD88AA;
 		padding:6px;
+		padding-right:3px;
 		margin:1px;
 	}
+	
+		span.tag:last-child:hover{
+			padding-right:6px;
+		}
 
 	span.tag a:hover{
 		text-decoration:none;
