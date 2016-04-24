@@ -6,7 +6,9 @@ namespace SmartHomeWeb.Modules.API
 	{
 		public ApiFrozenModule() : base("api/frozen")
 		{
+			ApiGet("/", (_, dc) => dc.GetFrozenPeriodsAsync());
 			ApiGet("/{timestamp}", (p, dc) => dc.IsFrozenAsync((DateTime)p["timestamp"]));
+			ApiGet("/{start}/{end}", (p, dc) => dc.GetFrozenPeriodsAsync((DateTime)p["start"], (DateTime)p["end"]));
 
 			// PUT, because freezing is idempotent
 			Put["/{start}/{end}", true] = Ask((p, dc) => dc.FreezeAsync((DateTime)p["start"], (DateTime)p["end"]));

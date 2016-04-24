@@ -1311,6 +1311,26 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
+		/// Reads all frozen periods from the database that completely or 
+		/// partially overlap with the given period of time.
+		/// </summary>
+		public async Task<IEnumerable<FrozenPeriod>> GetFrozenPeriodsAsync(DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(StartTime)}");
+
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $"SELECT * FROM {FrozenPeriodTableName} as frozen " +
+					"WHERE (frozen.startTime >= @startTime AND frozen.startTime <= @endTime) " +
+					"   OR (frozen.endTime >= @startTime AND frozen.endTime <= @endTime)";
+				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadFrozenPeriod);
+			}
+		}
+
+		/// <summary>
 		/// Freezes the period of time specified by the given start-time
 		/// and end-time.
 		/// </summary>
@@ -1318,7 +1338,7 @@ namespace SmartHomeWeb
 			DateTime StartTime, DateTime EndTime, CompactionLevel Compaction = CompactionLevel.None)
 		{
 			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(StartTime)}");
 
 			using (var cmd = sqlite.CreateCommand())
 			{
