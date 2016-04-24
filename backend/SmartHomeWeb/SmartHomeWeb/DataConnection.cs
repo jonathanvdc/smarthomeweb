@@ -367,7 +367,6 @@ namespace SmartHomeWeb
 		{
 			var cache = new AggregationCache(this, SensorId, StartHour, StartHour.AddHours(Count));
 
-			await cache.PrefetchHourAveragesAsync();
 			var result = await cache.GetHourAveragesAsync(StartHour, Count);
 			cache.FlushResults();
 			return result;
@@ -390,7 +389,6 @@ namespace SmartHomeWeb
 		{
 			var cache = new AggregationCache(this, SensorId, StartDay, StartDay.AddDays(Count));
 
-			await cache.PrefetchDayAveragesAsync();
 			var result = await cache.GetDayAveragesAsync(StartDay, Count);
 			cache.FlushResults();
 			return result;
@@ -413,7 +411,6 @@ namespace SmartHomeWeb
 		{
 			var cache = new AggregationCache(this, SensorId, StartMonth, StartMonth.AddMonths(Count));
 
-			await cache.PrefetchMonthAveragesAsync();
 			var result = await cache.GetMonthAveragesAsync(StartMonth, Count);
 			cache.FlushResults();
 			return result;

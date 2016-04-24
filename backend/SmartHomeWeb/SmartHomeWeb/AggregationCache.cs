@@ -110,9 +110,9 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Prefetches precomputed hour average data from the database.
 		/// </summary>
-		public Task PrefetchHourAveragesAsync()
+		public Task FetchHourAveragesAsync()
 		{
-			return PrefetchAveragesAsync(
+			return FetchAveragesAsync(
 				ref hourAverages, ref precomputedHours,
 				DataConnection.HourAverageTableName);
 		}
@@ -120,37 +120,24 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Prefetches precomputed day average data from the database.
 		/// </summary>
-		public async Task PrefetchDayAveragesAsync()
+		public Task FetchDayAveragesAsync()
 		{
-			await PrefetchAveragesAsync(
+			return FetchAveragesAsync(
 				ref dayAverages, ref precomputedDays, 
 				DataConnection.DayAverageTableName);
-			
-			if (dayAverages.Count < TotalDays)
-				// If the number of cached days in the day-average cache 
-				// does not equal the total number of days, then we will
-				// also prefetch the entire hour-average cache for this
-				// cache's timespan.
-				await PrefetchHourAveragesAsync();
 		}
 
 		/// <summary>
 		/// Prefetches precomputed months average data from the database.
 		/// </summary>
-		public async Task PrefetchMonthAveragesAsync()
+		public Task FetchMonthAveragesAsync()
 		{
-			await PrefetchAveragesAsync(
+			return FetchAveragesAsync(
 				ref monthAverages, ref precomputedMonths, 
 				DataConnection.MonthAverageTableName);
-
-			if (monthAverages.Count < TotalMonths)
-				// If the number of cached months in the month-average cache 
-				// does not equal the total number of months, then we will
-				// also prefetch the entire day-average cache.
-				await PrefetchDayAveragesAsync();
 		}
 
-		private Task PrefetchAveragesAsync(
+		private Task FetchAveragesAsync(
 			ref Dictionary<DateTime, Measurement> Cache, 
 			ref HashSet<DateTime> PrecomputedSet, string TableName)
 		{
@@ -160,10 +147,10 @@ namespace SmartHomeWeb
 
 			Cache = new Dictionary<DateTime, Measurement>();
 			PrecomputedSet = new HashSet<DateTime>();
-			return PrefetchAveragesImplAsync(Cache, PrecomputedSet, TableName);
+			return FetchAveragesImplAsync(Cache, PrecomputedSet, TableName);
 		}
 
-		private async Task PrefetchAveragesImplAsync(
+		private async Task FetchAveragesImplAsync(
 			Dictionary<DateTime, Measurement> Cache, 
 			HashSet<DateTime> PrecomputedSet, string TableName)
 		{
@@ -221,6 +208,9 @@ namespace SmartHomeWeb
 		/// </summary>
 		public async Task<Measurement> GetHourAverageAsync(DateTime Hour)
 		{
+			if (hourAverages == null)
+				await FetchHourAveragesAsync();
+			
 			Measurement result;
 			if (hourAverages.TryGetValue(Hour, out result))
 			{
@@ -327,6 +317,9 @@ namespace SmartHomeWeb
 		/// </summary>
 		public async Task<IEnumerable<Measurement>> GetHourAveragesAsync(DateTime Start, int Count)
 		{
+			if (hourAverages == null)
+				await FetchHourAveragesAsync();
+
 			// We want to compute _only_ those averages which
 			// are already present in the cache.
 			var results = new Measurement[Count];
@@ -392,6 +385,9 @@ namespace SmartHomeWeb
 		/// </summary>
 		public async Task<Measurement> GetDayAverageAsync(DateTime Day)
 		{
+			if (dayAverages == null)
+				await FetchDayAveragesAsync();
+
 			Measurement result;
 			if (dayAverages.TryGetValue(Day, out result))
 			{
@@ -412,6 +408,9 @@ namespace SmartHomeWeb
 		/// </summary>
 		public async Task<IEnumerable<Measurement>> GetDayAveragesAsync(DateTime StartDay, int Count)
 		{
+			if (dayAverages == null)
+				await FetchDayAveragesAsync();
+
 			// We want to compute _only_ those averages which
 			// are not present yet in the cache, but we also
 			// want to do that in parallel.
@@ -424,6 +423,9 @@ namespace SmartHomeWeb
 				{
 					if (regionSize > 0)
 					{
+						if (hourAverages == null)
+							await FetchHourAveragesAsync();
+
 						int regionStart = i - regionSize;
 						var regionStartDay = StartDay.AddDays(regionStart);
 						await ComputeHourAveragesAsync(
@@ -446,6 +448,9 @@ namespace SmartHomeWeb
 			}
 			if (regionSize > 0)
 			{
+				if (hourAverages == null)
+					await FetchHourAveragesAsync();
+
 				int regionStart = Count - regionSize;
 				var regionStartDay = StartDay.AddDays(regionStart);
 				await ComputeHourAveragesAsync(
@@ -463,6 +468,9 @@ namespace SmartHomeWeb
 		/// </summary>
 		public async Task<Measurement> GetMonthAverageAsync(DateTime Month)
 		{
+			if (monthAverages == null)
+				await FetchMonthAveragesAsync();
+
 			Measurement result;
 			if (monthAverages.TryGetValue(Month, out result))
 			{
