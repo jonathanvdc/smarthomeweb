@@ -107,6 +107,60 @@ namespace SmartHomeWeb
 		private HashSet<DateTime> precomputedDays;
 		private HashSet<DateTime> precomputedMonths;
 
+		private IEnumerable<FrozenPeriod> frozenPeriods;
+
+		/// <summary>
+		/// Fetches relevant frozen periods from the database.
+		/// </summary>
+		public async Task<IEnumerable<FrozenPeriod>> FetchFrozenPeriodsAsync()
+		{
+			if (frozenPeriods == null)
+			{
+				frozenPeriods = await Database.GetFrozenPeriodsAsync(CacheStart, CacheEnd);
+			}
+			return frozenPeriods;
+		}
+
+		private IEnumerable<FrozenPeriod> SubdivideCompactionPeriod(FrozenPeriod Original, FrozenPeriod New)
+		{
+			var inter = FrozenPeriod.Intersect(Original.Range, New.Range);
+			if (FrozenPeriod.IsEmptyRange(inter))
+			{
+				return new FrozenPeriod[] { Original };
+			}
+			else
+			{
+				return new FrozenPeriod[] 
+				{
+					new FrozenPeriod(inter.Item1, inter.Item2, FrozenPeriod.Max(Original.Compaction, New.Compaction)),
+					new FrozenPeriod(Original.StartTime, inter.Item1, Original.Compaction),
+					new FrozenPeriod(Original.EndTime, inter.Item2, Original.Compaction)
+				}.Where(item => !item.IsEmpty);
+			}
+		}
+
+		/// <summary>
+		/// Partitions the given time period by its compaction level. 
+		/// </summary>
+		public async Task<IEnumerable<FrozenPeriod>> PartitionByCompaction(DateTime Start, DateTime End)
+		{
+			// Start with a single, non-compacted period of time,
+			// and then subdivide that iteratively.
+
+			var results = new List<FrozenPeriod>();
+			results.Add(new FrozenPeriod(Start, End, CompactionLevel.None));
+			foreach (var item in await FetchFrozenPeriodsAsync())
+			{
+				var newResults = new List<FrozenPeriod>();
+				foreach (var range in results)
+				{
+					newResults.AddRange(SubdivideCompactionPeriod(range, item));
+				}
+				results = newResults;
+			}
+			return results;
+		}
+
 		/// <summary>
 		/// Prefetches precomputed hour average data from the database.
 		/// </summary>

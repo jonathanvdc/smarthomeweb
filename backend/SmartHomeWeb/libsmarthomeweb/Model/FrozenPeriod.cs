@@ -79,6 +79,84 @@ namespace SmartHomeWeb
 		/// </summary>
 		[JsonIgnore]
 		public TimeSpan Duration { get { return EndTime - StartTime; } }
+
+		/// <summary>
+		/// Gets the range of time described by this frozen
+		/// period.
+		/// </summary>
+		[JsonIgnore]
+		public Tuple<DateTime, DateTime> Range { get { return Tuple.Create(StartTime, EndTime); } }
+
+		/// <summary>
+		/// Gets a value indicating whether this range is empty.
+		/// </summary>
+		/// <value><c>true</c> if this range is empty; otherwise, <c>false</c>.</value>
+		[JsonIgnore]
+		public bool IsEmpty { get { return IsEmptyRange(Range); } }
+
+		/// <summary>
+		/// Tests if this time period contains the given
+		/// time.
+		/// </summary>
+		public bool Contains(DateTime Time)
+		{
+			return Time >= StartTime && Time <= EndTime;
+		}
+
+		/// <summary>
+		/// Tests if this time period overlaps with the given
+		/// time period.
+		/// </summary>
+		public bool OverlapsWith(FrozenPeriod Other)
+		{
+			return Other.StartTime <= this.EndTime && this.StartTime <= Other.EndTime;
+		}
+
+		public static CompactionLevel Max(CompactionLevel Left, CompactionLevel Right)
+		{
+			if ((int)Left < (int)Right)
+				return Right;
+			else
+				return Left;
+		}
+
+		public static CompactionLevel Min(CompactionLevel Left, CompactionLevel Right)
+		{
+			if ((int)Left > (int)Right)
+				return Right;
+			else
+				return Left;
+		}
+
+		public static DateTime Max(DateTime Left, DateTime Right)
+		{
+			if (Left < Right)
+				return Right;
+			else
+				return Left;
+		}
+
+		public static DateTime Min(DateTime Left, DateTime Right)
+		{
+			if (Left > Right)
+				return Right;
+			else
+				return Left;
+		}
+
+		public static Tuple<DateTime, DateTime> Intersect(
+			Tuple<DateTime, DateTime> LeftRange, 
+			Tuple<DateTime, DateTime> RightRange)
+		{
+			return Tuple.Create(
+				Max(LeftRange.Item1, RightRange.Item1),
+				Min(LeftRange.Item2, RightRange.Item2));
+		}
+
+		public static bool IsEmptyRange(Tuple<DateTime, DateTime> Range)
+		{
+			return Range.Item1 >= Range.Item2;
+		}
 	}
 }
 
