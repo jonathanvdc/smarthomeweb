@@ -48,6 +48,11 @@ namespace SmartHomeWeb.Model
 		/// </summary>
 		[JsonProperty("electricityPrice")]
 		public double? ElectricityPrice { get; private set; }
+
+		public override string ToString()
+		{
+			return string.Format("[LocationData: Name={0}, OwnerGuid={1}, ElectricityPrice={2}]", Name, OwnerGuid, ElectricityPrice);
+		}
 	}
 }
 

@@ -126,6 +126,69 @@ namespace SmartHomeWeb.Modules
                 return View["edit-sensor.cshtml", update];
             };
 
+			Get["/edit-location/{id}", true] = async (parameters, ct) =>
+			{
+				this.RequiresAuthentication();
+				int id = (int)parameters["id"];
+				var loc = await DataConnection.Ask(x => x.GetLocationByIdAsync(id));
+				if (loc == null)
+				{
+					ViewBag.Error = TextResources.LocationDoesNotExist;
+					loc = new Location(id, new LocationData("", default(Guid), null));
+				}
+				return View["edit-location.cshtml", loc];
+			};
+
+			Post["/edit-location/{id}", true] = async (parameters, ct) =>
+			{
+				ViewBag.Success = "";
+				ViewBag.Error = "";
+
+				this.RequiresAuthentication();
+
+				int id = parameters["id"];
+				string name = FormHelpers.GetString(Request.Form, "locationname");
+				string elecPriceStr = FormHelpers.GetString(Request.Form, "electricityprice");
+				double? elecPrice = FormHelpers.ParseDoubleOrNull(elecPriceStr);
+
+				var update = await DataConnection.Ask(async dc =>
+				{
+					// Retrieve the location that is being edited.
+					var editLoc = await dc.GetLocationByIdAsync(id);
+					if (editLoc == null)
+					{
+						ViewBag.Error = TextResources.LocationDoesNotExist;
+						return new Location(id, new LocationData(name, default(Guid), elecPrice));
+					}
+
+					var newLoc = new Location(id, new LocationData(name, editLoc.Data.OwnerGuid, elecPrice));
+
+					if (string.IsNullOrWhiteSpace(name))
+					{
+						// Empty names are silly, and we don't allow them.
+						ViewBag.Error = TextResources.EmptyNameError;
+					}
+					else if (name != editLoc.Data.Name && dc.GetLocationByNameAsync(name) != null)
+					{
+						// Whoops. Name already exists.
+						ViewBag.Error = string.Format(TextResources.LocationAlreadyExistsError, name);
+					}
+					else if (!string.IsNullOrWhiteSpace(elecPriceStr) && elecPrice == null)
+					{
+						// Couldn't parse electricity price.
+						ViewBag.Error = string.Format(TextResources.ElectricityPriceParseError, elecPriceStr);
+					}
+					else
+					{
+						ViewBag.Success = TextResources.EditLocationSuccess;
+						await dc.UpdateLocationAsync(newLoc);
+					}
+					return newLoc;
+				});
+
+				return View["edit-location.cshtml", update];
+			};
+
             Get["/add-tag/{id?}", true] = GetAddTag;
 
             Post["/add-tag/{id?}", true] = PostAddTag;

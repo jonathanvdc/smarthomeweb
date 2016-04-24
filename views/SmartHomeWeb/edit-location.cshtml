@@ -1,0 +1,23 @@
+@using System.Collections.Generic
+@using Nancy.Security
+@using Nancy.Session
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<Location>
+@{ Location location = @Model;}
+
+<h1>@TextResources.EditLocationPageTitle</h1>
+
+@Html.Partial("feedback-box.cshtml")
+
+<form method="post">
+    <div class="form-group">
+        <label for="locationname">@(TextResources.LocationNameLabel):</label>
+        <input id="locationname" name="location-name" class="form-control" value="@location.Data.Name"/>
+
+        <label for="electricityprice">@(TextResources.LocationElectricityPriceLabel):</label>
+        <input id="electricityprice" name="electricity-price" class="form-control" value="@location.Data.ElectricityPrice"/>
+    </div>
+    <button type="submit" class="btn btn-primary">@TextResources.EditLocationButtonText</button>
+</form>

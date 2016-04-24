@@ -187,7 +187,8 @@
 					var hmsstring = date.toISOString().substring(0, 19);
 					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
-					var notes = sensorData.notes === null ? "" : sensorData.notes;
+					var regex = new RegExp('<br/>', 'g');
+					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
 					array.push([hmsstring, measured, notes, notespre+notes]);
 				}
 
@@ -274,23 +275,19 @@
 			var mins = Math.floor(diff / (1000 * 60));
 			var xmlhttp = new XMLHttpRequest();
 			if(mins <= measurementCount){
-				alert("mins");
 				xmlhttp.open("PUT", "api/measurements/updatetag");
 			}else if(hours <= measurementCount){
-				alert("hours");
 				xmlhttp.open("PUT", "api/hour-average/updatetag");
 			}else if(days <= measurementCount){
-				alert("days");
 				xmlhttp.open("PUT", "api/day-average/updatetag");
 			}else{
-				alert("months");
 				xmlhttp.open("PUT", "api/month-average/updatetag");
 			}
 
 			xmlhttp.setRequestHeader("Content-type", "application/json");
 			var area = document.getElementById('notesarea').value;
-			var raw = area.replace("\n", "<br/>");
-			alert(raw);
+			var regex = new RegExp('\n', 'g');
+			var raw = area.replace(regex, "<br/>");
 			var str = JSON.parse(notesupdate + raw + '"}');
 			xmlhttp.send(JSON.stringify(str));
 			drawChart();

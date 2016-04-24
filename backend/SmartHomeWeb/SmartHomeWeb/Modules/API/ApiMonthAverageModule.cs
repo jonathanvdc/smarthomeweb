@@ -9,7 +9,7 @@ namespace SmartHomeWeb.Modules.API
 	{
 		public ApiMonthAverageModule() : base("api/month-average")
 		{
-            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => dc.UpdateMeasurementTagsAsync(item, "MonthAverage"));
+            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => dc.UpdateMeasurementNotesAsync(item, "MonthAverage"));
         }
 
 		/// <summary>

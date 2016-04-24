@@ -14,5 +14,8 @@
 	</resheader>
     <data name="FriendsPageTitle">
     	<value>Buddies</value>
-    </data>
+    </data>  
+    <data name="Loading" xml:space="preserve">
+    	<value>Loading... Hang tight.</value>
+  	</data>
 </root>

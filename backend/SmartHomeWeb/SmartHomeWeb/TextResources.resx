@@ -517,6 +517,21 @@
     <value>Search for a user</value>
   </data>
   <data name="TotalElectricityPrice" xml:space="preserve">
-    <value>Total price of electricity</value>
+    <value>Estimated total price of electricity</value>
+  </data>
+  <data name="EditLocationSuccess" xml:space="preserve">
+    <value>Edited location!</value>
+  </data>
+  <data name="ElectricityPriceParseError" xml:space="preserve">
+    <value>Couldn't parse '{0}' as a floating-point number.</value>
+  </data>
+  <data name="EditLocationPageTitle" xml:space="preserve">
+    <value>Edit location</value>
+  </data>
+  <data name="LocationElectricityPriceLabel" xml:space="preserve">
+    <value>Electricity price, in $/kWh</value>
+  </data>
+  <data name="EditLocationButtonText" xml:space="preserve">
+    <value>Edit location</value>
   </data>
 </root>
