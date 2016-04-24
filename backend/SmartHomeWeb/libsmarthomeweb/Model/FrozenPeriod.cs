@@ -44,11 +44,6 @@ namespace SmartHomeWeb
 		public FrozenPeriod(
 			DateTime StartTime, DateTime EndTime, CompactionLevel Compaction)
 		{
-			if (EndTime < StartTime) 
-			{
-				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
-			}
-
 			this.StartTime = StartTime;
 			this.EndTime = EndTime;
 			this.Compaction = Compaction;

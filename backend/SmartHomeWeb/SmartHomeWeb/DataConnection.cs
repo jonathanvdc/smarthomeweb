@@ -775,9 +775,9 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = @"
+				cmd.CommandText = $@"
                     SELECT *
-                    " + $"FROM {TableName} as m" + @"
+                    FROM {TableName} as m
                     WHERE m.sensorId = @id AND m.unixtime >= @starttime AND m.unixtime < @endtime";
 				cmd.Parameters.AddWithValue("@id", SensorId);
 				cmd.Parameters.AddWithValue("@starttime", DatabaseHelpers.CreateUnixTimeStamp(Start));
