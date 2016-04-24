@@ -8,7 +8,9 @@ namespace SmartHomeWeb.Modules.API
 	public class ApiDayAverageModule : FixedQuantumAggregateModuleBase
     {
         public ApiDayAverageModule() : base("api/day-average")
-        { }
+        {
+            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => dc.UpdateMeasurementTagsAsync(item, "DayAverage"));
+        }
 
         public override TimeSpan TimeQuantum
         {

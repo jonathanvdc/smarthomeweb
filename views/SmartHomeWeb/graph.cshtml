@@ -266,11 +266,32 @@
 			drawChart();
 		};
 
+		//Updates the notes in the database
 		this.updateNotes = function(){
+			var diff = endTime.getTime() - startTime.getTime();
+			var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+			var hours = Math.floor(diff / (1000 * 60 * 60));
+			var mins = Math.floor(diff / (1000 * 60));
 			var xmlhttp = new XMLHttpRequest();
-			xmlhttp.open("PUT", "api/measurements/updatetag");
+			if(mins <= measurementCount){
+				alert("mins");
+				xmlhttp.open("PUT", "api/measurements/updatetag");
+			}else if(hours <= measurementCount){
+				alert("hours");
+				xmlhttp.open("PUT", "api/hour-average/updatetag");
+			}else if(days <= measurementCount){
+				alert("days");
+				xmlhttp.open("PUT", "api/day-average/updatetag");
+			}else{
+				alert("months");
+				xmlhttp.open("PUT", "api/month-average/updatetag");
+			}
+
 			xmlhttp.setRequestHeader("Content-type", "application/json");
-			var str = JSON.parse(notesupdate + document.getElementById('notesarea').value.toString() + '"}');
+			var area = document.getElementById('notesarea').value;
+			var raw = area.replace("\n", "<br/>");
+			alert(raw);
+			var str = JSON.parse(notesupdate + raw + '"}');
 			xmlhttp.send(JSON.stringify(str));
 			drawChart();
 		}
