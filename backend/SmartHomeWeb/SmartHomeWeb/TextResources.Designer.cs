@@ -970,6 +970,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search for a user.
+        /// </summary>
+        public static string SearchUserTitle {
+            get {
+                return ResourceManager.GetString("SearchUserTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send {0} a friend request.
         /// </summary>
         public static string SendFriendRequestButton {

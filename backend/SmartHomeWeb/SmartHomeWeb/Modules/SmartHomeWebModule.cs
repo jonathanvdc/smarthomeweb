@@ -39,17 +39,16 @@ namespace SmartHomeWeb.Modules
                     : (dynamic)View["home.cshtml"];
 
             // Pages for individual tables
-            Get["/person", true] = async (parameters, ct) =>
+            Get["/person", true] = GetPerson;
+
+            Post["/person", true] = async (parameters, ct) =>
             {
-                var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
-                return View["person.cshtml", persons];
+                this.RequiresAuthentication();
+                await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
+                return await GetPerson(parameters, ct);
             };
 
             Get["/person/{username}", true] = GetProfile;
-
-            Get["/editprofile", true] = GetEditProfile;
-
-            Post["/editprofile", true] = UpdateProfile;
 
             Post["/person/{username}", true] = async (parameters, ct) =>
             {
@@ -57,6 +56,10 @@ namespace SmartHomeWeb.Modules
                 await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
                 return await GetProfile(parameters, ct);
             };
+
+            Get["/editprofile", true] = GetEditProfile;
+
+            Post["/editprofile", true] = UpdateProfile;
             
             Get["/person/{username}/wall", true] = GetWall;
 
@@ -721,6 +724,30 @@ namespace SmartHomeWeb.Modules
         {
             var messages = await DataConnection.Ask(x => x.GetMessagesAsync());
             return View["message.cshtml", messages];
+        }
+
+        private async Task<dynamic> GetPerson(dynamic parameters, CancellationToken ct)
+        {
+            var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
+            var items = new List<Tuple<Person, FriendsState>>();
+
+            if (Context.CurrentUser.IsAuthenticated())
+            {
+                Person currentUser = await DataConnection.Ask(x => x.GetPersonByUsernameAsync(Context.CurrentUser.UserName));
+                foreach (var person in persons)
+                {
+                    var state = await DataConnection.Ask(x => x.GetFriendsState(currentUser.Guid, person.Guid));
+                    items.Add(Tuple.Create(person, state));
+                }
+            }
+            else
+            {
+                foreach (var person in persons)
+                {
+                    items.Add(Tuple.Create(person, FriendsState.None));
+                }
+            }
+            return View["person.cshtml", items];
         }
 
         private async Task<dynamic> GetProfile(dynamic parameters, CancellationToken ct)

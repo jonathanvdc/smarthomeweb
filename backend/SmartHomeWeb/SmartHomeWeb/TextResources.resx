@@ -513,4 +513,7 @@
   <data name="NoSensorSelectedHelpText" xml:space="preserve">
     <value>Select a sensor from the list on the right.</value>
   </data>
+  <data name="SearchUserTitle" xml:space="preserve">
+    <value>Search for a user</value>
+  </data>
 </root>

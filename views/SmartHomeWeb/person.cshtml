@@ -3,7 +3,7 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Person>>
+@inherits NancyRazorViewBase<IEnumerable<Tuple<Person, FriendsState>>>
 
 <script type="text/javascript">
     function search() {
@@ -22,7 +22,7 @@
 
             var personRows = document.getElementsByClassName('person-row');
             for (i = personRows.length - 1; i >= 0; i--) {
-                var userName = personRows[i].childNodes[1].innerText;
+                var userName = personRows[i].getElementsByTagName('th')[0].innerText;
                 console.log(searchNames.indexOf(userName));
                 personRows[i].style.display = searchNames.indexOf(userName) > -1 ? 'table-row' : 'none';
             }
@@ -35,30 +35,83 @@
 
 <h1>@TextResources.UsersPageTitle</h1>
 
-Search: <input id="search-box" oninput="search()" type="text"/>
+<div class="panel panel-default">
 
+    <div class="panel-heading">@(TextResources.SearchUserTitle)</div>
+    <div class="panel-body">
+        <input id="search-box" oninput="search()" type="text" />
+    </div>
+</div>
+    
 <table class="table">
 
         <tr class="tableHeader">
+            @if (Context.CurrentUser.IsAuthenticated())
+            {
+                <th width="1%">&shy;</th>
+            }
             <th>@TextResources.PersonUserNameLabel</th>
             <th>@TextResources.PersonNameLabel</th>
             <th>@TextResources.PersonAddressLabel</th>
 	        <th>@TextResources.PersonCityLabel</th>
-	        <th>@TextResources.SendFriendRequestButton</th>
         </tr>
 		
-    @foreach (var p in @Model)
+    @foreach (var item in @Model)
     {
+        @{ 
+            var person = item.Item1;
+            var friendStatus = item.Item2;
+        }
         <tr class="person-row">
-	        <th><a href="/person/@p.Data.UserName">@p.Data.UserName</a></th>
-	        <td>@p.Data.Name</td>
-	        <td>@p.Data.Address</td>
-	        <td>@p.Data.City</td>
-	        <td>
-		        <button onclick="alert('maak dit')" type="button" class="btn btn-success">
-			        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-		        </button>
-	        </td>
+            
+            @if (Context.CurrentUser.IsAuthenticated())
+            {
+                if (person.Data.UserName != Context.CurrentUser.UserName)
+                {
+                    switch (friendStatus)
+                    {
+                        case FriendsState.None:
+                            <td>
+                                <form method="post">
+                                    <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                    </button>
+                                </form>
+                            </td>
+                            break;
+                        case FriendsState.FriendRequestRecieved:
+                            <td>
+                                <form method="post">
+                                    <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
+                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                    </button>
+                                </form>
+                            </td>
+                            break;
+                        case FriendsState.FriendRequestSent:
+                            <td>
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            </td>
+                            break;
+                        case FriendsState.Friends:
+                            <td>
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            </td>
+                            break;
+                    }
+                }
+                else
+                {
+                    <td>
+                       &shy;
+                    </td>
+                }
+            }
+
+	        <th><a href="/person/@person.Data.UserName">@person.Data.UserName</a></th>
+            <td>@person.Data.Name</td>
+            <td>@person.Data.Address</td>
+            <td>@person.Data.City</td>
         </tr>
     }
 </table>
