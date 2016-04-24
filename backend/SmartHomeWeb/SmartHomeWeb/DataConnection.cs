@@ -1078,8 +1078,7 @@ namespace SmartHomeWeb
 			using (var cmd = sqlite.CreateCommand())
 			{
 				cmd.CommandText = $"SELECT COUNT(*) FROM {FrozenPeriodTableName} as frozen " +
-					"WHERE (frozen.startTime >= @startTime AND frozen.startTime <= @endTime) " +
-					"   OR (frozen.endTime >= @startTime AND frozen.endTime <= @endTime) " +
+					"WHERE frozen.startTime <= @endTime AND @startTime <= frozen.endTime " +
 					"LIMIT 1";
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
@@ -1289,8 +1288,7 @@ namespace SmartHomeWeb
 			using (var cmd = sqlite.CreateCommand())
 			{
 				cmd.CommandText = $"SELECT * FROM {FrozenPeriodTableName} as frozen " +
-					"WHERE (frozen.startTime >= @startTime AND frozen.startTime <= @endTime) " +
-					"   OR (frozen.endTime >= @startTime AND frozen.endTime <= @endTime)";
+					"WHERE frozen.startTime <= @endTime AND @startTime <= frozen.endTime";
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
 				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadFrozenPeriod);
