@@ -60,12 +60,12 @@ namespace SmartHomeWeb
 			this.CacheEnd = CacheEnd;
 
 			this.hourData = new Dictionary<DateTime, List<Measurement>>();
-			this.hourAverages = new Dictionary<DateTime, Measurement>();
-			this.dayAverages = new Dictionary<DateTime, Measurement>();
-			this.monthAverages = new Dictionary<DateTime, Measurement>();
-			this.precomputedHours = new HashSet<DateTime>();
-			this.precomputedDays = new HashSet<DateTime>();
-			this.precomputedMonths = new HashSet<DateTime>();
+			this.hourAverages = null;
+			this.dayAverages = null;
+			this.monthAverages = null;
+			this.precomputedHours = null;
+			this.precomputedDays = null;
+			this.precomputedMonths = null;
 		}
 
 		public DataConnection Database { get; private set; }
@@ -113,7 +113,7 @@ namespace SmartHomeWeb
 		public Task PrefetchHourAveragesAsync()
 		{
 			return PrefetchAveragesAsync(
-				hourAverages, precomputedHours,
+				out hourAverages, out precomputedHours,
 				DataConnection.HourAverageTableName);
 		}
 
@@ -123,7 +123,7 @@ namespace SmartHomeWeb
 		public async Task PrefetchDayAveragesAsync()
 		{
 			await PrefetchAveragesAsync(
-				dayAverages, precomputedDays, 
+				out dayAverages, out precomputedDays, 
 				DataConnection.DayAverageTableName);
 			
 			if (dayAverages.Count < TotalDays)
@@ -140,7 +140,7 @@ namespace SmartHomeWeb
 		public async Task PrefetchMonthAveragesAsync()
 		{
 			await PrefetchAveragesAsync(
-				monthAverages, precomputedMonths, 
+				out monthAverages, out precomputedMonths, 
 				DataConnection.MonthAverageTableName);
 
 			if (monthAverages.Count < TotalMonths)
@@ -150,7 +150,16 @@ namespace SmartHomeWeb
 				await PrefetchDayAveragesAsync();
 		}
 
-		private async Task PrefetchAveragesAsync(
+		private Task PrefetchAveragesAsync(
+			out Dictionary<DateTime, Measurement> Cache, 
+			out HashSet<DateTime> PrecomputedSet, string TableName)
+		{
+			Cache = new Dictionary<DateTime, Measurement>();
+			PrecomputedSet = new HashSet<DateTime>();
+			return PrefetchAveragesImplAsync(Cache, PrecomputedSet, TableName);
+		}
+
+		private async Task PrefetchAveragesImplAsync(
 			Dictionary<DateTime, Measurement> Cache, 
 			HashSet<DateTime> PrecomputedSet, string TableName)
 		{
@@ -474,48 +483,52 @@ namespace SmartHomeWeb
 			return GetManyAveragesAsync(StartMonth, Count, (dt, i) => dt.AddMonths(i), GetMonthAverageAsync);
 		}
 
-		/// <summary>
-		/// Writes data from this aggregation cache to the database.
-		/// </summary>
-		public async Task FlushHoursAsync()
+		private void FlushResults(
+			Dictionary<DateTime, Measurement> Results,
+			HashSet<DateTime> Precomputed,
+			string TableName)
 		{
-			foreach (var item in hourAverages)
+			if (Results == null)
+				return;
+
+			// This command resource is managed manually, because
+			// we may have to insert lots of measurements.
+			var cmd = Database.CreateCommand();
+			try
 			{
-				if (!precomputedHours.Contains(item.Key))
+				cmd.CommandText = $"INSERT INTO {TableName}(sensorId, unixtime, measured, notes) " +
+					"VALUES (@sensorId, @unixtime, @measured, @notes)";
+				cmd.Parameters.AddWithValue("@sensorId", 0);
+				cmd.Parameters.AddWithValue("@unixtime", 0L);
+				cmd.Parameters.AddWithValue("@measured", default(double?));
+				cmd.Parameters.AddWithValue("@notes", "");
+				foreach (var item in Results)
 				{
-					await Database.InsertMeasurementAsync(item.Value, DataConnection.HourAverageTableName);
+					if (!Precomputed.Contains(item.Key))
+					{
+						var val = item.Value;
+						cmd.Parameters["@sensorId"].Value = val.SensorId;
+						cmd.Parameters["@unixtime"].Value = DatabaseHelpers.CreateUnixTimeStamp(val.Time);
+						cmd.Parameters["@measured"].Value = val.MeasuredData;
+						cmd.Parameters["@notes"].Value = val.Notes;
+						cmd.ExecuteNonQuery();
+					}
 				}
+			}
+			finally
+			{
+				cmd.Dispose();
 			}
 		}
 
 		/// <summary>
 		/// Writes data from this aggregation cache to the database.
 		/// </summary>
-		public async Task FlushDaysAsync()
+		public void FlushResults()
 		{
-			await FlushHoursAsync();
-			foreach (var item in dayAverages)
-			{
-				if (!precomputedDays.Contains(item.Key))
-				{
-					await Database.InsertMeasurementAsync(item.Value, DataConnection.DayAverageTableName);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Writes data from this aggregation cache to the database.
-		/// </summary>
-		public async Task FlushMonthsAsync()
-		{
-			await FlushDaysAsync();
-			foreach (var item in monthAverages)
-			{
-				if (!precomputedMonths.Contains(item.Key))
-				{
-					await Database.InsertMeasurementAsync(item.Value, DataConnection.MonthAverageTableName);
-				}
-			}
+			FlushResults(hourAverages, precomputedHours, DataConnection.HourAverageTableName);
+			FlushResults(dayAverages, precomputedDays, DataConnection.DayAverageTableName);
+			FlushResults(monthAverages, precomputedMonths, DataConnection.MonthAverageTableName);
 		}
 	}
 }

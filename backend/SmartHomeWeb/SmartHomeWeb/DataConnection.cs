@@ -64,6 +64,14 @@ namespace SmartHomeWeb
 			}
 		}
 
+		/// <summary>
+		/// Creates a new command.
+		/// </summary>
+		public SqliteCommand CreateCommand()
+		{
+			return sqlite.CreateCommand();
+		}
+
         /// <summary>
         /// Creates a task that executes an SqliteCommand, and interprets the results.
         /// </summary>
@@ -290,44 +298,6 @@ namespace SmartHomeWeb
 			}
 		}
 
-        /// <summary>
-        /// Actually computes the hour average for the 
-        /// given sensor during the given hour.
-        /// </summary>
-        private async Task<Measurement> ComputeHourAverageAsync(int SensorId, DateTime Hour)
-        {
-			var measurements = await GetMeasurementsAsync(SensorId, Hour, Hour.AddHours(1));
-            return MeasurementAggregation.Aggregate(measurements, SensorId, Hour);
-        }
-
-        /// <summary>
-        /// Actually computes the day average for the 
-        /// given sensor during the given day.
-        /// </summary>
-        private async Task<Measurement> ComputeDayAverageAsync(int SensorId, DateTime Day)
-        {
-			var cache = new AggregationCache(this, SensorId, Day, Day.AddDays(1));
-
-			await cache.PrefetchHourAveragesAsync();
-			var result = await cache.GetDayAverageAsync(Day);
-			await cache.FlushHoursAsync();
-			return result;
-        }
-
-		/// <summary>
-		/// Actually computes the month average for the 
-		/// given sensor during the given month.
-		/// </summary>
-		private async Task<Measurement> ComputeMonthAverageAsync(int SensorId, DateTime Month)
-		{
-			var cache = new AggregationCache(this, SensorId, Month, Month.AddMonths(1));
-
-			await cache.PrefetchDayAveragesAsync();
-			var result = await cache.GetMonthAverageAsync(Month);
-			await cache.FlushDaysAsync();
-			return result;
-		}
-
 		/// <summary>
 		/// Actually computes the month average for the 
 		/// given sensor during the given month.
@@ -386,7 +356,7 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<Measurement> GetHourAverageAsync(int SensorId, DateTime Hour)
         {
-            return GetAverageAsync(SensorId, Hour, HourAverageTableName, ComputeHourAverageAsync);
+			return GetHourAveragesAsync(SensorId, Hour, 1).ContinueWith(t => t.Result.Single());
         }
 
 		/// <summary>
@@ -399,7 +369,7 @@ namespace SmartHomeWeb
 
 			await cache.PrefetchHourAveragesAsync();
 			var result = await cache.GetHourAveragesAsync(StartHour, Count);
-			await cache.FlushHoursAsync();
+			cache.FlushResults();
 			return result;
 		}
 
@@ -409,7 +379,7 @@ namespace SmartHomeWeb
         /// </summary>
         public Task<Measurement> GetDayAverageAsync(int SensorId, DateTime Day)
         {
-            return GetAverageAsync(SensorId, Day, DayAverageTableName, ComputeDayAverageAsync);
+			return GetDayAveragesAsync(SensorId, Day, 1).ContinueWith(t => t.Result.Single());
         }
 
 		/// <summary>
@@ -422,7 +392,7 @@ namespace SmartHomeWeb
 
 			await cache.PrefetchDayAveragesAsync();
 			var result = await cache.GetDayAveragesAsync(StartDay, Count);
-			await cache.FlushDaysAsync();
+			cache.FlushResults();
 			return result;
 		}
 
@@ -432,7 +402,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		public Task<Measurement> GetMonthAverageAsync(int SensorId, DateTime Month)
 		{
-			return GetAverageAsync(SensorId, Month, MonthAverageTableName, ComputeMonthAverageAsync);
+			return GetMonthAveragesAsync(SensorId, Month, 1).ContinueWith(t => t.Result.Single());
 		}
 
 		/// <summary>
@@ -445,7 +415,7 @@ namespace SmartHomeWeb
 
 			await cache.PrefetchMonthAveragesAsync();
 			var result = await cache.GetMonthAveragesAsync(StartMonth, Count);
-			await cache.FlushMonthsAsync();
+			cache.FlushResults();
 			return result;
 		}
 
@@ -1155,7 +1125,7 @@ namespace SmartHomeWeb
 				insertCommand.CommandText = $"INSERT INTO {MeasurementTableName}(sensorId, unixtime, measured, notes) " +
 					"VALUES (@sensorId, @unixtime, @measured, @notes)";
 				insertCommand.Parameters.AddWithValue("@sensorId", 0);
-				insertCommand.Parameters.AddWithValue("@unixtime", 0);
+				insertCommand.Parameters.AddWithValue("@unixtime", 0L);
 				insertCommand.Parameters.AddWithValue("@measured", 0.0);
 				insertCommand.Parameters.AddWithValue("@notes", "");
 
@@ -1170,7 +1140,7 @@ namespace SmartHomeWeb
 					deleteHourCommand.CommandText = $"DELETE FROM {HourAverageTableName} " +
 						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
 					deleteHourCommand.Parameters.AddWithValue("@sensorId", 0);
-					deleteHourCommand.Parameters.AddWithValue("@unixtime", 0);
+					deleteHourCommand.Parameters.AddWithValue("@unixtime", 0L);
 				}
 				
 				if (period == null || HasMeasurementDuring(DayAverageTableName, period.Item1, period.Item2, period.Item3))
@@ -1179,7 +1149,7 @@ namespace SmartHomeWeb
 					deleteDayCommand.CommandText = $"DELETE FROM {DayAverageTableName} " +
 						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
 					deleteDayCommand.Parameters.AddWithValue("@sensorId", 0);
-					deleteDayCommand.Parameters.AddWithValue("@unixtime", 0);
+					deleteDayCommand.Parameters.AddWithValue("@unixtime", 0L);
 				}
 
 				if (period == null || HasMeasurementDuring(MonthAverageTableName, period.Item1, period.Item2, period.Item3))
@@ -1188,7 +1158,7 @@ namespace SmartHomeWeb
 					deleteMonthCommand.CommandText = $"DELETE FROM {MonthAverageTableName} " +
 						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
 					deleteMonthCommand.Parameters.AddWithValue("@sensorId", 0);
-					deleteMonthCommand.Parameters.AddWithValue("@unixtime", 0);
+					deleteMonthCommand.Parameters.AddWithValue("@unixtime", 0L);
 				}
 
 				if (period == null || HasMeasurementDuring(YearAverageTableName, period.Item1, period.Item2, period.Item3))
@@ -1197,7 +1167,7 @@ namespace SmartHomeWeb
 					deleteYearCommand.CommandText = $"DELETE FROM {YearAverageTableName} " +
 						"WHERE sensorId = @sensorId AND unixtime = @unixtime";
 					deleteYearCommand.Parameters.AddWithValue("@sensorId", 0);
-					deleteYearCommand.Parameters.AddWithValue("@unixtime", 0);
+					deleteYearCommand.Parameters.AddWithValue("@unixtime", 0L);
 				}
 
 				if (period == null || OverlapsWithFrozenPeriod(period.Item1, period.Item2))
@@ -1206,7 +1176,7 @@ namespace SmartHomeWeb
 					checkFrozenCommand.CommandText = $"SELECT COUNT(*) FROM {FrozenPeriodTableName} as frozen " +
 						"WHERE frozen.startTime <= @time AND frozen.endTime >= @time " +
 						"LIMIT 1";
-					checkFrozenCommand.Parameters.AddWithValue("@time", 0);
+					checkFrozenCommand.Parameters.AddWithValue("@time", 0L);
 				}
 
 				foreach (var m in Data)
