@@ -36,6 +36,16 @@ namespace SmartHomeWeb
 	// very quickly. Likewise, the  initial aggregation pass may 
 	// take a bit of time, small to medium-sized additions to 
 	// the pool of measurements can be processed very efficiently.
+	//
+	// Additionally, aggregation also need to take compaction into 
+	// account: some of the lower aggregation tiers may have been
+	// erased. In that case, we actually have to pull data from the
+	// upper tiers, and duplicate it to fill the specified range of 
+	// measurements.
+	//
+	// Note that we do not compact beyond day-averages, because
+	// that just doesn't make sense: a decade of month-average data
+	// corresponds to just two hours of per-minute data.
 
 	/// <summary>
 	/// A data structure that caches data that pertains to 
@@ -86,18 +96,6 @@ namespace SmartHomeWeb
 		/// </summary>
 		public DateTime CacheEnd { get; private set; }
 
-		public int TotalHours { get { return (int)(CacheEnd - CacheStart).TotalHours; } }
-		public int TotalDays { get { return (int)(CacheEnd - CacheStart).TotalDays; } }
-		public int TotalMonths
-		{
-			get
-			{
-				int yearDiff = CacheEnd.Year - CacheStart.Year;
-				int monthDiff = CacheEnd.Month - CacheStart.Month;
-				return yearDiff * 12 + monthDiff;
-			}
-		}
-
 		private Dictionary<DateTime, List<Measurement>> hourData;
 		private Dictionary<DateTime, Measurement> hourAverages;
 		private Dictionary<DateTime, Measurement> dayAverages;
@@ -132,15 +130,16 @@ namespace SmartHomeWeb
 			{
 				return new FrozenPeriod[] 
 				{
-					new FrozenPeriod(inter.Item1, inter.Item2, FrozenPeriod.Max(Original.Compaction, New.Compaction)),
 					new FrozenPeriod(Original.StartTime, inter.Item1, Original.Compaction),
-					new FrozenPeriod(Original.EndTime, inter.Item2, Original.Compaction)
+					new FrozenPeriod(inter.Item1, inter.Item2, FrozenPeriod.Max(Original.Compaction, New.Compaction)),
+					new FrozenPeriod(inter.Item2, Original.EndTime, Original.Compaction)
 				}.Where(item => !item.IsEmpty);
 			}
 		}
 
 		/// <summary>
-		/// Partitions the given time period by its compaction level. 
+		/// Partitions the given time period by its compaction level. The resulting
+		/// sequence of compaction periods is ordered.
 		/// </summary>
 		public async Task<IEnumerable<FrozenPeriod>> PartitionByCompaction(DateTime Start, DateTime End)
 		{
@@ -168,7 +167,9 @@ namespace SmartHomeWeb
 		{
 			return FetchAveragesAsync(
 				ref hourAverages, ref precomputedHours,
-				DataConnection.HourAverageTableName);
+				DataConnection.HourAverageTableName,
+				MeasurementAggregation.QuantizeHour,
+				MeasurementAggregation.CeilingHour);
 		}
 
 		/// <summary>
@@ -178,7 +179,9 @@ namespace SmartHomeWeb
 		{
 			return FetchAveragesAsync(
 				ref dayAverages, ref precomputedDays, 
-				DataConnection.DayAverageTableName);
+				DataConnection.DayAverageTableName,
+				MeasurementAggregation.QuantizeDay,
+				MeasurementAggregation.CeilingDay);
 		}
 
 		/// <summary>
@@ -188,12 +191,16 @@ namespace SmartHomeWeb
 		{
 			return FetchAveragesAsync(
 				ref monthAverages, ref precomputedMonths, 
-				DataConnection.MonthAverageTableName);
+				DataConnection.MonthAverageTableName,
+				MeasurementAggregation.QuantizeMonth,
+				MeasurementAggregation.CeilingMonth);
 		}
 
 		private Task FetchAveragesAsync(
 			ref Dictionary<DateTime, Measurement> Cache, 
-			ref HashSet<DateTime> PrecomputedSet, string TableName)
+			ref HashSet<DateTime> PrecomputedSet, string TableName,
+			Func<DateTime, DateTime> QuantizeFloor, 
+			Func<DateTime, DateTime> QuantizeCeiling)
 		{
 			if (Cache != null)
 				// Don't fetch twice.
@@ -201,15 +208,20 @@ namespace SmartHomeWeb
 
 			Cache = new Dictionary<DateTime, Measurement>();
 			PrecomputedSet = new HashSet<DateTime>();
-			return FetchAveragesImplAsync(Cache, PrecomputedSet, TableName);
+			return FetchAveragesImplAsync(
+				Cache, PrecomputedSet, TableName, 
+				QuantizeFloor, QuantizeCeiling);
 		}
 
 		private async Task FetchAveragesImplAsync(
 			Dictionary<DateTime, Measurement> Cache, 
-			HashSet<DateTime> PrecomputedSet, string TableName)
+			HashSet<DateTime> PrecomputedSet, string TableName,
+			Func<DateTime, DateTime> QuantizeFloor, 
+			Func<DateTime, DateTime> QuantizeCeiling)
 		{
 			foreach (var item in await Database.GetMeasurementsAsync(
-				TableName, SensorId, CacheStart, CacheEnd))
+				TableName, SensorId, QuantizeFloor(CacheStart), 
+				QuantizeCeiling(CacheEnd)))
 			{
 				Cache[item.Time] = item;
 				PrecomputedSet.Add(item.Time);
@@ -233,7 +245,7 @@ namespace SmartHomeWeb
 			}
 			
 			// Fetch raw data.
-			var measurements = await Database.GetMeasurementsAsync(SensorId, Hour, endHour);
+			var measurements = await Database.GetRawMeasurementsAsync(SensorId, Hour, endHour);
 
 			// Insert data into cache.
 			foreach (var item in measurements)
@@ -260,7 +272,7 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Gets the hour average for the given hour.
 		/// </summary>
-		public async Task<Measurement> GetHourAverageAsync(DateTime Hour)
+		private async Task<Measurement> GetRealHourAverageAsync(DateTime Hour)
 		{
 			if (hourAverages == null)
 				await FetchHourAveragesAsync();
@@ -324,7 +336,7 @@ namespace SmartHomeWeb
 				// Don't even try to parallelize if it's not worth the effort.
 				for (int i = 0; i < Count; i++)
 				{
-					Target[i + Offset] = await GetHourAverageAsync(Start.AddHours(i));
+					Target[i + Offset] = await GetRealHourAverageAsync(Start.AddHours(i));
 				}
 				return;
 			}
@@ -369,7 +381,7 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Gets the hour averages for a sizeable number of hours.
 		/// </summary>
-		public async Task<IEnumerable<Measurement>> GetHourAveragesAsync(DateTime Start, int Count)
+		private async Task<IEnumerable<Measurement>> GetRealHourAveragesAsync(DateTime Start, int Count)
 		{
 			if (hourAverages == null)
 				await FetchHourAveragesAsync();
@@ -437,7 +449,7 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Gets the day average for the given day.
 		/// </summary>
-		public async Task<Measurement> GetDayAverageAsync(DateTime Day)
+		private async Task<Measurement> GetRealDayAverageAsync(DateTime Day)
 		{
 			if (dayAverages == null)
 				await FetchDayAveragesAsync();
@@ -450,7 +462,7 @@ namespace SmartHomeWeb
 			else
 			{
 				result = MeasurementAggregation.Aggregate(
-					await GetHourAveragesAsync(Day, 24), 
+					await GetRealHourAveragesAsync(Day, 24), 
 					SensorId, Day, Enumerable.Average);
 				dayAverages[Day] = result;
 				return result;
@@ -460,7 +472,7 @@ namespace SmartHomeWeb
 		/// <summary>
 		/// Gets the day averages for the given days.
 		/// </summary>
-		public async Task<IEnumerable<Measurement>> GetDayAveragesAsync(DateTime StartDay, int Count)
+		private async Task<IEnumerable<Measurement>> GetRealDayAveragesAsync(DateTime StartDay, int Count)
 		{
 			if (dayAverages == null)
 				await FetchDayAveragesAsync();
@@ -486,7 +498,7 @@ namespace SmartHomeWeb
 							regionStartDay, 24 * regionSize);
 						for (int j = regionStart; j < i; j++)
 						{
-							results[j] = await GetDayAverageAsync(StartDay.AddDays(j));
+							results[j] = await GetRealDayAverageAsync(StartDay.AddDays(j));
 						}
 						regionSize = 0;
 					}
@@ -511,14 +523,156 @@ namespace SmartHomeWeb
 					regionStartDay, 24 * regionSize);
 				for (int j = regionStart; j < Count; j++)
 				{
-					results[j] = await GetDayAverageAsync(StartDay.AddDays(j));
+					results[j] = await GetRealDayAverageAsync(StartDay.AddDays(j));
 				}
 			}
 			return results;
 		}
 
+		private async Task<IEnumerable<Measurement>> GetDayAveragesAsync(FrozenPeriod Period)
+		{
+			switch (Period.Compaction)
+			{
+				case CompactionLevel.DayAverages:
+					// We'll re-create day-average data by replicating 
+					// month-average data.
+					var results = new List<Measurement>();
+					for (var day = Period.StartTime; day < Period.EndTime; day = day.AddDays(1))
+					{
+						var monthMeasurement = await GetMonthAverageAsync(MeasurementAggregation.QuantizeMonth(day));
+						results.Add(new Measurement(SensorId, day, monthMeasurement.MeasuredData, monthMeasurement.Notes));
+					}
+					return results;
+
+				case CompactionLevel.HourAverages:
+				case CompactionLevel.Measurements:
+				case CompactionLevel.None:
+				default:
+					// We can just fetch or create "real" day-average data.
+					return await GetRealDayAveragesAsync(Period.StartTime, (int)Period.Duration.TotalDays);
+			}
+		}
+
 		/// <summary>
-		/// Gets the month average for the given month.
+		/// Replicates each element in the given sequence a given 
+		/// number of times.
+		/// </summary>
+		private IEnumerable<Measurement> ReplicateEach(
+			IEnumerable<Measurement> Items, DateTime StartTime,
+			DateTime EndTime, TimeSpan Delta, int ReplicationCount)
+		{
+			var t = StartTime;
+			foreach (var item in Items)
+			{
+				for (int i = 0; i < ReplicationCount; i++)
+				{
+					if (t >= EndTime)
+						yield break;
+
+					yield return new Measurement(
+						item.SensorId, t, 
+						item.MeasuredData, item.Notes);
+					t += Delta;
+				}
+			}
+		}
+
+		private async Task<IEnumerable<Measurement>> GetHourAveragesAsync(FrozenPeriod Period)
+		{
+			const int HoursPerDay = 24;
+
+			switch (Period.Compaction)
+			{
+				case CompactionLevel.DayAverages:
+				case CompactionLevel.HourAverages:
+					// We'll re-create hour-average data by replicating 
+					// day-average data.
+					var results = await GetDayAveragesAsync(
+						MeasurementAggregation.Quantize(Period.StartTime, TimeSpan.FromDays(1)),
+						(int)Math.Ceiling(Period.Duration.TotalDays));
+					return ReplicateEach(results, Period.StartTime, Period.EndTime, TimeSpan.FromHours(1), HoursPerDay).ToArray();
+
+				case CompactionLevel.Measurements:
+				case CompactionLevel.None:
+				default:
+					// We can just fetch or create "real" hour-average data.
+					return await GetRealHourAveragesAsync(Period.StartTime, (int)Period.Duration.TotalHours);
+			}
+		}
+
+		private async Task<IEnumerable<Measurement>> GetMeasurementsAsync(FrozenPeriod Period)
+		{
+			const int MinutesPerHour = 60;
+
+			switch (Period.Compaction)
+			{
+				case CompactionLevel.DayAverages:
+				case CompactionLevel.HourAverages:
+				case CompactionLevel.Measurements:
+					// We'll re-create measurement data by replicating 
+					// hour-average data.
+					var results = await GetHourAveragesAsync(
+	                    MeasurementAggregation.Quantize(Period.StartTime, TimeSpan.FromHours(1)), 
+	                    (int)Math.Ceiling(Period.Duration.TotalHours));
+					return ReplicateEach(results, Period.StartTime, Period.EndTime, TimeSpan.FromMinutes(1), MinutesPerHour).ToArray();
+					
+				case CompactionLevel.None:
+				default:
+					// We can just fetch real measurements from the database.
+					return await Database.GetRawMeasurementsAsync(SensorId, Period.StartTime, Period.EndTime);
+			}
+		}
+
+		/// <summary>
+		/// Partitions the given period of time by compaction level, 
+		/// applies the given function to each partition, and 
+		/// concatenates the results.
+		/// </summary>
+		private async Task<IEnumerable<Measurement>> GetOptionallyCompactedAsync(
+			DateTime StartTime, DateTime EndTime, 
+			Func<FrozenPeriod, Task<IEnumerable<Measurement>>> GetResultsAsync)
+		{
+			var results = new List<Measurement>();
+			foreach (var item in await PartitionByCompaction(StartTime, EndTime))
+			{
+				results.AddRange(await GetResultsAsync(item));
+			}
+			return results;
+		}
+
+		/// <summary>
+		/// Gets all measurements made in the period defined by
+		/// the given start and end date-times. If these measurements
+		/// have been compacted, then they will be synthesized from
+		/// hour-average data.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetMeasurementsAsync(DateTime StartTime, DateTime EndTime)
+		{
+			return GetOptionallyCompactedAsync(StartTime, EndTime, GetMeasurementsAsync);
+		}
+
+		/// <summary>
+		/// Gets the hour-averages for the given hours. If these
+		/// averages have been compacted, then they will be synthesized
+		/// from day-average data.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetHourAveragesAsync(DateTime StartHour, int Count)
+		{
+			return GetOptionallyCompactedAsync(StartHour, StartHour.AddHours(Count), GetHourAveragesAsync);
+		}
+
+		/// <summary>
+		/// Gets the day-averages for the given days. If these
+		/// averages have been compacted, then they will be synthesized
+		/// from month-average data.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetDayAveragesAsync(DateTime StartDay, int Count)
+		{
+			return GetOptionallyCompactedAsync(StartDay, StartDay.AddDays(Count), GetDayAveragesAsync);
+		}
+
+		/// <summary>
+		/// Gets the month-average for the given month.
 		/// </summary>
 		public async Task<Measurement> GetMonthAverageAsync(DateTime Month)
 		{
@@ -534,7 +688,7 @@ namespace SmartHomeWeb
 			{
 				var timeSpan = Month.AddMonths(1) - Month;
 				result = MeasurementAggregation.Aggregate(
-					await GetDayAveragesAsync(Month, (int)timeSpan.TotalDays), 
+					await GetRealDayAveragesAsync(Month, (int)timeSpan.TotalDays), 
 					SensorId, Month, Enumerable.Average);
 				monthAverages[Month] = result;
 				return result;
@@ -542,7 +696,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Gets the month averages for the given months.
+		/// Gets the month-averages for the given months.
 		/// </summary>
 		public Task<IEnumerable<Measurement>> GetMonthAveragesAsync(DateTime StartMonth, int Count)
 		{
@@ -585,6 +739,33 @@ namespace SmartHomeWeb
 			{
 				cmd.Dispose();
 			}
+		}
+
+		/// <summary>
+		/// Discards all computed and cached hour-averages.
+		/// </summary>
+		public void DiscardHourAverages()
+		{
+			hourAverages = null;
+			precomputedHours = null;
+		}
+
+		/// <summary>
+		/// Discards all computed and cached day-averages.
+		/// </summary>
+		public void DiscardDayAverages()
+		{
+			dayAverages = null;
+			precomputedDays = null;
+		}
+
+		/// <summary>
+		/// Discards all computed and cached month-averages.
+		/// </summary>
+		public void DiscardMonthAverages()
+		{
+			monthAverages = null;
+			precomputedMonths = null;
 		}
 
 		/// <summary>

@@ -318,6 +318,9 @@
   <data name="LocationOwnerGuidLabel" xml:space="preserve">
     <value>Owner GUID</value>
   </data>
+  <data name="LocationOwnerLabel" xml:space="preserve">
+    <value>Owner</value>
+  </data>
   <data name="MessageComposerBodyLabel" xml:space="preserve">
     <value>Body</value>
   </data>
@@ -497,5 +500,41 @@
   </data>
   <data name="TagSelectorTitle" xml:space="preserve">
     <value>Tag select</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="NoSensorData" xml:space="preserve">
+    <value>No data for that sensor or period</value>
+  </data>
+  <data name="NoSensorDataHelpText" xml:space="preserve">
+    <value>Select a different time period using the input above, or select a different sensor from the list on the right.</value>
+  </data>
+  <data name="NoSensorSelected" xml:space="preserve">
+    <value>No sensor selected</value>
+  </data>
+  <data name="NoSensorSelectedHelpText" xml:space="preserve">
+    <value>Select a sensor from the list on the right.</value>
+  </data>
+  <data name="SearchUserTitle" xml:space="preserve">
+    <value>Search for a user</value>
+  </data>
+  <data name="TotalElectricityPrice" xml:space="preserve">
+    <value>Estimated total price of electricity</value>
+  </data>
+  <data name="EditLocationSuccess" xml:space="preserve">
+    <value>Edited location!</value>
+  </data>
+  <data name="ElectricityPriceParseError" xml:space="preserve">
+    <value>Couldn't parse '{0}' as a floating-point number.</value>
+  </data>
+  <data name="EditLocationPageTitle" xml:space="preserve">
+    <value>Edit location</value>
+  </data>
+  <data name="LocationElectricityPriceLabel" xml:space="preserve">
+    <value>Electricity price, in $/kWh</value>
+  </data>
+  <data name="EditLocationButtonText" xml:space="preserve">
+    <value>Edit location</value>
   </data>
 </root>

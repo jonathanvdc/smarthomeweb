@@ -157,6 +157,24 @@ namespace SmartHomeWeb
             return GetTableAsync(LocationTableName, DatabaseHelpers.ReadLocation);
         }
 
+		/// <summary>
+		/// Creates a task that fetches all locations and their owner usernames
+		/// in the database.
+		/// </summary>
+		public async Task<IEnumerable<Tuple<Location, string>>> GetLocationsAndOwnerNamesAsync()
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = $@"
+                  SELECT loc.*, p.username FROM 
+				  {LocationTableName} as loc, {PersonTableName} as p 
+				  WHERE loc.owner = p.guid";
+
+				return await ExecuteCommandAsync(cmd, item => 
+					Tuple.Create(DatabaseHelpers.ReadLocation(item), DatabaseHelpers.GetString(item, "username")));
+			}
+		}
+
         /// <summary>
         /// Creates a task that fetches all person-location pairs
         /// from the has-location table.
@@ -179,15 +197,13 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<Tuple<Sensor, IEnumerable<string>>>> GetSensorTagsPairsAsync()
         {
-            var sensors = await Ask(x => x.GetSensorsAsync());
+            var sensors = await GetSensorsAsync();
             var items = new List<Tuple<Sensor, IEnumerable<string>>>();
-            for (int i = 0; i < sensors.Count(); i++)
-            {
-                var sensor = sensors.ElementAt(i);
-                var tags = await Ask(x => x.GetSensorTagsAsync(sensor.Id));
-                items.Add(Tuple.Create(sensor, tags));
-            }
-
+			foreach (var sensor in sensors)
+			{
+				var tags = await GetSensorTagsAsync(sensor.Id);
+				items.Add(Tuple.Create(sensor, tags));
+			}
             return items;
         }
 
@@ -202,7 +218,7 @@ namespace SmartHomeWeb
         /// <summary>
         /// Creates a task that fetches all measurements in the database.
         /// </summary>
-        public Task<IEnumerable<Measurement>> GetMeasurementsAsync()
+        public Task<IEnumerable<Measurement>> GetRawMeasurementsAsync()
         {
             return GetTableAsync(MeasurementTableName, DatabaseHelpers.ReadMeasurement);
         }
@@ -349,6 +365,22 @@ namespace SmartHomeWeb
                 return result;
             }
         }
+
+		/// <summary>
+		/// Gets all measurements made in the period defined by
+		/// the given start and end date-times. If these measurements
+		/// have been compacted, then they will be synthesized from
+		/// hour-average data.
+		/// </summary>
+		public Task<IEnumerable<Measurement>> GetMeasurementsAsync(
+			int SensorId, DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
+
+			var cache = new AggregationCache(this, SensorId, StartTime, EndTime);
+			return cache.GetMeasurementsAsync(StartTime, EndTime);
+		}
 
         /// <summary>
         /// Creates a task that fetches or computes the hour average for the 
@@ -631,7 +663,7 @@ namespace SmartHomeWeb
         /// <summary>
         /// Creates a task that fetches a single measurement from the database.
         /// </summary>
-        public Task<Measurement> GetMeasurementAsync(int sensorId, long timestamp)
+        public Task<Measurement> GetRawMeasurementAsync(int sensorId, long timestamp)
         {
             var keys = new Dictionary<string, object>
             {
@@ -644,9 +676,9 @@ namespace SmartHomeWeb
         /// <summary>
         /// Creates a task that fetches a single measurement from the database.
         /// </summary>
-        public Task<Measurement> GetMeasurementAsync(int sensorId, DateTime timestamp)
+		public Task<Measurement> GetRawMeasurementAsync(int sensorId, DateTime timestamp)
         {
-            return GetMeasurementAsync(sensorId, DatabaseHelpers.CreateUnixTimeStamp(timestamp));
+			return GetRawMeasurementAsync(sensorId, DatabaseHelpers.CreateUnixTimeStamp(timestamp));
         }
 
         /// <summary>
@@ -751,7 +783,7 @@ namespace SmartHomeWeb
         /// </summary>
         /// <param name="sensor"></param>
         /// <returns></returns>
-		public async Task<IEnumerable<Measurement>> GetMeasurementsAsync(int SensorId)
+		public async Task<IEnumerable<Measurement>> GetRawMeasurementsAsync(int SensorId)
         {
 			using (var cmd = sqlite.CreateCommand())
 			{
@@ -775,9 +807,9 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = @"
+				cmd.CommandText = $@"
                     SELECT *
-                    " + $"FROM {TableName} as m" + @"
+                    FROM {TableName} as m
                     WHERE m.sensorId = @id AND m.unixtime >= @starttime AND m.unixtime < @endtime";
 				cmd.Parameters.AddWithValue("@id", SensorId);
 				cmd.Parameters.AddWithValue("@starttime", DatabaseHelpers.CreateUnixTimeStamp(Start));
@@ -792,7 +824,7 @@ namespace SmartHomeWeb
 		/// </summary>
 		/// <param name="sensor"></param>
 		/// <returns></returns>
-		public Task<IEnumerable<Measurement>> GetMeasurementsAsync(
+		public Task<IEnumerable<Measurement>> GetRawMeasurementsAsync(
 			int SensorId, DateTime Start, DateTime End)
 		{
 			return GetMeasurementsAsync(MeasurementTableName, SensorId, Start, End);
@@ -879,9 +911,9 @@ namespace SmartHomeWeb
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				cmd.CommandText = $"UPDATE {LocationTableName} " +
-					"SET name = @name, owner = @owner, electricityPrice = @electricityPrice" +
-					"WHERE id = @id";
+				cmd.CommandText = $@"UPDATE {LocationTableName}
+					SET name = @name, owner = @owner, electricityPrice = @electricityPrice
+					WHERE id = @id";
 				cmd.Parameters.AddWithValue("@id", Location.Id);
 				cmd.Parameters.AddWithValue("@name", Location.Data.Name);
 				cmd.Parameters.AddWithValue("@owner", Location.Data.OwnerGuidString);
@@ -956,6 +988,27 @@ namespace SmartHomeWeb
             }
         }
 
+
+        /// <summary>
+        /// Updates the notes of the measurement in the database whose 
+		/// sensor ID and timestamp match the given measurement.
+        /// </summary>
+        public async Task UpdateMeasurementNotesAsync(Measurement measurement, string tablename)
+        {
+            Console.WriteLine(tablename);
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $@"UPDATE {tablename}
+                    SET notes = @notes
+					WHERE sensorId =  @sensor  AND unixtime = @time";
+                cmd.Parameters.AddWithValue("@notes", measurement.Notes);
+                cmd.Parameters.AddWithValue("@sensor", measurement.SensorId);
+                cmd.Parameters.AddWithValue("@time", DatabaseHelpers.CreateUnixTimeStamp(measurement.Time));
+                Console.WriteLine(cmd.CommandText);
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
         /// <summary>
         /// Inserts the given sensor data into the Sensor table.
         /// </summary>
@@ -1022,7 +1075,8 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Deletes the measurement made by the given sensor during the given period of time 
+		/// Deletes the measurement made by the given sensor during 
+		/// the given period of time [StartTime, EndTime)
 		/// from the table with the given name.  
 		/// </summary>
 		private async Task DeleteMeasurementAsync(string TableName, int SensorId, DateTime StartTime, DateTime EndTime)
@@ -1030,7 +1084,7 @@ namespace SmartHomeWeb
 			using (var cmd = sqlite.CreateCommand())
 			{
 				cmd.CommandText = $"DELETE FROM {TableName} " +
-					"WHERE sensorId = @sensorId AND unixtime >= @startTime AND unixtime <= @endTime";
+					"WHERE sensorId = @sensorId AND unixtime >= @startTime AND unixtime < @endTime";
 				cmd.Parameters.AddWithValue("@sensorId", SensorId);
 				cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
 				cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
@@ -1366,12 +1420,71 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
+		/// Reclaims free storage from the database.
+		/// Cannot be performed from within a transaction,
+		/// i.e. within the scope of an Ask call.
+		/// </summary>
+		public async Task VacuumAsync()
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = "VACUUM";
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
+
+		/// <summary>
 		/// Compacts the given period of time. First, all data in the given
 		/// period of time is aggregated, then all measurements are deleted. 
 		/// The given period of time is subsequently frozen: further 
 		/// measurement insertion is disallowed during this period.
 		/// </summary>
-		public async Task CompactAsync(DateTime StartTime, DateTime EndTime)
+		public async Task CompactAsync(DateTime StartTime, DateTime EndTime, CompactionLevel Level = CompactionLevel.Measurements)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			var overlap = await GetFrozenPeriodsAsync(StartTime, EndTime);
+
+			foreach (var item in overlap)
+			{
+				if (!FrozenPeriod.IsEmptyRange(FrozenPeriod.Intersect(Tuple.Create(StartTime, EndTime), item.Range)) 
+					&& FrozenPeriod.Max(Level, item.Compaction) != Level)
+					throw new ArgumentException(
+						$"Period {item} was already compacted in a more aggressive manner, and overlaps with period {new FrozenPeriod(StartTime, EndTime, Level)}.");
+			}
+
+			switch (Level)
+			{
+				case CompactionLevel.DayAverages:
+					await CompactDayAveragesAsync(
+						MeasurementAggregation.QuantizeMonth(StartTime), 
+						MeasurementAggregation.QuantizeMonth(EndTime));
+					break;
+				case CompactionLevel.HourAverages:
+					await CompactHourAveragesAsync(
+						MeasurementAggregation.QuantizeDay(StartTime), 
+						MeasurementAggregation.QuantizeDay(EndTime));
+					break;
+				case CompactionLevel.Measurements:
+					await CompactMeasurementsAsync(
+						MeasurementAggregation.QuantizeHour(StartTime), 
+						MeasurementAggregation.QuantizeHour(EndTime));
+					break;
+				case CompactionLevel.None:
+				default:
+					await FreezeAsync(StartTime, EndTime, Level);
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Compacts the given period of time. First, all data in the given
+		/// period of time is aggregated, then all measurements are deleted. 
+		/// The given period of time is subsequently frozen: further 
+		/// measurement insertion is disallowed during this period.
+		/// </summary>
+		private async Task CompactMeasurementsAsync(DateTime StartTime, DateTime EndTime)
 		{
 			if (EndTime < StartTime)
 				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
@@ -1382,7 +1495,8 @@ namespace SmartHomeWeb
 			// Compute hour averages.
 			int hourCount = (int)Math.Ceiling((EndTime - StartTime).TotalHours);
 			await Task.WhenAll(allSensors.Select(
-				item => (Task)GetHourAveragesAsync(item.Id, StartTime, hourCount)));
+				item => (Task)GetHourAveragesAsync(
+					item.Id, StartTime, hourCount)));
 
 			// Discard measurements.
 			foreach (var item in allSensors)
@@ -1392,6 +1506,75 @@ namespace SmartHomeWeb
 
 			// Freeze this period of time.
 			await FreezeAsync(StartTime, EndTime, CompactionLevel.Measurements);
+		}
+
+		/// <summary>
+		/// Compacts the given period of time. First, all data in the given
+		/// period of time is aggregated, then all measurements and hour-averages are deleted. 
+		/// The given period of time is subsequently frozen: further 
+		/// measurement insertion is disallowed during this period.
+		/// </summary>
+		private async Task CompactHourAveragesAsync(DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			// Get all sensors in the database.
+			var allSensors = await GetSensorsAsync();
+
+			// Compute hour averages.
+			int dayCount = (int)Math.Ceiling((EndTime - StartTime).TotalDays);
+
+			// Discard measurements.
+			foreach (var item in allSensors)
+			{
+				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
+				await cache.GetDayAveragesAsync(StartTime, dayCount);
+				cache.DiscardHourAverages();
+				cache.FlushResults();
+
+				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
+				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
+			}
+
+			// Freeze this period of time.
+			await FreezeAsync(StartTime, EndTime, CompactionLevel.HourAverages);
+		}
+
+		/// <summary>
+		/// Compacts the given period of time. First, all data in the given
+		/// period of time is aggregated, then all measurements, hour-averages
+		/// and day-averages are deleted. 
+		/// The given period of time is subsequently frozen: further 
+		/// measurement insertion is disallowed during this period.
+		/// </summary>
+		private async Task CompactDayAveragesAsync(DateTime StartTime, DateTime EndTime)
+		{
+			if (EndTime < StartTime)
+				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+
+			// Get all sensors in the database.
+			var allSensors = await GetSensorsAsync();
+
+			// Discard measurements.
+			foreach (var item in allSensors)
+			{
+				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
+				for (var t = StartTime; t < EndTime; t = t.AddMonths(1))
+				{
+					await cache.GetMonthAverageAsync(t);
+				}
+				cache.DiscardHourAverages();
+				cache.DiscardDayAverages();
+				cache.FlushResults();
+
+				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
+				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
+				await DeleteMeasurementAsync(DayAverageTableName, item.Id, StartTime, EndTime);
+			}
+
+			// Freeze this period of time.
+			await FreezeAsync(StartTime, EndTime, CompactionLevel.DayAverages);
 		}
 
         /// <summary>

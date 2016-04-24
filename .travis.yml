@@ -10,4 +10,9 @@ script:
     - xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
     - sudo pip install requests
     - python init-db.py 60
-    - python compact.py $(date -I --date "60 days ago") $(date -I --date "7 days ago")
+    - du -h backend/database/smarthomeweb.db
+    - python compact.py measurements $(date -I --date "14 days ago") $(date -I --date "7 days ago")
+    - python compact.py hour-average $(date -I --date "1 month ago") $(date -I --date "14 days ago")
+    - python compact.py day-average $(date -I --date "3 months ago") $(date -I --date "1 month ago")
+    - python vacuum.py
+    - du -h backend/database/smarthomeweb.db

@@ -8,7 +8,9 @@ namespace SmartHomeWeb.Modules.API
 	public class ApiMonthAverageModule : AggregatedMeasurementModuleBase
 	{
 		public ApiMonthAverageModule() : base("api/month-average")
-		{ }
+		{
+            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => dc.UpdateMeasurementNotesAsync(item, "MonthAverage"));
+        }
 
 		/// <summary>
 		/// Quantizes the given date-time.

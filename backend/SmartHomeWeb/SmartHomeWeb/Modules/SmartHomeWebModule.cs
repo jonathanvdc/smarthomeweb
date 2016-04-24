@@ -39,17 +39,16 @@ namespace SmartHomeWeb.Modules
                     : (dynamic)View["home.cshtml"];
 
             // Pages for individual tables
-            Get["/person", true] = async (parameters, ct) =>
+            Get["/person", true] = GetPerson;
+
+            Post["/person", true] = async (parameters, ct) =>
             {
-                var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
-                return View["person.cshtml", persons];
+                this.RequiresAuthentication();
+                await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
+                return await GetPerson(parameters, ct);
             };
 
             Get["/person/{username}", true] = GetProfile;
-
-            Get["/editprofile", true] = GetEditProfile;
-
-            Post["/editprofile", true] = UpdateProfile;
 
             Post["/person/{username}", true] = async (parameters, ct) =>
             {
@@ -57,6 +56,10 @@ namespace SmartHomeWeb.Modules
                 await FriendRequest(FormHelpers.GetString(Request.Form, "friendname"));
                 return await GetProfile(parameters, ct);
             };
+
+            Get["/editprofile", true] = GetEditProfile;
+
+            Post["/editprofile", true] = UpdateProfile;
             
             Get["/person/{username}/wall", true] = GetWall;
 
@@ -64,7 +67,7 @@ namespace SmartHomeWeb.Modules
 
             Get["/location", true] = async (parameters, ct) =>
             {
-                var locations = await DataConnection.Ask(x => x.GetLocationsAsync());
+				var locations = await DataConnection.Ask(x => x.GetLocationsAndOwnerNamesAsync());
                 return View["location.cshtml", locations];
             };
             Get["/message", true] = GetMessage;
@@ -123,13 +126,76 @@ namespace SmartHomeWeb.Modules
                 return View["edit-sensor.cshtml", update];
             };
 
+			Get["/edit-location/{id}", true] = async (parameters, ct) =>
+			{
+				this.RequiresAuthentication();
+				int id = (int)parameters["id"];
+				var loc = await DataConnection.Ask(x => x.GetLocationByIdAsync(id));
+				if (loc == null)
+				{
+					ViewBag.Error = TextResources.LocationDoesNotExist;
+					loc = new Location(id, new LocationData("", default(Guid), null));
+				}
+				return View["edit-location.cshtml", loc];
+			};
+
+			Post["/edit-location/{id}", true] = async (parameters, ct) =>
+			{
+				ViewBag.Success = "";
+				ViewBag.Error = "";
+
+				this.RequiresAuthentication();
+
+				int id = parameters["id"];
+				string name = FormHelpers.GetString(Request.Form, "locationname");
+				string elecPriceStr = FormHelpers.GetString(Request.Form, "electricityprice");
+				double? elecPrice = FormHelpers.ParseDoubleOrNull(elecPriceStr);
+
+				var update = await DataConnection.Ask(async dc =>
+				{
+					// Retrieve the location that is being edited.
+					var editLoc = await dc.GetLocationByIdAsync(id);
+					if (editLoc == null)
+					{
+						ViewBag.Error = TextResources.LocationDoesNotExist;
+						return new Location(id, new LocationData(name, default(Guid), elecPrice));
+					}
+
+					var newLoc = new Location(id, new LocationData(name, editLoc.Data.OwnerGuid, elecPrice));
+
+					if (string.IsNullOrWhiteSpace(name))
+					{
+						// Empty names are silly, and we don't allow them.
+						ViewBag.Error = TextResources.EmptyNameError;
+					}
+					else if (name != editLoc.Data.Name && await dc.GetLocationByNameAsync(name) != null)
+					{
+						// Whoops. Name already exists.
+						ViewBag.Error = string.Format(TextResources.LocationAlreadyExistsError, name);
+					}
+					else if (!string.IsNullOrWhiteSpace(elecPriceStr) && elecPrice == null)
+					{
+						// Couldn't parse electricity price.
+						ViewBag.Error = string.Format(TextResources.ElectricityPriceParseError, elecPriceStr);
+					}
+					else
+					{
+						ViewBag.Success = TextResources.EditLocationSuccess;
+						await dc.UpdateLocationAsync(newLoc);
+					}
+					return newLoc;
+				});
+
+				return View["edit-location.cshtml", update];
+			};
+
             Get["/add-tag/{id?}", true] = GetAddTag;
 
             Post["/add-tag/{id?}", true] = PostAddTag;
 
             Get["/measurement", true] = async (parameters, ct) =>
             {
-                var measurements = await DataConnection.Ask(x => x.GetMeasurementsAsync());
+                var measurements = await DataConnection.Ask(x => x.GetRawMeasurementsAsync());
                 return View["measurement.cshtml", measurements];
             };
 
@@ -721,6 +787,30 @@ namespace SmartHomeWeb.Modules
         {
             var messages = await DataConnection.Ask(x => x.GetMessagesAsync());
             return View["message.cshtml", messages];
+        }
+
+        private async Task<dynamic> GetPerson(dynamic parameters, CancellationToken ct)
+        {
+            var persons = await DataConnection.Ask(x => x.GetPersonsAsync());
+            var items = new List<Tuple<Person, FriendsState>>();
+
+            if (Context.CurrentUser.IsAuthenticated())
+            {
+                Person currentUser = await DataConnection.Ask(x => x.GetPersonByUsernameAsync(Context.CurrentUser.UserName));
+                foreach (var person in persons)
+                {
+                    var state = await DataConnection.Ask(x => x.GetFriendsState(currentUser.Guid, person.Guid));
+                    items.Add(Tuple.Create(person, state));
+                }
+            }
+            else
+            {
+                foreach (var person in persons)
+                {
+                    items.Add(Tuple.Create(person, FriendsState.None));
+                }
+            }
+            return View["person.cshtml", items];
         }
 
         private async Task<dynamic> GetProfile(dynamic parameters, CancellationToken ct)
