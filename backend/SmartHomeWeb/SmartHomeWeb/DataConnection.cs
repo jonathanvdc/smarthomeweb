@@ -942,6 +942,23 @@ namespace SmartHomeWeb
             }
         }
 
+
+        /// <summary>
+        /// Updates the measurement in the database
+        /// </summary>
+        /// <param name="person">The person that's updated</param>
+        public async Task UpdateMeasurementTagsAsync(Measurement measurement)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"UPDATE {MeasurementTableName} " +
+                    "SET notes = '" + measurement.Notes + 
+                    "' WHERE sensorId = " + measurement.SensorId + " and unixtime = "+ DatabaseHelpers.CreateUnixTimeStamp(measurement.Time);
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+
         /// <summary>
         /// Inserts the given sensor data into the Sensor table.
         /// </summary>
