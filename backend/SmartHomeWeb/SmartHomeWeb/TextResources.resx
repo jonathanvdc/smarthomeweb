@@ -505,7 +505,7 @@
     <value>No data for that sensor or period</value>
   </data>
   <data name="NoSensorDataHelpText" xml:space="preserve">
-    <value>Select a different time period using the input above, or select a different sensor from the list on the rigth.</value>
+    <value>Select a different time period using the input above, or select a different sensor from the list on the right.</value>
   </data>
   <data name="NoSensorSelected" xml:space="preserve">
     <value>No sensor selected</value>
@@ -515,5 +515,8 @@
   </data>
   <data name="SearchUserTitle" xml:space="preserve">
     <value>Search for a user</value>
+  </data>
+  <data name="TotalElectricityPrice" xml:space="preserve">
+    <value>Total price of electricity</value>
   </data>
 </root>

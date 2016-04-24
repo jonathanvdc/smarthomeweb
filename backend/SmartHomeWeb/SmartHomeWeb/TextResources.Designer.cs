@@ -763,7 +763,7 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Select a different time period using the input above, or select a different sensor from the list on the rigth..
+        ///   Looks up a localized string similar to Select a different time period using the input above, or select a different sensor from the list on the right..
         /// </summary>
         public static string NoSensorDataHelpText {
             get {
@@ -1146,6 +1146,15 @@ namespace SmartHomeWeb {
         public static string TagSelectorTitle {
             get {
                 return ResourceManager.GetString("TagSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total price of electricity.
+        /// </summary>
+        public static string TotalElectricityPrice {
+            get {
+                return ResourceManager.GetString("TotalElectricityPrice", resourceCulture);
             }
         }
         
