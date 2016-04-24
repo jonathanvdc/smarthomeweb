@@ -7,18 +7,38 @@
 
 <h1>@TextResources.LocationsAdminPageTitle</h1>
 
+<script>
+
+    function deleteLocation(locationId) {
+        var request = new XMLHttpRequest();
+        request.open('DELETE', "/api/locations/" + locationId.toString());
+        request.send();
+        request.onload = function(e) {
+            document.getElementById("location-" + locationId).hidden = true;
+        }
+    }
+
+</script>
+
 <table class="table">
 
         <tr class="tableHeader">
             <th>@TextResources.LocationNameLabel</th>
-            <th>@TextResources.LocationOwnerGuidLabel</th>
+	        <th>@TextResources.LocationOwnerGuidLabel</th>
+	        <th>@TextResources.Delete</th>
         </tr>
 		
     @foreach (var p in @Model)
     {
-        <tr>
+        <tr id="location-@p.Id">
             <td>@p.Data.Name</td>
-            <td><samp>@p.Data.OwnerGuid</samp></td>
+	        <td><samp>@p.Data.OwnerGuid</samp></td>
+            <td>
+	            <button onclick="deleteLocation('@p.Id')"
+                        type="button" class="btn btn-danger">
+			        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+		        </button>
+	        </td>
         </tr>
     }
 </table>

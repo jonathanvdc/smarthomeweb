@@ -9,10 +9,11 @@
     function deleteUser(guid) {
         var request = new XMLHttpRequest();
         request.open('DELETE', "/api/persons/" + guid);
-        request.setRequestHeader('Content-Type', 'application/json');
+        request.onload = function(e) {
+            console.log(request.responseText);
+            document.getElementById("row-" + guid).hidden = true;
+        }
         request.send();
-        console.log(request.responseText);
-        document.getElementById("row-" + guid).hidden = true;
     }
 </script>
 
