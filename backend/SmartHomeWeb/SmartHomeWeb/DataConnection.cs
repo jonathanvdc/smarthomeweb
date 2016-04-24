@@ -779,6 +779,34 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Gets all distinct tags at a given location
+        /// </summary>
+        /// <param name="loc"></param>
+        /// <returns></returns>
+        public Task<IEnumerable<string>> GetTagsAtLocationAsync(Location loc)
+        {
+            return GetTagsAtLocationAsync(loc.Id);
+        }
+
+        /// <summary>
+        /// Gets all distinct tags at the location with the given identifier.
+        /// </summary>
+        /// <param name="LocationId">The location's unique identifier.</param>
+        /// <returns></returns>
+		public async Task<IEnumerable<string>> GetTagsAtLocationAsync(int LocationId)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $@"
+                  SELECT DISTINCT t.tag
+                  FROM {SensorTableName} AS s, {SensorTagTableName} as t
+                  WHERE s.locationid = @locId AND s.id = t.sensorId";
+                cmd.Parameters.AddWithValue("@locId", LocationId);
+                return await ExecuteCommandAsync(cmd, tuple => DatabaseHelpers.GetString(tuple, "tag"));
+            }
+        }
+
+        /// <summary>
         /// Gets all measurements for a sensor with the given identifier.
         /// </summary>
         /// <param name="sensor"></param>
