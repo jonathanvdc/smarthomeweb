@@ -145,9 +145,9 @@ def aggregateMeasurements(sensors, time, day_count):
         getChecked(url)
 
 # Compacts all measurements that were made during the given period of time.
-def compactMeasurements(start_time, end_time):
+def compactMeasurements(start_time, end_time, compaction_level = 'measurements'):
     log('Compacting measurements for time period %s - %s' % (start_time.isoformat(), end_time.isoformat()))
-    putChecked(api + 'compact/measurements/%s/%s' % (start_time.isoformat(), end_time.isoformat()))
+    putChecked(api + 'compact/%s/%s/%s' % (compaction_level, start_time.isoformat(), end_time.isoformat()))
 
 # Gets all sensors at the given location if a location identifier is given,
 # Otherwise, gets all sensors in the database.
