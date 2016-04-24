@@ -510,4 +510,7 @@
   <data name="NoSensorSelectedHelpText" xml:space="preserve">
     <value>Selecteer een sensor uit de lijst rechts.</value>
   </data>
+  <data name="TotalElectricityPrice" xml:space="preserve">
+    <value>Totale elektriciteitskost</value>
+  </data>
 </root>

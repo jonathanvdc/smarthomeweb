@@ -837,5 +837,11 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoSensorSelectedHelpText", resourceCulture);
             }
         }
+        
+        public static string TotalElectricityPrice {
+            get {
+                return ResourceManager.GetString("TotalElectricityPrice", resourceCulture);
+            }
+        }
     }
 }
