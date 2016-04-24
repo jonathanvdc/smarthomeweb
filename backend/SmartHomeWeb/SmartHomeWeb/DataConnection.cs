@@ -1383,6 +1383,20 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
+		/// Reclaims free storage from the database.
+		/// Cannot be performed from within a transaction,
+		/// i.e. within the scope of an Ask call.
+		/// </summary>
+		public async Task VacuumAsync()
+		{
+			using (var cmd = sqlite.CreateCommand())
+			{
+				cmd.CommandText = "VACUUM";
+				await cmd.ExecuteNonQueryAsync();
+			}
+		}
+
+		/// <summary>
 		/// Compacts the given period of time. First, all data in the given
 		/// period of time is aggregated, then all measurements are deleted. 
 		/// The given period of time is subsequently frozen: further 
