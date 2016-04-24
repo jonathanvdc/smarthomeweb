@@ -96,18 +96,6 @@ namespace SmartHomeWeb
 		/// </summary>
 		public DateTime CacheEnd { get; private set; }
 
-		public int TotalHours { get { return (int)(CacheEnd - CacheStart).TotalHours; } }
-		public int TotalDays { get { return (int)(CacheEnd - CacheStart).TotalDays; } }
-		public int TotalMonths
-		{
-			get
-			{
-				int yearDiff = CacheEnd.Year - CacheStart.Year;
-				int monthDiff = CacheEnd.Month - CacheStart.Month;
-				return yearDiff * 12 + monthDiff;
-			}
-		}
-
 		private Dictionary<DateTime, List<Measurement>> hourData;
 		private Dictionary<DateTime, Measurement> hourAverages;
 		private Dictionary<DateTime, Measurement> dayAverages;
