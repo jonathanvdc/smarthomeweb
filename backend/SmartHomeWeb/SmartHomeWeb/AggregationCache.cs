@@ -113,7 +113,7 @@ namespace SmartHomeWeb
 		public Task PrefetchHourAveragesAsync()
 		{
 			return PrefetchAveragesAsync(
-				out hourAverages, out precomputedHours,
+				ref hourAverages, ref precomputedHours,
 				DataConnection.HourAverageTableName);
 		}
 
@@ -123,7 +123,7 @@ namespace SmartHomeWeb
 		public async Task PrefetchDayAveragesAsync()
 		{
 			await PrefetchAveragesAsync(
-				out dayAverages, out precomputedDays, 
+				ref dayAverages, ref precomputedDays, 
 				DataConnection.DayAverageTableName);
 			
 			if (dayAverages.Count < TotalDays)
@@ -140,7 +140,7 @@ namespace SmartHomeWeb
 		public async Task PrefetchMonthAveragesAsync()
 		{
 			await PrefetchAveragesAsync(
-				out monthAverages, out precomputedMonths, 
+				ref monthAverages, ref precomputedMonths, 
 				DataConnection.MonthAverageTableName);
 
 			if (monthAverages.Count < TotalMonths)
@@ -151,9 +151,13 @@ namespace SmartHomeWeb
 		}
 
 		private Task PrefetchAveragesAsync(
-			out Dictionary<DateTime, Measurement> Cache, 
-			out HashSet<DateTime> PrecomputedSet, string TableName)
+			ref Dictionary<DateTime, Measurement> Cache, 
+			ref HashSet<DateTime> PrecomputedSet, string TableName)
 		{
+			if (Cache != null)
+				// Don't fetch twice.
+				return Task.FromResult(true);
+
 			Cache = new Dictionary<DateTime, Measurement>();
 			PrecomputedSet = new HashSet<DateTime>();
 			return PrefetchAveragesImplAsync(Cache, PrecomputedSet, TableName);
