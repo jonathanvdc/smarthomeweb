@@ -1317,7 +1317,7 @@ namespace SmartHomeWeb
 		public async Task<IEnumerable<FrozenPeriod>> GetFrozenPeriodsAsync(DateTime StartTime, DateTime EndTime)
 		{
 			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(StartTime)}");
+				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
 
 			using (var cmd = sqlite.CreateCommand())
 			{
@@ -1338,7 +1338,7 @@ namespace SmartHomeWeb
 			DateTime StartTime, DateTime EndTime, CompactionLevel Compaction = CompactionLevel.None)
 		{
 			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(StartTime)}");
+				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
 
 			using (var cmd = sqlite.CreateCommand())
 			{
