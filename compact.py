@@ -10,7 +10,7 @@ def parse_args():
         compactLevel = args[1]
         acceptableLevels = ['measurements', 'day-average', 'hour-average']
         if compactLevel not in acceptableLevels:
-            log("Compaction level must be one of: %s" % repl(acceptableLevels), 31)
+            log("Compaction level must be one of: %s" % repr(acceptableLevels), 31)
             sys.exit(1)
         dateformat = "%Y-%m-%d"
         return compactLevel, datetime.strptime(args[2], dateformat), datetime.strptime(args[3], dateformat)
