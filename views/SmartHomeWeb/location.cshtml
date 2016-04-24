@@ -10,6 +10,7 @@
 <table class="table">
 
         <tr class="tableHeader">
+            <th>&shy;</th>  <!-- Edit location button -->
             <th>@TextResources.LocationNameLabel</th>
             <th>@TextResources.LocationOwnerGuidLabel</th>
         </tr>
@@ -17,6 +18,11 @@
     @foreach (var p in @Model)
     {
         <tr>
+            <td>
+                <a href="/edit-location/@p.Id" style="display:inline">
+                    <span class="glyphicon glyphicon-cog" style="float:right;"></span>
+                </a>
+            </td>
             <td>@p.Data.Name</td>
             <td><samp>@p.Data.OwnerGuid</samp></td>
         </tr>
