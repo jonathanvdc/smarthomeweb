@@ -168,7 +168,7 @@ namespace SmartHomeWeb.Modules
 						// Empty names are silly, and we don't allow them.
 						ViewBag.Error = TextResources.EmptyNameError;
 					}
-					else if (name != editLoc.Data.Name && dc.GetLocationByNameAsync(name) != null)
+					else if (name != editLoc.Data.Name && await dc.GetLocationByNameAsync(name) != null)
 					{
 						// Whoops. Name already exists.
 						ViewBag.Error = string.Format(TextResources.LocationAlreadyExistsError, name);
