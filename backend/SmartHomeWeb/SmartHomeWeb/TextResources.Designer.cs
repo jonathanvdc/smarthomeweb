@@ -511,6 +511,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading....
+        /// </summary>
+        public static string Loading {
+            get {
+                return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is a pre-existing location called &apos;{0}&apos;..
         /// </summary>
         public static string LocationAlreadyExistsError {
@@ -745,6 +754,42 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No data for that sensor or period.
+        /// </summary>
+        public static string NoSensorData {
+            get {
+                return ResourceManager.GetString("NoSensorData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select a different time period using the input above, or select a different sensor from the list on the right..
+        /// </summary>
+        public static string NoSensorDataHelpText {
+            get {
+                return ResourceManager.GetString("NoSensorDataHelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No sensor selected.
+        /// </summary>
+        public static string NoSensorSelected {
+            get {
+                return ResourceManager.GetString("NoSensorSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select a sensor from the list on the right..
+        /// </summary>
+        public static string NoSensorSelectedHelpText {
+            get {
+                return ResourceManager.GetString("NoSensorSelectedHelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No tags.
         /// </summary>
         public static string NoTagsText {
@@ -925,6 +970,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search for a user.
+        /// </summary>
+        public static string SearchUserTitle {
+            get {
+                return ResourceManager.GetString("SearchUserTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send {0} a friend request.
         /// </summary>
         public static string SendFriendRequestButton {
@@ -1092,6 +1146,15 @@ namespace SmartHomeWeb {
         public static string TagSelectorTitle {
             get {
                 return ResourceManager.GetString("TagSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total price of electricity.
+        /// </summary>
+        public static string TotalElectricityPrice {
+            get {
+                return ResourceManager.GetString("TotalElectricityPrice", resourceCulture);
             }
         }
         

@@ -57,7 +57,7 @@ else
         </div>
 
         <div class="col-sm-8">
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="height:560px">
                 <div class="panel-heading">@(TextResources.GraphTitle)</div>
                 <div class="panel-body chartwrapper">
                     @Html.Partial("graph.cshtml")
@@ -149,7 +149,6 @@ else
             if (!$parent.hasClass('active')) {
                 $parent.addClass('active');
             }
-            e.preventDefault();
         });
     });
 </script>

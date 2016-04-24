@@ -44,11 +44,6 @@ namespace SmartHomeWeb
 		public FrozenPeriod(
 			DateTime StartTime, DateTime EndTime, CompactionLevel Compaction)
 		{
-			if (EndTime < StartTime) 
-			{
-				throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
-			}
-
 			this.StartTime = StartTime;
 			this.EndTime = EndTime;
 			this.Compaction = Compaction;
@@ -110,6 +105,11 @@ namespace SmartHomeWeb
 		public bool OverlapsWith(FrozenPeriod Other)
 		{
 			return Other.StartTime <= this.EndTime && this.StartTime <= Other.EndTime;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("[FrozenPeriod: StartTime={0}, EndTime={1}, Compaction={2}]", StartTime, EndTime, Compaction);
 		}
 
 		public static CompactionLevel Max(CompactionLevel Left, CompactionLevel Right)

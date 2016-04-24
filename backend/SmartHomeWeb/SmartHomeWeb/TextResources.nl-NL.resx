@@ -495,4 +495,25 @@
   <data name="TagSelectorTitle" xml:space="preserve">
     <value>Tagselectie</value>
   </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Laden...</value>
+  </data>
+  <data name="NoSensorData" xml:space="preserve">
+    <value>Geen data voor die sensor of periode</value>
+  </data>
+  <data name="NoSensorDataHelpText" xml:space="preserve">
+    <value>Selecteer een andere tijdsperiode met de input boven, of selecteer een andere sensor uit de lijst rechts.</value>
+  </data>
+  <data name="NoSensorSelected" xml:space="preserve">
+    <value>Geen sensor geselecteerd</value>
+  </data>
+  <data name="NoSensorSelectedHelpText" xml:space="preserve">
+    <value>Selecteer een sensor uit de lijst rechts.</value>
+  </data>
+  <data name="SearchUserTitle" xml:space="preserve">
+    <value>Zoek een gebruiker</value>
+  </data>
+  <data name="TotalElectricityPrice" xml:space="preserve">
+    <value>Totale elektriciteitskost</value>
+  </data>
 </root>

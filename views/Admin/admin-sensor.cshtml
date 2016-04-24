@@ -12,8 +12,10 @@
         var request = new XMLHttpRequest();
         request.open('DELETE', "/api/sensor-tags/" + sensorId.toString());
         request.setRequestHeader('Content-Type', 'application/json');
-        request.send('"' + tag + '"');
-        document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;
+        request.send(JSON.stringify(tag));
+        request.onload = function(e) {
+            document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;
+        }
     }
 
 </script>
