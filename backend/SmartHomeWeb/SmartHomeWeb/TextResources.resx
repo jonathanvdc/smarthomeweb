@@ -517,6 +517,6 @@
     <value>Search for a user</value>
   </data>
   <data name="TotalElectricityPrice" xml:space="preserve">
-    <value>Total price of electricity</value>
+    <value>Estimated total price of electricity</value>
   </data>
 </root>

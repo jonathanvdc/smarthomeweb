@@ -514,6 +514,6 @@
     <value>Zoek een gebruiker</value>
   </data>
   <data name="TotalElectricityPrice" xml:space="preserve">
-    <value>Totale elektriciteitskost</value>
+    <value>Geschatte totale elektriciteitskost</value>
   </data>
 </root>
