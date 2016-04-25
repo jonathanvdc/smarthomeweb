@@ -66,7 +66,7 @@ else
                                 {
                                     @for (int i = 0; i < tags.Count(); i++)
                                     {
-                                        <span class="tag">
+                                        <span class="tag unselectable" location="@x">
                                             @tags.ElementAt(i)
                                         </span>
                                     }
@@ -111,20 +111,33 @@ else
                                         var sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
-                                    <li id="@sensor.Id" onClick="measurementsGraph.setId(this.id)">
+                                    <li onClick="measurementsGraph.setId(this.id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
                                             <div style="display: table-row">
                                                 <div style="display: table-cell;">
                                                     @sensor.Data.Name
                                                     <div id="@(sensor.Id)-description" class="sensor-desciption">
                                                         @sensor.Data.Description
+
+                                                        <a href="#" style="float:right;" data-toggle="tooltip" class="sensor-desciption"
+                                                           title="Tagged as: @foreach( var tag in tags){@(tag)<text> </text>}">tags</a>
+                                                        </div>
+    
                                                     </div>
-                                                </div>
-                                                <a href="/edit-sensor/@sensor.Id" class="add-tag" style="width: 25px; display: table-cell;">
+    
+                                                    <a href="/edit-sensor/@sensor.Id" class="add-tag" style="width: 25px; display: table-cell;">
                                                     <span class="glyphicon glyphicon-cog" style="float: right;" />
                                                 </a>
                                             </div>
                                         </div>
+
+                                        <div class="sensor-tags" hidden>
+                                            @foreach (var tag in tags)
+                                            {
+                                                <div class="tag">@tag</div>
+                                            }
+                                        </div>
+
                                     </li>
                                 }
 
@@ -172,8 +185,9 @@ else
 
 <script>
     $(document).ready(function () {
+        // Make sensor selection look good
         $('.nav li .clickable-item').click(function (e) {
-            
+
             var $parent = $(this).parent();
             var $holder = $parent.parent();
             $holder.children().removeClass('active');
@@ -182,5 +196,63 @@ else
                 $parent.addClass('active');
             }
         });
+
+        // Make tag selection work and look good
+        $('.tag').click(function (e) {
+
+            var tag = $(this).text().trim();
+            var loc = $(this).attr("location");
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                filteredTags[loc].splice(filteredTags[loc].indexOf(tag),1);
+            } else {
+                $(this).addClass('active');
+                filteredTags[loc].push(tag);
+            }
+
+            updateFilteredSensors(loc);
+        });
     });
+    
+    var filteredTags = [];
+
+     @for (int x = 0; x < @Model.Count; ++x)
+    {
+         <text>filteredTags[@x] = [];</text>
+    }
+
+    function updateFilteredSensors(loc) {
+
+        // Only filter the sensors for the current location
+        var $sensors = $("#u_" + loc + " .nav").children("li");
+
+        for(var i = 0; i < $sensors.length; i++){
+
+            var $sensor = $sensors.eq(i);
+            var $tags = $sensor.children().eq(1).children();
+
+            // Get all of the sensor's tags
+            var sensorTags = [];
+            for (var k = 0; k < $tags.length; k++) {
+                sensorTags.push($tags.eq(k).text());
+            }
+
+            var visible = true;
+            // Check if the filtered tags are a subset of the sensor's tags
+            if(filteredTags[loc].length > 0)
+                visible = filteredTags[loc].every(function (val) { return sensorTags.indexOf(val) >= 0; });
+
+            if(visible){
+                if( $sensor.hasClass('hidden'))
+                    $sensor.removeClass('hidden');
+            } else {
+                if (!$sensor.hasClass('hidden')) {
+                    $sensor.addClass('hidden');
+                }
+            }
+        }
+    }
+
+
 </script>
