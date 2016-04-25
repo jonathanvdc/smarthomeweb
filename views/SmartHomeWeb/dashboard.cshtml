@@ -108,10 +108,10 @@ else
                                 @foreach (var item in @Model[x].Item3)
                                 {
                                     @{ 
-                                        var sensor = item.Item1;
+                                        Sensor sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
-                                    <li onClick="measurementsGraph.setId(this.id)">
+                                    <li onClick="measurementsGraph.setId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
                                             <div style="display: table-row">
                                                 <div style="display: table-cell;">
