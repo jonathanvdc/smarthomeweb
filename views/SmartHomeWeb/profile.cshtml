@@ -4,86 +4,100 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<System.Tuple<Person,FriendsState>>
+@inherits NancyRazorViewBase<System.Tuple<Person, FriendsState>>
 
 @if (@Model.Item1 != null)
 {
     Person user = @Model.Item1;
-    
-    <h1>@user.Data.Name (@user.Data.UserName) 
+
+    <h1>
+        @user.Data.Name (@user.Data.UserName)
         @if (Context.CurrentUser.IsAuthenticated() && user.Data.UserName == Context.CurrentUser.UserName)
-        { 
+        {
             <a style="font-size:18px" class="glyphicon glyphicon-cog" href="/editprofile"></a>
         }
     </h1>
 
     @Html.Partial("feedback-box.cshtml")
 
-    <div class="profile-avatar"></div>
+    <div class="container col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="profile-avatar avatar-@(Math.Abs(user.Guid.GetHashCode() % 4))"></div>
+            </div>
+        </div>
+    </div>
 
-    <ul class="list">
-        <li><b>@TextResources.PersonGUIDLabel:</b>        <samp>@user.Guid</samp></li>
-        <li><b>@TextResources.PersonBirthdateLabel:</b>    @user.Data.Birthdate.ToLongDateString()</li>
-        @{
-        	// Don't print empty addresses.
-            if (!string.IsNullOrEmpty(user.Data.Address) 
-        	|| !string.IsNullOrEmpty(user.Data.ZipCode) 
-        	|| !string.IsNullOrEmpty(user.Data.City))
-	        {
-	        	<li><b>@TextResources.PersonAddressLabel:</b>
-	        	@* Some part of the address is non-empty. The code below does the following: 
-		        
-		           ("<address>", "<city>", "<zip>") -> "<address>, <zip> <city>"
-		           ("", "<city>", "<zip>") -> "<zip> <city>"
-		           ("", "", "<zip>") -> "<zip>"
-		           ("", "<city>", "") -> "<city>"
-		           ("<address>", "<city>", "") -> "<address>, <city>"
-		           ("<address>", "", "<zip>") -> "<address>, <zip>"
-		        *@
-	        	@(string.Join(
-	        		", ", 
-	        		new string[] { user.Data.Address, user.Data.ZipCode + " " + user.Data.City }
-	        		.Select(item => item.Trim()).Where(item => !string.IsNullOrEmpty(item))))
-	        	</li>
-	        }
-        }
-    </ul>
+    <div class="container col-sm-9">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <ul class="list">
+                    <li><b>@TextResources.PersonGUIDLabel:</b>        <samp>@user.Guid</samp></li>
+                    <li><b>@TextResources.PersonBirthdateLabel:</b>    @user.Data.Birthdate.ToLongDateString()</li>
+                    @{
+                        // Don't print empty addresses.
+                        if (!string.IsNullOrEmpty(user.Data.Address)
+                        || !string.IsNullOrEmpty(user.Data.ZipCode)
+                        || !string.IsNullOrEmpty(user.Data.City))
+                        {
+                            <li>
+                                <b>@TextResources.PersonAddressLabel:</b>
+                                @* Some part of the address is non-empty. The code below does the following:
 
-    <div id="add-friend-container">
-        @if (Context.CurrentUser.IsAuthenticated())
-        {
-            if (Model.Item1.Data.UserName != Context.CurrentUser.UserName)
-            {
-                switch (Model.Item2)
-                {
-                    case FriendsState.None:
-                        <form method="post">
-	                        <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">
-		                        @string.Format(TextResources.SendFriendRequestButton, user.Data.Name)
-	                        </button>
-                        </form>
-                        break;
-                    case FriendsState.FriendRequestRecieved:
-                        @string.Format(TextResources.FriendRequestReceived, user.Data.Name)
-                        <form method="post">
-	                        <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">
-		                        @TextResources.AcceptFriendRequestButton
-	                        </button>
-                        </form>
-                        break;
-                    case FriendsState.FriendRequestSent:
-                        @TextResources.FriendRequestSent
-                        break;
-                    case FriendsState.Friends:
-                        @string.Format(TextResources.YouAreFriendsWith, user.Data.Name)
-                        break;
-                }
-            }
-        }
-        else
-        {
-           @TextResources.AddFriendNotAuthenticatedText
-        }
+                                    ("<address>", "<city>", "<zip>") -> "<address>, <zip> <city>"
+                                    ("", "<city>", "<zip>") -> "<zip> <city>"
+                                    ("", "", "<zip>") -> "<zip>"
+                                    ("", "<city>", "") -> "<city>"
+                                    ("<address>", "<city>", "") -> "<address>, <city>"
+                                    ("<address>", "", "<zip>") -> "<address>, <zip>"
+                                *@
+                                @(string.Join(
+            ", ",
+            new string[] { user.Data.Address, user.Data.ZipCode + " " + user.Data.City }
+            .Select(item => item.Trim()).Where(item => !string.IsNullOrEmpty(item))))
+                            </li>
+                        }
+                    }
+                </ul>
+
+                <div id="add-friend-container">
+                    @if (Context.CurrentUser.IsAuthenticated())
+                    {
+                        if (Model.Item1.Data.UserName != Context.CurrentUser.UserName)
+                        {
+                            switch (Model.Item2)
+                            {
+                                case FriendsState.None:
+                                    <form method="post">
+                                        <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">
+                                            @string.Format(TextResources.SendFriendRequestButton, user.Data.Name)
+                                        </button>
+                                    </form>
+                                    break;
+                                case FriendsState.FriendRequestRecieved:
+                                    @string.Format(TextResources.FriendRequestReceived, user.Data.Name)
+                                    <form method="post">
+                                        <button type="submit" class="btn btn-primary" name="friend-name" value="@user.Data.UserName">
+                                            @TextResources.AcceptFriendRequestButton
+                                        </button>
+                                    </form>
+                                    break;
+                                case FriendsState.FriendRequestSent:
+                                    @TextResources.FriendRequestSent
+                                    break;
+                                case FriendsState.Friends:
+                                    @string.Format(TextResources.YouAreFriendsWith, user.Data.Name)
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        @TextResources.AddFriendNotAuthenticatedText
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 
 }
