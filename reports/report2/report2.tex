@@ -6,7 +6,7 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 \usepackage[final]{listings}
-\usepackage{pxfonts}
+%\usepackage{pxfonts}
 \usepackage{relsize}
 \usepackage{parskip}
 % \usepackage{all_is_fuck}
@@ -157,13 +157,66 @@ nodige tabellen. Hier zijn enkele voorbeelden van API calls:
 
 \subsubsection{Front-end}
 Op de hoofdpagina kunnen gebruikers zich registreren en inloggen. Er is een 
-\textit{navigation bar} met links naar hun dashboard, en overzichten van hun 
-locaties en sensoren. Gebruikers kunnen ook berichten lezen die ze van anderen 
-ontvangen
+\textit{navigation bar} met links naar hun dashboard, en overzichten van hun locaties en sensoren. Gebruikers kunnen ook berichten lezen die ze van anderen ontvangen.
 
-Het dashboard laat de gebruiker een locatie en een sensor kiezen, en toont de 
-gebruiker een Google Charts-grafiek van die sensor over de gewenste 
+Het dashboard laat de gebruiker een locatie en een sensor kiezen, en toont de gebruiker een Google Charts-grafiek van die sensor over de gewenste 
 tijdsperiode.
+
+\subsubsection{Aggregatie}
+
+Onze aggregatiestrategie bestaat uit twee onderdelen, die we \emph{aggregation} en \emph{compaction} noemen. 
+
+\emph{Aggregation} heeft als doel snel uur-, dag-, maand- of jaargemiddeldes aan gebruikers te tonen, en verwijdert op zich geen data. Er wordt zelfs ``nieuwe'' data aangemaakt en aan de database toegevoegd door \emph{aggregation} in isolatie. Om aggregatie snel te laten verlopen, beroepen we ons op een vijftal \emph{aggregation tiers}, die opgeslagen worden in aparte \emph{tables} in de database:
+
+\begin{enumerate}
+	\item \textbf{Measurement}: minuut-per-minuut data, van sensoren afkomstig.
+	
+	\item \textbf{Hour-average}: uurgemiddeldes. Deze worden bekomen door het gemiddelde van de metingen voor dat uur te nemen, na het verwijderen van outliers.
+	
+	\item \textbf{Day-average}: daggemiddeldes, die overeen komen met het gemiddelde van alle uurgemiddeldes van een dag.
+	
+	\item \textbf{Month-average}: maandgemiddeldes, die overeen komen met het gemiddelde van alle daggemiddeldes van een maand.
+	
+	\item \textbf{Year-average}: jaargemiddeldes, die overeen komen met het gemiddelde van alle maandgemiddeldes van een jaar.
+\end{enumerate}
+
+Merk op dat deze \emph{tiers} niet steeds opnieuw verwijzen naar de metingen zelf, maar wel naar de onderliggende \emph{tier}. Dit is van belang voor zowel de effici\"entie van de \emph{aggregation} stap als de goede werking van de \emph{compaction} stap.
+
+De voorname \emph{use-case} voor pure \emph{aggregation} is het bekijken van een grafiek die een aanzienlijke tijdsperiode omvat. Simpele metingen zijn dan te talrijk om door te sturen, en boven te onoverzichtelijk voor de gebruiker. 
+
+Onze aggregatiestrategie is erg gelijkend op de werking van het programma \texttt{make}. Wanneer data van \emph{tier} $n$ (met $n > 1$) voor een bepaalde sensor opgevraagd wordt, bepalen we het resultaat als volgt:
+
+\begin{enumerate}
+	\item Onderzoek of de gevraagde data zich al (deels) in de database bevindt. Indien dit het geval is, halen we alle reeds geaggregeerde data voor de gevraagde periode uit de database.
+	
+	\item Data die nog niet reeds geaggregeerd in de database aanwezig is, wordt alle nodige data uit \emph{tier} $n - 1$ -- de \emph{dependencies}, als het ware -- opgevraagd of berekend.
+	
+	\item Een aggregatie-algoritme wordt losgelaten uit deze data uit \emph{tier} $n - 1$. Voor de uurgemiddeldes houdt dit het verwijderen van outliers in, voor de overige \emph{tiers} komt dit neer op het gemiddelde nemen.
+	
+	\item Alle nieuw-geaggregeerde data wordt naar de database, in de tabel van \emph{tier} $n$, geschreven, zodat dezelfde \emph{query} in de toekomst onmiddelijk beantwoord kan worden, en enkel stap \'e\'en van dit algoritme uitgevoerd moet worden.
+\end{enumerate}
+
+Wanneer een nieuwe meting aan de database toegevoegd wordt, wordt deze meteen meegerekend wanneer geaggregeerde data opgevraagd wordt. Concreet worden alle aggregaten, die be\"invloed worden door de voorgenoemde meting, uit de database verwijderd. Die geaggregeerde metingen zullen opnieuw berekend worden, rekening houdend met de nieuwe data, de volgende dat ze keer opgevraagd worden. 
+
+De rekenkracht nodig om geaggregeerde data deels te herberekenen is gewoonlijk beperkt, aangezien voor elk uur aan nieuwe metingen hoogstens \'e\'en geaggregeerde waarde per \emph{aggregation tier} herberekend moet worden.
+
+Als implementatie-detail wordt een \emph{in-memory aggregation cache} gebruikt, die eerst data uit de database haalt en deze aggregeert, om de resultaten pas later terug naar de database te schrijven. Dit wordt door de volgende redenen gemotiveerd:
+
+\begin{itemize}
+	\item Een blok aan \textsc{insert} queries wordt op zich al wat sneller behandeld, daar we niet steeds opnieuw een \emph{command}-object moeten maken. Een \emph{write} op het einde van de \emph{transaction} vermindert ook de \emph{starvation} van andere database \emph{queries}. SQLite ondersteunt immers parallele \emph{reads}, maar \emph{writes} naar de database gebeuren steeds sequentieel, en verhinderen ook dat \emph{reads} uitgevoerd worden. 
+	
+	\item Door eerst een aanzienlijke hoeveelheid data in de \emph{cache} te plaatsen, kan aggregatie geparalleliseerd worden: het aggregeren van data wordt onder verschillende \emph{threads} verdeeld. Zo maken we handig gebruik van moderne \emph{multi-core} processors.
+\end{itemize}
+
+Het is ook nuttig te vermelden dat, hoewel de voorgaande paragrafen vooral het \emph{just-in-time} berekenen van geaggreerde data bespreken, het natuurlijk ook mogelijk is al deze data \emph{ahead-of-time} te berekenen, door periodisch geaggregeerde data op te vragen voor alle sensoren.
+
+\emph{Compaction} heeft als doel oudere data uit de database te verwijderen, en zo ruimte vrij te maken voor nieuwe metingen. Tegelijkertijd worden altijd wel geaggregeerde varianten van deze data bijgehouden, zodat er geen periodes ontstaan waar metingen volledig verloren gaan. 
+
+De \emph{aggregation} stap maakt dit echter wel wat complexer. Zo zou het na\"ief verwijderen van metingen uit de database catastrofale gevolgen kunnen hebben, als deze data niet eerst geaggregeerd is. Dit probleem wordt makkelijk opgelost door eerst \emph{tier} $n + 1$ op te vullen met geaggregeerde data voor de tijdsperiode waar \emph{compaction} op toegepast wordt, indien \emph{tier} $n$ het doel was van de \emph{compaction}, dat wil zeggen, de data voor een bepaalde tijdsperiode in \emph{tier} $n$ wordt verwijderd.
+
+Verder keert de aggregatie-hi\"erarchie zich deels om wanneer \emph{compaction} toegepast is op een bepaalde \emph{tier}: deze \emph{tier} zal zijn data niet ontlenen aan de onderliggende \emph{tiers} -- deze zijn immers intussen volledig leeg -- maar wel aan de bovenliggende \emph{tiers}, die nog wel data bevatten.
+
+Om te kunnen weten op welke tijdsperiodes \emph{compaction} is toegepast, wordt een tuple in de \texttt{FrozenPeriod} tabel bijgestoken, die het begin- en eindpunt van de \emph{compaction} aanduidt, en verder ook tot op welke \emph{tier} \emph{compaction} is toegepast. We ondersteunen \emph{compaction} tot \emph{tier 3}. Een decennium aan maandgegevens (\emph{tier} 4) komt immers overeen in grootte met slechts twee uur aan minuutgegevens.
 
 \subsection{Extra functionaliteit}
 
