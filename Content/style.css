@@ -121,10 +121,32 @@ span.no-tags{
 .profile-avatar-small {
 	width: 64px;
 	height: 64px;
-	background-image: url("profilepicsmall.png");
-    background-size: 64px 64px;
+    background-size: contain;
 	float: left;
 }
+
+.profile-avatar {
+    width: 225px;
+    height: 225px;
+    background-size: contain;
+	float: left;
+}
+
+	.profile-avatar-small.avatar-0, .profile-avatar.avatar-0{
+		background-image: url("profilepic0.png");
+	}
+
+	.profile-avatar-small.avatar-1, .profile-avatar.avatar-1{
+		background-image: url("profilepic1.png");
+	}
+
+	.profile-avatar-small.avatar-2, .profile-avatar.avatar-2{
+		background-image: url("profilepic2.png");
+	}
+
+	.profile-avatar-small.avatar-3, .profile-avatar.avatar-3{
+		background-image: url("profilepic3.png");
+	}
 
 .profile-avatar-small-centered {
 	width: 64px;
@@ -133,15 +155,6 @@ span.no-tags{
     background-size: 64px 64px;
 	margin: 0 auto;
 	float: none;
-}
-
-.profile-avatar {
-	width: 150px;
-	height: 150px;
-	background-image:url("profilepicsmall.png");
-    background-size: 150px 150px;
-	float: left;
-	margin-right:32px;
 }
 
 .sensor-desciption {

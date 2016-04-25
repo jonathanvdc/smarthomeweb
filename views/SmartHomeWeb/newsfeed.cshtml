@@ -20,13 +20,13 @@
     }
     <li class="media">
       <div class="media-left">
-        <a href="/person/@post.UserName">
-	        <div class="profile-avatar-small"></div>
+        <a href="/person/@post.Sender.Data.UserName">
+	        <div class="profile-avatar-small avatar-@(Math.Abs(post.Sender.Guid.GetHashCode() % 4))"></div>
         </a>
       </div>
       <div class="media-body">
 	      <h4 class="media-heading message-header">
-		      @string.Format(TextResources.MessageHeader, post.Name)
+		      @string.Format(TextResources.MessageHeader, post.Sender.Data.Name)
 	      </h4>
 	      <div class="bubble">
 		      @post.Message

@@ -8,14 +8,12 @@ namespace SmartHomeWeb.Model
 {
     public class NewsfeedPost
     {
-        public string UserName;
-        public string Name;
+        public Person Sender;
         public string Message;
 
-        public NewsfeedPost(string userName, string name, string message)
+        public NewsfeedPost(Person sender, string message)
         {
-            UserName = userName;
-            Name = name;
+            Sender = sender;
             Message = message;
         }
     }
