@@ -22,6 +22,8 @@ To get SmartHomeWeb to work, you'll need the following:
 * A C# 6.0 compiler: a recent version of `csc` for the .NET framework, or `mcs` for Mono.
 * An MSBuild-compatible build system: `msbuild` for the .NET framework, or `xbuild` for Mono.
 * A Python interpreter.
+* The `requests` Python module.
+* SQLite3
 
 #### Windows
 
@@ -29,13 +31,13 @@ Recent versions of Windows ship with the .NET framework pre-installed. `csc` and
 
 #### Linux
 
-On Debian-based Linux distributions, punching in the following command should install Mono, `xbuild` and `mcs`:
+On Debian-based Linux distributions, punching in the following command should install Mono, `xbuild`, `mcs`, `sqlite3` and the `requests` module:
 
 ```bash
-$ sudo apt-get install mono-complete mono-devel
+$ sudo apt-get install mono-complete mono-devel sqlite3 python-requests
 ```
 
-[Install Mono on Linux](http://www.mono-project.com/docs/getting-started/install/linux/) provides a more detailed guide.
+[Install Mono on Linux](http://www.mono-project.com/docs/getting-started/install/linux/) provides a more detailed guide on how to install Mono.
 
 #### Mac OS X
 
