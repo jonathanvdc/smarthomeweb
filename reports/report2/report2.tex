@@ -32,8 +32,7 @@ inhoudt dat we ruwe JSON data uit de database kunnen requesten en hiernaar
 kunnen posten.
 
 \item Pieter, Jonathan en Mauris hebben de \textbf{database structuur}
-opgesteld. Dit zijn alle huidige tables en de \textit{constraints} die hierop
-gedefinieerd zijn.
+opgesteld. Dit zijn alle huidige tables en de \textit{constraints} die hierop gedefinieerd zijn.
 
 \item Jonathan en Pieter hebben de interne \textbf{database queries} voorzien,
 die de server gebruikt om data uit de database te lezen en om data weg te
@@ -43,9 +42,13 @@ schrijven naar de database.
 integration}. Dit omvat de meer complexe methodes die data uit de database
 behandelen.
 
+\item Jonathan heeft de \textbf{aggregatie-strategie} opgesteld en ge\"implementeerd.
+
+\item Mauris heeft het \textbf{verwijderen van outliers} ge\"implementeerd.
+
 \item Mauris en Pieter hebben \textbf{login}-functionaliteit ge\"implementeerd.
 
-\item Ken, Sibert en Mauris hebben voor \textbf{HTML views} gezorgd
+\item Ken, Sibert, Jonathan, Mauris en Pieter hebben \textbf{HTML views} opgesteld.
 
 \end{itemize}
 
@@ -54,10 +57,7 @@ behandelen.
 \subsection{Keuzes}
 % Korte motivatie van de belangrijkste keuzes in het ontwerp.
 \subsubsection{Programmeertaal}
-We hebben gekozen voor de programmeertaal \CS{}. Deze taal is vergelijkbaar met
-C++, maar is veel expressiever en meer memory-safe. \CS{} ondersteunt ook
-\textit{task-based parallellism}, wat ons toelaat heel eenvoudig requests
-asynchroon af te handelen.
+We hebben gekozen voor de programmeertaal \CS{}. Deze taal is vergelijkbaar met C++, maar is wat expressiever en meer memory-safe. \CS{} ondersteunt ook \textit{task-based parallellism}, wat ons toelaat heel eenvoudig requests asynchroon af te handelen.
 
 \subsubsection{Framework}
 Als framework voor onze web-applicatie gebruiken we \textit{Nancy}. Dit is een
@@ -207,7 +207,15 @@ De \emph{aggregation} stap maakt dit echter wel wat complexer. Zo zou het na\"ie
 
 Verder keert de aggregatie-hi\"erarchie zich deels om wanneer \emph{compaction} toegepast is op een bepaalde \emph{tier}: deze \emph{tier} zal zijn data niet ontlenen aan de onderliggende \emph{tiers} -- deze zijn immers intussen volledig leeg -- maar wel aan de bovenliggende \emph{tiers}, die nog wel data bevatten.
 
-Om te kunnen weten op welke tijdsperiodes \emph{compaction} is toegepast, wordt een tuple in de \texttt{FrozenPeriod} tabel bijgestoken, die het begin- en eindpunt van de \emph{compaction} aanduidt, en verder ook tot op welke \emph{tier} \emph{compaction} is toegepast. We ondersteunen \emph{compaction} tot \emph{tier 3}. Een decennium aan maandgegevens (\emph{tier} 4) komt immers overeen in grootte met slechts twee uur aan minuutgegevens.
+Om te kunnen weten op welke tijdsperiodes \emph{compaction} is toegepast, wordt een tuple in de \texttt{FrozenPeriod} tabel bijgestoken, die het begin- en eindpunt van de \emph{compaction} aanduidt, en verder ook tot op welke \emph{tier} \emph{compaction} is toegepast. 
+
+De \texttt{FrozenPeriod} tabel wordt ook onderzocht wanneer metingen aan de database toegevoegd worden. Het is immers niet mogelijk om de geaggregeerde data correct aan te passen op basis van een enkele extra meting, vanaf \emph{compaction} toegepast is. Daarom is het niet mogelijk om een meting aan de database toe te voegen tijdens een periode waarin \emph{compaction} is toegevoegd.
+
+Aangezien de tijdsperiodes waarop \emph{compaction} toegepast wordt niet opeenvolgend hoeven te zijn, is het ook mogelijk om \emph{compaction} niet uit te voeren voor een bepaalde historisch significante gebeurtenis, zoals een maand waarin de stroom op grote schaal uitviel, om daarna gewoon verder gaan met het gewoonlijke \emph{compaction}-schema.
+
+We ondersteunen \emph{compaction} tot \emph{tier} 3. Maandgegevens verwijderen leek ons niet meteen nodig: een volledig decennium aan maandgegevens (\emph{tier} 4) komt immers overeen in grootte met slechts twee uur aan minuutgegevens.
+
+\emph{Compaction} wordt tot uitvoering gebracht door middel van de REST API. Voor de command-line wordt zo'n request naar de server verstuurd door het \texttt{compact.py} script, dat ofwel manueel kan gebruikt worden, ofwel periodisch tot uitvoering gebracht kan worden door middel van een extern programma als \texttt{cron}.
 
 \subsection{Extra functionaliteit}
 
