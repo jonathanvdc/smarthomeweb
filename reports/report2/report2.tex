@@ -252,6 +252,10 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
   \code{DELETE /api/{#1}/\argu{#3}} & \deleteDesc{#2}
 }
 
+\newcommand{\compact}[1]{
+    \code{PUT /api/compact/{#1} /\argu{from}/\argu{to}} & Geeft de server de opdracht om \emph{compaction} toe te passen op de \code{#1} \emph{tier}, tijdens de periode tussen \code{from} en \code{to}.
+}
+
 \section{Appendix: API calls}
 {\small
   \begin{longtable}{p{.40\textwidth} p{.50\textwidth}}
@@ -273,7 +277,7 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
     \crud{locations}{Location}{id} \\
     \hline
     \code{GET /api/has-location}
-    & Toont alle koppels $(A, B)$ in de relatie \textit{``persoon A beheert
+    & Toont alle koppels $(A, B)$ in de relatie \textit{``persoon A heeft zicht op
     locatie B''}. \\
     \code{GET /api/has-location /locations/\argu{guid}}
     & Toont alle locaties voor de \code{Person} met de gegeven GUID. \\
@@ -315,13 +319,30 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
     & Toont alle metingen voor de gegeven \code{Sensor} tussen de tijdstippen
     \code{from} en \code{to}. \\
     \code{GET /api/measurements/virtual /\argu{id}/\argu{from}/\argu{to}}
-    & ? \\
+    & Toont alle metingen voor de gegeven \code{Sensor} tussen de tijdstippen \code{from} en \code{to}. Indien \emph{compaction} reeds is toegepast op de gevraagde periode, wordt \'e\'en meting per minuut gegenereerd uit de uurgemiddeldes. \\
     \code{POST /api/measurements}
     & Voegt een JSON-lijst van metingen toe aan de database. \\
     \code{PUT /api/measurements /updatetag}
-    & ? \\
+    & Past de \emph{notes} van een meting aan. \\
     \hline
-    % Nu /autofit, /compact, /xxx-average, en /frozen nog.
+    \code{GET /api/autofit /\argu{id}/\argu{from}/\argu{to} /\argu{max\_results}}
+    & Levert data op voor de gegeven \code{Sensor} tussen de tijdstippen \code{from} en \code{to}. Dit kunnen ofwel directe metingen zijn, ofwel geaggregeerde metingen. Uit welke \emph{aggregation tier} ze komen, hangt van \code{max\_results} af, dat een bovengrens op de hoeveelheid resultaten stelt. \\
+    \hline
+    \compact{measurement} \\
+    \compact{hour-average} \\
+    \compact{day-average} \\
+    \code{PUT /api/vacuum}
+    & Geeft de server de opdracht om de database te herschikken zodat ruimte vrijkomt op het storage device dat de database bevat. Dit is vooral nuttig na het toepassen van een \textsc{delete} of een vorm van \emph{compaction}. \\
+    \hline
+    \code{GET /api/frozen}
+    & Toont een JSON-lijst van alle \code{FrozenPeriod} records. \\
+    \code{GET /api/frozen/\argu{time}}
+    & Onderzoekt of \code{time} \emph{frozen} is, en geeft het resultaat weer als een Boolean. Indien dit het geval is, is het niet mogelijk om op dit moment een meting aan de database toe te voegen. \\
+    \code{GET /api/frozen/\argu{from}/\argu{to}}
+    & Toont een JSON-lijst van alle \code{FrozenPeriod} records die overlappen met de periode tussen \code{from} en \code{to}. \\
+    \code{PUT /api/frozen/\argu{from}/\argu{to}}
+    & Voegt een tuple toe aan de \code{FrozenPeriod} tabel, die nog geen \emph{compaction} aangeeft, maar wel al verhindert dat er nog metingen worden toegevoegd tussen \code{from} en \code{to}. \\
+    % Nu /xxx-average nog.
     \label{api-table}
   \end{longtable}
 }
