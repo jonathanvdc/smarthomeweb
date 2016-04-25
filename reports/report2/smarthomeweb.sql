@@ -144,7 +144,8 @@ create table HourAverage (
 --     create unique index hourIndex
 --         ON hourAverage (unixtime, sensorId)
 
--- Separately track day averages after removing outliers from the HourAverage results.
+-- Separately track day averages after removing
+-- outliers from the HourAverage results.
 create table DayAverage (
     sensorId integer not null references Sensor(id),
     -- Unix time for YYYY-MM-DD 00:00. Identifies the day.

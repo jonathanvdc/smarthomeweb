@@ -94,7 +94,11 @@ Het UML schema zelf is toegevoegd als bijlage (\texttt{uml-diagram.pdf}). De \em
 
 \begin{itemize}
 
-\item \textbf{identity classes}: stellen een tuple in de database voor met een unieke \emph{identifier}, die door de \emph{data connection} gegenereerd wordt. Hun data wordt voorgesteld door een instantie van een \emph{data class}. Zo zijn \code{Location}, \code{Person} en \code{Sensor} enkele voorbeelden van \emph{identity classes}.
+\item \textbf{identity classes}: stellen een tuple in de database voor met een 
+unieke \emph{identifier}, die door de \emph{data connection} gegenereerd wordt. 
+Hun data wordt voorgesteld door een instantie van een \emph{data class}. Zo 
+zijn \code{Person}, \code{Location} en \code{Sensor} enkele voorbeelden van 
+\emph{identity classes}.
 
 \item \textbf{data classes}: stellen concrete data voor. Deze data komt niet
 noodzakelijk precies overeen met een tuple in de database, maar altijd wel met
@@ -239,7 +243,6 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
 \lstinputlisting{smarthomeweb.sql}
 
 \pagebreak
-\restoregeometry
 \def\arraystretch{1.8}
 \newcommand{\argu}[1]{\textbf{<\textit{#1}>}}
 \newcommand{\getallDesc}[1]{Toont een JSON-lijst van alle \code{#1} records.}
@@ -257,6 +260,15 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
 
 \newcommand{\compact}[1]{
     \code{PUT /api/compact/{#1} /\argu{from}/\argu{to}} & Geeft de server de opdracht om \emph{compaction} toe te passen op de \code{#1} \emph{tier}, tijdens de periode tussen \code{from} en \code{to}.
+}
+\newcommand{\periodAverage}[3]{
+\hline
+  \code{GET /api/#1-average\newline/\argu{id}/\argu{time}}
+  & Levert een gemiddelde op van alle data uit de gegeven \code{Sensor}, over 
+  #2 bij de gegeven time\-stamp \code{time} hoort. \\
+  \code{GET /api/#1-average\newline/\argu{id}/\argu{time}/\argu{n}}
+  & Levert $n$ gemiddelden op, beginnende bij #2 bij \code{time} 
+  hoort, gevolgd door de $n-1$ volgende #3{}gemiddelden.
 }
 
 \section{Appendix: API calls}
@@ -297,7 +309,7 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
     & Toont alle \code{Sensors} met de gegeven tag. \\
     \code{GET /api/sensors /at-location/\argu{id}}
     & Toont alle \code{Sensors} op de gegeven locatie. \\
-    \code{GET /api/sensors /at-location/\argu{id} /by-tag/\argu{tag}}
+    \code{GET /api/sensors /at-location/\argu{id}/by-tag/\argu{tag}}
     & Toont alle \code{Sensors} met de gegeven tag op de gegeven locatie. \\
     \code{PUT /api/sensors/\argu{id}}
     & Voert een update uit op de gegeven \code{Sensor}. \\
@@ -313,7 +325,7 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
     \hline
     \code{GET /api/measurements}
     & Toont een JSON lijst van \textit{alle} metingen in de database. \\
-    \code{GET /api/measurements /\argu{id}}
+    \code{GET /api/measurements/\argu{id}}
     & Toont alle metingen voor een gegeven \code{Sensor} ID. \\
     \code{GET /api/measurements /\argu{id}/\argu{time}}
     & Toont \'e\'en measurement, voor de gegeven \code{Sensor} op het gegeven
@@ -325,10 +337,15 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
     & Toont alle metingen voor de gegeven \code{Sensor} tussen de tijdstippen \code{from} en \code{to}. Indien \emph{compaction} reeds is toegepast op de gevraagde periode, wordt \'e\'en meting per minuut gegenereerd uit de uurgemiddeldes. \\
     \code{POST /api/measurements}
     & Voegt een JSON-lijst van metingen toe aan de database. \\
-    \code{PUT /api/measurements /updatetag}
+    \code{PUT /api/measurements/updatetag}
     & Past de \emph{notes} van een meting aan. \\
+    
+    \hline \periodAverage{hour}{het uur dat}{uur} \\
+    \hline \periodAverage{day}{de dag die}{dag} \\
+    \hline \periodAverage{month}{de maand die}{maand} \\
+    \hline \periodAverage{year}{het jaar dat}{jaar} \\
     \hline
-    \code{GET /api/autofit /\argu{id}/\argu{from}/\argu{to} /\argu{max\_results}}
+    \code{GET /api/autofit /\argu{id}/\argu{from}/\argu{to}/\argu{max\_results}}
     & Levert data op voor de gegeven \code{Sensor} tussen de tijdstippen \code{from} en \code{to}. Dit kunnen ofwel directe metingen zijn, ofwel geaggregeerde metingen. Uit welke \emph{aggregation tier} ze komen, hangt van \code{max\_results} af, dat een bovengrens op de hoeveelheid resultaten stelt. \\
     \hline
     \compact{measurement} \\
