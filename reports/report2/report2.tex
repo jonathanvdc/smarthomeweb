@@ -4,6 +4,8 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{array}
+\usepackage{longtable}
 \usepackage[a4paper]{geometry}
 \usepackage[final]{listings}
 \usepackage{pxfonts}
@@ -140,26 +142,15 @@ zekere timestamp.
 
 Een Python script, \texttt{init-db.py}, laadt alle mock-up data in de database 
 en communiceert met \textit{ElecSim} om metingen aan te maken. Dit script 
-communiceert met onze API, die \textsc{get/put/post} implementeert voor de 
-nodige tabellen. Hier zijn enkele voorbeelden van API calls:
-\begin{itemize}
-  \item \code{GET /api/messages} toont een JSON-lijst van alle \code{Message} 
-  records.
-  \item \code{GET /api/persons/\textbf{\textit{\{guid\}}}} toont enkel de 
-  \code{Person} met de 
-  gegeven \textit{globally unique identifier} GUID.
-  \item \code{DELETE /api/sensors/\textbf{\textit{\{guid\}}}} verwijdert de
-  \code{Person} met de gegeven \textit{globally unique identifier} GUID.
-  \item \code{POST /api/location} neemt een JSON-lijst van \code{LocationData} 
-  uit de \textit{request body}, en voegt deze toe aan de database.
-  
-\end{itemize}
+communiceert met onze API, die \textsc{get/put/post} implementeert 
+voor de nodige tabellen. Tabel~\ref{api-table}, achteraan dit document, toont 
+hoe deze API precies werkt.
 
 \subsubsection{Front-end}
 Op de hoofdpagina kunnen gebruikers zich registreren en inloggen. Er is een 
 \textit{navigation bar} met links naar hun dashboard, en overzichten van hun 
 locaties en sensoren. Gebruikers kunnen ook berichten lezen die ze van anderen 
-ontvangen
+ontvangen hebben.
 
 Het dashboard laat de gebruiker een locatie en een sensor kiezen, en toont de 
 gebruiker een Google Charts-grafiek van die sensor over de gewenste 
@@ -167,7 +158,7 @@ tijdsperiode.
 
 \subsection{Extra functionaliteit}
 
-We hebben 
+We hebben
 \emph{continuous integration} opgezet voor het project. Telkens we een {commit} 
 pushen naar onze GitHub {repository}, gaan Travis CI (op Linux) en AppVeyor 
 CI (op Windows) na dat de applicatie correct compileert. Daarnaast wordt 
@@ -185,5 +176,96 @@ de user interface. We willen vlottere interactie met de grafieken voorzien.
 \label{dbschema}
 \lstset{language=SQL,basicstyle=\ttfamily}
 \lstinputlisting{smarthomeweb.sql}
+
+\pagebreak
+\restoregeometry
+\def\arraystretch{1.8}
+\newcommand{\argu}[1]{\textbf{<\textit{#1}>}}
+\newcommand{\getallDesc}[1]{Toont een JSON-lijst van alle \code{#1} records.}
+\newcommand{\getDesc}[1]{Toont de \code{#1} met de gegeven ID.}
+\newcommand{\insertDesc}[1]{Leest een \code{#1{}Data} JSON-object uit de
+  request body, en maakt een nieuwe \code{#1} aan in de database.}
+\newcommand{\deleteDesc}[1]{Verwijdert de \code{#1} met
+  de gegeven ID uit de database.}
+\newcommand{\crud}[3]{
+  \code{GET /api/{#1}} & \getallDesc{#2} \\
+  \code{GET /api/{#1}/\argu{#3}} & \getDesc{#2} \\
+  \code{POST /api/{#1}} & \insertDesc{#2} \\
+  \code{DELETE /api/{#1}/\argu{#3}} & \deleteDesc{#2}
+}
+
+\section{Appendix: API calls}
+{\small
+  \begin{longtable}{p{.40\textwidth} p{.50\textwidth}}
+    \textbf{Commando} & \textbf{Beschrijving} \\
+    \hline
+    \crud{persons}{Person}{guid} \\
+    \hline
+    \code{GET /api/friends/}
+    & Toont een JSON-lijst van alle \code{Friends} records. \\
+    \code{GET /api/friends/\argu{guid}}
+    & Toont alle vrienden de \code{Person} met de gegeven GUID. \\
+    \code{GET /api/friends/requests /received/\argu{guid}}
+    & Toont alle \code{Persons} die de gegeven \code{Person} een 
+    vriendschapsverzoek gestuurd hebben. \\
+    \code{GET /api/friends/requests /sent/\argu{guid}}
+    & Toont alle \code{Persons} waarheen de gegeven \code{Person} een 
+    vriendschapsverzoek gestuurd heeft. \\
+    \hline
+    \crud{locations}{Location}{id} \\
+    \hline
+    \code{GET /api/has-location}
+    & Toont alle koppels $(A, B)$ in de relatie \textit{``persoon A beheert 
+    locatie B''}. \\
+    \code{GET /api/has-location /locations/\argu{guid}}
+    & Toont alle locaties voor de \code{Person} met de gegeven GUID. \\
+    \code{GET /api/has-location /persons/\argu{id}}
+    & Toont alle persons voor de \code{Location} met de gegeven ID. \\
+    \code{POST /api/has-location}
+    & Voegt een koppel aan de \textit{has-location} relatie toe. \\
+    \hline
+    \crud{message}{Message}{id} \\
+    \hline
+    \crud{sensors}{Sensor}{id} \\
+    \hline
+    \code{GET /api/sensors/by-tag/\argu{tag}}
+    & Toont alle \code{Sensors} met de gegeven tag. \\
+    \code{GET /api/sensors /at-location/\argu{id}}
+    & Toont alle \code{Sensors} op de gegeven locatie. \\
+    \code{GET /api/sensors /at-location/\argu{id} /by-tag/\argu{tag}}
+    & Toont alle \code{Sensors} met de gegeven tag op de gegeven locatie. \\
+    \code{PUT /api/sensors/\argu{id}}
+    & Voert een update uit op de gegeven \code{Sensor}. \\
+    \hline 
+    \code{GET /api/sensor-tags/\argu{id}}
+    & Toont alle tags van de \code{Sensor} met de gegeven ID. \\
+    \code{POST /api/sensor-tags/\argu{id}}
+    & Voegt een tag toe aan de \code{Sensor} met de gegeven ID. De naam van de 
+    tag wordt gelezen als een JSON string. \\
+    \code{DELETE /api/sensor-tags/\argu{id}}
+    & Verwijdert een tag van de \code{Sensor} met de gegeven ID. De naam van de 
+    tag wordt gelezen als een JSON string. \\
+    \hline
+    \code{GET /api/measurements}
+    & Toont een JSON lijst van \textit{alle} metingen in de database. \\
+    \code{GET /api/measurements /\argu{id}}
+    & Toont alle metingen voor een gegeven \code{Sensor} ID. \\
+    \code{GET /api/measurements /\argu{id}/\argu{time}}
+    & Toont \'e\'en measurement, voor de gegeven \code{Sensor} op het gegeven 
+    tijdstip. \\
+    \code{GET /api/measurements /\argu{id}/\argu{from}/\argu{to}}
+    & Toont alle metingen voor de gegeven \code{Sensor} tussen de tijdstippen 
+    \code{from} en \code{to}. \\
+    \code{GET /api/measurements/virtual /\argu{id}/\argu{from}/\argu{to}}
+    & ? \\
+    \code{POST /api/measurements}
+    & Voegt een JSON-lijst van metingen toe aan de database. \\
+    \code{PUT /api/measurements /updatetag}
+    & ? \\
+    \hline
+    % Nu /autofit, /compact, /xxx-average, en /frozen nog.
+    \label{api-table}
+  \end{longtable}
+}
 
 \end{document}
