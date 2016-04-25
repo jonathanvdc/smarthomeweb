@@ -36,7 +36,7 @@ body {
 	padding-left: 6px;
 }
 
-span.tag {
+.tag {
 	color: #881166;
 	font-size:12px;
 	background-color:#FFBBDD;
@@ -49,11 +49,11 @@ span.tag {
 	line-height:22px;
 	cursor:pointer;
 }
-	span.tag:last-child{
+	.tag:last-child{
 		padding-right:5px;
 	}
 
-	span.tag:hover {
+	.tag:hover {
 		color: #FFF8FF;
 		background-color:#DD88AA;
 		padding:6px;
@@ -61,12 +61,24 @@ span.tag {
 		margin:1px;
 	}
 	
-		span.tag:last-child:hover{
+		.tag:last-child:hover{
 			padding-right:6px;
 		}
 
-	span.tag a:hover{
+	.tag a:hover{
 		text-decoration:none;
+	}
+	
+	.tag.active{
+		border: 2px solid #8866EE;
+		color: FFF;
+		padding: 2px;
+		padding-left: 3px;
+		padding-right: 1px;
+		margin: 0px;
+		margin-left: 2px;
+		margin-right: 1px;
+		background-color: #AA88FF;
 	}
 
 	.tag .glyphicon{
@@ -186,6 +198,15 @@ span.no-tags{
 		color: #fff;
 		background-color: #337ab7;
 	}
+	
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 	
 .tooltip-questionmark{
 	font-size:11px;
