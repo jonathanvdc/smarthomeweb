@@ -540,4 +540,7 @@
   <data name="InvalidLoginError" xml:space="preserve">
     <value>Invalid username or password.</value>
   </data>
+  <data name="ToolSelectorTitle" xml:space="preserve">
+    <value>Tools</value>
+  </data>
 </root>

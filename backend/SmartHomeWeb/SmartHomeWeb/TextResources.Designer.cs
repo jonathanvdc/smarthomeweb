@@ -1213,6 +1213,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tools.
+        /// </summary>
+        public static string ToolSelectorTitle {
+            get {
+                return ResourceManager.GetString("ToolSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Estimated total price of electricity.
         /// </summary>
         public static string TotalElectricityPrice {
