@@ -52,7 +52,16 @@ else
                 </div>
             </div>
 
-            <div class="col-sm-8">
+			<div class="col-sm-4">
+                <div class="panel panel-default">	
+                    <div class="panel-heading">@(TextResources.TagSelectorTitle)</div>
+					<div class="panel-body tab-content">
+						<button onclick="measurementsGraph.toggleCompare()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="compare">C</button>
+					</div>
+				</div>				
+			</div>
+			
+            <div class="col-sm-4">
                 <div class="panel panel-default">
 
                     <div class="panel-heading">@(TextResources.TagSelectorTitle)</div>
@@ -98,11 +107,11 @@ else
 
                 <div class="panel-heading">@(TextResources.SensorSelectorTitle)</div>
 
-                <div class="panel-body tab-content">
+                <div class="panel-body tab-content pre-scrollable">
 
                     @for (int x = 0; x < @Model.Count; ++x)
                     {
-                        <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")" style="height:560px; overflow:auto;">
+                        <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
                             <ul class="nav nav-pills nav-stacked">
 
                                 @foreach (var item in @Model[x].Item3)
@@ -118,7 +127,6 @@ else
                                                     @sensor.Data.Name
                                                     <div id="@(sensor.Id)-description" class="sensor-desciption">
                                                         @sensor.Data.Description
-
                                                         <a href="#" style="float:right;" data-toggle="tooltip" class="sensor-desciption"
                                                            title="Tagged as: @foreach( var tag in tags){@(tag)<text> </text>}">tags</a>
                                                         </div>

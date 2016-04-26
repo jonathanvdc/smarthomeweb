@@ -52,7 +52,10 @@
 		startTime.setHours(endTime.getHours() - 1);
 		var currentsensor = null;
 		var notesupdate = {};
-
+		var comparebool = false;
+		var array = [];
+		
+		
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
 		    document.getElementById("no-data-message").hidden = !(index == 1);
@@ -93,8 +96,11 @@
 		    for (var i = 0; i < json.length; i++) {
 		        if (json[i].measurement !== null)
 		            return json;
+				else if(comparebool){
+					json[i].measurement = 0;
+				}
 		    }
-		    return [];
+		    return comparebool? json : [];
 		};
 
 		// Performs a GET REST call to our API,
@@ -180,7 +186,7 @@
 			    showNoDataSaved();
 			}
 			else {
-				var array = [];
+				array = comparebool ? array : [];
 				for (var i = 0; i < json.length; i++) {
 					var sensorData = json[i];
 					var date = new Date(sensorData.timestamp);
@@ -189,14 +195,17 @@
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
 					var regex = new RegExp('<br/>', 'g');
 					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					array.push([hmsstring, measured, notes, notespre+notes]);
+					(comparebool && array.length == json.length) ? array[i].push(measured+10) : array.push([hmsstring, measured, notes, notespre+notes]);
 				}
-
+				
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Time');
 				data.addColumn('number', 'Usage');
 				data.addColumn('string', 'Notes');
 				data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
+				for(var x = 4; x < array[0].length; x++){
+					data.addColumn('number', 'Usage');
+				}
 				data.addRows(array);
 				// Set chart options
 				var options = {'width':600,
@@ -246,8 +255,14 @@
 		// 'days' or 'months', and renders the chart. 
 		// This function is part of the public API.
 		this.setTimeframe = function(start_time, end_time) {
-			startTime = start_time;
-			endTime = end_time;
+			if(comparebool){
+				var diff = endTime.getTime() - startTime.getTime();
+				startTime = start_time;
+				endTime.setTime(startTime.getTime() + diff);
+			}else{
+				startTime = start_time;
+				endTime = end_time;
+			}
 			drawChart();
 		};
 
@@ -264,6 +279,7 @@
 		// This function is part of the public API.
 		this.setId = function(x) {
 			currentsensor = x;
+			array = [];
 			drawChart();
 		};
 
@@ -293,6 +309,17 @@
 			drawChart();
 		}
 		
+		this.toggleCompare = function(){
+			if(comparebool){
+				comparebool=false;
+				$('#compare').addClass('btn-default');
+				$('#compare').removeClass('btn-success');
+			}else{
+				comparebool=true;
+				$('#compare').addClass('btn-success');
+				$('#compare').removeClass('btn-default');
+			}
+		}
 		// Re-renders this chart.
 		this.draw = drawChart;
 	}
