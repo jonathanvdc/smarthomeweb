@@ -14,6 +14,7 @@ namespace SmartHomeWeb.Modules.API
 		public ApiAutofitModule() : base("api/autofit")
 		{
 			ApiGet("/{id}/{starttime}/{endtime}/{maxCount}", (p, dc) => GetFittedMeasurements(dc, (int)p["id"], (DateTime)p["starttime"], (DateTime)p["endtime"], (int)p["maxCount"]));
+            ApiGet("/total/{id}/{starttime}/{endtime}/{maxcount}", (p, dc) => GetSumMeasurements(dc, (int)p["id"], (DateTime)p["starttime"], (DateTime)p["endtime"], (int)p["maxcount"]));
 		}
 
 		private static Task<IEnumerable<Measurement>> GetFittedMeasurements(
@@ -59,5 +60,60 @@ namespace SmartHomeWeb.Modules.API
 				}
 			}
 		}
+
+        private async Task<double?> GetSumMeasurements(
+            DataConnection Connection, int SensorId, DateTime StartTime, DateTime EndTime,
+            int MaxMeasurementCount
+            )
+        {
+            if (EndTime < StartTime)
+                throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
+
+
+            IEnumerable<Measurement> measurements;
+            double? sum = 0;
+            var timeSpan = EndTime - StartTime;
+            if (timeSpan.TotalMinutes <= MaxMeasurementCount)
+            {
+                measurements = await Connection.GetMeasurementsAsync(SensorId, StartTime, EndTime);
+            }
+            else if (timeSpan.TotalHours <= MaxMeasurementCount)
+            {
+                measurements = await Connection.GetHourAveragesAsync(
+                    SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromHours(1)),
+                    (int)Math.Ceiling(timeSpan.TotalHours));
+            }
+            else if (timeSpan.TotalDays <= MaxMeasurementCount)
+            {
+                measurements = await Connection.GetDayAveragesAsync(
+                    SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromDays(1)),
+                    (int)Math.Ceiling(timeSpan.TotalDays));
+            }
+            else
+            {
+                int yearCount = EndTime.Year - StartTime.Year;
+                int monthCount = 12 * yearCount + EndTime.Month - StartTime.Month;
+                if (monthCount <= MaxMeasurementCount)
+                {
+                    measurements = await Connection.GetMonthAveragesAsync(
+                        SensorId, MeasurementAggregation.QuantizeMonth(StartTime), monthCount);
+                }
+                else
+                {
+                    measurements = await Connection.GetYearAveragesAsync(
+                        SensorId, MeasurementAggregation.QuantizeYear(StartTime), yearCount);
+                }
+            }
+
+            foreach(var x in measurements)
+            {
+                if(x.MeasuredData != null)
+                {
+                    sum += x.MeasuredData;
+                }
+            }
+            return sum;
+        }
+
 	}
 }

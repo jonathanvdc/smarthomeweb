@@ -320,6 +320,16 @@
 				$('#compare').removeClass('btn-default');
 			}
 		}
+		
+		this.getSensorTotalUsage = function(x){
+		var responses = [];
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET", "/api/autofit/total/" + x.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount, false);
+		var x = 0;
+		xmlhttp.send(null);
+		x = xmlhttp.responseText;
+		return x;
+	}
 		// Re-renders this chart.
 		this.draw = drawChart;
 	}

@@ -105,14 +105,14 @@ else
 		<div class="col-sm-4">
             <div class="panel panel-default">
 
-                <div class="panel-heading">@(TextResources.SensorSelectorTitle)</div>
+                <div class="panel-heading">@(TextResources.SensorSelectorTitle)<select id='sortselect' style="float:right;width: 25%;" onchange="sort()"><option value="a-z">A-Z</option><option value="usage">Usage</option></select></div>
 
                 <div class="panel-body tab-content pre-scrollable">
 
                     @for (int x = 0; x < @Model.Count; ++x)
                     {
                         <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
-                            <ul class="nav nav-pills nav-stacked">
+                            <ul class="nav nav-pills nav-stacked" id='sensoren'>
 
                                 @foreach (var item in @Model[x].Item3)
                                 {
@@ -120,7 +120,7 @@ else
                                         Sensor sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
-                                    <li onClick="measurementsGraph.setId(@sensor.Id)">
+                                    <li id="@sensor.Id" onClick="measurementsGraph.setId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
                                             <div style="display: table-row">
                                                 <div style="display: table-cell;">
@@ -261,6 +261,33 @@ else
             }
         }
     }
+	
+	function sort(){
+		var select = document.getElementById('sortselect').value;
+		if(select == "usage"){
+			byconsumption();
+		}
+	}
+	
+	function byconsumption(){
+		var sensoren = document.getElementById('sensoren');
+		var items = sensoren.getElementsByTagName("li");
+		var x = [];
+		var newitems = [];
+		for (var i = 0; i < items.length; ++i) {
+			x.push([i, parseFloat(measurementsGraph.getSensorTotalUsage(items[i].id))]);
+		}
+		x.sort(function(a, b) { 
+			return a[1] > b[1] ? 1 : -1;
+		});
+
+		for(var i = 0; i < x.length; ++i){
+			newitems.push(items[x[i][0]].cloneNode(true));
+		}
+		for(var i = 0; i < items.length; ++i){
+			sensoren.replaceChild(newitems[i], items[i]);
+		}
+	}
 
 
 </script>
