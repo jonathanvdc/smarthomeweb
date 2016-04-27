@@ -124,16 +124,16 @@ else
                                         <div class="clickable-item" style="width: 100%; display: table;">
                                             <div style="display: table-row">
                                                 <div style="display: table-cell;">
-                                                    @sensor.Data.Name
+                                                    <p id="test" style="padding: 0px; margin: 0px;">@sensor.Data.Name</p>
                                                     <div id="@(sensor.Id)-description" class="sensor-desciption">
                                                         @sensor.Data.Description
                                                         <a href="#" style="float:right;" data-toggle="tooltip" class="sensor-desciption"
                                                            title="Tagged as: @foreach( var tag in tags){@(tag)<text> </text>}">tags</a>
-                                                        </div>
-    
                                                     </div>
     
-                                                    <a href="/edit-sensor/@sensor.Id" class="add-tag" style="width: 25px; display: table-cell;">
+                                                </div>
+    
+                                                <a href="/edit-sensor/@sensor.Id" class="add-tag" style="width: 25px; display: table-cell;">
                                                     <span class="glyphicon glyphicon-cog" style="float: right;" />
                                                 </a>
                                             </div>
@@ -266,6 +266,8 @@ else
 		var select = document.getElementById('sortselect').value;
 		if(select == "usage"){
 			byconsumption();
+		}else if(select == "a-z"){
+			byalphabet();
 		}
 	}
 	
@@ -286,6 +288,29 @@ else
 		}
 		for(var i = 0; i < items.length; ++i){
 			sensoren.replaceChild(newitems[i], items[i]);
+		}
+	}
+	
+	
+	function byalphabet(){
+		var items = document.getElementById('sensoren').getElementsByTagName("li");
+		var x = [];
+		var newitems = [];
+		
+		for(var i = 0; i < items.length; ++i){
+			x.push([i, items[i].firstElementChild.firstElementChild.firstElementChild.firstElementChild.innerHTML]);
+		}
+		
+		x.sort(function(a, b) { 
+			return a[1] > b[1] ? 1 : -1;
+		});
+		
+		for(var i = 0; i < x.length; ++i){
+			newitems.push(items[x[i][0]].cloneNode(true));
+		}
+		
+		for(var i = 0; i < items.length; ++i){
+			document.getElementById('sensoren').replaceChild(newitems[i], items[i]);
 		}
 	}
 
