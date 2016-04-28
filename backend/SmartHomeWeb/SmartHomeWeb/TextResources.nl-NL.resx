@@ -421,7 +421,7 @@
     <value>Groepsnaam</value>
   </data>
   <data name="GroupPostHeader" xml:space="preserve">
-    <value>Bericht van {0} naar {1}</value>
+    <value>Bericht van &lt;a href="/person/{0}"&gt;{1}&lt;/a&gt; naar &lt;a href="/person/{2}"&gt;{3}&lt;/a&gt;</value>
   </data>
   <data name="GroupProfileNoPosts" xml:space="preserve">
     <value>Er zijn nog geen berichten van of naar gebruikers in {0}.</value>
@@ -539,5 +539,23 @@
   </data>
   <data name="ToolSelectorTitle" xml:space="preserve">
     <value>Gereedschappen</value>
+  </data>
+  <data name="GraphWontShow" xml:space="preserve">
+    <value>Mooie grafiek die, voor onbekende redenen, niet weergegeven wil worden.</value>
+  </data>
+  <data name="PleaseEnterAName" xml:space="preserve">
+    <value>Vul alstublieft een naam in om de grafiek als op te slaan.</value>
+  </data>
+  <data name="PleaseLogIn" xml:space="preserve">
+    <value>Je bent niet ingelogd.\nGelieve in te loggen om verder te gaan.</value>
+  </data>
+  <data name="SaveFailure" xml:space="preserve">
+    <value>Er is iets misgegaan terwijl we de grafiek probeerden op te slaan.\nHebt u al een grafiek met deze naam?</value>
+  </data>
+  <data name="SuccessfullySaved" xml:space="preserve">
+    <value>De grafiek is opgeslagen</value>
+  </data>
+  <data name="WallPostHeader" xml:space="preserve">
+    <value>&lt;a href="/person/{0}"&gt;{1}&lt;/a&gt; schreef:</value>
   </data>
 </root>

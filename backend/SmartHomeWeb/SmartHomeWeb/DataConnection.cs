@@ -1841,19 +1841,6 @@ namespace SmartHomeWeb
                 return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
             }
         }
-        private async Task<IEnumerable<WallPost>> ConvertMessagesToWallPosts(IEnumerable<Message> messages)
-        {
-            var wallposts = new List<WallPost>();
-            foreach (var m in messages)
-            {
-                wallposts.Add(new WallPost(
-                    (await GetPersonByGuidAsync(m.Data.SenderGuid)).Data.UserName,
-                    (await GetPersonByGuidAsync(m.Data.RecipientGuid)).Data.UserName,
-                    m.Data.Message)
-                );
-            }
-            return wallposts;
-        } 
         /// <summary>
         /// Creates a task to fetch all wallposts for a given user. 
         /// Retrieves all messages sent to that user, currently no private messaging is implemented.
@@ -1861,10 +1848,55 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<WallPost>> GetWallPostsAsync(Guid personGuid)
         {
-            var cmd = sqlite.CreateCommand();
-            cmd.CommandText = "SELECT * FROM Message WHERE recipient=@person";
-            cmd.Parameters.AddWithValue("@person", personGuid.ToString());
-            return await ConvertMessagesToWallPosts(await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage));
+            using (var cmd = sqlite.CreateCommand())
+            { 
+                cmd.CommandText = @"SELECT * FROM Message as m
+                LEFT JOIN HasAttachment as ha ON (m.id == ha.message_Id)
+                LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
+                INNER JOIN Person as p1 ON (m.sender = p1.guid)
+                INNER JOIN Person as p2 ON (m.recipient = p2.guid)
+                WHERE recipient=@person";
+                
+                cmd.Parameters.AddWithValue("@person", personGuid.ToString());
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
+            }
+        }
+
+        public async Task<Graph> GetGraphByIdAsync(int id)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE graphId=@id";
+                cmd.Parameters.AddWithValue("@id", id);
+
+                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
+            }
+        }
+        public async Task InsertWallPostAsync(WallPost wp)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"INSERT INTO Message (sender, recipient, message) VALUES (@sender, @recipient, @message)";
+                cmd.Parameters.AddWithValue("@sender", wp.Source.GuidString);
+                cmd.Parameters.AddWithValue("@recipient", wp.Destination.GuidString);
+                cmd.Parameters.AddWithValue("@message", wp.Message);
+                await cmd.ExecuteNonQueryAsync();
+                cmd.CommandText = "SELECT last_insert_rowid()";
+                var i = await cmd.ExecuteScalarAsync();
+                cmd.CommandText = "SELECT id from Message WHERE rowid=" + (long)i;
+                i = await cmd.ExecuteScalarAsync();
+                if (wp.Image != null)
+                {
+                    cmd.CommandText = @"INSERT INTO HasAttachment (message_Id, graph_Id) VALUES (@id, @id2)";
+                    cmd.Parameters.AddWithValue("@id", i);
+                    cmd.Parameters.AddWithValue("@id2", wp.Image.Id);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                
+            }
+
+
         }
         /// <summary>
         /// Creates a task to fetch all the groups for a given user.
@@ -1897,13 +1929,18 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = @"SELECT * FROM Message WHERE recipient IN (
+                cmd.CommandText = @"SELECT * FROM Message as m
+                LEFT JOIN HasAttachment as ha ON (m.id == ha.messageId)
+                LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
+                INNER JOIN Person as p1 ON (m.sender=p1.guid)
+                INNER JOIN Person as p2 ON (m.recipient=p2.guid)
+                WHERE recipient IN (
                 SELECT person FROM BelongsTo WHERE personGroup=@groupid) 
                 OR sender IN (
                 SELECT person FROM BelongsTo WHERE personGroup=@groupid)";
                 cmd.Parameters.AddWithValue("@groupid", groupid);
 
-                return await ConvertMessagesToWallPosts(await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage));
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
             }
         }
         /// <summary>
@@ -1911,6 +1948,7 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<Group> GetGroupByIdAsync(long groupid)
         {
+            
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"SELECT * FROM PersonGroup WHERE id=@groupid";
@@ -1949,12 +1987,50 @@ namespace SmartHomeWeb
                 var i = await cmd.ExecuteScalarAsync();
                 cmd.CommandText = "SELECT id from PersonGroup WHERE rowid=" + (long)i;
                 i = await cmd.ExecuteScalarAsync();
-                Console.WriteLine(i);
                 g.Id = (long)i;
                 
                 await InsertGroupMembersAsync(g);
             }
 
+        }
+        /// <summary>
+        /// Returns a graph matching the owner and name, should only ever be 1.
+        /// Returns null if no matching graph is found.
+        /// </summary>
+        public async Task<Graph> GetGraphByOwnerAndNameAsync(string owner, string name)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner AND name=@name";
+                cmd.Parameters.AddWithValue("@owner", owner);
+                cmd.Parameters.AddWithValue("@name", name);
+
+                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
+            }
+        }
+
+        public async Task<IEnumerable<Graph>> GetGraphsByOwnerAsync(string owner)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner";
+                cmd.Parameters.AddWithValue("@owner", owner);
+
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGraph);
+            }
+        }
+
+        public async Task InsertGraphAsync(string graphUri, string ownerGuid, string graphName)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "INSERT INTO Graph (owner, graph, name) VALUES (@owner, @graph, @name)";
+                cmd.Parameters.AddWithValue("@owner", ownerGuid);
+                cmd.Parameters.AddWithValue("@graph", graphUri);
+                cmd.Parameters.AddWithValue("@name", graphName);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
         /// <summary>
         /// Inserts the members present in the group object (Group::MemberList) into the database

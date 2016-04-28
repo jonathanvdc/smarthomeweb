@@ -484,6 +484,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A pretty graph, that, for reasons unknown, won&apos;t render..
+        /// </summary>
+        public static string GraphWontShow {
+            get {
+                return ResourceManager.GetString("GraphWontShow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You aren&apos;t a member of any groups yet. Click the button above to make one!.
         /// </summary>
         public static string GroupOverviewNoGroups {
@@ -502,7 +511,7 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Message from {0} to {1}.
+        ///   Looks up a localized string similar to Message from &lt;a href=&quot;/person/{0}&quot;&gt;{1}&lt;/a&gt; to &lt;a href=&quot;/person/{2}&quot;&gt;{3}&lt;/a&gt;.
         /// </summary>
         public static string GroupPostHeader {
             get {
@@ -1015,6 +1024,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please enter a name to save the graph as..
+        /// </summary>
+        public static string PleaseEnterAName {
+            get {
+                return ResourceManager.GetString("PleaseEnterAName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You&apos;re not logged in.\nPlease log in to continue..
+        /// </summary>
+        public static string PleaseLogIn {
+            get {
+                return ResourceManager.GetString("PleaseLogIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your profile has been updated!.
         /// </summary>
         public static string ProfileEditSuccess {
@@ -1029,6 +1056,15 @@ namespace SmartHomeWeb {
         public static string RangeSelectorTitle {
             get {
                 return ResourceManager.GetString("RangeSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something went wrong while trying to save the graph.\nMaybe you  already have a graph with this name?.
+        /// </summary>
+        public static string SaveFailure {
+            get {
+                return ResourceManager.GetString("SaveFailure", resourceCulture);
             }
         }
         
@@ -1186,6 +1222,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Successfully saved graph.
+        /// </summary>
+        public static string SuccessfullySaved {
+            get {
+                return ResourceManager.GetString("SuccessfullySaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tag added!.
         /// </summary>
         public static string TagAdded {
@@ -1299,6 +1344,15 @@ namespace SmartHomeWeb {
         public static string WallPageTitle {
             get {
                 return ResourceManager.GetString("WallPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;a href=&quot;/person/{0}&quot;&gt;{1}&lt;/a&gt; wrote:.
+        /// </summary>
+        public static string WallPostHeader {
+            get {
+                return ResourceManager.GetString("WallPostHeader", resourceCulture);
             }
         }
         

@@ -36,10 +36,23 @@ create table PersonGroup (
 	description text not null
 );
 
+create table Graph (
+	graphId integer primary key autoincrement,
+	owner text not null references Person(guid) on delete cascade,
+	graph text not null,
+	name text not null,
+	unique (owner, name)
+);
+
 create table BelongsTo (
 	personGroup integer not null references PersonGroup(id),
 	person text not null references Person(guid) on delete cascade,
 	primary key (personGroup, person)
+);
+
+create table HasAttachment (
+	message_Id integer unique not null references Message(id),
+	graph_Id integer not null references Graph(graphId)
 );
 
 create table GroupInvite (

@@ -1,3 +1,4 @@
+@using System
 @using System.Collections.Generic
 @using System.Linq
 @using System.Security.Cryptography
@@ -33,27 +34,34 @@
 					        <div class="media-left">
 						        <table>
 							        <td>
-								        <a href="/person/@m.SourceUserName">
-									        <div class="profile-avatar-small"></div>
+								        <a href="/person/@m.Source.Data.UserName">
+									        <div class="profile-avatar-small avatar-@(Math.Abs(m.Source.Guid.GetHashCode() % 4))"></div>
 								        </a>
 							        </td>
 							        <td>
 								        <div class="glyphicon glyphicon-chevron-right"></div>
 							        </td>
 							        <td>
-								        <a href="/person/@m.DestinationUserName">
-									        <div class="profile-avatar-small"></div>
+								        <a href="/person/@m.Source.Data.UserName">
+									        <div class="profile-avatar-small avatar-@(Math.Abs(m.Destination.Guid.GetHashCode() % 4))"></div>
 								        </a>
 							        </td>
 						        </table>
 					        </div>
 					        <div class="media-body">
 						        <h4 class="media-heading message-header">
-							        @string.Format(TextResources.GroupPostHeader, m.SourceUserName, m.DestinationUserName)
+							        @Html.Raw(string.Format(TextResources.GroupPostHeader, @m.Source.Data.UserName, @m.Source.Data.Name, @m.Destination.Data.UserName, @m.Destination.Data.Name))
 						        </h4>
 						        <div class="bubble">
 							        @m.Message
 						        </div>
+                                @if (m.Image != null)
+                                {
+                                    <div class="media-body">
+	                                    <img src="@m.Image" alt="@TextResources.GraphWontShow"/>
+                                    </div>
+                                }
+						        
 					        </div>
 
 				        </li>
@@ -69,7 +77,7 @@
 				    {
 				        <li class="media">
 						    <a href="/person/@m.Data.UserName">
-							    <div class="profile-avatar-small-centered"></div>
+							    <div class="profile-avatar-small avatar-@(Math.Abs(m.Guid.GetHashCode() % 4))"></div>
 						    </a>
 				        </li>
 				    }

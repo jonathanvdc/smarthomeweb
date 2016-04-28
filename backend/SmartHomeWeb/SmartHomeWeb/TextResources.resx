@@ -412,7 +412,7 @@
     <value>Groups</value>
   </data>
   <data name="GroupPostHeader" xml:space="preserve">
-    <value>Message from {0} to {1}</value>
+    <value>Message from &lt;a href="/person/{0}"&gt;{1}&lt;/a&gt; to &lt;a href="/person/{2}"&gt;{3}&lt;/a&gt;</value>
   </data>
   <data name="GroupProfilePageTitle" xml:space="preserve">
     <value>Group: {0}</value>
@@ -542,5 +542,23 @@
   </data>
   <data name="ToolSelectorTitle" xml:space="preserve">
     <value>Tools</value>
+  </data>
+  <data name="GraphWontShow" xml:space="preserve">
+    <value>A pretty graph, that, for reasons unknown, won't render.</value>
+  </data>
+  <data name="PleaseEnterAName" xml:space="preserve">
+    <value>Please enter a name to save the graph as.</value>
+  </data>
+  <data name="PleaseLogIn" xml:space="preserve">
+    <value>You're not logged in.\nPlease log in to continue.</value>
+  </data>
+  <data name="SaveFailure" xml:space="preserve">
+    <value>Something went wrong while trying to save the graph.\nMaybe you  already have a graph with this name?</value>
+  </data>
+  <data name="SuccessfullySaved" xml:space="preserve">
+    <value>Successfully saved graph</value>
+  </data>
+  <data name="WallPostHeader" xml:space="preserve">
+    <value>&lt;a href="/person/{0}"&gt;{1}&lt;/a&gt; wrote:</value>
   </data>
 </root>

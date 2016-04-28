@@ -33,307 +33,353 @@
  		<h4>@TextResources.TotalElectricityPrice: ???</h4>
     </div>
 
-    <div id="chart_div" hidden>
-        <!-- Graph goes here -->
-    </div>
+	<div id="chart_div" hidden>
+		<!-- Graph goes here -->
+	</div>
+
+	<div id="graphSave_div" hidden>
+		<input type="text" id="graphURI" name="graphURI" style="display: none"/>
+		<div class="input-group">
+			<input type="text" id="graphName" name="graphName" class="form-control"/>
+			<span class="input-group-btn">
+                <button class="btn btn-default form-control" type="button" id="graphSaveButton" name="graphSaveButton">Save</button>
+            </span>
+		</div>
+	</div>
+
 </div>
 
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
-    
-    var chartElement = document.getElementById("chart_div");
+var request = new XMLHttpRequest();
+var done = false;
+request.onreadystatechange = function() {
+    if ((request.status == 200 || request.status == 201 || request.status == 202) && !done) {
+        alert('@(TextResources.SuccessfullySaved)!');
+        done = true;
+    }
+    if ((request.status == 404 || request.status == 500 || request.status == 403 || request.status == 400 || request.status == 401 || request.status == 408) && !done) {
+        alert('@(TextResources.SaveFailure)');
+        done = true;
+    }
 
-	measurementsGraph = new function() {
-		var measurementCount = 60;
-		var endTime = new Date();
-		var startTime = new Date();
-		startTime.setHours(endTime.getHours() - 1);
-		var currentsensor = null;
-		var notesupdate = {};
-		var comparebool = false;
-		var array = [];
-		
-		
-		var showElement = function(index) {
-		    chartElement.hidden = !(index == 0);
-		    document.getElementById("no-data-message").hidden = !(index == 1);
-		    document.getElementById("no-sensor-message").hidden = !(index == 2);
-		    document.getElementById("loading-message").hidden = !(index == 3);
-		};
-	    
-		var showChart = function() {
-		    showElement(0);
-		};
+}
+document.getElementById("graphSaveButton").addEventListener("click", function () {
+    done = false;
+    var graphname = document.getElementById("graphName").value;
+    if (graphname == '') {
+        alert('@TextResources.PleaseEnterAName');
+        return;
+    } else {
+        var username = '@Model';
+        var url = '/api/graphs';
 
-		var showNoDataSaved = function() {
-		    showElement(1);
-		};
+        var params = '{"Owner":"' + username + '", "GraphURI":"' + document.getElementById("graphURI").value + '", "GraphName":"' + graphname + '"}';
+        request.open("POST", url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send(params);
+    }
+});
 
-		var showNoSensorSelected = function() {
-	    	showElement(2);
-		};
+var chartElement = document.getElementById("chart_div");
 
-		var showLoading = function() {
-	    	showElement(3);
-		};
+measurementsGraph = new function () {
+    var measurementCount = 60;
+    var endTime = new Date();
+    var startTime = new Date();
+    startTime.setHours(endTime.getHours() - 1);
+    var currentsensor = null;
+    var notesupdate = {};
+    var comparebool = false;
+    var array = [];
 
-		var hidePrice = function() {
-			document.getElementById("price-div").hidden = true;
-		};
 
-		var showPrice = function(value) {
-			var elem = document.getElementById("price-div");
-			elem.innerHTML = "<h3>Total cost: $" + value.toString() + "</h3>";
-	    	elem.hidden = false;
-		};
+    var showElement = function (index) {
+        chartElement.hidden = !(index == 0);
+        document.getElementById("graphSave_div").hidden = !(index == 0);
+        document.getElementById("no-data-message").hidden = !(index == 1);
+        document.getElementById("no-sensor-message").hidden = !(index == 2);
+        document.getElementById("loading-message").hidden = !(index == 3);
+    };
 
-		// Replaces measurement data that consists of 'null'
-		// measurements only, by a simple empty array. This
-		// allows us to display an accurate error message.
-		var processData = function(json) {
-		    for (var i = 0; i < json.length; i++) {
-		        if (json[i].measurement !== null)
-		            return json;
-				else if(comparebool){
-					json[i].measurement = 0;
-				}
-		    }
-		    return comparebool? json : [];
-		};
+    var showChart = function () {
+        showElement(0);
+    };
 
-		// Performs a GET REST call to our API,
-		// and parses the response as JSON.
-		var requestData = function(url, callback) {
-			var xmlhttp = new XMLHttpRequest();
-			xmlhttp.open("GET", url, true);
-			xmlhttp.onload = function (e) {
-				callback(processData(JSON.parse(xmlhttp.responseText)));
-			};
-			xmlhttp.send(null);
-		};
+    var showNoDataSaved = function () {
+        showElement(1);
+    };
 
-		// Formats the given date-time instance as an ISO date-time string.
-		var timeString = function(time) {
-			var seconds = time.getSeconds() < 10 ? "0"+time.getSeconds().toString() : time.getSeconds().toString();
-			var minutes = time.getMinutes() < 10 ? "0"+time.getMinutes().toString() : time.getMinutes().toString();
-			var hours = time.getHours() < 10 ? "0"+time.getHours().toString() : time.getHours().toString();
-			var day =  time.getDate().toString();
-			var month = (time.getMonth()+1).toString();
-			var year =	time.getFullYear().toString();
-			var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
-			return datestring;
-		};
+    var showNoSensorSelected = function () {
+        showElement(2);
+    };
 
-		// Gets the location that is associated with the given
-		// location identifier.
-		// The given callback handles the resulting value.
-		var getLocation = function(locationId, callback) {
-			var xmlhttp = new XMLHttpRequest();
-			var url = "/api/locations/" + locationId.toString();
-			xmlhttp.open("GET", url, true);
-			xmlhttp.onload = function (e) {
-				callback(JSON.parse(xmlhttp.responseText));
-			};
-			xmlhttp.send(null);
-		};
+    var showLoading = function () {
+        showElement(3);
+    };
 
-		// Gets the location belonging to the given sensor.
-		// The given callback handles the resulting value.
-		var getSensorLocation = function(sensorId, callback) {
-			var xmlhttp = new XMLHttpRequest();
-			var url = "/api/sensors/" + sensorId.toString();
-			xmlhttp.open("GET", url, true);
-			xmlhttp.onload = function (e) {
-				getLocation(JSON.parse(xmlhttp.responseText).data.locationId, callback);
-			};
-			xmlhttp.send(null);
-		};
+    var hidePrice = function () {
+        document.getElementById("price-div").hidden = true;
+    };
 
-		// Computes and displays the total electricity price
-		// for the given sensor and array of measurements.
-		var computePrice = function(sensorId, measurements) {
-			getSensorLocation(sensorId, function(loc) {
-				// A location stores its price per unit of electricity as currency/kWh.
-				// Since we want the total electricity price, we will multiply
-				// the location's price per unit by the total time, and the average
-				// electricity usage of the currently selected sensor.
-				var elecPrice = loc.data.electricityPrice;
-				if (elecPrice === null)
-					// This is kind of lame, really.
-					return;
+    var showPrice = function (value) {
+        var elem = document.getElementById("price-div");
+        elem.innerHTML = "<h3>Total cost: $" + value.toString() + "</h3>";
+        elem.hidden = false;
+    };
 
-				var hourDiff = Math.abs(endTime.getTime() - startTime.getTime()) / 1000 / 3600;
-				var totalUsage = 0.0;
-				var n = 0;
-				for (var i = 0; i < measurements.length; i++) {
-					var sensorData = measurements[i];
-					if (sensorData.measurement !== null) {
-						totalUsage += sensorData.measurement;
-						n++;
-					}
-				}
-				var totalPrice = elecPrice * hourDiff * totalUsage / n;
-				showPrice(totalPrice);
-			});
-		};
+    // Replaces measurement data that consists of 'null'
+    // measurements only, by a simple empty array. This
+    // allows us to display an accurate error message.
+    var processData = function (json) {
+        for (var i = 0; i < json.length; i++) {
+            if (json[i].measurement !== null)
+                return json;
+            else if (comparebool) {
+                json[i].measurement = 0;
+            }
+        }
+        return comparebool ? json : [];
+    };
 
-		// Actually draws the chart, based on the given array
-		// of JSON measurements.
-		var drawData = function(json) {
-			if (json.length === 0) {
-			    showNoDataSaved();
-			}
-			else {
-				array = comparebool ? array : [];
-				for (var i = 0; i < json.length; i++) {
-					var sensorData = json[i];
-					var date = new Date(sensorData.timestamp);
-					var hmsstring = date.toISOString().substring(0, 19);
-					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
-					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
-					var regex = new RegExp('<br/>', 'g');
-					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					(comparebool && array.length == json.length) ? array[i].push(measured+10) : array.push([hmsstring, measured, notes, notespre+notes]);
-				}
-				
-				var data = new google.visualization.DataTable();
-				data.addColumn('string', 'Time');
-				data.addColumn('number', 'Usage');
-				data.addColumn('string', 'Notes');
-				data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
-				for(var x = 4; x < array[0].length; x++){
-					data.addColumn('number', 'Usage');
-				}
-				data.addRows(array);
-				// Set chart options
-				var options = {'width':600,
-								'height':500,
-								tooltip: {isHtml: true}};
-				// Instantiate and draw our chart, passing in some options.
-				var myView = new google.visualization.DataView(data);
-				myView.hideColumns([2]);
-				showChart();
-				var chart = new google.visualization.LineChart(chartElement);
-				google.visualization.events.addListener(chart, 'select', function(){
-					$('#dialog_confirm_map').modal({backdrop: false});
-					var selection = chart.getSelection()[0].row;
-					var oldnotes = data.getValue(selection, 2);
-					document.getElementById("notesarea").value = oldnotes;
-					notesupdate = '{"sensorId":' + currentsensor + ',"timestamp": "' + data.getValue(selection, 0).toString() + '","measurement":' + data.getValue(selection, 1) + ',"notes":"';
-				});
-				chart.draw(myView, options);
-				computePrice(currentsensor, data);
-			}
-		};
-		
-	    // Callback that creates and populates a data table,
-	    // instantiates the line chart, passes in the data and
-	    // draws it.
-	    var drawChart = function() {
-	    	if (currentsensor === null) {
-	    	    showNoSensorSelected();
-				return;
-	    	}
+    // Performs a GET REST call to our API,
+    // and parses the response as JSON.
+    var requestData = function (url, callback) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", url, true);
+        xmlhttp.onload = function (e) {
+            callback(processData(JSON.parse(xmlhttp.responseText)));
+        };
+        xmlhttp.send(null);
+    };
 
-	    	hidePrice();
-	    	showLoading();
-            
-			var url = "/api/autofit/" + currentsensor.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
-			return requestData(url, drawData);
+    // Formats the given date-time instance as an ISO date-time string.
+    var timeString = function (time) {
+        var seconds = time.getSeconds() < 10 ? "0" + time.getSeconds().toString() : time.getSeconds().toString();
+        var minutes = time.getMinutes() < 10 ? "0" + time.getMinutes().toString() : time.getMinutes().toString();
+        var hours = time.getHours() < 10 ? "0" + time.getHours().toString() : time.getHours().toString();
+        var day = time.getDate().toString();
+        var month = (time.getMonth() + 1).toString();
+        var year = time.getFullYear().toString();
+        var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
+        return datestring;
+    };
 
-	    };
-		
-	    // Load the Visualization API and the corechart package.
-	    google.charts.load('current', {'packages':['corechart']});
+    // Gets the location that is associated with the given
+    // location identifier.
+    // The given callback handles the resulting value.
+    var getLocation = function (locationId, callback) {
+        var xmlhttp = new XMLHttpRequest();
+        var url = "/api/locations/" + locationId.toString();
+        xmlhttp.open("GET", url, true);
+        xmlhttp.onload = function (e) {
+            callback(JSON.parse(xmlhttp.responseText));
+        };
+        xmlhttp.send(null);
+    };
 
-	    // Set a callback to run when the Google Visualization API is loaded.
-		google.charts.setOnLoadCallback(function() { drawChart() });
+    // Gets the location belonging to the given sensor.
+    // The given callback handles the resulting value.
+    var getSensorLocation = function (sensorId, callback) {
+        var xmlhttp = new XMLHttpRequest();
+        var url = "/api/sensors/" + sensorId.toString();
+        xmlhttp.open("GET", url, true);
+        xmlhttp.onload = function (e) {
+            getLocation(JSON.parse(xmlhttp.responseText).data.locationId, callback);
+        };
+        xmlhttp.send(null);
+    };
 
-		// Sets the time frame to 'minutes', 'hours',
-		// 'days' or 'months', and renders the chart. 
-		// This function is part of the public API.
-		this.setTimeframe = function(start_time, end_time) {
-			if(comparebool){
-				var diff = endTime.getTime() - startTime.getTime();
-				startTime = start_time;
-				endTime.setTime(startTime.getTime() + diff);
-			}else{
-				startTime = start_time;
-				endTime = end_time;
-				sort();
-			}
-			drawChart();
-		};
+    // Computes and displays the total electricity price
+    // for the given sensor and array of measurements.
+    var computePrice = function (sensorId, measurements) {
+        getSensorLocation(sensorId, function (loc) {
+            // A location stores its price per unit of electricity as currency/kWh.
+            // Since we want the total electricity price, we will multiply
+            // the location's price per unit by the total time, and the average
+            // electricity usage of the currently selected sensor.
+            var elecPrice = loc.data.electricityPrice;
+            if (elecPrice === null)
+                // This is kind of lame, really.
+                return;
 
-		// Sets the maximal number of measurements that
-		// is rendered by this chart.
-		this.setMaxMeasurementCount = function(n) {
-			measurementCount = n;
-			drawChart();
-		};
+            var hourDiff = Math.abs(endTime.getTime() - startTime.getTime()) / 1000 / 3600;
+            var totalUsage = 0.0;
+            var n = 0;
+            for (var i = 0; i < measurements.length; i++) {
+                var sensorData = measurements[i];
+                if (sensorData.measurement !== null) {
+                    totalUsage += sensorData.measurement;
+                    n++;
+                }
+            }
+            var totalPrice = elecPrice * hourDiff * totalUsage / n;
+            showPrice(totalPrice);
+        });
+    };
 
-		// Sets the ID of the sensor whose data is
-		// to be rendered, and renders the chart
-		// for that sensor.
-		// This function is part of the public API.
-		this.setId = function(x) {
-			currentsensor = x;
-			array = [];
-			drawChart();
-		};
+    // Actually draws the chart, based on the given array
+    // of JSON measurements.
+    var drawData = function (json) {
+        if (json.length === 0) {
+            showNoDataSaved();
+        }
+        else {
+            array = comparebool ? array : [];
+            for (var i = 0; i < json.length; i++) {
+                var sensorData = json[i];
+                var date = new Date(sensorData.timestamp);
+                var hmsstring = date.toISOString().substring(0, 19);
+                var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
+                var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
+                var regex = new RegExp('<br/>', 'g');
+                var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
+                (comparebool && array.length == json.length) ? array[i].push(measured + 10) : array.push([hmsstring, measured, notes, notespre + notes]);
+            }
 
-		//Updates the notes in the database
-		this.updateNotes = function(){
-			var diff = endTime.getTime() - startTime.getTime();
-			var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-			var hours = Math.floor(diff / (1000 * 60 * 60));
-			var mins = Math.floor(diff / (1000 * 60));
-			var xmlhttp = new XMLHttpRequest();
-			if(mins <= measurementCount){
-				xmlhttp.open("PUT", "api/measurements/updatetag");
-			}else if(hours <= measurementCount){
-				xmlhttp.open("PUT", "api/hour-average/updatetag");
-			}else if(days <= measurementCount){
-				xmlhttp.open("PUT", "api/day-average/updatetag");
-			}else{
-				xmlhttp.open("PUT", "api/month-average/updatetag");
-			}
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Time');
+            data.addColumn('number', 'Usage');
+            data.addColumn('string', 'Notes');
+            data.addColumn({ type: 'string', role: 'tooltip', 'p': { 'html': true } });
+            for (var x = 4; x < array[0].length; x++) {
+                data.addColumn('number', 'Usage');
+            }
+            data.addRows(array);
+            // Set chart options
+            var options = {
+                'width': 600,
+                'height': 500,
+                tooltip: { isHtml: true }
+            };
+            // Instantiate and draw our chart, passing in some options.
+            var myView = new google.visualization.DataView(data);
+            myView.hideColumns([2]);
+            showChart();
+            var chart = new google.visualization.LineChart(chartElement);
+            google.visualization.events.addListener(chart, 'select', function () {
+                $('#dialog_confirm_map').modal({ backdrop: false });
+                var selection = chart.getSelection()[0].row;
+                var oldnotes = data.getValue(selection, 2);
+                document.getElementById("notesarea").value = oldnotes;
+                notesupdate = '{"sensorId":' + currentsensor + ',"timestamp": "' + data.getValue(selection, 0).toString() + '","measurement":' + data.getValue(selection, 1) + ',"notes":"';
+            });
+            chart.draw(myView, options);
 
-			xmlhttp.setRequestHeader("Content-type", "application/json");
-			var area = document.getElementById('notesarea').value;
-			var regex = new RegExp('\n', 'g');
-			var raw = area.replace(regex, "<br/>");
-			var str = JSON.parse(notesupdate + raw + '"}');
-			xmlhttp.send(JSON.stringify(str));
-			drawChart();
-		}
-		
-		this.toggleCompare = function(){
-			if(comparebool){
-				comparebool=false;
-				$('#compare').addClass('btn-default');
-				$('#compare').removeClass('btn-success');
-			}else{
-				comparebool=true;
-				$('#compare').addClass('btn-success');
-				$('#compare').removeClass('btn-default');
-			}
-		}
-		
-		this.getSensorTotalUsage = function(x){
-		var responses = [];
-		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("GET", "/api/autofit/total/" + x.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount, false);
-		var x = 0;
-		xmlhttp.send(null);
-		x = xmlhttp.responseText;
-		return x;
-	}
-		// Re-renders this chart.
-		this.draw = drawChart;
-	}
+            document.getElementById('graphURI').value = chart.getImageURI();
+
+            computePrice(currentsensor, data);
+        }
+    };
+
+    // Callback that creates and populates a data table,
+    // instantiates the line chart, passes in the data and
+    // draws it.
+    var drawChart = function () {
+        if (currentsensor === null) {
+            showNoSensorSelected();
+            return;
+        }
+
+        hidePrice();
+        showLoading();
+        
+        var url = "/api/autofit/" + currentsensor.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
+        return requestData(url, drawData);
+
+    };
+
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', { 'packages': ['corechart'] });
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(function () { drawChart() });
+
+    // Sets the time frame to 'minutes', 'hours',
+    // 'days' or 'months', and renders the chart. 
+    // This function is part of the public API.
+    this.setTimeframe = function (start_time, end_time) {
+        if (comparebool) {
+            var diff = endTime.getTime() - startTime.getTime();
+            startTime = start_time;
+            endTime.setTime(startTime.getTime() + diff);
+        } else {
+            startTime = start_time;
+            endTime = end_time;
+            sort();
+        }
+        drawChart();
+    };
+
+    // Sets the maximal number of measurements that
+    // is rendered by this chart.
+    this.setMaxMeasurementCount = function (n) {
+        measurementCount = n;
+        drawChart();
+    };
+
+    // Sets the ID of the sensor whose data is
+    // to be rendered, and renders the chart
+    // for that sensor.
+    // This function is part of the public API.
+    this.setId = function (x) {
+        currentsensor = x;
+        array = [];
+        drawChart();
+    };
+
+    //Updates the notes in the database
+    this.updateNotes = function () {
+        var diff = endTime.getTime() - startTime.getTime();
+        var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        var hours = Math.floor(diff / (1000 * 60 * 60));
+        var mins = Math.floor(diff / (1000 * 60));
+        var xmlhttp = new XMLHttpRequest();
+        if (mins <= measurementCount) {
+            xmlhttp.open("PUT", "api/measurements/updatetag");
+        } else if (hours <= measurementCount) {
+            xmlhttp.open("PUT", "api/hour-average/updatetag");
+        } else if (days <= measurementCount) {
+            xmlhttp.open("PUT", "api/day-average/updatetag");
+        } else {
+            xmlhttp.open("PUT", "api/month-average/updatetag");
+        }
+
+        xmlhttp.setRequestHeader("Content-type", "application/json");
+        var area = document.getElementById('notesarea').value;
+        var regex = new RegExp('\n', 'g');
+        var raw = area.replace(regex, "<br/>");
+        var str = JSON.parse(notesupdate + raw + '"}');
+        xmlhttp.send(JSON.stringify(str));
+        drawChart();
+    }
+
+    this.toggleCompare = function () {
+        if (comparebool) {
+            comparebool = false;
+            $('#compare').addClass('btn-default');
+            $('#compare').removeClass('btn-success');
+        } else {
+            comparebool = true;
+            $('#compare').addClass('btn-success');
+            $('#compare').removeClass('btn-default');
+        }
+    }
+
+    this.getSensorTotalUsage = function (x) {
+        var responses = [];
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "/api/autofit/total/" + x.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount, false);
+        var x = 0;
+        xmlhttp.send(null);
+        x = xmlhttp.responseText;
+        return x;
+    }
+    // Re-renders this chart.
+    this.draw = drawChart;
+}
 
 </script>
 

@@ -286,22 +286,30 @@ namespace SmartHomeWeb.Modules
 
             // Get all messages addressed to the current user
             IEnumerable<WallPost> posts;
+            IEnumerable<Graph> graphs;
             var signedIn = Context.CurrentUser.IsAuthenticated();
+            string recipientName;
             using (var dc = await DataConnection.CreateAsync())
             {
+                Person sender = signedIn ? await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName) : null;
                 Person recipient = await dc.GetPersonByUsernameAsync(parameters.username);
+                graphs = signedIn ? await dc.GetGraphsByOwnerAsync(sender.Guid.ToString()) : new List<Graph>();
                 posts = await dc.GetWallPostsAsync(recipient.Guid);
+                recipientName = recipient.Data.Name;
             }
-            var viewstuff = new Tuple<string, IEnumerable<WallPost>, bool>(parameters.username, posts, signedIn);
+            var viewstuff = new Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>(recipientName, posts, signedIn, graphs);
             return View["wall.cshtml", viewstuff];
         }
         private async Task<dynamic> PostWall(dynamic parameters, CancellationToken ct)
         {
             using (var dc = await DataConnection.CreateAsync())
             {
-                var recipient = (await dc.GetPersonByUsernameAsync(parameters.username)).Guid;
-                var sender = CurrentUserGuid();
+                var recipient = await dc.GetPersonByUsernameAsync(parameters.username);
+                var sender = await dc.GetPersonByGuidAsync(CurrentUserGuid());
                 var message = FormHelpers.GetString(Request.Form, "wallpost");
+                int test = int.Parse(FormHelpers.GetString(Request.Form, "graph"));
+                Console.WriteLine(test);
+                var graph = await dc.GetGraphByIdAsync(test);
 
                 if (string.IsNullOrWhiteSpace(message))
                 {
@@ -309,7 +317,8 @@ namespace SmartHomeWeb.Modules
                 }
                 else
                 {
-                    await dc.InsertMessageAsync(new MessageData(sender, recipient, message));
+                    await dc.InsertWallPostAsync(new WallPost(0, sender, recipient, message, graph));
+                        //insert doesnt touch the id and the object gets destroyed after, so we just use temp value. np.
                 }
             }
 
@@ -457,7 +466,8 @@ namespace SmartHomeWeb.Modules
         {
             this.RequiresAuthentication();
             var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
-            var items = new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>();
+            var items = new Tuple<List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>, string>
+                                        (new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>(), CurrentUserGuid().ToString());
 
             foreach (var location in locations)
             {
@@ -469,7 +479,7 @@ namespace SmartHomeWeb.Modules
                 
                 IEnumerable<string> tags = await DataConnection.Ask(x => x.GetTagsAtLocationAsync(location));
 
-                items.Add(new Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>(location, tags, taggedSensors));
+                items.Item1.Add(new Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>(location, tags, taggedSensors));
             }
 
             return View["dashboard.cshtml", items];
