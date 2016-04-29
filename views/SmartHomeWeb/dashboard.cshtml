@@ -57,6 +57,7 @@ else
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
 					<div class="panel-body tab-content">
 						<button onclick="measurementsGraph.toggleCompare()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="compare">C</button>
+						<button onclick="measurementsGraph.toggleGroup()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="group">G</button>
 					</div>
 				</div>				
 			</div>
@@ -103,11 +104,11 @@ else
         </div>
 
 		<div class="col-sm-4">
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="height: 560px;">
 
                 <div class="panel-heading">@(TextResources.SensorSelectorTitle)<select id='sortselect' style="float:right;width: 25%;" onchange="sort()"><option value="a-z">A-Z</option><option value="usage">Usage</option></select></div>
 
-                <div class="panel-body tab-content pre-scrollable">
+                <div class="panel-body tab-content pre-scrollable" style="max-height: 93%">
 
                     @for (int x = 0; x < @Model.Count; ++x)
                     {
@@ -194,15 +195,16 @@ else
 <script>
     $(document).ready(function () {
         // Make sensor selection look good
-        $('.nav li .clickable-item').click(function (e) {
-
+        $('.nav').on('click', "li .clickable-item", function (e) {
             var $parent = $(this).parent();
             var $holder = $parent.parent();
-            $holder.children().removeClass('active');
+			if(!measurementsGraph.getGroup()){$holder.children().removeClass('active');}
 
             if (!$parent.hasClass('active')) {
                 $parent.addClass('active');
-            }
+            }else if(measurementsGraph.getGroup()){
+				$parent.removeClass('active');
+			}
         });
 
         // Make tag selection work and look good

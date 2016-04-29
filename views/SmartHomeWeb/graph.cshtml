@@ -50,9 +50,10 @@
 		var endTime = new Date();
 		var startTime = new Date();
 		startTime.setHours(endTime.getHours() - 1);
-		var currentsensor = null;
+		var currentsensor = [];
 		var notesupdate = {};
 		var comparebool = false;
+		var groupbool = false;
 		var array = [];
 		
 		
@@ -186,7 +187,7 @@
 			    showNoDataSaved();
 			}
 			else {
-				array = comparebool ? array : [];
+				array = (!comparebool && !groupbool) ? [] : array;
 				for (var i = 0; i < json.length; i++) {
 					var sensorData = json[i];
 					var date = new Date(sensorData.timestamp);
@@ -195,7 +196,13 @@
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
 					var regex = new RegExp('<br/>', 'g');
 					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					(comparebool && array.length == json.length) ? array[i].push(measured+10) : array.push([hmsstring, measured, notes, notespre+notes]);
+					if(comparebool && array.length == json.length){
+						array[i].push(measured+10);
+					}else if(groupbool && array.length == json.length){
+						array[i][1] += measured;
+					}else{
+						array.push([hmsstring, measured, notes, notespre+notes])
+					}
 				}
 				
 				var data = new google.visualization.DataTable();
@@ -217,6 +224,7 @@
 				showChart();
 				var chart = new google.visualization.LineChart(chartElement);
 				google.visualization.events.addListener(chart, 'select', function(){
+					if(groupbool){return};
 					$('#dialog_confirm_map').modal({backdrop: false});
 					var selection = chart.getSelection()[0].row;
 					var oldnotes = data.getValue(selection, 2);
@@ -232,17 +240,17 @@
 	    // instantiates the line chart, passes in the data and
 	    // draws it.
 	    var drawChart = function() {
-	    	if (currentsensor === null) {
+	    	if (currentsensor.length === 0) {
 	    	    showNoSensorSelected();
 				return;
 	    	}
-
 	    	hidePrice();
 	    	showLoading();
             
-			var url = "/api/autofit/" + currentsensor.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
-			return requestData(url, drawData);
-
+			for(var x = 0; x < currentsensor.length; ++x){
+				var url = "/api/autofit/" + currentsensor[x].toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
+				requestData(url, drawData);
+			}
 	    };
 		
 	    // Load the Visualization API and the corechart package.
@@ -279,8 +287,12 @@
 		// for that sensor.
 		// This function is part of the public API.
 		this.setId = function(x) {
-			currentsensor = x;
-			array = [];
+			if(groupbool){
+				currentsensor.indexOf(x) > -1 ? currentsensor.splice(currentsensor.indexOf(x), 1) : currentsensor.push(x);
+			}else{
+				currentsensor = [x];
+			}
+			array=[];
 			drawChart();
 		};
 
@@ -311,6 +323,7 @@
 		}
 		
 		this.toggleCompare = function(){
+			if(groupbool){this.toggleGroup()}
 			if(comparebool){
 				comparebool=false;
 				$('#compare').addClass('btn-default');
@@ -322,15 +335,32 @@
 			}
 		}
 		
+		this.toggleGroup = function(){
+			if(comparebool){this.toggleCompare()}
+			if(groupbool){
+				groupbool=false;
+				$('#group').addClass('btn-default');
+				$('#group').removeClass('btn-success');
+			}else{
+				groupbool=true;
+				$('#group').addClass('btn-success');
+				$('#group').removeClass('btn-default');
+			}
+		}
+		
 		this.getSensorTotalUsage = function(x){
-		var responses = [];
-		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("GET", "/api/autofit/total/" + x.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount, false);
-		var x = 0;
-		xmlhttp.send(null);
-		x = xmlhttp.responseText;
-		return x;
-	}
+			var responses = [];
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET", "/api/autofit/total/" + x.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount, false);
+			var x = 0;
+			xmlhttp.send(null);
+			x = xmlhttp.responseText;
+			return x;
+		}
+		
+		this.getGroup = function(){
+			return groupbool;
+		}
 		// Re-renders this chart.
 		this.draw = drawChart;
 	}
