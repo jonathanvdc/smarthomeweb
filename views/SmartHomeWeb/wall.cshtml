@@ -1,47 +1,139 @@
+@using System
 @using System.Collections.Generic
 @using System.Linq
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @using SmartHomeWeb
-@inherits NancyRazorViewBase<System.Tuple<string, IEnumerable<WallPost>, bool>>
-
-
+@using WallParameter = System.Tuple<System.String, System.Collections.Generic.IEnumerable<SmartHomeWeb.Model.WallPost>, System.Boolean, System.Collections.Generic.IEnumerable<SmartHomeWeb.Model.Graph>>
+@inherits NancyRazorViewBase<WallParameter>
 
 <h2>@string.Format(TextResources.WallPageTitle, Model.Item1)</h2>
+@{
+	var previewCounter = 0;
+}
+<div class="col-md-12">
+    @if (Model.Item3)
+    {
+        <div class="col-md-8">
+            <form method="post" id="wallpost_form">
+                <label for="wallpost">@string.Format(TextResources.NewWallPostLabel, Model.Item1):</label>
+                <input id="wallpost" name="wallpost" class="form-control"/>
+                <input id="graph" name="graph" class="form-control" style="display: none;"/>
+                <button type="submit" id="post_submit" class="btn btn-primary">@TextResources.Submit</button>
+            </form>
+        </div>
+        <div class="col-md-4 container">
+            @if (Model.Item4 != null)
+            {
+                for (int i = 0; i < @Model.Item4.Count(); ++i)
+                {
+                    var g = Model.Item4.ElementAt(i);
+                    <div id="g@(i)" class="clickable-item" style="width: 100%; display: table;">
+                        <div style="display: table-row">
+                            <div style="display: table-cell;">
+                                <div class="text-center">
+                                    <strong>@g.GraphName</strong>
+                                </div>
+                                <input id="hg@(i)" style="display: none;" value='@g.GraphURI'/>
+                                <input id="hg@(i)id" style="display: none;" value='@g.Id'/>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <div id="graphPreview_div" class="center-block" style="display: none;">
+            <img id="graphPreview" src=""/>
+            <button id="removeGraphbtn" type="reset" class="btn btn-default">Remove graph</button>
+        </div>
+    }
+</div>
+<div class="centered col-md-12">
+    @if (!Model.Item2.Any())
+    {
+        <p>@TextResources.WallNoMessages</p>
+    }
+    else
+    {
+        <ul class="media-list">
+            @foreach (var m in Model.Item2)
+            {
+                <li class="media">
+                    <div class="media-left">
+                        <a href="/person/@m.Source.Data.UserName">
+                            <div class="profile-avatar-small avatar-@Math.Abs(m.Source.Guid.GetHashCode() % 4)"></div>
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <h4 class="media-heading message-header">
+                            @Html.Raw(string.Format(TextResources.WallPostHeader, m.Source.Data.UserName, m.Source.Data.Name))
+                        </h4>
+                        <div class="bubble col-md-8">
+                            @m.Message
+                            @if (m.Image != null)
+                            {
+                                <div id="imagePreview@(previewCounter)Wrapper" class="col-md-4">
+                                    <div class="container">
+                                        <img id="imagePreview@(previewCounter)" src="@m.Image.GraphURI" alt="@TextResources.GraphWontShow" style="height: 200px; width: 200px;" />
+                                        @{
+                                            previewCounter++;
+                                        }
+                                    </div>
+                                </div>}
+                        </div>
 
-@if(Model.Item3)
-{
-    <form method="post">
-	    <label for="wallpost">@string.Format(TextResources.NewWallPostLabel, Model.Item1):</label>
-	    <input id="wallpost" name="wallpost" class="form-control"/>
-		<button type="submit" class="btn btn-primary">@TextResources.Submit</button>
-    </form>
-}
-@if (!Model.Item2.Any())
-{
-    <p>@TextResources.WallNoMessages</p>
-}
-else
-{
-    <ul class="media-list">
-        @foreach (var m in Model.Item2)
-        {
-            <li class="media">
-              <div class="media-left">
-                <a href="/person/@m.SourceUserName">
-	                <div class="profile-avatar-small"></div>
-                </a>
-              </div>
-              <div class="media-body">
-	              <h4 class="media-heading message-header">
-		              @string.Format(TextResources.MessageHeader, m.SourceUserName)
-	              </h4>
-	              <div class="bubble">
-		              @m.Message
-	              </div>
-              </div>
-            </li>
-        }
-    </ul>
-}
+                    </div>
+                </li>   }
+        </ul>
+    }
+</div>
 
+@if (Model.Item3)
+{
+    <script type="text/javascript">
+        window.addEventListener("load", function() {
+            document.getElementById('wallpost_form').action = window.location.href + '/wall';
+        });
+        document.getElementById('removeGraphbtn').addEventListener("click", function() {
+            document.getElementById('graphPreview').src = null;
+            document.getElementById('graphPreview_div').style = 'display: none';
+            document.getElementById('graph').value = null;
+        });
+    </script>
+}
+<script type="text/javascript">
+    function createGraphPreviewClickFunction(i) {
+        return function() {
+            document.getElementById('graphPreview').src = document.getElementById('hg' + i).value;
+            document.getElementById('graphPreview_div').style = '';
+            document.getElementById('graph').value = document.getElementById('hg' + i + 'id').value;
+        };
+    }
+
+    for (i = 0; i < @Model.Item4.Count(); ++i) {
+        document.getElementById('g' + i).addEventListener("click", createGraphPreviewClickFunction(i));
+    }
+    
+    function createBigImagePreviewClickFunction(i) {
+        return function() {
+            document.getElementById('imagePreview' + i).style = 'height: 400px; width: 400px;';
+            document.getElementById('imagePreview' + i + 'Wrapper').classList.remove('col-md-4');
+            document.getElementById('imagePreview' + i + 'Wrapper').classList.add('col-md-7');
+            document.getElementById('imagePreview' + i).removeEventListener("click", createBigImagePreviewClickFunction(i));
+            document.getElementById('imagePreview' + i).addEventListener("click", createSmallImagePreviewClickFunction(i));
+        };
+    }
+    function createSmallImagePreviewClickFunction(i) {
+        return function() {
+            document.getElementById('imagePreview' + i).style = 'height: 200px; width: 200px;';
+            document.getElementById('imagePreview' + i + 'Wrapper').classList.remove('col-md-7');
+            document.getElementById('imagePreview' + i + 'Wrapper').classList.add('col-md-4');
+            document.getElementById('imagePreview' + i).removeEventListener("click", createSmallImagePreviewClickFunction(i));
+            document.getElementById('imagePreview' + i).addEventListener("click", createBigImagePreviewClickFunction(i));
+
+        };
+    }
+    for (i = 0; i < @previewCounter; ++i) {
+        document.getElementById('imagePreview' + i).addEventListener("click", createBigImagePreviewClickFunction(i));
+    }
+</script>

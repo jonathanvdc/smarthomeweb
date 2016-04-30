@@ -36,13 +36,13 @@ namespace SmartHomeWeb.Modules.API
 			{
 				return Connection.GetHourAveragesAsync(
 					SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromHours(1)), 
-					(int)Math.Ceiling(timeSpan.TotalHours));
+					(int)Math.Round(timeSpan.TotalHours));
 			}
 			else if (timeSpan.TotalDays <= MaxMeasurementCount)
 			{
 				return Connection.GetDayAveragesAsync(
 					SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromDays(1)), 
-					(int)Math.Ceiling(timeSpan.TotalDays));
+					(int)Math.Round(timeSpan.TotalDays));
 			}
 			else
 			{
@@ -81,13 +81,13 @@ namespace SmartHomeWeb.Modules.API
             {
                 measurements = await Connection.GetHourAveragesAsync(
                     SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromHours(1)),
-                    (int)Math.Ceiling(timeSpan.TotalHours));
+                    (int)Math.Round(timeSpan.TotalHours));
             }
             else if (timeSpan.TotalDays <= MaxMeasurementCount)
             {
                 measurements = await Connection.GetDayAveragesAsync(
                     SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromDays(1)),
-                    (int)Math.Ceiling(timeSpan.TotalDays));
+                    (int)Math.Round(timeSpan.TotalDays));
             }
             else
             {

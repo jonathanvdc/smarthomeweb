@@ -4,15 +4,18 @@ namespace SmartHomeWeb.Model
 {
     public class WallPost
     {
-        public string SourceUserName;
-        public string DestinationUserName;
+        public int Id;
+        public Person Source;
+        public Person Destination;
         public string Message;
-
-        public WallPost(string src, string dest, string message)
+        public Graph Image;
+        public WallPost(int id, Person src, Person dest, string message, Graph image = null)
         {
-            SourceUserName = src;
-            DestinationUserName = dest;
+            Id = id;
+            Source = src;
+            Destination = dest;
             Message = message;
+            Image = image;
         }
 
     }

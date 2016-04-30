@@ -33,9 +33,20 @@
  		<h4>@TextResources.TotalElectricityPrice: ???</h4>
     </div>
 
-    <div id="chart_div" hidden>
-        <!-- Graph goes here -->
-    </div>
+	<div id="chart_div" hidden>
+		<!-- Graph goes here -->
+	</div>
+
+	<div id="graphSave_div" hidden>
+		<input type="text" id="graphURI" name="graphURI" style="display: none"/>
+		<div class="input-group">
+			<input type="text" id="graphName" name="graphName" class="form-control"/>
+			<span class="input-group-btn">
+                <button class="btn btn-default form-control" type="button" id="graphSaveButton" name="graphSaveButton">Save</button>
+            </span>
+		</div>
+	</div>
+
 </div>
 
 
@@ -43,6 +54,36 @@
 
 <script type="text/javascript">
     
+    var request = new XMLHttpRequest();
+    var done = false;
+    request.onreadystatechange = function() {
+        if ((request.status == 200 || request.status == 201 || request.status == 202) && !done) {
+            alert('@(TextResources.SuccessfullySaved)!');
+            done = true;
+        }
+        if ((request.status == 404 || request.status == 500 || request.status == 403 || request.status == 400 || request.status == 401 || request.status == 408) && !done) {
+            alert('@(TextResources.SaveFailure)');
+            done = true;
+        }
+
+    }
+    document.getElementById("graphSaveButton").addEventListener("click", function () {
+        done = false;
+        var graphname = document.getElementById("graphName").value;
+        if (graphname == '') {
+            alert('@TextResources.PleaseEnterAName');
+            return;
+        } else {
+            var username = '@Model';
+            var url = '/api/graphs';
+
+            var params = '{"Owner":"' + username + '", "GraphURI":"' + document.getElementById("graphURI").value + '", "GraphName":"' + graphname + '"}';
+            request.open("POST", url, true);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(params);
+        }
+    });
+
     var chartElement = document.getElementById("chart_div");
 
 	measurementsGraph = new function() {
@@ -59,6 +100,7 @@
 		
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
+		    document.getElementById('graphSave_div').hidden = !(index == 0);
 		    document.getElementById("no-data-message").hidden = !(index == 1);
 		    document.getElementById("no-sensor-message").hidden = !(index == 2);
 		    document.getElementById("loading-message").hidden = !(index == 3);
@@ -196,7 +238,7 @@
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
 					var regex = new RegExp('<br/>', 'g');
 					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					if(comparebool && array.length == json.length){
+					if(comparebool && array.length != 0){
 						array[i].push(measured);
 						array[i][0] = i.toString();
 					}else if(groupbool && array.length == json.length){
@@ -205,7 +247,7 @@
 						array.push([hmsstring, measured, notes, notespre+notes])
 					}
 				}
-				
+
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Time');
 				data.addColumn('number', 'Usage');
@@ -234,7 +276,8 @@
 					notesupdate = '{"sensorId":' + currentsensor + ',"timestamp": "' + data.getValue(selection, 0).toString() + '","measurement":' + data.getValue(selection, 1) + ',"notes":"';
 				});
 				chart.draw(myView, options);
-				computePrice(currentsensor, data);
+				document.getElementById('graphURI').value = chart.getImageURI();
+				computePrice(currentsensor, json);
 			}
 		};
 		
@@ -265,7 +308,7 @@
 		// 'days' or 'months', and renders the chart. 
 		// This function is part of the public API.
 		this.setTimeframe = function(start_time, end_time) {
-			if(comparebool){
+			if(comparebool && array.length != 0){
 				var diff = endTime.getTime() - startTime.getTime();
 				startTime = start_time;
 				endTime.setTime(startTime.getTime() + diff);

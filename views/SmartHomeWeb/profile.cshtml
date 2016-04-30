@@ -4,11 +4,13 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<System.Tuple<Person, FriendsState>>
+@using ProfileParameter = System.Tuple<SmartHomeWeb.Model.Person, SmartHomeWeb.Model.FriendsState>
+@using WallParameter = System.Tuple<System.String, System.Collections.Generic.IEnumerable<SmartHomeWeb.Model.WallPost>, System.Boolean, System.Collections.Generic.IEnumerable<SmartHomeWeb.Model.Graph>>
+@inherits NancyRazorViewBase<System.Tuple<ProfileParameter, WallParameter>>
 
-@if (@Model.Item1 != null)
+@if (@Model.Item1.Item1 != null)
 {
-    Person user = @Model.Item1;
+    Person user = @Model.Item1.Item1;
 
     <h1>
         @user.Data.Name (@user.Data.UserName)
@@ -32,13 +34,13 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <ul class="list">
-                    <li><b>@TextResources.PersonGUIDLabel:</b>        <samp>@user.Guid</samp></li>
-                    <li><b>@TextResources.PersonBirthdateLabel:</b>    @user.Data.Birthdate.ToLongDateString()</li>
+                    <li><b>@TextResources.PersonGUIDLabel:</b> <samp>@user.Guid</samp></li>
+                    <li><b>@TextResources.PersonBirthdateLabel:</b> @user.Data.Birthdate.ToLongDateString()</li>
                     @{
                         // Don't print empty addresses.
                         if (!string.IsNullOrEmpty(user.Data.Address)
-                        || !string.IsNullOrEmpty(user.Data.ZipCode)
-                        || !string.IsNullOrEmpty(user.Data.City))
+                            || !string.IsNullOrEmpty(user.Data.ZipCode)
+                            || !string.IsNullOrEmpty(user.Data.City))
                         {
                             <li>
                                 <b>@TextResources.PersonAddressLabel:</b>
@@ -52,9 +54,9 @@
                                     ("<address>", "", "<zip>") -> "<address>, <zip>"
                                 *@
                                 @(string.Join(
-            ", ",
-            new string[] { user.Data.Address, user.Data.ZipCode + " " + user.Data.City }
-            .Select(item => item.Trim()).Where(item => !string.IsNullOrEmpty(item))))
+                                      ", ",
+                                      new string[] {user.Data.Address, user.Data.ZipCode + " " + user.Data.City}
+                                          .Select(item => item.Trim()).Where(item => !string.IsNullOrEmpty(item))))
                             </li>
                         }
                     }
@@ -63,9 +65,9 @@
                 <div id="add-friend-container">
                     @if (Context.CurrentUser.IsAuthenticated())
                     {
-                        if (Model.Item1.Data.UserName != Context.CurrentUser.UserName)
+                        if (Model.Item1.Item1.Data.UserName != Context.CurrentUser.UserName)
                         {
-                            switch (Model.Item2)
+                            switch (Model.Item1.Item2)
                             {
                                 case FriendsState.None:
                                     <form method="post">
@@ -98,6 +100,7 @@
                 </div>
             </div>
         </div>
+        @Html.Partial("wall.cshtml", Model.Item2)
     </div>
 
 }

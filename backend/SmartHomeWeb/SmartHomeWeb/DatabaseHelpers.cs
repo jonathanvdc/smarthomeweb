@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using SmartHomeWeb.Model;
@@ -66,17 +67,36 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
+        /// Assume we joined message, person, person to get a full representation of the record.
+        /// Offset the 4 Message fields, then 9 fields for each person we've done previously.
+        /// Ie, 0 or 9.
+        /// Then get by column number, because the columns retain identical names in this representation, for some bizarre reason.
+        /// </summary>
+        public static Person ReadPerson(IDataRecord Record, int index)
+        {
+            var offset = 10 + index * 9;
+            return new Person(Record.GetGuid(offset), 
+                new PersonData(
+                    Record.GetString(offset + 1), Record.GetString(offset + 3),
+                    Record.GetString(offset + 2), ParseUnixTimeStamp(Record.GetInt64(offset + 4)),
+                    Record.GetString(offset + 5), Record.GetString(offset + 6),
+                    Record.GetString(offset + 7), Record.GetBoolean(offset + 8)));
+
+                
+
+        }
+        /// <summary>
         /// Reads a person entity from the given record.
         /// </summary>
         public static Person ReadPerson(IDataRecord Record)
         {
             return new Person(
-                GetGuid(Record, "guid"), 
+                GetGuid(Record, "guid"),
                 new PersonData(
-                    GetString(Record, "username"), GetString(Record, "password"),
+                    GetString(Record,"username"), GetString(Record, "password"),
                     GetString(Record, "name"), GetDateTime(Record, "birthdate"),
-                    GetString(Record, "address"), GetString(Record, "city"), 
-					GetString(Record, "zipcode"), GetBoolean(Record, "isAdmin")));
+                    GetString(Record, "address"), GetString(Record, "city"),
+                    GetString(Record, "zipcode"), GetBoolean(Record, "isAdmin")));
         }
         /// <summary>
         /// Reads a group entity from the given record.
@@ -164,6 +184,33 @@ namespace SmartHomeWeb
 				GetDateTime(Record, "endTime"), 
 				(CompactionLevel)GetInt32(Record, "compactionLevel"));
 		}
+
+        public static Graph ReadGraph(IDataRecord record)
+        {
+            if (GetString(record, "graph") != null && GetString(record, "name") != null &&
+                GetString(record, "owner") != null)
+            {
+                return new Graph(
+                    GetString(record, "graph"),
+                    GetString(record, "name"),
+                    GetString(record, "owner"),
+                    GetInt32(record, "graphId")
+                );
+            }
+            return null;
+
+        }
+
+        public static WallPost ReadWallPost(IDataRecord record)
+        {
+            return new WallPost(
+                GetInt32(record, "id"),
+                ReadPerson(record, 0),
+                ReadPerson(record, 1),
+                GetString(record, "message"),
+                ReadGraph(record)
+                );
+        }
     }
 }
 

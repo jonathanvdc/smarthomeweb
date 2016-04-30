@@ -1149,6 +1149,23 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
+        /// Deletes the measurement made by the given sensor during 
+        /// the given period of time [StartTime, EndTime)
+        /// from the table with the given name.  
+        /// </summary>
+        private async Task DeleteMeasurementAsync(string TableName, DateTime StartTime, DateTime EndTime)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"DELETE FROM {TableName} " +
+                    "WHERE unixtime >= @startTime AND unixtime < @endTime";
+                cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+                cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
         /// Inserts the given measurement into the Measurement table.
         /// </summary>
         /// <param name="Data">The measurement to insert into the table.</param>
@@ -1495,142 +1512,114 @@ namespace SmartHomeWeb
 		/// The given period of time is subsequently frozen: further 
 		/// measurement insertion is disallowed during this period.
 		/// </summary>
-		public async Task CompactAsync(DateTime StartTime, DateTime EndTime, CompactionLevel Level = CompactionLevel.Measurements)
+		public async Task CompactAsync(
+            DateTime StartTime, DateTime EndTime, 
+            CompactionLevel Level = CompactionLevel.Measurements)
 		{
 			if (EndTime < StartTime)
 				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
 
-			var overlap = await GetFrozenPeriodsAsync(StartTime, EndTime);
+            // Figure out which quantization scheme we should use.
+            // Also create an aggregation function and a list
+            // of tables that are to be compacted.
+            Func<DateTime, DateTime> compactQuantizer;
+            Func<DateTime, DateTime> freezeQuantizer;
+            Func<int, DateTime, DateTime, Task> aggregate;
+            string[] compactedTableNames;
+            switch (Level)
+            {
+                case CompactionLevel.DayAverages:
+                    compactQuantizer = MeasurementAggregation.QuantizeDay;
+                    freezeQuantizer = MeasurementAggregation.QuantizeMonth;
+                    aggregate = async (id, start, end) =>
+                    {
+                        // Compute month averages.
+                        var cache = new AggregationCache(this, id, start, end);
+                        for (var t = start; t < end; t = t.AddMonths(1))
+                        {
+                            await cache.GetMonthAverageAsync(t);
+                        }
+                        cache.DiscardHourAverages();
+                        cache.DiscardDayAverages();
+                        cache.FlushResults();
+                    };
+                    compactedTableNames = new string[] { DayAverageTableName, HourAverageTableName, MeasurementTableName };
+                    break;
+                case CompactionLevel.HourAverages:
+                    compactQuantizer = MeasurementAggregation.QuantizeHour;
+                    freezeQuantizer = MeasurementAggregation.QuantizeDay;
+                    aggregate = async (id, start, end) =>
+                    {           
+                        // Compute day averages.
+                        int dayCount = (int)Math.Ceiling((end - start).TotalDays);
 
-			foreach (var item in overlap)
-			{
-				if (!FrozenPeriod.IsEmptyRange(FrozenPeriod.Intersect(Tuple.Create(StartTime, EndTime), item.Range)) 
-					&& FrozenPeriod.Max(Level, item.Compaction) != Level)
-					throw new ArgumentException(
-						$"Period {item} was already compacted in a more aggressive manner, and overlaps with period {new FrozenPeriod(StartTime, EndTime, Level)}.");
-			}
+                        var cache = new AggregationCache(this, id, start, end);
+                        await cache.GetDayAveragesAsync(start, dayCount);
+                        cache.DiscardHourAverages();
+                        cache.FlushResults();
+                    };
+                    compactedTableNames = new string[] { HourAverageTableName, MeasurementTableName };
+                    break;
+                case CompactionLevel.Measurements:
+                    compactQuantizer = dt => dt;
+                    freezeQuantizer = MeasurementAggregation.QuantizeHour;
+                    aggregate = (id, start, end) =>
+                    {
+                        // Compute hour averages.
+                        int hourCount = (int)Math.Ceiling((end - start).TotalHours);
+                        return GetHourAveragesAsync(id, start, hourCount);
+                    };
+                    compactedTableNames = new string[] { MeasurementTableName };
+                    break;
+                case CompactionLevel.None:
+                default:
+                    compactQuantizer = dt => dt;
+                    freezeQuantizer = dt => dt;
+                    aggregate = (id, start, end) => Task.FromResult(true);
+                    compactedTableNames = new string[] { };
+                    break;
+            }
 
-			switch (Level)
-			{
-				case CompactionLevel.DayAverages:
-					await CompactDayAveragesAsync(
-						MeasurementAggregation.QuantizeMonth(StartTime), 
-						MeasurementAggregation.QuantizeMonth(EndTime));
-					break;
-				case CompactionLevel.HourAverages:
-					await CompactHourAveragesAsync(
-						MeasurementAggregation.QuantizeDay(StartTime), 
-						MeasurementAggregation.QuantizeDay(EndTime));
-					break;
-				case CompactionLevel.Measurements:
-					await CompactMeasurementsAsync(
-						MeasurementAggregation.QuantizeHour(StartTime), 
-						MeasurementAggregation.QuantizeHour(EndTime));
-					break;
-				case CompactionLevel.None:
-				default:
-					await FreezeAsync(StartTime, EndTime, Level);
-					break;
-			}
-		}
+            // Subdivide the period of time we'd like to subdivide
+            // compact.
+            var subdiv = await AggregationCache.PartitionByCompaction(
+                this, compactQuantizer(StartTime), compactQuantizer(EndTime), Level);
 
-		/// <summary>
-		/// Compacts the given period of time. First, all data in the given
-		/// period of time is aggregated, then all measurements are deleted. 
-		/// The given period of time is subsequently frozen: further 
-		/// measurement insertion is disallowed during this period.
-		/// </summary>
-		private async Task CompactMeasurementsAsync(DateTime StartTime, DateTime EndTime)
-		{
-			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
+            // Get all sensors in the database.
+            var allSensors = (await GetSensorsAsync()).ToArray();
 
-			// Get all sensors in the database.
-			var allSensors = await GetSensorsAsync();
+            // Aggregate data for all of these sensors.
+            // Try to parallelize that as much as possible, too.
+            var aggregationTasks = new Task[allSensors.Length];
+            for (int i = 0; i < allSensors.Length; i++)
+            {
+                aggregationTasks[i] = aggregate(
+                    allSensors[i].Id, freezeQuantizer(StartTime), 
+                    freezeQuantizer(EndTime));
+            }
+            await Task.WhenAll(aggregationTasks);
 
-			// Compute hour averages.
-			int hourCount = (int)Math.Ceiling((EndTime - StartTime).TotalHours);
-			await Task.WhenAll(allSensors.Select(
-				item => (Task)GetHourAveragesAsync(
-					item.Id, StartTime, hourCount)));
+            foreach (var item in subdiv)
+            {
+                // Compact all ranges which have the same compaction
+                // level as this function's given compaction level.
+                if (item.Compaction == Level)
+                {
+                    foreach (var table in compactedTableNames)
+                    {
+                        // Discard measurements.
+                        await DeleteMeasurementAsync(table, item.StartTime, item.EndTime);
+                    }
 
-			// Discard measurements.
-			foreach (var item in allSensors)
-			{
-				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
-			}
+                    // Freeze this period of time.
+                    await FreezeAsync(item.StartTime, item.EndTime, Level);
+                }
+            }
 
-			// Freeze this period of time.
-			await FreezeAsync(StartTime, EndTime, CompactionLevel.Measurements);
-		}
-
-		/// <summary>
-		/// Compacts the given period of time. First, all data in the given
-		/// period of time is aggregated, then all measurements and hour-averages are deleted. 
-		/// The given period of time is subsequently frozen: further 
-		/// measurement insertion is disallowed during this period.
-		/// </summary>
-		private async Task CompactHourAveragesAsync(DateTime StartTime, DateTime EndTime)
-		{
-			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
-
-			// Get all sensors in the database.
-			var allSensors = await GetSensorsAsync();
-
-			// Compute hour averages.
-			int dayCount = (int)Math.Ceiling((EndTime - StartTime).TotalDays);
-
-			// Discard measurements.
-			foreach (var item in allSensors)
-			{
-				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
-				await cache.GetDayAveragesAsync(StartTime, dayCount);
-				cache.DiscardHourAverages();
-				cache.FlushResults();
-
-				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
-				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
-			}
-
-			// Freeze this period of time.
-			await FreezeAsync(StartTime, EndTime, CompactionLevel.HourAverages);
-		}
-
-		/// <summary>
-		/// Compacts the given period of time. First, all data in the given
-		/// period of time is aggregated, then all measurements, hour-averages
-		/// and day-averages are deleted. 
-		/// The given period of time is subsequently frozen: further 
-		/// measurement insertion is disallowed during this period.
-		/// </summary>
-		private async Task CompactDayAveragesAsync(DateTime StartTime, DateTime EndTime)
-		{
-			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
-
-			// Get all sensors in the database.
-			var allSensors = await GetSensorsAsync();
-
-			// Discard measurements.
-			foreach (var item in allSensors)
-			{
-				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
-				for (var t = StartTime; t < EndTime; t = t.AddMonths(1))
-				{
-					await cache.GetMonthAverageAsync(t);
-				}
-				cache.DiscardHourAverages();
-				cache.DiscardDayAverages();
-				cache.FlushResults();
-
-				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
-				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
-				await DeleteMeasurementAsync(DayAverageTableName, item.Id, StartTime, EndTime);
-			}
-
-			// Freeze this period of time.
-			await FreezeAsync(StartTime, EndTime, CompactionLevel.DayAverages);
+            // Finally, freeze measurements in the vicinity, to keep 
+            // aggregation from going haywire.
+            await FreezeAsync(
+                freezeQuantizer(StartTime), freezeQuantizer(EndTime), Level);
 		}
 
         /// <summary>
@@ -1869,19 +1858,6 @@ namespace SmartHomeWeb
                 return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage);
             }
         }
-        private async Task<IEnumerable<WallPost>> ConvertMessagesToWallPosts(IEnumerable<Message> messages)
-        {
-            var wallposts = new List<WallPost>();
-            foreach (var m in messages)
-            {
-                wallposts.Add(new WallPost(
-                    (await GetPersonByGuidAsync(m.Data.SenderGuid)).Data.UserName,
-                    (await GetPersonByGuidAsync(m.Data.RecipientGuid)).Data.UserName,
-                    m.Data.Message)
-                );
-            }
-            return wallposts;
-        } 
         /// <summary>
         /// Creates a task to fetch all wallposts for a given user. 
         /// Retrieves all messages sent to that user, currently no private messaging is implemented.
@@ -1889,10 +1865,55 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<WallPost>> GetWallPostsAsync(Guid personGuid)
         {
-            var cmd = sqlite.CreateCommand();
-            cmd.CommandText = "SELECT * FROM Message WHERE recipient=@person";
-            cmd.Parameters.AddWithValue("@person", personGuid.ToString());
-            return await ConvertMessagesToWallPosts(await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage));
+            using (var cmd = sqlite.CreateCommand())
+            { 
+                cmd.CommandText = @"SELECT * FROM Message as m
+                LEFT JOIN HasAttachment as ha ON (m.id == ha.message_Id)
+                LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
+                INNER JOIN Person as p1 ON (m.sender = p1.guid)
+                INNER JOIN Person as p2 ON (m.recipient = p2.guid)
+                WHERE m.recipient=@person";
+                
+                cmd.Parameters.AddWithValue("@person", personGuid.ToString());
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
+            }
+        }
+
+        public async Task<Graph> GetGraphByIdAsync(int id)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE graphId=@id";
+                cmd.Parameters.AddWithValue("@id", id);
+
+                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
+            }
+        }
+        public async Task InsertWallPostAsync(WallPost wp)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"INSERT INTO Message (sender, recipient, message) VALUES (@sender, @recipient, @message)";
+                cmd.Parameters.AddWithValue("@sender", wp.Source.GuidString);
+                cmd.Parameters.AddWithValue("@recipient", wp.Destination.GuidString);
+                cmd.Parameters.AddWithValue("@message", wp.Message);
+                await cmd.ExecuteNonQueryAsync();
+                cmd.CommandText = "SELECT last_insert_rowid()";
+                var i = await cmd.ExecuteScalarAsync();
+                cmd.CommandText = "SELECT id from Message WHERE rowid=" + (long)i;
+                i = await cmd.ExecuteScalarAsync();
+                if (wp.Image != null)
+                {
+                    cmd.CommandText = @"INSERT INTO HasAttachment (message_Id, graph_Id) VALUES (@id, @id2)";
+                    cmd.Parameters.AddWithValue("@id", i);
+                    cmd.Parameters.AddWithValue("@id2", wp.Image.Id);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+                
+            }
+
+
         }
         /// <summary>
         /// Creates a task to fetch all the groups for a given user.
@@ -1925,13 +1946,18 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = @"SELECT * FROM Message WHERE recipient IN (
+                cmd.CommandText = @"SELECT * FROM Message as m
+                LEFT JOIN HasAttachment as ha ON (m.id == ha.messageId)
+                LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
+                INNER JOIN Person as p1 ON (m.sender=p1.guid)
+                INNER JOIN Person as p2 ON (m.recipient=p2.guid)
+                WHERE recipient IN (
                 SELECT person FROM BelongsTo WHERE personGroup=@groupid) 
                 OR sender IN (
                 SELECT person FROM BelongsTo WHERE personGroup=@groupid)";
                 cmd.Parameters.AddWithValue("@groupid", groupid);
 
-                return await ConvertMessagesToWallPosts(await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadMessage));
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
             }
         }
         /// <summary>
@@ -1939,6 +1965,7 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<Group> GetGroupByIdAsync(long groupid)
         {
+            
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"SELECT * FROM PersonGroup WHERE id=@groupid";
@@ -1977,12 +2004,50 @@ namespace SmartHomeWeb
                 var i = await cmd.ExecuteScalarAsync();
                 cmd.CommandText = "SELECT id from PersonGroup WHERE rowid=" + (long)i;
                 i = await cmd.ExecuteScalarAsync();
-                Console.WriteLine(i);
                 g.Id = (long)i;
                 
                 await InsertGroupMembersAsync(g);
             }
 
+        }
+        /// <summary>
+        /// Returns a graph matching the owner and name, should only ever be 1.
+        /// Returns null if no matching graph is found.
+        /// </summary>
+        public async Task<Graph> GetGraphByOwnerAndNameAsync(string owner, string name)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner AND name=@name";
+                cmd.Parameters.AddWithValue("@owner", owner);
+                cmd.Parameters.AddWithValue("@name", name);
+
+                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
+            }
+        }
+
+        public async Task<IEnumerable<Graph>> GetGraphsByOwnerAsync(string owner)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner";
+                cmd.Parameters.AddWithValue("@owner", owner);
+
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGraph);
+            }
+        }
+
+        public async Task InsertGraphAsync(string graphUri, string ownerGuid, string graphName)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "INSERT INTO Graph (owner, graph, name) VALUES (@owner, @graph, @name)";
+                cmd.Parameters.AddWithValue("@owner", ownerGuid);
+                cmd.Parameters.AddWithValue("@graph", graphUri);
+                cmd.Parameters.AddWithValue("@name", graphName);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
         /// <summary>
         /// Inserts the members present in the group object (Group::MemberList) into the database
