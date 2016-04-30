@@ -234,7 +234,7 @@
 					notesupdate = '{"sensorId":' + currentsensor + ',"timestamp": "' + data.getValue(selection, 0).toString() + '","measurement":' + data.getValue(selection, 1) + ',"notes":"';
 				});
 				chart.draw(myView, options);
-				computePrice(currentsensor, data);
+				computePrice(currentsensor, json);
 			}
 		};
 		
