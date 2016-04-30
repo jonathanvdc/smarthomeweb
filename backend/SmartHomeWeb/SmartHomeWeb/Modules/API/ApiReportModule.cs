@@ -6,7 +6,7 @@ namespace SmartHomeWeb.Modules.API
 {
     public class ApiReportModule : ApiModule
     {
-        public ApiReportModule() : base("report")
+        public ApiReportModule() : base("api/report")
         {
             ApiGet("/{numDays:int}/{guids}", async (p, dc) =>
             {

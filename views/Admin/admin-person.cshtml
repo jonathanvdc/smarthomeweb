@@ -31,9 +31,11 @@
             var joinedGuids = guids.join('+');
             var requestUrl = "/api/report/" + period + "/" + joinedGuids;
             var request = new XMLHttpRequest();
-            request.get('GET', requestUrl);
+            request.open('GET', requestUrl);
             request.onload = function(e) {
-                console.log(request.responseText);
+                var textArea = document.getElementById('report-result');
+                textArea.hidden = false;
+                textArea.value = request.responseText;
             }
             request.send();
         }
@@ -43,15 +45,18 @@
 <h1>@TextResources.UsersAdminPageTitle</h1>
 
 <div class="btn-group">
-    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        @TextResources.MakeReportLabel<span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-        <li><a href="#" onclick="makeReport(7)">@TextResources.TimeLast7Days</a></li>
-        <li><a href="#" onclick="makeReport(30)">@TextResources.TimeLast30Days</a></li>
-        <li><a href="#" onclick="makeReport(365)">@TextResources.TimeLast365Days</a></li>
-    </ul>
+	<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		@TextResources.MakeReportLabel<span class="caret"></span>
+	</button>
+	<ul class="dropdown-menu">
+		<li><a href="#" onclick="makeReport(7)">@TextResources.TimeLast7Days</a></li>
+		<li><a href="#" onclick="makeReport(30)">@TextResources.TimeLast30Days</a></li>
+		<li><a href="#" onclick="makeReport(365)">@TextResources.TimeLast365Days</a></li>
+	</ul>
 </div>
+
+<br/>
+<textarea id="report-result" hidden="true" style="font-family: monospace"></textarea>
 
 <table class="table">
         <tr class="tableHeader">

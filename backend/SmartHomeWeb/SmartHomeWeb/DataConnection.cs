@@ -450,7 +450,6 @@ namespace SmartHomeWeb
                 }
             }
 
-            await Console.Out.WriteLineAsync(total.Length.ToString());
             return total;
         }
 
