@@ -139,15 +139,16 @@ namespace SmartHomeWeb
 
 		/// <summary>
 		/// Partitions the given time period by its compaction level. The resulting
-		/// sequence of compaction periods is ordered.
+		/// sequence of compaction periods is ordered. The given compaction level
+        /// specifies the minimal compaction for this period of time.
 		/// </summary>
-		public async Task<IEnumerable<FrozenPeriod>> PartitionByCompaction(DateTime Start, DateTime End)
+		public async Task<IEnumerable<FrozenPeriod>> PartitionByCompaction(
+            DateTime Start, DateTime End, CompactionLevel Compaction)
 		{
-			// Start with a single, non-compacted period of time,
+			// Start with a single period of time,
 			// and then subdivide that iteratively.
-
 			var results = new List<FrozenPeriod>();
-			results.Add(new FrozenPeriod(Start, End, CompactionLevel.None));
+            results.Add(new FrozenPeriod(Start, End, Compaction));
 			foreach (var item in await FetchFrozenPeriodsAsync())
 			{
 				var newResults = new List<FrozenPeriod>();
@@ -159,6 +160,30 @@ namespace SmartHomeWeb
 			}
 			return results;
 		}
+
+        /// <summary>
+        /// Partitions the given time period by its compaction level. The resulting
+        /// sequence of compaction periods is ordered.
+        /// </summary>
+        public Task<IEnumerable<FrozenPeriod>> PartitionByCompaction(DateTime Start, DateTime End)
+        {
+            return PartitionByCompaction(Start, End, CompactionLevel.None);
+        }
+
+        /// <summary>
+        /// Partitions the given time period by its compaction level. The resulting
+        /// sequence of compaction periods is ordered.
+        /// </summary>
+        public static Task<IEnumerable<FrozenPeriod>> PartitionByCompaction(
+            DataConnection Connection, DateTime Start, DateTime End,
+            CompactionLevel Compaction = CompactionLevel.None)
+        {
+            // Use '0' as a dummy sensor ID. We won't be looking at
+            // the sensor's measurements, anyway.
+            // TODO: maybe create a separate class for this.
+            var cache = new AggregationCache(Connection, 0, Start, End);
+            return cache.PartitionByCompaction(Start, End, Compaction);
+        }
 
 		/// <summary>
 		/// Prefetches precomputed hour average data from the database.

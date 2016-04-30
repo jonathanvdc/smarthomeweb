@@ -1467,43 +1467,61 @@ namespace SmartHomeWeb
 		/// The given period of time is subsequently frozen: further 
 		/// measurement insertion is disallowed during this period.
 		/// </summary>
-		public async Task CompactAsync(DateTime StartTime, DateTime EndTime, CompactionLevel Level = CompactionLevel.Measurements)
+		public async Task CompactAsync(
+            DateTime StartTime, DateTime EndTime, 
+            CompactionLevel Level = CompactionLevel.Measurements)
 		{
 			if (EndTime < StartTime)
 				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
 
-			var overlap = await GetFrozenPeriodsAsync(StartTime, EndTime);
+            // Figure out which quantization scheme we should use.
+            Func<DateTime, DateTime> compactQuantizer;
+            Func<DateTime, DateTime> freezeQuantizer;
+            Func<DateTime, DateTime, Task> compacter;
+            switch (Level)
+            {
+                case CompactionLevel.DayAverages:
+                    compactQuantizer = MeasurementAggregation.QuantizeDay;
+                    freezeQuantizer = MeasurementAggregation.QuantizeMonth;
+                    compacter = CompactDayAveragesAsync;
+                    break;
+                case CompactionLevel.HourAverages:
+                    compactQuantizer = MeasurementAggregation.QuantizeHour;
+                    freezeQuantizer = MeasurementAggregation.QuantizeDay;
+                    compacter = CompactHourAveragesAsync;
+                    break;
+                case CompactionLevel.Measurements:
+                    compactQuantizer = dt => dt;
+                    freezeQuantizer = MeasurementAggregation.QuantizeHour;
+                    compacter = CompactMeasurementsAsync;
+                    break;
+                case CompactionLevel.None:
+                default:
+                    compactQuantizer = dt => dt;
+                    freezeQuantizer = dt => dt;
+                    compacter = (start, end) => Task.FromResult(true);
+                    break;
+            }
 
-			foreach (var item in overlap)
-			{
-				if (!FrozenPeriod.IsEmptyRange(FrozenPeriod.Intersect(Tuple.Create(StartTime, EndTime), item.Range)) 
-					&& FrozenPeriod.Max(Level, item.Compaction) != Level)
-					throw new ArgumentException(
-						$"Period {item} was already compacted in a more aggressive manner, and overlaps with period {new FrozenPeriod(StartTime, EndTime, Level)}.");
-			}
+            // Subdivide the period of time we'd like to subdivide
+            // compact.
+            var subdiv = await AggregationCache.PartitionByCompaction(
+                this, compactQuantizer(StartTime), compactQuantizer(EndTime), Level);
+            
+            foreach (var item in subdiv)
+            {
+                // Compact all ranges which have the same compaction
+                // level as this function's given compaction level.
+                if (item.Compaction == Level)
+                {
+                    await compacter(item.StartTime, item.EndTime);
+                }
+            }
 
-			switch (Level)
-			{
-				case CompactionLevel.DayAverages:
-					await CompactDayAveragesAsync(
-						MeasurementAggregation.QuantizeMonth(StartTime), 
-						MeasurementAggregation.QuantizeMonth(EndTime));
-					break;
-				case CompactionLevel.HourAverages:
-					await CompactHourAveragesAsync(
-						MeasurementAggregation.QuantizeDay(StartTime), 
-						MeasurementAggregation.QuantizeDay(EndTime));
-					break;
-				case CompactionLevel.Measurements:
-					await CompactMeasurementsAsync(
-						MeasurementAggregation.QuantizeHour(StartTime), 
-						MeasurementAggregation.QuantizeHour(EndTime));
-					break;
-				case CompactionLevel.None:
-				default:
-					await FreezeAsync(StartTime, EndTime, Level);
-					break;
-			}
+            // Finally, freeze measurements in the vicinity, to keep 
+            // aggregation from going haywire.
+            await FreezeAsync(
+                freezeQuantizer(StartTime), freezeQuantizer(EndTime), Level);
 		}
 
 		/// <summary>
