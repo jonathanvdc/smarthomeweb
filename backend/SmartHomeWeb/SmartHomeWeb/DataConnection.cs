@@ -1121,6 +1121,23 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
+        /// Deletes the measurement made by the given sensor during 
+        /// the given period of time [StartTime, EndTime)
+        /// from the table with the given name.  
+        /// </summary>
+        private async Task DeleteMeasurementAsync(string TableName, DateTime StartTime, DateTime EndTime)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $"DELETE FROM {TableName} " +
+                    "WHERE unixtime >= @startTime AND unixtime < @endTime";
+                cmd.Parameters.AddWithValue("@startTime", DatabaseHelpers.CreateUnixTimeStamp(StartTime));
+                cmd.Parameters.AddWithValue("@endTime", DatabaseHelpers.CreateUnixTimeStamp(EndTime));
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>
         /// Inserts the given measurement into the Measurement table.
         /// </summary>
         /// <param name="Data">The measurement to insert into the table.</param>
@@ -1475,31 +1492,63 @@ namespace SmartHomeWeb
 				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
 
             // Figure out which quantization scheme we should use.
+            // Also create an aggregation function and a list
+            // of tables that are to be compacted.
             Func<DateTime, DateTime> compactQuantizer;
             Func<DateTime, DateTime> freezeQuantizer;
-            Func<DateTime, DateTime, Task> compacter;
+            Func<int, DateTime, DateTime, Task> aggregate;
+            string[] compactedTableNames;
             switch (Level)
             {
                 case CompactionLevel.DayAverages:
                     compactQuantizer = MeasurementAggregation.QuantizeDay;
                     freezeQuantizer = MeasurementAggregation.QuantizeMonth;
-                    compacter = CompactDayAveragesAsync;
+                    aggregate = async (id, start, end) =>
+                    {
+                        // Compute month averages.
+                        var cache = new AggregationCache(this, id, start, end);
+                        for (var t = start; t < end; t = t.AddMonths(1))
+                        {
+                            await cache.GetMonthAverageAsync(t);
+                        }
+                        cache.DiscardHourAverages();
+                        cache.DiscardDayAverages();
+                        cache.FlushResults();
+                    };
+                    compactedTableNames = new string[] { DayAverageTableName, HourAverageTableName, MeasurementTableName };
                     break;
                 case CompactionLevel.HourAverages:
                     compactQuantizer = MeasurementAggregation.QuantizeHour;
                     freezeQuantizer = MeasurementAggregation.QuantizeDay;
-                    compacter = CompactHourAveragesAsync;
+                    aggregate = async (id, start, end) =>
+                    {           
+                        // Compute day averages.
+                        int dayCount = (int)Math.Ceiling((end - start).TotalDays);
+
+                        var cache = new AggregationCache(this, id, start, end);
+                        await cache.GetDayAveragesAsync(start, dayCount);
+                        cache.DiscardHourAverages();
+                        cache.FlushResults();
+                    };
+                    compactedTableNames = new string[] { HourAverageTableName, MeasurementTableName };
                     break;
                 case CompactionLevel.Measurements:
                     compactQuantizer = dt => dt;
                     freezeQuantizer = MeasurementAggregation.QuantizeHour;
-                    compacter = CompactMeasurementsAsync;
+                    aggregate = (id, start, end) =>
+                    {
+                        // Compute hour averages.
+                        int hourCount = (int)Math.Ceiling((end - start).TotalHours);
+                        return GetHourAveragesAsync(id, start, hourCount);
+                    };
+                    compactedTableNames = new string[] { MeasurementTableName };
                     break;
                 case CompactionLevel.None:
                 default:
                     compactQuantizer = dt => dt;
                     freezeQuantizer = dt => dt;
-                    compacter = (start, end) => Task.FromResult(true);
+                    aggregate = (id, start, end) => Task.FromResult(true);
+                    compactedTableNames = new string[] { };
                     break;
             }
 
@@ -1507,14 +1556,32 @@ namespace SmartHomeWeb
             // compact.
             var subdiv = await AggregationCache.PartitionByCompaction(
                 this, compactQuantizer(StartTime), compactQuantizer(EndTime), Level);
-            
+
+            // Get all sensors in the database.
+            var allSensors = await GetSensorsAsync();
+
+            // Aggregate data for all of these sensors.
+            foreach (var sensor in allSensors)
+            {
+                await aggregate(
+                    sensor.Id, freezeQuantizer(StartTime), 
+                    freezeQuantizer(EndTime));
+            }
+
             foreach (var item in subdiv)
             {
                 // Compact all ranges which have the same compaction
                 // level as this function's given compaction level.
                 if (item.Compaction == Level)
                 {
-                    await compacter(item.StartTime, item.EndTime);
+                    foreach (var table in compactedTableNames)
+                    {
+                        // Discard measurements.
+                        await DeleteMeasurementAsync(table, item.StartTime, item.EndTime);
+                    }
+
+                    // Freeze this period of time.
+                    await FreezeAsync(item.StartTime, item.EndTime, Level);
                 }
             }
 
@@ -1522,105 +1589,6 @@ namespace SmartHomeWeb
             // aggregation from going haywire.
             await FreezeAsync(
                 freezeQuantizer(StartTime), freezeQuantizer(EndTime), Level);
-		}
-
-		/// <summary>
-		/// Compacts the given period of time. First, all data in the given
-		/// period of time is aggregated, then all measurements are deleted. 
-		/// The given period of time is subsequently frozen: further 
-		/// measurement insertion is disallowed during this period.
-		/// </summary>
-		private async Task CompactMeasurementsAsync(DateTime StartTime, DateTime EndTime)
-		{
-			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
-
-			// Get all sensors in the database.
-			var allSensors = await GetSensorsAsync();
-
-			// Compute hour averages.
-			int hourCount = (int)Math.Ceiling((EndTime - StartTime).TotalHours);
-			await Task.WhenAll(allSensors.Select(
-				item => (Task)GetHourAveragesAsync(
-					item.Id, StartTime, hourCount)));
-
-			// Discard measurements.
-			foreach (var item in allSensors)
-			{
-				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
-			}
-
-			// Freeze this period of time.
-			await FreezeAsync(StartTime, EndTime, CompactionLevel.Measurements);
-		}
-
-		/// <summary>
-		/// Compacts the given period of time. First, all data in the given
-		/// period of time is aggregated, then all measurements and hour-averages are deleted. 
-		/// The given period of time is subsequently frozen: further 
-		/// measurement insertion is disallowed during this period.
-		/// </summary>
-		private async Task CompactHourAveragesAsync(DateTime StartTime, DateTime EndTime)
-		{
-			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
-
-			// Get all sensors in the database.
-			var allSensors = await GetSensorsAsync();
-
-			// Compute hour averages.
-			int dayCount = (int)Math.Ceiling((EndTime - StartTime).TotalDays);
-
-			// Discard measurements.
-			foreach (var item in allSensors)
-			{
-				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
-				await cache.GetDayAveragesAsync(StartTime, dayCount);
-				cache.DiscardHourAverages();
-				cache.FlushResults();
-
-				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
-				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
-			}
-
-			// Freeze this period of time.
-			await FreezeAsync(StartTime, EndTime, CompactionLevel.HourAverages);
-		}
-
-		/// <summary>
-		/// Compacts the given period of time. First, all data in the given
-		/// period of time is aggregated, then all measurements, hour-averages
-		/// and day-averages are deleted. 
-		/// The given period of time is subsequently frozen: further 
-		/// measurement insertion is disallowed during this period.
-		/// </summary>
-		private async Task CompactDayAveragesAsync(DateTime StartTime, DateTime EndTime)
-		{
-			if (EndTime < StartTime)
-				throw new ArgumentException($"{nameof(EndTime)} was greater than {nameof(StartTime)}");
-
-			// Get all sensors in the database.
-			var allSensors = await GetSensorsAsync();
-
-			// Discard measurements.
-			foreach (var item in allSensors)
-			{
-				var cache = new AggregationCache(this, item.Id, StartTime, EndTime);
-				for (var t = StartTime; t < EndTime; t = t.AddMonths(1))
-				{
-					await cache.GetMonthAverageAsync(t);
-				}
-				cache.DiscardHourAverages();
-				cache.DiscardDayAverages();
-				cache.FlushResults();
-
-				await DeleteMeasurementAsync(MeasurementTableName, item.Id, StartTime, EndTime);
-				await DeleteMeasurementAsync(HourAverageTableName, item.Id, StartTime, EndTime);
-				await DeleteMeasurementAsync(DayAverageTableName, item.Id, StartTime, EndTime);
-			}
-
-			// Freeze this period of time.
-			await FreezeAsync(StartTime, EndTime, CompactionLevel.DayAverages);
 		}
 
         /// <summary>
