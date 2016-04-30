@@ -260,6 +260,24 @@ namespace SmartHomeWeb.Modules
             };
             
         }
+
+        private async Task<Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>> GetWallParameter(dynamic parameters)
+        {
+            IEnumerable<WallPost> posts;
+            IEnumerable<Graph> graphs;
+            var signedIn = Context.CurrentUser.IsAuthenticated();
+            string recipientName;
+            using (var dc = await DataConnection.CreateAsync())
+            {
+                Person sender = signedIn ? await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName) : null;
+                Person recipient = await dc.GetPersonByUsernameAsync(parameters.username);
+                graphs = signedIn ? await dc.GetGraphsByOwnerAsync(sender.Guid.ToString()) : new List<Graph>();
+                posts = await dc.GetWallPostsAsync(recipient.Guid);
+                recipientName = recipient.Data.Name;
+            }
+            return new Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>(recipientName, posts, signedIn, graphs);
+            
+        }
         private async Task<dynamic> GetGroup(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
@@ -307,22 +325,32 @@ namespace SmartHomeWeb.Modules
                 var recipient = await dc.GetPersonByUsernameAsync(parameters.username);
                 var sender = await dc.GetPersonByGuidAsync(CurrentUserGuid());
                 var message = FormHelpers.GetString(Request.Form, "wallpost");
-                int test = int.Parse(FormHelpers.GetString(Request.Form, "graph"));
-                Console.WriteLine(test);
-                var graph = await dc.GetGraphByIdAsync(test);
-
                 if (string.IsNullOrWhiteSpace(message))
                 {
                     ViewBag.Error = "Please type a message before submitting!";
                 }
                 else
                 {
-                    await dc.InsertWallPostAsync(new WallPost(0, sender, recipient, message, graph));
+                    int test;
+                    if (int.TryParse(FormHelpers.GetString(Request.Form, "graph"), out test))
+                    {
+
+                        var graph = await dc.GetGraphByIdAsync(test);
+
+
+                        await dc.InsertWallPostAsync(new WallPost(0, sender, recipient, message, graph));
                         //insert doesnt touch the id and the object gets destroyed after, so we just use temp value. np.
+
+                        
+                    }
+                    else
+                    {
+                        await dc.InsertWallPostAsync(new WallPost(0, sender, recipient, message));
+                    }
                 }
             }
 
-            return await GetWall(parameters, ct);
+            return Response.AsRedirect(".");
         }
         private async Task<dynamic> GetGroups(dynamic parameters, CancellationToken ct)
         {
@@ -842,7 +870,11 @@ namespace SmartHomeWeb.Modules
 					state = await dc.GetFriendsState(currentUser.Guid, person.Guid);
                 }
                 Tuple<Person, FriendsState> tuple = Tuple.Create(person, state);
-                return View["profile.cshtml", tuple];
+
+                Tuple<Tuple<Person, FriendsState>, Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>> combinedTuple =
+                        Tuple.Create(tuple, await GetWallParameter(parameters));
+
+                return View["profile.cshtml", combinedTuple];
             }
         }
 

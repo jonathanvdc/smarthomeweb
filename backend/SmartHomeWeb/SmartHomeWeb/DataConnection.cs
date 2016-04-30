@@ -1855,7 +1855,7 @@ namespace SmartHomeWeb
                 LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
                 INNER JOIN Person as p1 ON (m.sender = p1.guid)
                 INNER JOIN Person as p2 ON (m.recipient = p2.guid)
-                WHERE recipient=@person";
+                WHERE m.recipient=@person";
                 
                 cmd.Parameters.AddWithValue("@person", personGuid.ToString());
                 return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
