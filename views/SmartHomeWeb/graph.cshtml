@@ -197,7 +197,8 @@
 					var regex = new RegExp('<br/>', 'g');
 					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
 					if(comparebool && array.length == json.length){
-						array[i].push(measured+10);
+						array[i].push(measured);
+						array[i][0] = i.toString();
 					}else if(groupbool && array.length == json.length){
 						array[i][1] += measured;
 					}else{
@@ -214,6 +215,7 @@
 					data.addColumn('number', 'Usage');
 				}
 				data.addRows(array);
+				
 				// Set chart options
 				var options = {'width':600,
 								'height':500,
