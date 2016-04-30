@@ -33,9 +33,20 @@
  		<h4>@TextResources.TotalElectricityPrice: ???</h4>
     </div>
 
-    <div id="chart_div" hidden>
-        <!-- Graph goes here -->
-    </div>
+	<div id="chart_div" hidden>
+		<!-- Graph goes here -->
+	</div>
+
+	<div id="graphSave_div" hidden>
+		<input type="text" id="graphURI" name="graphURI" style="display: none"/>
+		<div class="input-group">
+			<input type="text" id="graphName" name="graphName" class="form-control"/>
+			<span class="input-group-btn">
+                <button class="btn btn-default form-control" type="button" id="graphSaveButton" name="graphSaveButton">Save</button>
+            </span>
+		</div>
+	</div>
+
 </div>
 
 
@@ -43,6 +54,36 @@
 
 <script type="text/javascript">
     
+    var request = new XMLHttpRequest();
+    var done = false;
+    request.onreadystatechange = function() {
+        if ((request.status == 200 || request.status == 201 || request.status == 202) && !done) {
+            alert('@(TextResources.SuccessfullySaved)!');
+            done = true;
+        }
+        if ((request.status == 404 || request.status == 500 || request.status == 403 || request.status == 400 || request.status == 401 || request.status == 408) && !done) {
+            alert('@(TextResources.SaveFailure)');
+            done = true;
+        }
+
+    }
+    document.getElementById("graphSaveButton").addEventListener("click", function () {
+        done = false;
+        var graphname = document.getElementById("graphName").value;
+        if (graphname == '') {
+            alert('@TextResources.PleaseEnterAName');
+            return;
+        } else {
+            var username = '@Model';
+            var url = '/api/graphs';
+
+            var params = '{"Owner":"' + username + '", "GraphURI":"' + document.getElementById("graphURI").value + '", "GraphName":"' + graphname + '"}';
+            request.open("POST", url, true);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(params);
+        }
+    });
+
     var chartElement = document.getElementById("chart_div");
 
 	measurementsGraph = new function() {
@@ -234,6 +275,7 @@
 					notesupdate = '{"sensorId":' + currentsensor + ',"timestamp": "' + data.getValue(selection, 0).toString() + '","measurement":' + data.getValue(selection, 1) + ',"notes":"';
 				});
 				chart.draw(myView, options);
+				document.getElementById('graphURI').value = chart.getImageURI();
 				computePrice(currentsensor, json);
 			}
 		};

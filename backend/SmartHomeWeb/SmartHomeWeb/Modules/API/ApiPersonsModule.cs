@@ -15,6 +15,8 @@ namespace SmartHomeWeb.Modules.API
             ApiGet("/{g:guid}/", (p, dc) => dc.GetPersonByGuidAsync((Guid)p["g"]));
             ApiGet("/search/{search}", (p, dc) => dc.GetPersonsBySearchString((string) p["search"]));
 
+            ApiGet("/me", (_, dc) => dc.GetPersonByUsernameAsync(Context.CurrentUser != null ? Context.CurrentUser.UserName : ""));
+
             ApiPost<List<PersonData>, object>("/", (_, items, dc) => dc.InsertPersonAsync(items));
             
             ApiDelete("/{g:guid}/", (p, dc) => dc.DeletePersonAsync((Guid)p["g"]));
