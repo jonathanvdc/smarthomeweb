@@ -414,8 +414,8 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
-		/// Creates a task that fetches or computes a number of hour-averages for the 
-		/// given sensor during the given hours.
+		/// Creates a task that fetches or computes a number of day-averages for the 
+		/// given sensor during the given days.
 		/// </summary>
 		public async Task<IEnumerable<Measurement>> GetDayAveragesAsync(int SensorId, DateTime StartDay, int Count)
 		{
@@ -426,11 +426,39 @@ namespace SmartHomeWeb
 			return result;
 		}
 
-		/// <summary>
-		/// Creates a task that fetches or computes the month average for the 
-		/// given sensor during the given month.
+        /// <summary>
+		/// Creates a task that fetches or computes a number of day-average totals
+		/// of all sensors linked to the given person during the given days.
 		/// </summary>
-		public Task<Measurement> GetMonthAverageAsync(int SensorId, DateTime Month)
+		public async Task<double[]> GetTotalDayAveragesAsync(Guid PersonGuid, DateTime StartDay, int Count)
+        {
+            var locations = await GetLocationsForPersonAsync(PersonGuid);
+            var sensors = (await Task.WhenAll(locations.Select(GetSensorsAtLocationAsync))).SelectMany(s => s);
+
+            double[] total = new double[Count];
+            foreach (var sensor in sensors)
+            {
+                // This always returns an enumerable of `Count` values.
+                var measurements = await GetDayAveragesAsync(sensor.Id, StartDay, Count);
+                var array = measurements as Measurement[] ?? measurements.ToArray();
+
+                // So this loop is safe.
+                var i = 0;
+                foreach (var measurement in array)
+                {
+                    total[i++] += measurement.MeasuredData ?? 0;
+                }
+            }
+
+            await Console.Out.WriteLineAsync(total.Length.ToString());
+            return total;
+        }
+
+        /// <summary>
+        /// Creates a task that fetches or computes the month average for the 
+        /// given sensor during the given month.
+        /// </summary>
+        public Task<Measurement> GetMonthAverageAsync(int SensorId, DateTime Month)
 		{
 			return GetMonthAveragesAsync(SensorId, Month, 1).ContinueWith(t => t.Result.Single());
 		}

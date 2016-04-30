@@ -15,12 +15,48 @@
         }
         request.send();
     }
+
+    function makeReport(period) {
+        var personRows = document.getElementsByClassName('person-row');
+        var guids = [];
+        for (var i = 0; i < personRows.length; i++) {
+            var personRow = personRows[i];
+            var guid = personRow.id.replace(/^row-/, '');
+            var selected = personRow.getElementsByTagName('input')[0].checked;
+            if (selected)
+                guids.push(guid);
+        }
+        if (guids.length > 0) {
+            // Create and show a report.
+            var joinedGuids = guids.join('+');
+            var requestUrl = "/api/report/" + period + "/" + joinedGuids;
+            var request = new XMLHttpRequest();
+            request.get('GET', requestUrl);
+            request.onload = function(e) {
+                console.log(request.responseText);
+            }
+            request.send();
+        }
+    }
 </script>
 
 <h1>@TextResources.UsersAdminPageTitle</h1>
 
+<div class="btn-group">
+    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        @TextResources.MakeReportLabel<span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+        <li><a href="#" onclick="makeReport('week')">@TextResources.PastWeek</a></li>
+        <li><a href="#" onclick="makeReport('month')">@TextResources.PastMonth</a></li>
+	    <li><a href="#" onclick="makeReport('year')">@TextResources.PastYear</a></li>
+        <li><a href="#" onclick="makeReport('all')">@TextResources.AllTime</a></li>
+    </ul>
+</div>
+
 <table class="table">
         <tr class="tableHeader">
+	        <th>&nbsp;</th>
             <th>@TextResources.PersonGUIDLabel</th>
             <th>@TextResources.PersonUserNameLabel</th>
             <th>@TextResources.PersonNameLabel</th>
@@ -34,7 +70,10 @@
 		
     @foreach (var p in @Model)
     {
-        <tr id="row-@p.Guid">
+        <tr class="person-row" id="row-@p.Guid">
+	        <th>
+		        <input type="checkbox" name="@p.Guid-selected"/>
+	        </th>
 	        <th><samp>@p.Guid</samp></th>
 	        <th><a href="/person/@p.Data.UserName">@p.Data.UserName</a></th>
 	        <td>@p.Data.Name</td>

@@ -564,4 +564,19 @@
   <data name="TimeToday" xml:space="preserve">
     <value>Today</value>
   </data>
+  <data name="AllTime" xml:space="preserve">
+    <value>All time</value>
+  </data>
+  <data name="MakeReportLabel" xml:space="preserve">
+    <value>Make report for selected users</value>
+  </data>
+  <data name="PastMonth" xml:space="preserve">
+    <value>Past month</value>
+  </data>
+  <data name="PastWeek" xml:space="preserve">
+    <value>Past week</value>
+  </data>
+  <data name="PastYear" xml:space="preserve">
+    <value>Past year</value>
+  </data>
 </root>

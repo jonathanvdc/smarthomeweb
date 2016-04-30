@@ -561,4 +561,19 @@
   <data name="TimeToday" xml:space="preserve">
     <value>Vandaag</value>
   </data>
+  <data name="AllTime" xml:space="preserve">
+    <value>Aller tijden</value>
+  </data>
+  <data name="MakeReportLabel" xml:space="preserve">
+    <value>Maak rapport voor geselecteerde gebruikers</value>
+  </data>
+  <data name="PastMonth" xml:space="preserve">
+    <value>Voorbije maand</value>
+  </data>
+  <data name="PastWeek" xml:space="preserve">
+    <value>Voorbije week</value>
+  </data>
+  <data name="PastYear" xml:space="preserve">
+    <value>Voorbije jaar</value>
+  </data>
 </root>

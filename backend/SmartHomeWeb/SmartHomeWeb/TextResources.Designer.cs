@@ -250,6 +250,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All time.
+        /// </summary>
+        public static string AllTime {
+            get {
+                return ResourceManager.GetString("AllTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your birth date could not be parsed. Have you tried formatting it as &apos;YYYY/MM/DD&apos;?.
         /// </summary>
         public static string BadlyFormattedBirthDateError {
@@ -655,6 +664,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Make report for selected users.
+        /// </summary>
+        public static string MakeReportLabel {
+            get {
+                return ResourceManager.GetString("MakeReportLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Measurements.
         /// </summary>
         public static string MeasurementsPageTitle {
@@ -876,6 +894,33 @@ namespace SmartHomeWeb {
         public static string PasswordPlease {
             get {
                 return ResourceManager.GetString("PasswordPlease", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Past month.
+        /// </summary>
+        public static string PastMonth {
+            get {
+                return ResourceManager.GetString("PastMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Past week.
+        /// </summary>
+        public static string PastWeek {
+            get {
+                return ResourceManager.GetString("PastWeek", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Past year.
+        /// </summary>
+        public static string PastYear {
+            get {
+                return ResourceManager.GetString("PastYear", resourceCulture);
             }
         }
         
