@@ -238,7 +238,7 @@
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
 					var regex = new RegExp('<br/>', 'g');
 					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					if(comparebool && array.length == json.length){
+					if(comparebool && array.length != 0){
 						array[i].push(measured);
 						array[i][0] = i.toString();
 					}else if(groupbool && array.length == json.length){
@@ -247,7 +247,7 @@
 						array.push([hmsstring, measured, notes, notespre+notes])
 					}
 				}
-				
+
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Time');
 				data.addColumn('number', 'Usage');
@@ -308,7 +308,7 @@
 		// 'days' or 'months', and renders the chart. 
 		// This function is part of the public API.
 		this.setTimeframe = function(start_time, end_time) {
-			if(comparebool){
+			if(comparebool && array.length != 0){
 				var diff = endTime.getTime() - startTime.getTime();
 				startTime = start_time;
 				endTime.setTime(startTime.getTime() + diff);
