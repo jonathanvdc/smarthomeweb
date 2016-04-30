@@ -70,15 +70,15 @@ body {
 	}
 	
 	.tag.active{
-		border: 2px solid #8866EE;
+		border: 1px solid #4466EE;
 		color: FFF;
 		padding: 2px;
 		padding-left: 3px;
 		padding-right: 1px;
-		margin: 0px;
-		margin-left: 2px;
-		margin-right: 1px;
-		background-color: #AA88FF;
+		margin: 1px;
+		margin-left: 3px;
+		margin-right: 2px;
+		background-color: #88AAFF;
 	}
 
 	.tag .glyphicon{

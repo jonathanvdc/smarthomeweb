@@ -121,21 +121,28 @@ else
                                         Sensor sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
-                                    <li id="@sensor.Id" onClick="measurementsGraph.setId(@sensor.Id)">
+                                    <li onClick="measurementsGraph.setId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
+
                                             <div style="display: table-row">
                                                 <div style="display: table-cell;">
-                                                    <p id="test" style="padding: 0px; margin: 0px;">@sensor.Data.Name</p>
-                                                    <div id="@(sensor.Id)-description" class="sensor-desciption">
-                                                        @sensor.Data.Description
-                                                        <a href="#" style="float:right;" data-toggle="tooltip" class="sensor-desciption"
-                                                           title="Tagged as: @foreach( var tag in tags){@(tag)<text> </text>}">tags</a>
-                                                    </div>
-    
+                                                    <p style="padding: 0px; margin: 0px;">@sensor.Data.Name</p>    
                                                 </div>
     
-                                                <a href="/edit-sensor/@sensor.Id" class="add-tag" style="width: 25px; display: table-cell;">
+                                                <a href="/edit-sensor/@sensor.Id" style="width: 25px; display: table-cell;">
                                                     <span class="glyphicon glyphicon-cog" style="float: right;" />
+                                                </a>
+                                            </div>
+                                            <div style="display:table-row;">
+
+                                                <div id="@(sensor.Id)-description" class="sensor-desciption" style="display:table-cell">
+                                                    @sensor.Data.Description
+                                                    <a href="#" style="float:right;" data-toggle="tooltip" class="sensor-desciption"
+                                                       title="@(TextResources.TaggedAsLabel): @foreach( var tag in tags){@(tag)<text> </text>}">tags</a>
+                                                </div>
+
+                                                <a href="/add-tag/@sensor.Id" class="add-tag" style="width: 25px; display: table-cell;">
+                                                    <span class="glyphicon glyphicon-plus" style="float: right;"></span>
                                                 </a>
                                             </div>
                                         </div>
@@ -174,14 +181,14 @@ else
             autoApply: true,
             linkedCalendars: false,
             ranges:{
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                '@TextResources.TimeToday': [moment(), moment()],
+                '@TextResources.TimeLast7Days': [moment().subtract(6, 'days'), moment()],
+                '@TextResources.TimeLast30Days': [moment().subtract(29, 'days'), moment()],
+                '@TextResources.TimeThisMonth': [moment().startOf('month'), moment().endOf('month')],
+                '@TextResources.TimeLast365Days': [moment().subtract(364, 'days'), moment()],
+                '@TextResources.TimeThisYear': [moment().startOf('year'), moment().endOf('year')]
             },
-            startDate: moment(),
+            startDate: moment().subtract(6, 'days'),
             endDate: moment()
         }, function (start, end, label) {
             var date1 = new Date(start.format('YYYY-MM-DDTHH:mm:ss'));

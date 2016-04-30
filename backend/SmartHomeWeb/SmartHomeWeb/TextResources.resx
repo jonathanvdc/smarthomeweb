@@ -543,4 +543,25 @@
   <data name="ToolSelectorTitle" xml:space="preserve">
     <value>Tools</value>
   </data>
+  <data name="TaggedAsLabel" xml:space="preserve">
+    <value>Tagged as</value>
+  </data>
+  <data name="TimeLast30Days" xml:space="preserve">
+    <value>Last 30 days</value>
+  </data>
+  <data name="TimeLast365Days" xml:space="preserve">
+    <value>Last 365 days</value>
+  </data>
+  <data name="TimeLast7Days" xml:space="preserve">
+    <value>Last 7 days</value>
+  </data>
+  <data name="TimeThisMonth" xml:space="preserve">
+    <value>This month</value>
+  </data>
+  <data name="TimeThisYear" xml:space="preserve">
+    <value>This year</value>
+  </data>
+  <data name="TimeToday" xml:space="preserve">
+    <value>Today</value>
+  </data>
 </root>

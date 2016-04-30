@@ -1195,6 +1195,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tagged as.
+        /// </summary>
+        public static string TaggedAsLabel {
+            get {
+                return ResourceManager.GetString("TaggedAsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tag.
         /// </summary>
         public static string TagNameLabel {
@@ -1209,6 +1218,60 @@ namespace SmartHomeWeb {
         public static string TagSelectorTitle {
             get {
                 return ResourceManager.GetString("TagSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last 30 days.
+        /// </summary>
+        public static string TimeLast30Days {
+            get {
+                return ResourceManager.GetString("TimeLast30Days", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last 365 days.
+        /// </summary>
+        public static string TimeLast365Days {
+            get {
+                return ResourceManager.GetString("TimeLast365Days", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last 7 days.
+        /// </summary>
+        public static string TimeLast7Days {
+            get {
+                return ResourceManager.GetString("TimeLast7Days", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This month.
+        /// </summary>
+        public static string TimeThisMonth {
+            get {
+                return ResourceManager.GetString("TimeThisMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This year.
+        /// </summary>
+        public static string TimeThisYear {
+            get {
+                return ResourceManager.GetString("TimeThisYear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Today.
+        /// </summary>
+        public static string TimeToday {
+            get {
+                return ResourceManager.GetString("TimeToday", resourceCulture);
             }
         }
         
