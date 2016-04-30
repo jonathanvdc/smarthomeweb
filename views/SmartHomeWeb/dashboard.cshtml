@@ -121,7 +121,7 @@ else
                                         Sensor sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
-                                    <li onClick="measurementsGraph.setId(@sensor.Id)">
+                                    <li sensor-id="@sensor.Id" onClick="measurementsGraph.setId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
 
                                             <div style="display: table-row">
@@ -289,10 +289,10 @@ else
 		var x = [];
 		var newitems = [];
 		for (var i = 0; i < items.length; ++i) {
-			x.push([i, parseFloat(measurementsGraph.getSensorTotalUsage(items[i].id))]);
+		    x.push([i, parseFloat(measurementsGraph.getSensorTotalUsage(items[i].getAttribute("sensor-id")))]);
 		}
 		x.sort(function(a, b) { 
-			return a[1] > b[1] ? 1 : -1;
+			return a[1] < b[1] ? 1 : -1;
 		});
 
 		for(var i = 0; i < x.length; ++i){
