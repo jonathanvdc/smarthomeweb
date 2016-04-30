@@ -1558,15 +1558,18 @@ namespace SmartHomeWeb
                 this, compactQuantizer(StartTime), compactQuantizer(EndTime), Level);
 
             // Get all sensors in the database.
-            var allSensors = await GetSensorsAsync();
+            var allSensors = (await GetSensorsAsync()).ToArray();
 
             // Aggregate data for all of these sensors.
-            foreach (var sensor in allSensors)
+            // Try to parallelize that as much as possible, too.
+            var aggregationTasks = new Task[allSensors.Length];
+            for (int i = 0; i < allSensors.Length; i++)
             {
-                await aggregate(
-                    sensor.Id, freezeQuantizer(StartTime), 
+                aggregationTasks[i] = aggregate(
+                    allSensors[i].Id, freezeQuantizer(StartTime), 
                     freezeQuantizer(EndTime));
             }
+            await Task.WhenAll(aggregationTasks);
 
             foreach (var item in subdiv)
             {
