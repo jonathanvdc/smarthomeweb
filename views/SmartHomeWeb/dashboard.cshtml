@@ -52,7 +52,7 @@ else
                 </div>
             </div>
 
-			<div class="col-sm-4">
+			<div class="col-sm-2" style="padding:0px">
                 <div class="panel panel-default">	
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
 					<div class="panel-body tab-content">
@@ -62,7 +62,7 @@ else
 				</div>				
 			</div>
 			
-            <div class="col-sm-4">
+            <div class="col-sm-6">
                 <div class="panel panel-default">
 
                     <div class="panel-heading">@(TextResources.TagSelectorTitle)</div>
@@ -271,6 +271,9 @@ else
 		}else if(select == "a-z"){
 			byalphabet();
 		}
+
+        // Reload tooltips, since moving elements disables them
+		$('[data-toggle="tooltip"]').tooltip();
 	}
 	
 	function byconsumption(){
