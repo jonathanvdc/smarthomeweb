@@ -64,49 +64,41 @@
         }
         <tr class="person-row">
             
-            @if (Context.CurrentUser.IsAuthenticated())
-            {
-                if (person.Data.UserName != Context.CurrentUser.UserName)
+            <td>
+                @if (Context.CurrentUser.IsAuthenticated())
                 {
-                    switch (friendStatus)
+                    if (person.Data.UserName != Context.CurrentUser.UserName)
                     {
-                        case FriendsState.None:
-                            <td>
-                                <form method="post">
+                        switch (friendStatus)
+                        {
+                            case FriendsState.None:
+                                <form method="post" style="margin: 0px;">
                                     <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                                     </button>
                                 </form>
-                            </td>
-                            break;
-                        case FriendsState.FriendRequestRecieved:
-                            <td>
-                                <form method="post">
+                                break;
+                            case FriendsState.FriendRequestRecieved:
+                                <form method="post" style="margin: 0px;">
                                     <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
                                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                     </button>
                                 </form>
-                            </td>
-                            break;
-                        case FriendsState.FriendRequestSent:
-                            <td>
-                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                            </td>
-                            break;
-                        case FriendsState.Friends:
-                            <td>
-                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                            </td>
-                            break;
+                                break;
+                            case FriendsState.FriendRequestSent:
+                                <span class="glyphicon glyphicon-ok faux-button-padding" aria-hidden="true"></span>
+                                break;
+                            case FriendsState.Friends:
+                                <span class="glyphicon glyphicon-user faux-button-padding" aria-hidden="true"></span>
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        <text>&shy;</text>
                     }
                 }
-                else
-                {
-                    <td>
-                       &shy;
-                    </td>
-                }
-            }
+            </td>
 
 	        <th><a href="/person/@person.Data.UserName">@person.Data.UserName</a></th>
             <td>@person.Data.Name</td>
