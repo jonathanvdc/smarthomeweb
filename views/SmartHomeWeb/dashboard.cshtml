@@ -111,12 +111,12 @@ else
 
                 <div class="panel-body tab-content pre-scrollable" style="max-height: 93%">
 
-                    @for (int x = 0; x < @Model.Item1.Count; ++x)
+                    @for (int x = 0; x < Model.Item1.Count; ++x)
                     {
                         <div id="u_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
                             <ul class="nav nav-pills nav-stacked">
 
-                                @foreach (var item in @Model.Item1[x].Item3)
+                                @foreach (var item in Model.Item1[x].Item3)
                                 {
                                     @{ 
                                         Sensor sensor = item.Item1;
@@ -240,7 +240,7 @@ else
         <text>var currentLocation = 0;</text>
     }
 
-     @for (int x = 0; x < @Model.Item1.Count; ++x)
+    @for (int x = 0; x < @Model.Item1.Count; ++x)
     {
          <text>filteredTags[@x] = [];</text>
     }

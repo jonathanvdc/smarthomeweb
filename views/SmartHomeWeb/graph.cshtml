@@ -100,6 +100,7 @@
 		
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
+		    document.getElementById('graphSave_div').hidden = !(index == 0);
 		    document.getElementById("no-data-message").hidden = !(index == 1);
 		    document.getElementById("no-sensor-message").hidden = !(index == 2);
 		    document.getElementById("loading-message").hidden = !(index == 3);

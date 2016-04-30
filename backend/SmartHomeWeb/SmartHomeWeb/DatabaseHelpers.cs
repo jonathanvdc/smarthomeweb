@@ -75,7 +75,6 @@ namespace SmartHomeWeb
         public static Person ReadPerson(IDataRecord Record, int index)
         {
             var offset = 10 + index * 9;
-            Console.WriteLine(Record.GetString(offset));
             return new Person(Record.GetGuid(offset), 
                 new PersonData(
                     Record.GetString(offset + 1), Record.GetString(offset + 3),
