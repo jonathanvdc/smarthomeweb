@@ -47,6 +47,14 @@
 				    </li>
 				}
 
+                @if (@Context.CurrentUser.IsAuthenticated()) {
+                    <li>
+                        <a id="notificationCountElement" class="hidden" href="/friends" >
+                            &shy;
+                        </a>                    
+                    </li>
+                }
+
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 						@TextResources.UsersPageTitle<span class="caret"></span>
@@ -94,18 +102,24 @@
                         </ul>
                     </li>
 
-				    <li><a href="/logout">
-					    @TextResources.LogOut
-				    </a></li>
+				    <li>
+                        <a href="/logout">
+					        @TextResources.LogOut
+				        </a>
+                    </li>
 				}
 				else
 				{
-				    <li><a href="/login">
-					    @TextResources.LogIn
-				    </a></li>
-				    <li><a href="/add-person">
-					    @TextResources.AddPersonPageTitle
-				    </a></li>
+				    <li>
+                        <a href="/login">
+					        @TextResources.LogIn
+				        </a>
+                    </li>
+				    <li>
+                        <a href="/add-person">
+					        @TextResources.AddPersonPageTitle
+				        </a>
+                    </li>
 				}
 
 				<li class="dropdown">
@@ -136,6 +150,27 @@
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
         });
+
+    // If the user is authenticated, display their number of notifications
+    @if(@Context.CurrentUser.IsAuthenticated()){
+        <text>
+        $(document).ready(function () {
+
+            var request = new XMLHttpRequest();
+            request.open('GET', '/api/friends/requests/recieved/count/@(((UserIdentity)Context.CurrentUser).Guid)');
+            request.responseType = 'text';
+            request.onload = function () {
+                console.log("You have " + request.response + "notifications!");
+                if (parseInt(request.response) > 0) {
+                    var $element = $('#notificationCountElement');
+                    $element.html(request.response);
+                    $element.removeClass('hidden');
+                }
+            };
+            request.send();
+        });
+        </text>
+    }
 </script>
 
 </html>

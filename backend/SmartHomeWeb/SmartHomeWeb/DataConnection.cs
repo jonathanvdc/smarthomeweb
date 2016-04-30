@@ -288,13 +288,30 @@ namespace SmartHomeWeb
 			{
 				cmd.CommandText = $@"
                   SELECT friend2.*
-                  FROM {PendingFriendRequestTableName} as pair, Person as friend2
+                  FROM {PendingFriendRequestTableName} as pair, {PersonTableName} as friend2
                   WHERE pair.personOne = friend2.guid AND pair.personTwo = @guid";
 				cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
 
 				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
 			}
 		}
+
+        /// <summary>
+        /// Creates a task that counts the number of open friend requests to the
+        /// user with the given Guid.
+        /// </summary>
+        public async Task<long> GetRecievedFriendRequestsCountAsync(Guid PersonGuid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = $@"
+                  SELECT Count( * )
+                  FROM {PendingFriendRequestTableName} as pair, {PersonTableName} as friend2
+                  WHERE pair.personOne = friend2.guid AND pair.personTwo = @guid";
+                cmd.Parameters.AddWithValue("@guid", PersonGuid.ToString());
+                return (long)await cmd.ExecuteScalarAsync();
+            }
+        }
 
         /// <summary>
 		/// Creates a task that eagerly fetches persons who were sent friend requests

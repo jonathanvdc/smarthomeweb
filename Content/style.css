@@ -236,6 +236,17 @@ span.no-tags{
     padding-right: 12px;
 }
 
+a#notificationCountElement{
+	background-color:#FF3366;
+	color:#FFEEEE;
+	font-size:16px;
+	font-weight:bold;
+}
+
+a#notificationCountElement:hover{
+	background-color:#FF2255;
+	color:#FFF;
+}
 
 
 
