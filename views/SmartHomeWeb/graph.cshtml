@@ -304,19 +304,33 @@
 	    // Set a callback to run when the Google Visualization API is loaded.
 		google.charts.setOnLoadCallback(function() { drawChart() });
 
-		// Sets the time frame to 'minutes', 'hours',
-		// 'days' or 'months', and renders the chart.
-		// This function is part of the public API.
-		this.setTimeframe = function(start_time, end_time) {
-			if(comparebool && array.length != 0){
+        var setTimeframeImpl = function(start_time, end_time) {
+			if(comparebool && array.length != 0) {
 				var diff = endTime.getTime() - startTime.getTime();
 				startTime = start_time;
 				endTime.setTime(startTime.getTime() + diff);
-			}else{
+			}
+            else {
 				startTime = start_time;
 				endTime = end_time;
 				sort();
 			}
+		};
+
+        var setIdImpl = function(x) {
+			if(groupbool) {
+				currentsensor.indexOf(x) > -1 ? currentsensor.splice(currentsensor.indexOf(x), 1) : currentsensor.push(x);
+			}
+            else {
+				currentsensor = [x];
+			}
+			array=[];
+		};
+
+		// Updates the start and end time for this graph.
+		// This function is part of the public API.
+		this.setTimeframe = function(start_time, end_time) {
+			setTimeframeImpl(start_time, end_time);
 			drawChart();
 		};
 
@@ -331,15 +345,23 @@
 		// to be rendered, and renders the chart
 		// for that sensor.
 		// This function is part of the public API.
-		this.setId = function(x) {
-			if(groupbool){
-				currentsensor.indexOf(x) > -1 ? currentsensor.splice(currentsensor.indexOf(x), 1) : currentsensor.push(x);
-			}else{
-				currentsensor = [x];
-			}
-			array=[];
+		this.setId = function(id) {
+			setIdImpl(id);
 			drawChart();
 		};
+
+        // Sets the ID of the sensor whose data is
+		// to be rendered. Additionally, the start time,
+        // end time, and the maximal number of measurements
+        // are also updated.
+        // Subsequently, the chart is rendered.
+        // This function is part of the public API.
+        this.setData = function(id, start_time, end_time, max_measurements) {
+            setIdImpl(id);
+            setTimeframeImpl(start_time, end_time);
+            measurementCount = n;
+			drawChart();
+        };
 
 		//Updates the notes in the database
 		this.updateNotes = function(){

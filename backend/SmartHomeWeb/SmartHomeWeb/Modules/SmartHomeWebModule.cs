@@ -258,7 +258,14 @@ namespace SmartHomeWeb.Modules
                 var referrer = Request.Headers.Referrer;
                 return Response.AsRedirect(string.IsNullOrWhiteSpace(referrer) ? "/" : referrer);
             };
-            
+
+            Get["/view-graph/{sensorId}/{startTime}/{endTime}/{maxMeasurements}"] = parameters =>
+            {
+                var model = Tuple.Create<int, DateTime, DateTime, int>(
+                    parameters["sensorId"], parameters["startTime"], 
+                    parameters["endTime"], parameters["maxMeasurements"]);
+                return View["view-graph.cshtml", model];
+            };
         }
 
         private async Task<Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>> GetWallParameter(dynamic parameters)

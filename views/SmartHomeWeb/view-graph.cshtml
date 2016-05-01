@@ -1,0 +1,15 @@
+@using System
+@using System.Linq
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@* Model is a (SensorId, StartTime, EndTime, MaxMeasurements) tuple *@
+@inherits NancyRazorViewBase<Tuple<int, DateTime, DateTime, int>>
+
+@Html.Partial("graph.cshtml");
+
+<script>
+    measurementsGraph.setData(@Model.Item1, new Date("@Model.Item2"), new Date("@Model.Item3"), @Model.Item4);
+</script>
