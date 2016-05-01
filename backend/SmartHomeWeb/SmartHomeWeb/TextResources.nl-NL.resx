@@ -376,7 +376,7 @@
     <value>Er zijn geen berichten aanwezig op de muur van deze gebruiker.</value>
   </data>
   <data name="NewWallPostLabel" xml:space="preserve">
-    <value>Zet een bericht op de muur van {0}!</value>
+    <value>Schrijf een bericht op de muur van {0}!</value>
   </data>
   <data name="FriendRequestAccepted" xml:space="preserve">
     <value>Vriendschapsverzoek aanvaard.</value>
@@ -575,5 +575,20 @@
   </data>
   <data name="WallPostHeader" xml:space="preserve">
     <value>&lt;a href="/person/{0}"&gt;{1}&lt;/a&gt; schreef:</value>
+  </data>
+  <data name="AddFriendExplanation" xml:space="preserve">
+    <value>Klik hier om vrienden toe te voegen aan je vriendenlijst!</value>
+  </data>
+  <data name="NoFriends" xml:space="preserve">
+    <value>Je hebt geen vrienden :(</value>
+  </data>
+  <data name="NoNewFriendRequests" xml:space="preserve">
+    <value>Geen nieuwe vriendschapsverzoeken!</value>
+  </data>
+  <data name="NoPendingFriendRequests" xml:space="preserve">
+    <value>Geen onbeantwoorde vriendschapsverzoeken.</value>
+  </data>
+  <data name="TryAddingFriends" xml:space="preserve">
+    <value>Probeer vrienden toe te voegen aan de hand van de gebruikerspagina!</value>
   </data>
 </root>
