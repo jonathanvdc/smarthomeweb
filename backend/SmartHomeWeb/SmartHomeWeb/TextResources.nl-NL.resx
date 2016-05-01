@@ -579,6 +579,12 @@
   <data name="AddFriendExplanation" xml:space="preserve">
     <value>Klik hier om vrienden toe te voegen aan je vriendenlijst!</value>
   </data>
+  <data name="AddTagExplanation" xml:space="preserve">
+    <value>Voeg een tag toe aan sensor</value>
+  </data>
+  <data name="CurrentTagsHeading" xml:space="preserve">
+    <value>Huidige tags</value>
+  </data>
   <data name="NoFriends" xml:space="preserve">
     <value>Je hebt geen vrienden :(</value>
   </data>

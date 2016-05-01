@@ -1,31 +1,68 @@
 @using System.Collections.Generic
+@using System.Linq
 @using Nancy.Security
 @using Nancy.Session
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<IEnumerable<Sensor>>
+@inherits NancyRazorViewBase<Tuple<Sensor, IEnumerable<string>>>
+@{ 
+    Sensor sensor = Model.Item1;
+    IEnumerable<string> tags = Model.Item2;
+}
 
 <h1>@TextResources.AddTagPageTitle</h1>
 
 @Html.Partial("feedback-box.cshtml")
 
-<form method="post">
-    <div class="form-group">
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form method="post">
+            <div class="form-heading">
+                @(TextResources.AddTagExplanation): <b>@sensor.Data.Name (@sensor.Data.Description)</b>
+            </div>
+            <br />
+            <b>@(TextResources.CurrentTagsHeading):</b>
 
-        <label for="sensor-id">@TextResources.PickASensor</label>
-        <select class="form-control" id="sensor-id" name="sensor-id">
-            @foreach (Sensor sensor in @Model)
-            {
-                <option @if ((int)ViewBag.HighlightedSensorId == (int)@sensor.Id) {<text>selected="selected" </text>} value = "@sensor.Id">@sensor.Data.Name (@sensor.Data.Description)</option>
-            }
-        </select>
+            <div>
+                @if (tags.Count() != 0)
+                {
+                    @for (int i = 0; i < tags.Count(); i++)
+                    {
+                        <span id="tag-@sensor.Id-@tags.ElementAt(i)" class="tag">
+                            @tags.ElementAt(i)
+                            <a href="#" onclick="deleteTag(@sensor.Id, '@tags.ElementAt(i)')">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        </span>
+                    }
+                }
+                else
+                {
+                    <span class="no-tags">(@TextResources.NoTagsText)</span>
+                }
+            </div>
+            <br />
+            <label for="tag-name">@(TextResources.TagNameLabel):</label>
+            <input id="tag-name" name="tag-name" class="form-control" />
+            
+            <button type="submit" class="btn btn-primary" style="margin-top:15px">@TextResources.AddTag</button>
 
-
-        <label for="tag-name">@(TextResources.TagNameLabel):</label>
-        <input id="tag-name" name="tag-name" class="form-control" />
-
+        </form>
     </div>
-    <button type="submit" class="btn btn-primary">@TextResources.AddTag</button>
-</form>
-</form>
+</div>
+
+
+
+<script type="text/javascript">
+
+    // Simple script which makes an API call to delete a tag
+    function deleteTag(sensorId, tag) {
+        var request = new XMLHttpRequest();
+        request.open('DELETE', "/api/sensor-tags/" + sensorId.toString());
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send('"' + tag + '"');
+        document.getElementById("tag-" + sensorId + "-" + tag).hidden = true;
+    }
+
+</script>

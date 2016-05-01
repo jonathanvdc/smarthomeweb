@@ -388,7 +388,7 @@
     <value>You need to log in to add a tag.</value>
   </data>
   <data name="AddTagPageTitle" xml:space="preserve">
-    <value>Add a tag to a sensor</value>
+    <value>Add tags to a sensor</value>
   </data>
   <data name="PickASensor" xml:space="preserve">
     <value>Pick a sensor</value>
@@ -590,6 +590,12 @@
   </data>
   <data name="AddFriendExplanation" xml:space="preserve">
     <value>Click here to add people to your friends list!</value>
+  </data>
+  <data name="AddTagExplanation" xml:space="preserve">
+    <value>Add tags to sensor</value>
+  </data>
+  <data name="CurrentTagsHeading" xml:space="preserve">
+    <value>Current tags</value>
   </data>
   <data name="NoFriends" xml:space="preserve">
     <value>You have no friends :(</value>

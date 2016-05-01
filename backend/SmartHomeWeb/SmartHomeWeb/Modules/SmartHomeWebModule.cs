@@ -189,9 +189,9 @@ namespace SmartHomeWeb.Modules
 				return View["edit-location.cshtml", update];
 			};
 
-            Get["/add-tag/{id?}", true] = GetAddTag;
+            Get["/add-tag/{id}", true] = GetAddTag;
 
-            Post["/add-tag/{id?}", true] = PostAddTag;
+            Post["/add-tag/{id}", true] = PostAddTag;
 
             Get["/measurement", true] = async (parameters, ct) =>
             {
@@ -722,7 +722,7 @@ namespace SmartHomeWeb.Modules
             {
                 using (var dc = await DataConnection.CreateAsync())
                 {
-                    int sensorId = (int)Request.Form["sensor-id"];
+                    int sensorId = (int)parameters["id"];
                     string tag = FormHelpers.GetString(Request.Form, "tag-name");
 
                     Console.WriteLine("Tagging Sensor {0} with \"{1}\"", sensorId, tag);
@@ -801,10 +801,10 @@ namespace SmartHomeWeb.Modules
         {
             this.RequiresAuthentication();
 
-            var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
-
-            ViewBag.HighlightedSensorId = parameters.id;
-            return View["add-tag.cshtml", sensors];
+            var sensor = await DataConnection.Ask(x => x.GetSensorByIdAsync((int)parameters.id));
+            var tags = await DataConnection.Ask(x => x.GetSensorTagsAsync((int)parameters.id));
+            
+            return View["add-tag.cshtml", new Tuple<Sensor, IEnumerable<string>>(sensor, tags)];
         }
 
         private async Task<dynamic> GetAddSensor(dynamic parameters, CancellationToken ct)

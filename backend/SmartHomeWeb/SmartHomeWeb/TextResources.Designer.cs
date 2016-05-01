@@ -214,6 +214,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add tags to sensor.
+        /// </summary>
+        public static string AddTagExplanation {
+            get {
+                return ResourceManager.GetString("AddTagExplanation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You need to log in to add a tag..
         /// </summary>
         public static string AddTagNotAuthenticated {
@@ -223,7 +232,7 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add a tag to a sensor.
+        ///   Looks up a localized string similar to Add tags to a sensor.
         /// </summary>
         public static string AddTagPageTitle {
             get {
@@ -264,6 +273,15 @@ namespace SmartHomeWeb {
         public static string BadlyFormattedBirthDateError {
             get {
                 return ResourceManager.GetString("BadlyFormattedBirthDateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current tags.
+        /// </summary>
+        public static string CurrentTagsHeading {
+            get {
+                return ResourceManager.GetString("CurrentTagsHeading", resourceCulture);
             }
         }
         
