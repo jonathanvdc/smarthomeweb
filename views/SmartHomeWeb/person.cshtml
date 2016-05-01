@@ -6,6 +6,7 @@
 @inherits NancyRazorViewBase<IEnumerable<Tuple<Person, FriendsState>>>
 
 <script type="text/javascript">
+
     function search() {
         var query = document.getElementById('search-box').value;
         var request = new XMLHttpRequest();
@@ -27,10 +28,9 @@
                 personRows[i].style.display = searchNames.indexOf(userName) > -1 ? 'table-row' : 'none';
             }
 		};
-        request.send();
-
-        
+        request.send();        
     }
+
 </script>
 
 <h1>@TextResources.UsersPageTitle</h1>
@@ -50,6 +50,7 @@
             {
                 <th width="1%">&shy;</th>
             }
+            <th width="1%">&shy;</th>
             <th>@TextResources.PersonUserNameLabel</th>
             <th>@TextResources.PersonNameLabel</th>
             <th>@TextResources.PersonAddressLabel</th>
@@ -64,42 +65,46 @@
         }
         <tr class="person-row">
             
-            <td>
                 @if (Context.CurrentUser.IsAuthenticated())
                 {
-                    if (person.Data.UserName != Context.CurrentUser.UserName)
-                    {
-                        switch (friendStatus)
+                    <td style="margin-right:15px">
+                        @if (person.Data.UserName != Context.CurrentUser.UserName)
                         {
-                            case FriendsState.None:
-                                <form method="post" style="margin: 0px;">
-                                    <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                                    </button>
-                                </form>
-                                break;
-                            case FriendsState.FriendRequestRecieved:
-                                <form method="post" style="margin: 0px;">
-                                    <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
-                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                                    </button>
-                                </form>
-                                break;
-                            case FriendsState.FriendRequestSent:
-                                <span class="glyphicon glyphicon-ok faux-button-padding" aria-hidden="true"></span>
-                                break;
-                            case FriendsState.Friends:
-                                <span class="glyphicon glyphicon-user faux-button-padding" aria-hidden="true"></span>
-                                break;
+                            switch (friendStatus)
+                            {
+                                case FriendsState.None:
+                                    <form method="post" style="margin: 0px;">
+                                        <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                        </button>
+                                    </form>
+                                    break;
+                                case FriendsState.FriendRequestRecieved:
+                                    <form method="post" style="margin: 0px;">
+                                        <button type="submit" class="btn btn-success" name="friend-name" value="@person.Data.UserName">
+                                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        </button>
+                                    </form>
+                                    break;
+                                case FriendsState.FriendRequestSent:
+                                    <span class="glyphicon glyphicon-ok faux-button-padding" aria-hidden="true"></span>
+                                    break;
+                                case FriendsState.Friends:
+                                    <span class="glyphicon glyphicon-user faux-button-padding" aria-hidden="true"></span>
+                                    break;
+                            }
                         }
-                    }
-                    else
-                    {
-                        <text>&shy;</text>
-                    }
+                        else
+                        {
+                            <text>&shy;</text>
+                        }
+                    </td>
                 }
-            </td>
 
+            <td style="padding: 5px;">
+                <div class="profile-avatar avatar-@(Math.Abs(person.Guid.GetHashCode() % 8))"
+                     style="width:35px;height:35px;" />
+            </td>
 	        <th><a href="/person/@person.Data.UserName">@person.Data.UserName</a></th>
             <td>@person.Data.Name</td>
             <td>@person.Data.Address</td>
