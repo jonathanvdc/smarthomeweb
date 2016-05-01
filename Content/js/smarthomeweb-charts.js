@@ -110,6 +110,18 @@ GraphHelpers = new function()
             callback(totalPrice);
         });
     };
+
+    // Executes the given array of tasks in parallel.
+    // Once they have completed, the given callback is
+    // called on an array that holds their results.
+    this.whenAll = function(tasks, callback) {
+        // Wait for all tasks to complete...
+        return $.when.apply($, tasks).then(function() {
+            // ... then call the callback on the results.
+            // (use the 'arguments' pseudo-array to get all arguments)
+            callback(arguments);
+        });
+    };
 };
 
 // Defines an autofitted range "class".
@@ -288,5 +300,17 @@ ChartDescription = function() {
     this.clearRanges = function() {
         ranges = [];
         changed();
+    };
+
+    // Asynchronously gets the given ranges' total usages.
+    // This function is part of the public API.
+    this.getTotalUsages = function(callback) {
+        // Create an array of GET tasks.
+        var tasks = [];
+        for (var i = 0; i < ranges.length; i++) {
+            tasks.push(ranges[i].getTotalUsageAsync());
+        }
+        // Run them all in parallel.
+        return GraphHelpers.whenAll(tasks, callback);
     };
 };
