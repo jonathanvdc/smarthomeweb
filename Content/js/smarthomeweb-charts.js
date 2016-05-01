@@ -34,6 +34,25 @@ GraphHelpers = new function()
         }
     };
 
+    // Prints the given date, according to the given interval type.
+    this.printTime = function(date, intervalType) {
+        if (intervalType == "minutes") {
+            return date.toISOString().substring(0, 16);
+        }
+        else if (intervalType == "hours") {
+            return date.toISOString().substring(0, 13);
+        }
+        else if (intervalType == "days") {
+            return date.toISOString().substring(0, 10);
+        }
+        else if (intervalType == "months") {
+            return date.toISOString().substring(0, 7);
+        }
+        else {
+            return date.toISOString().substring(0, 4);
+        }
+    };
+
     // Replaces measurement data that consists of 'null'
     // measurements only, by a simple empty array. This
     // allows us to display an accurate error message if

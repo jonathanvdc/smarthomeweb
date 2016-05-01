@@ -178,18 +178,7 @@
 				for (var i = 0; i < json.length; i++) {
 					var sensorData = json[i];
 					var date = new Date(sensorData.timestamp);
-					var interval = getInterval();
-					if(interval == "minutes"){
-						var hmsstring = date.toISOString().substring(0, 16);
-					}else if(interval == "hours"){
-						var hmsstring = date.toISOString().substring(0, 13);
-					}else if(interval == "days"){
-						var hmsstring = date.toISOString().substring(0, 10);
-					}else if(interval == "months"){
-						var hmsstring = date.toISOString().substring(0, 7);
-					}else{
-						var hmsstring = date.toISOString().substring(0, 4);
-					}
+                    var hmsstring = GraphHelpers.printTime(date, getInterval());
 					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
 					var regex = new RegExp('<br/>', 'g');
