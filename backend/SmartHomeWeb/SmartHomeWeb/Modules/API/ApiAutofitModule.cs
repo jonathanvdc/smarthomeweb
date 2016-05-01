@@ -63,53 +63,20 @@ namespace SmartHomeWeb.Modules.API
 
         private async Task<double?> GetSumMeasurements(
             DataConnection Connection, int SensorId, DateTime StartTime, DateTime EndTime,
-            int MaxMeasurementCount
-            )
+            int MaxMeasurementCount)
         {
             if (EndTime < StartTime)
                 throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
 
 
-            IEnumerable<Measurement> measurements;
-            double? sum = 0;
-            var timeSpan = EndTime - StartTime;
-            if (timeSpan.TotalMinutes <= MaxMeasurementCount)
-            {
-                measurements = await Connection.GetMeasurementsAsync(SensorId, StartTime, EndTime);
-            }
-            else if (timeSpan.TotalHours <= MaxMeasurementCount)
-            {
-                measurements = await Connection.GetHourAveragesAsync(
-                    SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromHours(1)),
-                    (int)Math.Round(timeSpan.TotalHours));
-            }
-            else if (timeSpan.TotalDays <= MaxMeasurementCount)
-            {
-                measurements = await Connection.GetDayAveragesAsync(
-                    SensorId, MeasurementAggregation.Quantize(StartTime, TimeSpan.FromDays(1)),
-                    (int)Math.Round(timeSpan.TotalDays));
-            }
-            else
-            {
-                int yearCount = EndTime.Year - StartTime.Year;
-                int monthCount = 12 * yearCount + EndTime.Month - StartTime.Month;
-                if (monthCount <= MaxMeasurementCount)
-                {
-                    measurements = await Connection.GetMonthAveragesAsync(
-                        SensorId, MeasurementAggregation.QuantizeMonth(StartTime), monthCount);
-                }
-                else
-                {
-                    measurements = await Connection.GetYearAveragesAsync(
-                        SensorId, MeasurementAggregation.QuantizeYear(StartTime), yearCount);
-                }
-            }
+            var measurements = await GetFittedMeasurements(Connection, SensorId, StartTime, EndTime, MaxMeasurementCount);
 
-            foreach(var x in measurements)
+            double sum = 0;
+            foreach (var x in measurements)
             {
-                if(x.MeasuredData != null)
+                if (x.MeasuredData != null)
                 {
-                    sum += x.MeasuredData;
+                    sum += x.MeasuredData.Value;
                 }
             }
             return sum;
