@@ -98,6 +98,23 @@
 		var array = [];
 
 
+		var getInterval = function(){
+			var diff = Math.abs(endTime.getTime() - startTime.getTime())
+			if(diff/60000 <= measurementCount){
+				var xxx = "minutes";
+			}else if(diff/(60000*60) <= measurementCount){
+				var xxx = "hours";
+			}else if(diff / (60000 * 60 * 24)<= measurementCount){
+				var xxx = "days";
+			}else if(diff / (60000 * 60 * 24*365)<= measurementCount){
+				var xxx = "months";
+			}else{
+				var xxx = "years";
+			}
+			return xxx;
+		}
+		
+		
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
 		    document.getElementById('graphSave_div').hidden = !(index == 0);
@@ -233,12 +250,23 @@
 				for (var i = 0; i < json.length; i++) {
 					var sensorData = json[i];
 					var date = new Date(sensorData.timestamp);
-					var hmsstring = date.toISOString().substring(0, 19);
+					var interval = getInterval();
+					if(interval == "minutes"){
+						var hmsstring = date.toISOString().substring(0, 16);
+					}else if(interval == "hours"){
+						var hmsstring = date.toISOString().substring(0, 13);
+					}else if(interval == "days"){
+						var hmsstring = date.toISOString().substring(0, 10);					
+					}else if(interval == "months"){
+						var hmsstring = date.toISOString().substring(0, 7);					
+					}else{
+						var hmsstring = date.toISOString().substring(0, 4);				
+					}
 					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
 					var regex = new RegExp('<br/>', 'g');
 					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					if(comparebool && array.length != 0){
+					if(comparebool && array.length == json.length){
 						array[i].push(measured);
 						array[i][0] = i.toString();
 					}else if(groupbool && array.length == json.length){
@@ -315,6 +343,8 @@
 				endTime = end_time;
 				sort();
 			}
+			
+			groupbool ? array = [] : array = array;
 		};
 
         var setIdImpl = function(x) {
