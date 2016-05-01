@@ -22,12 +22,22 @@
     {
         "name" : "Bruce Wayne",
         "username" : "bruce",
-        "password" : "TheGoddamnBatman39",
-        "address" : "Wayne Mansion",
+        "password" : "batman",
+        "address" : "Wayne Manor",
         "city" : "Gotham",
         "zipcode" : "2121",
         "isAdmin" : false,
 		"birthdate" : "1939-02-01T00:00:00.000Z"
+    },
+    {
+        "name" : "Dick Grayson",
+        "username" : "dick",
+        "password" : "robin",
+        "address" : "Wayne Manor",
+        "city" : "Gotham",
+        "zipcode" : "2121",
+        "isAdmin" : false,
+		"birthdate" : "1949-04-04T00:00:00.000Z"
     },
     {
         "name" : "Lex Luthor",

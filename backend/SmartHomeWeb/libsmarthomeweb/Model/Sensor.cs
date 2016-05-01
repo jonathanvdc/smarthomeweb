@@ -31,13 +31,13 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the sensor's unique identifier.
 		/// </summary>
-		[JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
 		public int Id { get; set; }
 
 		/// <summary>
 		/// Gets this sensor's data.
 		/// </summary>
-		[JsonProperty("data")]
+        [JsonProperty("data", Required = Required.Always)]
 		public SensorData Data { get; private set; }
 
 		public bool Equals(Sensor Other)

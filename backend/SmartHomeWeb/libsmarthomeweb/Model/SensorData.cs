@@ -24,7 +24,7 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the sensor's name.
 		/// </summary>
-		[JsonProperty("name")]
+        [JsonProperty("name", Required = Required.Always)]
 		public string Name { get; private set; }
 
 		/// <summary>
@@ -45,7 +45,7 @@ namespace SmartHomeWeb.Model
 		/// Gets the unique identifier 
 		/// of this sensor's location.
 		/// </summary>
-		[JsonProperty("locationId")]
+        [JsonProperty("locationId", Required = Required.Always)]
 		public int LocationId { get; private set; }
 	}
 }

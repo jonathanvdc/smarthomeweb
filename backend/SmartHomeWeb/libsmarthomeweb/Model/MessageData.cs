@@ -25,7 +25,7 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the sender's GUID string.
         /// </summary>
-        [JsonProperty("senderId")]
+        [JsonProperty("senderId", Required = Required.Always)]
         public string SenderGuidString
         {
             get { return SenderGuid.ToString(); }
@@ -42,7 +42,7 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the recipient's GUID string.
         /// </summary>
-        [JsonProperty("recipientId")]
+        [JsonProperty("recipientId", Required = Required.Always)]
         public string RecipientGuidString
         {
             get { return RecipientGuid.ToString(); }
@@ -59,7 +59,7 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the message's contents.
         /// </summary>
-        [JsonProperty("message")]
+        [JsonProperty("message", Required = Required.Always)]
         public string Message { get; private set; }
     }
 }

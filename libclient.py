@@ -102,9 +102,13 @@ def create_location(name, username):
     log('Creating location %s for user %s (guid: %s).' % (name, username, guid))
     j = [{'ownerGuid': guid, 'name': name}]
     postChecked(api + 'locations', json=j)
+    add_has_location(name, username)
+
+def add_has_location(name, username):
+    guid = get_person_guid(username)
     location_id = get_location_id(name)
-    postChecked(api + 'has-location', json=[{'personGuid': guid},
-                                              {'locationId': location_id}])
+    postChecked(api + 'has-location', json=[{'personGuid': guid,
+                                            'locationId': location_id}])
 
 def add_message(sender, recipient, body):
     sender_id = get_person_guid(sender)
