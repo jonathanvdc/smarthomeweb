@@ -44,7 +44,7 @@ if __name__ == "__main__":
         create_location('Kent Farmhouse', 'clark')
         create_location('Wayne Manor', 'bruce')
         create_location('LexCorp Building', 'lex')
-		
+
         add_has_location('Wayne Manor', 'dick')
         add_has_location('Kent Farmhouse', 'admin')
         add_has_location('Wayne Manor', 'admin')
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         add_message('admin', 'lois', 'Welcome to SmartHomeWeb, enjoy your stay!')
         add_message('admin', 'lex', 'Welcome to SmartHomeWeb, enjoy your stay!')
         add_message('admin', 'jimmy', 'Welcome to SmartHomeWeb, enjoy your stay!')
-		
+
         add_message('clark', 'bruce', 'Greetings, fellow citizen.')
         add_message('clark', 'clark', 'Helping ma and pa around the house :) #Helping #Pa&Ma')
         add_message('lois', 'clark', 'Hey clark, how\'s your day been? ;)')
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         add_friend_request('lex','bruce')
         add_friendship('jimmy','clark')
         add_friendship('lois','clark')
-        add_friendship('robin','bruce')
+        add_friendship('dick','bruce')
 
         post_elecsim(arg)
         log('Success!')
