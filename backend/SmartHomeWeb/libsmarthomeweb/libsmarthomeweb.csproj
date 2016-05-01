@@ -62,6 +62,7 @@
     <Compile Include="Model\FriendsState.cs" />
     <Compile Include="Model\FrozenPeriod.cs" />
     <Compile Include="Model\GraphData.cs" />
+    <Compile Include="Model\AutofitRange.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

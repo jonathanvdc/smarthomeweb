@@ -261,7 +261,7 @@ namespace SmartHomeWeb.Modules
 
             Get["/view-graph/{sensorId}/{startTime}/{endTime}/{maxMeasurements}"] = parameters =>
             {
-                var model = Tuple.Create<int, DateTime, DateTime, int>(
+                var model = new AutofitRange(
                     parameters["sensorId"], parameters["startTime"], 
                     parameters["endTime"], parameters["maxMeasurements"]);
                 return View["view-graph.cshtml", model];
