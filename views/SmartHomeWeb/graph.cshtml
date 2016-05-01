@@ -214,7 +214,7 @@
 		// Computes and displays the total electricity price
 		// for the given sensor and array of measurements.
 		var computePrice = function(sensorId, measurements) {
-			getSensorLocation(sensorId, function(loc) {
+			getSensorLocation(sensorId[0], function(loc) {
 				// A location stores its price per unit of electricity as currency/kWh.
 				// Since we want the total electricity price, we will multiply
 				// the location's price per unit by the total time, and the average
@@ -245,35 +245,45 @@
 			if (json.length === 0) {
 			    showNoDataSaved();
 			}
-			else {
+			else{
 				array = (!comparebool && !groupbool) ? [] : array;
-				for (var i = 0; i < json.length; i++) {
-					var sensorData = json[i];
-					var date = new Date(sensorData.timestamp);
-					var interval = getInterval();
-					if(interval == "minutes"){
-						var hmsstring = date.toISOString().substring(0, 16);
-					}else if(interval == "hours"){
-						var hmsstring = date.toISOString().substring(0, 13);
-					}else if(interval == "days"){
-						var hmsstring = date.toISOString().substring(0, 10);					
-					}else if(interval == "months"){
-						var hmsstring = date.toISOString().substring(0, 7);					
+				if(!comparebool && !groupbool){
+					populateArray(json);
+				}else if(groupbool){
+					if(array.length == 0){
+						//Group is toggled and first sensor selected
+						populateArray(json);
 					}else{
-						var hmsstring = date.toISOString().substring(0, 4);				
+						//All other sensors in group are added
+						for(var i = 0; i < json.length; ++i){
+							sensorData = json[i]
+							var measured = sensorData.measurement === null ? 0 : Math.round(sensorData.measurement*1000)/1000;
+							array[i][1] += measured;
+						}
 					}
-					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
-					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
-					var regex = new RegExp('<br/>', 'g');
-					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					if(comparebool && array.length == json.length){
-						array[i].push(measured);
-						array[i][0] = i.toString();
-					}else if(groupbool && array.length == json.length){
-						array[i][1] += measured;
+				}else if(comparebool){
+					if(array.length == json.length){
+						//Normal case
+						for(var i = 0; i < json.length; ++i){
+							sensorData = json[i]
+							var measured = sensorData.measurement === null ? 0 : Math.round(sensorData.measurement*1000)/1000;
+							array[i].push(measured);
+							array[i][0] = i.toString();						
+						}
+					}else if(array.length < json.length && array.length != 0){
+						//Special case where not all data requested exists and therefor array.length < expected size
+						for(var i = 0; i < array.length; ++i){
+							sensorData = json[i]
+							var measured = sensorData.measurement === null ? 0 : Math.round(sensorData.measurement*1000)/1000;
+							array[i].push(measured);
+							array[i][0] = i.toString();						
+						}			
 					}else{
-						array.push([hmsstring, measured, notes, notespre+notes])
+						//Compare is toggled but no sensor selected yet
+						populateArray(json);						
 					}
+				}else{
+					alert("error");
 				}
 
 				var data = new google.visualization.DataTable();
@@ -309,6 +319,30 @@
 			}
 		};
 
+		var populateArray = function(json){
+			for (var i = 0; i < json.length; i++) {
+				var sensorData = json[i];
+				var date = new Date(sensorData.timestamp);
+				var interval = getInterval();
+				if(interval == "minutes"){
+					var hmsstring = date.toISOString().substring(0, 16);
+				}else if(interval == "hours"){
+					var hmsstring = date.toISOString().substring(0, 13);
+				}else if(interval == "days"){
+					var hmsstring = date.toISOString().substring(0, 10);					
+				}else if(interval == "months"){
+					var hmsstring = date.toISOString().substring(0, 7);					
+				}else{
+					var hmsstring = date.toISOString().substring(0, 4);				
+				}
+				var measured = sensorData.measurement === null ? 0 : Math.round(sensorData.measurement*1000)/1000;
+				var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
+				var regex = new RegExp('<br/>', 'g');
+				var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
+				array.push([hmsstring, measured, notes, notespre+notes])
+			}
+		};
+		
 	    // Callback that creates and populates a data table,
 	    // instantiates the line chart, passes in the data and
 	    // draws it.
@@ -336,7 +370,7 @@
 			if(comparebool && array.length != 0) {
 				var diff = endTime.getTime() - startTime.getTime();
 				startTime = start_time;
-				endTime.setTime(startTime.getTime() + diff);
+				endTime = new Date(start_time.getTime() + diff);
 			}
             else {
 				startTime = start_time;
