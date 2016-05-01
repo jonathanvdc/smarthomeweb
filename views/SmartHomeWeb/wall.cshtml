@@ -17,25 +17,33 @@
         <div class="col-md-8">
             <form method="post" id="wallpost_form">
                 <label for="wallpost">@string.Format(TextResources.NewWallPostLabel, Model.Item1):</label>
-                <input id="wallpost" name="wallpost" class="form-control"/>
+                <input id="wallpost" name="wallpost" class="form-control" style="width: 85%; display: table-cell;"/>
                 <input id="graph" name="graph" class="form-control" style="display: none;"/>
-                <button type="submit" id="post_submit" class="btn btn-primary">@TextResources.Submit</button>
+                <button type="submit" id="post_submit" class="btn btn-primary" style="float:right; display: table-cell;">
+                    @TextResources.Submit
+                </button>
             </form>
         </div>
         <div class="col-md-4 container">
             @if (Model.Item4 != null)
             {
-                for (int i = 0; i < @Model.Item4.Count(); ++i)
+                @{
+                    var items = Model.Item4; 
+                }
+                for (int i = 0; i < @items.Count(); ++i)
                 {
-                    var g = Model.Item4.ElementAt(i);
+                    @{ 
+                        var item = items.ElementAt(i);
+                    }
+
                     <div id="g@(i)" class="clickable-item" style="width: 100%; display: table;">
                         <div style="display: table-row">
                             <div style="display: table-cell;">
                                 <div class="text-center">
-                                    <strong>@g.Data.Name</strong>
+                                    <strong>@item.Data.Name</strong>
                                 </div>
-                                <input id="hg@(i)" style="display: none;" value='@g.Data.Uri'/>
-                                <input id="hg@(i)id" style="display: none;" value='@g.Id'/>
+                                <input id="hg@(i)" style="display: none;" value='@item.Data.Uri'/>
+                                <input id="hg@(i)id" style="display: none;" value='@item.Id'/>
                             </div>
                         </div>
                     </div>
@@ -56,25 +64,33 @@
     else
     {
         <ul class="media-list">
-            @foreach (var m in Model.Item2)
+
+            @{ 
+                var posts = Model.Item2;
+            }
+
+            @for (int i = posts.Count() - 1; i >= 0; i--)
             {
+                @{
+                    var post = Model.Item2.ElementAt(i);
+                }
                 <li class="media">
                     <div class="media-left">
-                        <a href="/person/@m.Source.Data.UserName">
-                            <div class="profile-avatar-small avatar-@Math.Abs(m.Source.Guid.GetHashCode() % 4)"></div>
+                        <a href="/person/@post.Source.Data.UserName">
+                            <div class="profile-avatar-small avatar-@Math.Abs(post.Source.Guid.GetHashCode() % 4)"></div>
                         </a>
                     </div>
                     <div class="media-body">
                         <h4 class="media-heading message-header">
-                            @Html.Raw(string.Format(TextResources.WallPostHeader, m.Source.Data.UserName, m.Source.Data.Name))
+                            @Html.Raw(string.Format(TextResources.WallPostHeader, post.Source.Data.UserName, post.Source.Data.Name))
                         </h4>
                         <div class="bubble col-md-8">
-                            @m.Message
-                            @if (m.Image != null)
+                            @post.Message
+                            @if (post.Image != null)
                             {
                                 <div id="imagePreview@(previewCounter)Wrapper" class="col-md-4">
                                     <div class="container">
-                                        <img id="imagePreview@(previewCounter)" src="@m.Image.Data.Uri" alt="@TextResources.GraphWontShow" style="height: 200px; width: 200px;" />
+                                        <img id="imagePreview@(previewCounter)" src="@post.Image.Data.Uri" alt="@TextResources.GraphWontShow" style="height: 200px; width: 200px;" />
                                         @{
                                             previewCounter++;
                                         }
