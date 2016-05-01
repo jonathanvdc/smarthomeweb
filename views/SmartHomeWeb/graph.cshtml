@@ -51,6 +51,7 @@
 
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="content/js/smarthomeweb-charts.js"></script>
 
 <script type="text/javascript">
 
@@ -97,24 +98,10 @@
 		var groupbool = false;
 		var array = [];
 
-
-		var getInterval = function(){
-			var diff = Math.abs(endTime.getTime() - startTime.getTime())
-			if(diff/60000 <= measurementCount){
-				var xxx = "minutes";
-			}else if(diff/(60000*60) <= measurementCount){
-				var xxx = "hours";
-			}else if(diff / (60000 * 60 * 24)<= measurementCount){
-				var xxx = "days";
-			}else if(diff / (60000 * 60 * 24*365)<= measurementCount){
-				var xxx = "months";
-			}else{
-				var xxx = "years";
-			}
-			return xxx;
+		var getInterval = function() {
+            return GraphHelpers.getIntervalType(startTime, endTime, measurementCount);
 		}
-		
-		
+
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
 		    document.getElementById('graphSave_div').hidden = !(index == 0);
@@ -165,78 +152,19 @@
 
 		// Performs a GET REST call to our API,
 		// and parses the response as JSON.
-		var requestData = function(url, callback) {
-			var xmlhttp = new XMLHttpRequest();
-			xmlhttp.open("GET", url, true);
-			xmlhttp.onload = function (e) {
-				callback(processData(JSON.parse(xmlhttp.responseText)));
-			};
-			xmlhttp.send(null);
-		};
+		var requestData = GraphHelpers.requestData;
 
 		// Formats the given date-time instance as an ISO date-time string.
-		var timeString = function(time) {
-			var seconds = time.getSeconds() < 10 ? "0"+time.getSeconds().toString() : time.getSeconds().toString();
-			var minutes = time.getMinutes() < 10 ? "0"+time.getMinutes().toString() : time.getMinutes().toString();
-			var hours = time.getHours() < 10 ? "0"+time.getHours().toString() : time.getHours().toString();
-			var day =  time.getDate().toString();
-			var month = (time.getMonth()+1).toString();
-			var year =	time.getFullYear().toString();
-			var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
-			return datestring;
-		};
-
-		// Gets the location that is associated with the given
-		// location identifier.
-		// The given callback handles the resulting value.
-		var getLocation = function(locationId, callback) {
-			var xmlhttp = new XMLHttpRequest();
-			var url = "/api/locations/" + locationId.toString();
-			xmlhttp.open("GET", url, true);
-			xmlhttp.onload = function (e) {
-				callback(JSON.parse(xmlhttp.responseText));
-			};
-			xmlhttp.send(null);
-		};
+		var timeString = GraphHelpers.timeString;
 
 		// Gets the location belonging to the given sensor.
 		// The given callback handles the resulting value.
-		var getSensorLocation = function(sensorId, callback) {
-			var xmlhttp = new XMLHttpRequest();
-			var url = "/api/sensors/" + sensorId.toString();
-			xmlhttp.open("GET", url, true);
-			xmlhttp.onload = function (e) {
-				getLocation(JSON.parse(xmlhttp.responseText).data.locationId, callback);
-			};
-			xmlhttp.send(null);
-		};
+		var getSensorLocation = GraphHelpers.getSensorLocation;
 
 		// Computes and displays the total electricity price
 		// for the given sensor and array of measurements.
 		var computePrice = function(sensorId, measurements) {
-			getSensorLocation(sensorId, function(loc) {
-				// A location stores its price per unit of electricity as currency/kWh.
-				// Since we want the total electricity price, we will multiply
-				// the location's price per unit by the total time, and the average
-				// electricity usage of the currently selected sensor.
-				var elecPrice = loc.data.electricityPrice;
-				if (elecPrice === null)
-					// This is kind of lame, really.
-					return;
-
-				var hourDiff = Math.abs(endTime.getTime() - startTime.getTime()) / 1000 / 3600;
-				var totalUsage = 0.0;
-				var n = 0;
-				for (var i = 0; i < measurements.length; i++) {
-					var sensorData = measurements[i];
-					if (sensorData.measurement !== null) {
-						totalUsage += sensorData.measurement;
-						n++;
-					}
-				}
-				var totalPrice = elecPrice * hourDiff * totalUsage / n;
-				showPrice(totalPrice);
-			});
+            GraphHelpers.computePrice(sensorId, measurements, showPrice);
 		};
 
 		// Actually draws the chart, based on the given array
@@ -256,11 +184,11 @@
 					}else if(interval == "hours"){
 						var hmsstring = date.toISOString().substring(0, 13);
 					}else if(interval == "days"){
-						var hmsstring = date.toISOString().substring(0, 10);					
+						var hmsstring = date.toISOString().substring(0, 10);
 					}else if(interval == "months"){
-						var hmsstring = date.toISOString().substring(0, 7);					
+						var hmsstring = date.toISOString().substring(0, 7);
 					}else{
-						var hmsstring = date.toISOString().substring(0, 4);				
+						var hmsstring = date.toISOString().substring(0, 4);
 					}
 					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
 					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
@@ -320,7 +248,7 @@
 	    	hidePrice();
 	    	showLoading();
 
-			for(var x = 0; x < currentsensor.length; ++x){
+			for (var x = 0; x < currentsensor.length; ++x){
 				var url = "/api/autofit/" + currentsensor[x].toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
 				requestData(url, drawData);
 			}
@@ -343,7 +271,7 @@
 				endTime = end_time;
 				sort();
 			}
-			
+
 			groupbool ? array = [] : array = array;
 		};
 

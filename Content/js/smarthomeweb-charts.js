@@ -1,0 +1,274 @@
+
+GraphHelpers = new function()
+{
+    // Formats the given date-time instance as an ISO date-time string.
+    this.timeString = function(time) {
+        var seconds = time.getSeconds() < 10 ? "0" + time.getSeconds().toString() : time.getSeconds().toString();
+        var minutes = time.getMinutes() < 10 ? "0" + time.getMinutes().toString() : time.getMinutes().toString();
+        var hours = time.getHours() < 10 ? "0" + time.getHours().toString() : time.getHours().toString();
+        var day =  time.getDate().toString();
+        var month = (time.getMonth() + 1).toString();
+        var year =	time.getFullYear().toString();
+        var datestring = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds;
+        return datestring;
+    };
+
+    // Determines the type of interval that the given endTime
+    // and start-time represent.
+    this.getIntervalType = function(startTime, endTime, measurementCount) {
+        var diff = Math.abs(endTime.getTime() - startTime.getTime())
+        if (diff / 60000 <= measurementCount) {
+            return "minutes";
+        }
+        else if (diff / (60000 * 60) <= measurementCount) {
+            return "hours";
+        }
+        else if (diff / (60000 * 60 * 24) <= measurementCount) {
+            return "days";
+        }
+        else if (diff / (60000 * 60 * 24 * 365) <= measurementCount) {
+            return "months";
+        }
+        else {
+            return "years";
+        }
+    };
+
+    // Replaces measurement data that consists of 'null'
+    // measurements only, by a simple empty array. This
+    // allows us to display an accurate error message if
+    // we have no measurements to show.
+    this.processData = function(json) {
+        for (var i = 0; i < json.length; i++) {
+            if (json[i].measurement !== null) {
+                return json;
+            }
+        }
+        return json;
+    };
+
+    // Performs a GET REST call to our API,
+    // and parses the response as JSON.
+    this.requestData = function(url, callback) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", url, true);
+        xmlhttp.onload = function (e) {
+            callback(JSON.parse(xmlhttp.responseText));
+        };
+        xmlhttp.send(null);
+    };
+
+    // Performs a GET REST call to our API,
+    // and parses the response as JSON.
+    // A jQuery deferred task is returned that
+    // accomplishes this behavior.
+    this.requestDataAsync = function(url) {
+        return $.get(url).then(JSON.parse);
+    };
+
+    // Gets the location that is associated with the given
+    // location identifier.
+    // The given callback handles the resulting value.
+    this.getLocation = function(locationId, callback) {
+        var url = "/api/locations/" + locationId.toString();
+        return this.requestData(url, callback);
+    };
+
+    // Gets the location belonging to the given sensor.
+    // The given callback handles the resulting value.
+    this.getSensorLocation = function(sensorId, callback) {
+        var url = "/api/sensors/" + sensorId.toString();
+        return this.requestData(url, function(sensor) {
+            getLocation(sensor.data.locationId, callback);
+        });
+    };
+
+    // Computes and displays the total electricity price
+    // for the given array of measurements.
+    this.computePrice = function(sensorId, measurements, callback) {
+        this.getSensorLocation(sensorId, function(loc) {
+            // A location stores its price per unit of electricity as currency/kWh.
+            // Since we want the total electricity price, we will multiply
+            // the location's price per unit by the total time, and the average
+            // electricity usage of the currently selected sensor.
+            var elecPrice = loc.data.electricityPrice;
+            if (elecPrice === null)
+                // This is kind of lame, really.
+                return;
+
+            var hourDiff = Math.abs(endTime.getTime() - startTime.getTime()) / 1000 / 3600;
+            var totalUsage = 0.0;
+            var n = 0;
+            for (var i = 0; i < measurements.length; i++) {
+                var sensorData = measurements[i];
+                if (sensorData.measurement !== null) {
+                    totalUsage += sensorData.measurement;
+                    n++;
+                }
+            }
+            var totalPrice = elecPrice * hourDiff * totalUsage / n;
+            callback(totalPrice);
+        });
+    };
+};
+
+// Defines an autofitted range "class".
+//
+// Instantiate with:
+//
+//     new AutofitRange(...)
+//
+AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
+    this.sensorId = sensorId;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.maxMeasurements = maxMeasurements;
+
+    // Determines the type of interval described by this
+    // autofitted range.
+    // This function is part of the public API.
+    this.getIntervalType = function() {
+        return GraphHelpers.getIntervalType(this.startTime, this.endTime, this.maxMeasurements);
+    };
+
+    // Creates a JSON object literal that describes this range.
+    // This function is part of the public API.
+    this.toJSON = function() {
+        return JSON.stringify({
+            'sensorId' : this.sensorId,
+            'startTime' : GraphHelpers.TimeString(this.startTime),
+            'endTime' : GraphHelpers.TimeString(this.endTime),
+            'maxMeasurements' : this.maxMeasurements
+        });
+    };
+
+    // Encodes this autofitted range as a relative path.
+    // This function is "private".
+    var urlPathEncode = function() {
+        return this.sensorId.toString()
+            + "/" + timeString(this.startTime) + "/"
+            + timeString(this.endTime) + "/"
+            + this.maxMeasurements.toString();
+    };
+
+    // Converts this autofitted range to an autofit URL request.
+    // This function is "private".
+    var toUrl = function() {
+        return "/api/autofit/" + this.urlPathEncode();
+    };
+
+    // Retrieves this sensor's measurements, as
+    // a deferred task that provides an array
+    // of JSON measurement objects.
+    // This function is part of the public API.
+    this.getMeasurementsAsync = function() {
+        return GraphHelpers.requestDataAsync(this.toUrl()).then(GraphHelpers.processData);
+    };
+
+    // Retrieves this sensor's measurements.
+    // This function is part of the public API.
+    this.getMeasurements = function(callback) {
+        GraphHelpers.requestData(this.toUrl(), function(results) { callback(GraphHelpers.processData(results)); });
+    };
+
+    // Gets this sensor's location object.
+    // This function is part of the public API.
+    this.getLocation = function(callback) {
+        GraphHelpers.getSensorLocation(this.sensorId, callback);
+    };
+
+    // Computes and displays the total electricity price
+    // for the given array of measurements.
+    this.computePrice = function(measurements, callback) {
+        GraphHelpers.computePrice(this.sensorId, measurements, callback);
+    };
+};
+
+// Describes a measurements chart. This type does two things:
+//
+//     * Store autofitted ranges of measurements
+//     * Raise events when anything changes.
+//
+ChartDescription = function() {
+
+    // Holds this chart description's autofitted ranges.
+    var ranges = [];
+
+    // Holds on-changed handlers for this chart.
+    var onChangedHandlers = [];
+
+    // Invokes all on-changed handlers.
+    var changed = function() {
+        for (var i = 0; i < onChangedHandlers.length; i++) {
+            onChangedHandlers[i]();
+        }
+    };
+
+    // Registers a (parameterless) handler function
+    // with this chart description that is fired
+    // whenever the chart changes.
+    this.onChanged = function(handler) {
+        onChangedHandlers.push(handler);
+    };
+
+    // Performs an action. Any changes to this chart description are
+    // only reported when the entire action has completed.
+    this.batchChanges = function(action) {
+        // Replace the on-changed handlers by
+        // a single function that remembers whether
+        // any changes have occurred or not.
+        var hasChanged = false;
+        var oldHandlers = onChangedHandlers;
+        onChangedHandlers = [function() { hasChanged = true; }];
+
+        // Perform the given action.
+        action();
+
+        // Restore the old handlers.
+        onChangedHandlers = oldHandlers;
+        // Call them if the chart has changed.
+        if (hasChanged)
+            changed();
+    };
+
+    // Gets this chart's ranges.
+    this.getRanges = function() {
+        // Copy the ranges, so external users don't
+        // corrupt our painstakingly constructed
+        // event system.
+        return ranges.slice();
+    };
+
+    // Adds the given range to this chart description.
+    this.addRange = function(value) {
+        ranges.push(value);
+        changed();
+    };
+
+    // Add the given ranges to this chart description.
+    this.addRanges = function(values) {
+        ranges = ranges.concat(values);
+        changed();
+    };
+
+    // Filters ranges based on the given predicate.
+    // Any ranges for which the predicate returns
+    // 'false' are discarded. All other ranges
+    // remain.
+    this.filterRanges = function(predicate) {
+        ranges = $.grep(ranges, predicate);
+        changed();
+    };
+
+    // Checks if this graph contains at least one range
+    // for which the given predicate returns 'true'.
+    this.containsRange = function(predicate) {
+        return $.grep(ranges, predicate).length > 0;
+    };
+
+    // Removes all ranges from this chart description.
+    this.clearRanges = function() {
+        ranges = [];
+        changed();
+    };
+};
