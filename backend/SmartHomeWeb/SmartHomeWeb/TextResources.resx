@@ -588,4 +588,19 @@
   <data name="WallPostHeader" xml:space="preserve">
     <value>&lt;a href="/person/{0}"&gt;{1}&lt;/a&gt; wrote:</value>
   </data>
+  <data name="AddFriendExplanation" xml:space="preserve">
+    <value>Click here to add people to your friends list!</value>
+  </data>
+  <data name="NoFriends" xml:space="preserve">
+    <value>You have no friends :(</value>
+  </data>
+  <data name="NoNewFriendRequests" xml:space="preserve">
+    <value>No new friend requests.</value>
+  </data>
+  <data name="NoPendingFriendRequests" xml:space="preserve">
+    <value>No pending friend requests.</value>
+  </data>
+  <data name="TryAddingFriends" xml:space="preserve">
+    <value>Try adding friends by searching through the users page!</value>
+  </data>
 </root>

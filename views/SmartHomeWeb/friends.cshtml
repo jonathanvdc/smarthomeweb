@@ -8,66 +8,137 @@
 @inherits NancyRazorViewBase<Dictionary<FriendsState, IEnumerable<Person>>>
 
 <h1>@TextResources.FriendsPageTitle</h1>
-<h2>@TextResources.AddFriendTitle</h2>
+
+@Html.Partial("feedback-box.cshtml")
+
+<div class="container col-sm-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            @TextResources.AddFriendTitle
+        </div>
+        <div class="panel-body">
+            <a href="/person">@TextResources.AddFriendExplanation</a>
+        </div>
+    </div>
+</div>
+
 
 @if (Context.CurrentUser.IsAuthenticated())
 {
-    @Html.Partial("feedback-box.cshtml")
+    <div class="container col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                @TextResources.NewFriendRequestsLabel
+            </div>
+            <div class="panel-body">
+                @if (Model[FriendsState.FriendRequestRecieved].Any())
+                {
+                <table>
+                    @foreach (Person p in @Model[FriendsState.FriendRequestRecieved])
+                    {
+                        <tr>
+                            <td>
+                                <div class="profile-avatar avatar-@(Math.Abs(p.Guid.GetHashCode() % 8))"
+                                     style="width:40px; height:40px;margin-right:15px"></div>
+                            </td>
 
-    <form method="post">
-	    <div class="form-group">
-		    <label for="friend">@TextResources.FriendUsernameLabel</label>
-		    <input id="friend" name="friend-name" class="form-control"/>
-	    </div>
-	    <button type="submit" class="btn btn-primary">@TextResources.AddFriendButton</button>
-    </form>
+                            <td>
+                                <a href="/person/@p.Data.UserName">@p.Data.Name (@p.Data.UserName)</a>
+                            </td>
 
-    if (Model[FriendsState.FriendRequestRecieved].Any()) {
-        <h2>@TextResources.NewFriendRequestsLabel</h2>
-        <ul>
-            @foreach (var p in @Model[FriendsState.FriendRequestRecieved])
-            {
-                <li>
-	                <form class="form-inline" method="post" action="/friend-request">
-		                <div class="form-group">
-			                <button type="submit" class="btn btn-primary" name="friend-name" value="@p.Data.UserName">
-				                @TextResources.AcceptFriendRequestButton
-			                </button>
-		                </div>
-	                </form>
-                    @p.Data.Name (@p.Data.UserName)
-                </li>
-            }
-        </ul>
-    }
+                            <td>
+                                <form class="form-inline" method="post" action="/friend-request" style="margin-left:15px; margin-bottom: auto;">
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-success" name="friend-name" value="@p.Data.UserName">
+                                            @TextResources.AcceptFriendRequestButton
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </table>
+                }
+                else
+                {
+                    @TextResources.NoNewFriendRequests
+                }
+            </div>
+        </div>
+    </div>
 
-    if (Model[FriendsState.FriendRequestSent].Any()) {
-        <h2>@TextResources.PendingFriendRequestsLabel</h2>
-        <ul>
-            @foreach (var p in @Model[FriendsState.FriendRequestSent])
-            {
-                <li>@p.Data.Name (@p.Data.UserName)</li>
-            }
-        </ul>
-    }
+    <div class="container col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                @TextResources.PendingFriendRequestsLabel
+            </div>
+            <div class="panel-body">
 
-    if (Model[FriendsState.Friends].Any()) {
-        <h2>@TextResources.AllFriendsLabel</h2>
-        <table class="table">
-            <tr class="tableHeader">
-                <th>@TextResources.PersonUserNameLabel</th>
-                <th>@TextResources.PersonNameLabel</th>
-            </tr>
+                @if (Model[FriendsState.FriendRequestSent].Any()) {
+                <table>
+                    @foreach (Person p in @Model[FriendsState.FriendRequestSent])
+                    {
+                        <tr>
 
-            @foreach (var p in @Model[FriendsState.Friends])
-            {
-                <tr>
-                    <th><a href="/person/@p.Data.UserName">@p.Data.UserName</a></th>
-	                <td>@p.Data.Name</td>
-                </tr>
-            }
-        </table>
-    }
+                            <td>
+                                <div class="profile-avatar avatar-@(Math.Abs(p.Guid.GetHashCode() % 8))"
+                                     style="width:40px; height:40px;margin-right:15px"></div>
+                            </td>
+
+                            <td>
+                                <a href="/person/@p.Data.UserName">@p.Data.Name (@p.Data.UserName)</a>
+                            </td>
+                        
+                        </tr>
+                    }
+                </table>
+                }
+                else
+                {
+                    @TextResources.NoPendingFriendRequests
+                }
+
+            </div>
+        </div>
+    </div>
+
+    <div class="container col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                @TextResources.AllFriendsLabel
+            </div>
+            <div class="panel-body">
+
+                @if (Model[FriendsState.Friends].Any())
+                {
+                
+
+                <table>
+                    @foreach (var p in @Model[FriendsState.Friends])
+                    {
+                        <tr>
+                            <td>
+                                <div class="profile-avatar avatar-@(Math.Abs(p.Guid.GetHashCode() % 8))"
+                                     style="width:40px; height:40px;margin-right:15px"></div>
+                            </td>
+
+                            <td>
+                                <a href="/person/@p.Data.UserName">@p.Data.Name</a>
+                            </td>
+                        </tr>
+                    }
+                </table>
+                }
+                else
+                {
+                    @TextResources.NoFriends
+                    <br />
+                    @TextResources.TryAddingFriends
+                }
+
+            </div>
+        </div>
+    </div>
 }
 else
 {
