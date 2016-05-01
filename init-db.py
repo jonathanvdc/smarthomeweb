@@ -42,13 +42,21 @@ if __name__ == "__main__":
 
         log('Creating locations...')
         create_location('Kent Farmhouse', 'clark')
-        create_location('Wayne Mansion', 'bruce')
+        create_location('Wayne Manor', 'bruce')
         create_location('LexCorp Building', 'lex')
+		
+        add_has_location('Wayne Manor', 'dick')
+        add_has_location('Kent Farmhouse', 'admin')
+        add_has_location('Wayne Manor', 'admin')
+        add_has_location('LexCorp Building', 'admin')
 
         log('Creating posts...')
         add_message('clark', 'bruce', 'Greetings, fellow citizen.')
+        add_message('clark', 'admin', 'Good work on the website, citizen.')
+        add_message('dick', 'bruce', 'I think I left the stove on')
         add_message('bruce', 'clark', 'Do you bleed?')
         add_message('lex', 'clark', '#VoteLex2016')
+        add_message('lex', 'admin', 'Hi, can I have admin privileges please? I promise I\'ll be good.')
         add_message('diana', 'clark', 'Hi there... ;)')
         add_message('lois', 'clark', 'Top 100 Things I Love About Superman, You\'ll Never Believe #59!')
         add_message('jimmy', 'clark', 'Gee, Clark, you\'ll never believe what happened!')
