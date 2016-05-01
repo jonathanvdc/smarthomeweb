@@ -311,7 +311,7 @@ ChartDescription = function() {
         var tasks = [];
         for (var i = 0; i < ranges.length; i++) {
             var ran = ranges[i];
-            tasks.push(ranges[i].getTotalUsageAsync().then(function(result) {
+            tasks.push(ran.getTotalUsageAsync().then(function(result) {
                 return { 'range' : ran, 'usage' : result };
             }));
         }
