@@ -51,7 +51,17 @@ if __name__ == "__main__":
         add_has_location('LexCorp Building', 'admin')
 
         log('Creating posts...')
+        add_message('admin', 'clark', 'Welcome to SmartHomeWeb, enjoy your stay!')
+        add_message('admin', 'bruce', 'Welcome to SmartHomeWeb, enjoy your stay!')
+        add_message('admin', 'dick', 'Welcome to SmartHomeWeb, enjoy your stay!')
+        add_message('admin', 'diana', 'Welcome to SmartHomeWeb, enjoy your stay!')
+        add_message('admin', 'lois', 'Welcome to SmartHomeWeb, enjoy your stay!')
+        add_message('admin', 'lex', 'Welcome to SmartHomeWeb, enjoy your stay!')
+        add_message('admin', 'jimmy', 'Welcome to SmartHomeWeb, enjoy your stay!')
+		
         add_message('clark', 'bruce', 'Greetings, fellow citizen.')
+        add_message('clark', 'clark', 'Helping ma and pa around the house :) #Helping #Pa&Ma')
+        add_message('lois', 'clark', 'Hey clark, how\'s your day been? ;)')
         add_message('clark', 'admin', 'Good work on the website, citizen.')
         add_message('dick', 'bruce', 'I think I left the stove on')
         add_message('bruce', 'clark', 'Do you bleed?')
