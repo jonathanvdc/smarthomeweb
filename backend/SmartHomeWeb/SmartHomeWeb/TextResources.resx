@@ -297,6 +297,9 @@
   <data name="WelcomeTitle" xml:space="preserve">
     <value>Welcome to SmartHomeWeb.</value>
   </data>
+  <data name="WelcomeLogInLabel" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
   <data name="YouAreFriendsWith" xml:space="preserve">
     <value>You are friends with {0}.</value>
   </data>
