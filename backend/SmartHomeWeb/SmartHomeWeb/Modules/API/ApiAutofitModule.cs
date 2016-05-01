@@ -61,7 +61,7 @@ namespace SmartHomeWeb.Modules.API
 			}
 		}
 
-        private async Task<double?> GetSumMeasurements(
+        private async Task<double> GetSumMeasurements(
             DataConnection Connection, int SensorId, DateTime StartTime, DateTime EndTime,
             int MaxMeasurementCount)
         {
