@@ -27,7 +27,7 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the person's GUID string.
         /// </summary>
-        [JsonProperty("personGuid")]
+        [JsonProperty("personGuid", Required = Required.Always)]
         public string GuidString
         {
             get { return Guid.ToString(); }
@@ -43,7 +43,7 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the person's data.
 		/// </summary>
-		[JsonProperty("data")]
+        [JsonProperty("data", Required = Required.Always)]
 		public PersonData Data { get; private set; }
 
 		public bool Equals(Person Other)

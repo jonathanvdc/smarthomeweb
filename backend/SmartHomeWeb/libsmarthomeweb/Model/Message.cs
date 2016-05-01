@@ -27,13 +27,13 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the message's unique identifier.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
         public int Id { get; private set; }
 
         /// <summary>
         /// Gets the message's data.
         /// </summary>
-        [JsonProperty("data")]
+        [JsonProperty("data", Required = Required.Always)]
         public MessageData Data { get; private set; }
 
         public bool Equals(Message Other)

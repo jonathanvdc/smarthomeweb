@@ -23,7 +23,7 @@ namespace SmartHomeWeb.Model
         /// <summary>
         /// Gets the person's GUID string.
         /// </summary>
-        [JsonProperty("personGuid")]
+        [JsonProperty("personGuid", Required = Required.Always)]
         public string PersonGuidString
         {
             get { return PersonGuid.ToString(); }
@@ -39,7 +39,7 @@ namespace SmartHomeWeb.Model
 		/// <summary>
 		/// Gets the location's unique identifier.
 		/// </summary>
-		[JsonProperty("locationId")]
+        [JsonProperty("locationId", Required = Required.Always)]
 		public int LocationId { get; private set; }
 	}
 }
