@@ -35,7 +35,7 @@ else
                 <a data-toggle="tab" data-target="#u_@x, #tags_@x" onclick="currentLocation = @x">
                     @Model.Item1[@x].Item1.Data.Name
                 </a>
-            </li>    
+            </li>
         }
     </ul>
 
@@ -54,15 +54,15 @@ else
             </div>
 
 			<div class="col-sm-2" style="padding:0px">
-                <div class="panel panel-default">	
+                <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
 					<div class="panel-body tab-content">
 						<button onclick="measurementsGraph.toggleCompare()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="compare">C</button>
 						<button onclick="measurementsGraph.toggleGroup()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="group">G</button>
 					</div>
-				</div>				
+				</div>
 			</div>
-			
+
             <div class="col-sm-6">
                 <div class="panel panel-default">
 
@@ -118,7 +118,7 @@ else
 
                                 @foreach (var item in Model.Item1[x].Item3)
                                 {
-                                    @{ 
+                                    @{
                                         Sensor sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
@@ -127,9 +127,9 @@ else
 
                                             <div style="display: table-row">
                                                 <div style="display: table-cell;">
-                                                    <p style="padding: 0px; margin: 0px;">@sensor.Data.Name</p>    
+                                                    <p style="padding: 0px; margin: 0px;">@sensor.Data.Name</p>
                                                 </div>
-    
+
                                                 <a href="/edit-sensor/@sensor.Id" style="width: 25px; display: table-cell;">
                                                     <span class="glyphicon glyphicon-cog" style="float: right;" />
                                                 </a>
@@ -290,29 +290,34 @@ else
 	}
 
 	function byconsumption(){
-		var sensoren = document.getElementById('u_' + currentLocation).children[0];
-		var items = sensoren.getElementsByTagName("li");
-		var x = [];
-		var newitems = [];
-		for (var i = 0; i < items.length; ++i) {
-		    x.push([i, parseFloat(measurementsGraph.getSensorTotalUsage(items[i].getAttribute("sensor-id")))]);
-		}
-		x.sort(function(a, b) {
-			return a[1] < b[1] ? 1 : -1;
-		});
+		var sensors = document.getElementById('u_' + currentLocation).children[0];
+		var items = sensors.getElementsByTagName("li");
+        var ids = $.map(items, function(elem) {
+            return elem.getAttribute("sensor-id");
+        });
+        measurementsGraph.getSensorTotalUsages(ids, function(results) {
+            var x = [];
+    		var newitems = [];
+    		for (var i = 0; i < results.length; ++i) {
+    		    x.push([i, results[i]]);
+    		}
+            x.sort(function(a, b) {
+                return a[1] < b[1] ? 1 : -1;
+            });
 
-		for(var i = 0; i < x.length; ++i){
-			newitems.push(items[x[i][0]].cloneNode(true));
-		}
-		for(var i = 0; i < items.length; ++i){
-			sensoren.replaceChild(newitems[i], items[i]);
-		}
+            for (var i = 0; i < x.length; ++i){
+                newitems.push(items[x[i][0]].cloneNode(true));
+            }
+            for (var i = 0; i < items.length; ++i){
+                sensors.replaceChild(newitems[i], items[i]);
+            }
+        });
 	}
 
 
 	function byalphabet(){
-	    var sensoren = document.getElementById('u_' + currentLocation).children[0];
-		var items = sensoren.getElementsByTagName("li");
+	    var sensors = document.getElementById('u_' + currentLocation).children[0];
+		var items = sensors.getElementsByTagName("li");
 		var x = [];
 		var newitems = [];
 
@@ -329,7 +334,7 @@ else
 		}
 
 		for(var i = 0; i < items.length; ++i){
-		    sensoren.replaceChild(newitems[i], items[i]);
+		    sensors.replaceChild(newitems[i], items[i]);
 		}
 	}
 

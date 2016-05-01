@@ -53,7 +53,7 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
-    
+
     var request = new XMLHttpRequest();
     var done = false;
     request.onreadystatechange = function() {
@@ -96,8 +96,8 @@
 		var comparebool = false;
 		var groupbool = false;
 		var array = [];
-		
-		
+
+
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
 		    document.getElementById('graphSave_div').hidden = !(index == 0);
@@ -105,7 +105,7 @@
 		    document.getElementById("no-sensor-message").hidden = !(index == 2);
 		    document.getElementById("loading-message").hidden = !(index == 3);
 		};
-	    
+
 		var showChart = function() {
 		    showElement(0);
 		};
@@ -257,7 +257,7 @@
 					data.addColumn('number', 'Usage');
 				}
 				data.addRows(array);
-				
+
 				// Set chart options
 				var options = {'width':600,
 								'height':500,
@@ -280,7 +280,7 @@
 				computePrice(currentsensor, json);
 			}
 		};
-		
+
 	    // Callback that creates and populates a data table,
 	    // instantiates the line chart, passes in the data and
 	    // draws it.
@@ -291,13 +291,13 @@
 	    	}
 	    	hidePrice();
 	    	showLoading();
-            
+
 			for(var x = 0; x < currentsensor.length; ++x){
 				var url = "/api/autofit/" + currentsensor[x].toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
 				requestData(url, drawData);
 			}
 	    };
-		
+
 	    // Load the Visualization API and the corechart package.
 	    google.charts.load('current', {'packages':['corechart']});
 
@@ -305,7 +305,7 @@
 		google.charts.setOnLoadCallback(function() { drawChart() });
 
 		// Sets the time frame to 'minutes', 'hours',
-		// 'days' or 'months', and renders the chart. 
+		// 'days' or 'months', and renders the chart.
 		// This function is part of the public API.
 		this.setTimeframe = function(start_time, end_time) {
 			if(comparebool && array.length != 0){
@@ -365,8 +365,8 @@
 			var str = JSON.parse(notesupdate + raw + '"}');
 			xmlhttp.send(JSON.stringify(str));
 			drawChart();
-		}
-		
+		};
+
 		this.toggleCompare = function(){
 			if(groupbool){this.toggleGroup()}
 			if(comparebool){
@@ -378,8 +378,8 @@
 				$('#compare').addClass('btn-success');
 				$('#compare').removeClass('btn-default');
 			}
-		}
-		
+		};
+
 		this.toggleGroup = function(){
 			if(comparebool){this.toggleCompare()}
 			if(groupbool){
@@ -391,21 +391,40 @@
 				$('#group').addClass('btn-success');
 				$('#group').removeClass('btn-default');
 			}
-		}
-		
-		this.getSensorTotalUsage = function(x){
-			var responses = [];
-			var xmlhttp = new XMLHttpRequest();
-			xmlhttp.open("GET", "/api/autofit/total/" + x.toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount, false);
-			var x = 0;
-			xmlhttp.send(null);
-			x = xmlhttp.responseText;
-			return x;
-		}
-		
-		this.getGroup = function(){
+		};
+
+        // Asynchronously gets the given sensors' total usages, as an
+        // array of floating-point numbers.
+        // This function is part of the public API.
+        this.getSensorTotalUsages = function(sensorIds, callback) {
+            // Create an array of GET tasks.
+            var tasks = [];
+            var urlSuffix = "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount;
+            for (var i = 0; i < sensorIds.length; i++) {
+                var url = "/api/autofit/total/" + sensorIds[i].toString() + urlSuffix;
+                tasks.push($.get(url));
+            }
+            // Wait for all tasks to complete...
+            return $.when.apply($, tasks).then(function() {
+                // ... then parse the argument array, and call the
+                // callback on the result.
+                callback($.map(arguments, parseFloat));
+            });
+        };
+
+        // Asynchronously gets the given sensor's total usage, as a
+        // floating-point number.
+        // This function is part of the public API.
+		this.getSensorTotalUsage = function(sensorId, callback) {
+            return this.getSensorTotalUsages([sensorId], function(values) {
+                callback(values[0]);
+            });
+		};
+
+		this.getGroup = function() {
 			return groupbool;
-		}
+		};
+
 		// Re-renders this chart.
 		this.draw = drawChart;
 	}
