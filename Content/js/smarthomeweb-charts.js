@@ -178,7 +178,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     };
 
     // Retrieves this sensor's total usage, as
-    // a deferred task that returns a floating-point
+    // a deferred task that produces a floating-point
     // number.
     // This function is part of the public API.
     this.getTotalUsageAsync = function() {
@@ -303,12 +303,17 @@ ChartDescription = function() {
     };
 
     // Asynchronously gets the given ranges' total usages.
+    // The given callback is invoked on an array that contains
+    // `{ 'range' : AutofitRange, 'usage' : float }` tuples.
     // This function is part of the public API.
     this.getTotalUsages = function(callback) {
         // Create an array of GET tasks.
         var tasks = [];
         for (var i = 0; i < ranges.length; i++) {
-            tasks.push(ranges[i].getTotalUsageAsync());
+            var ran = ranges[i];
+            tasks.push(ranges[i].getTotalUsageAsync().then(function(result) {
+                return { 'range' : ran, 'usage' : result };
+            }));
         }
         // Run them all in parallel.
         return GraphHelpers.whenAll(tasks, callback);
