@@ -77,7 +77,7 @@
             var username = '@Model';
             var url = '/api/graphs';
 
-            var params = '{"Owner":"' + username + '", "GraphURI":"' + document.getElementById("graphURI").value + '", "GraphName":"' + graphname + '"}';
+            var params = '{"ownerGuid":"' + username + '", "uri":"' + document.getElementById("graphURI").value + '", "name":"' + graphname + '"}';
             request.open("POST", url, true);
             request.setRequestHeader('Content-Type', 'application/json');
             request.send(params);

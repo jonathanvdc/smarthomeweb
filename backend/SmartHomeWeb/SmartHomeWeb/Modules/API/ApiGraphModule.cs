@@ -17,24 +17,27 @@ namespace SmartHomeWeb.Modules.API
     {
         public ApiGraphModule() : base("api/graphs")
         {
-            ApiGet<Graph>("/{username}/{graphname}", (p, dc) =>
+            ApiGet<Graph>("/{userguid}/{graphname}", (p, dc) =>
             {
                 this.RequiresAuthentication();
 
-                return Context.CurrentUser.UserName != p.username ?  //only return the graph if the current user is the user who saved the graph, saved graphs are not public.
-                    null : 
-                    dc.GetGraphByOwnerAndNameAsync(p["username"], p["graphname"]);
+                var userGuid = Guid.Parse(p["userguid"]);
+                // Only return the graph if the current user is the user who saved the graph, saved graphs are not public.
+                return ((UserIdentity)Context.CurrentUser).Guid != userGuid 
+                    ? null 
+                    : dc.GetGraphByOwnerAndNameAsync(userGuid, p["graphname"]);
             });
-            ApiPost<Graph, object>("/", async (_, g, dc) =>
+            ApiPost<GraphData, object>("/", async (_, g, dc) =>
             {
                 this.RequiresAuthentication();
                 const string regex = @"^data:image\/png;base64,.*$";
-                var match = Regex.Match(g.GraphURI, regex, RegexOptions.None);
-                if ((await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName)).GuidString == g.Owner
-                    && match.Success && match.Captures[0].Value == g.GraphURI)
-                //Check regex match and username correctness, if it's correct, insert graph to DB, else fail silently (Server side debug message - client side silence)
-                        await dc.InsertGraphAsync(g.GraphURI, g.Owner, g.GraphName);
-                else Console.WriteLine("Graph was submitted, but not saved due to reasons.\r\n(Regex mismatch on image data or incorrect username)");
+                var match = Regex.Match(g.Uri, regex, RegexOptions.None);
+                if ((await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName)).GuidString == g.OwnerGuidString
+                    && match.Success && match.Captures[0].Value == g.Uri)
+                    // Check regex match and username correctness, if it's correct, insert graph to DB, else fail silently (Server side debug message - client side silence)
+                    await dc.InsertGraphAsync(g);
+                else 
+                    Console.WriteLine("Graph was submitted, but not saved due to reasons.\r\n(Regex mismatch on image data or incorrect username)");
             });
         }
     }

@@ -14,49 +14,36 @@ namespace SmartHomeWeb.Model
         {
         }
 
-        [JsonIgnore]
-        public int Id
+        public Graph(int Id, GraphData Data)
         {
-            get; set;
-            
-        }
-        //{"ownerUserName":"diana", "graphURI":"", "graphName":"test"}
-        [JsonProperty("Owner", Required = Required.Always)]
-        public string Owner
-        {
-            get; set;
+            this.Id = Id;
+            this.Data = Data;
         }
 
-        [JsonProperty("GraphURI", Required = Required.Always)]
-        public string GraphURI
-        {
-            get; set;
-        }
+        [JsonProperty("id", Required = Required.Always)]
+        public int Id { get; private set; }
 
-        [JsonProperty("GraphName", Required = Required.Always)]
-        public string GraphName
-        {
-            get; set;
-        }
-        /// <summary>
-        /// constructs a graph from parameters
-        /// </summary>
-        /// <param name="gu">The URI string for the graph</param>
-        /// <param name="gn">The graph's name</param>
-        /// <param name="oun">The graph's owner's username</param>
-        /// <param name="id">The graph's id</param>
-        public Graph(string gu, string gn, string oun, int id)
-        {
-            Owner = oun;
-            GraphURI = gu;
-            GraphName = gn;
-            Id = id;
-        }
+        [JsonProperty("data", Required = Required.Always)]
+        public GraphData Data { get; private set; }
 
         public bool Equals(Graph other)
         {
             return Id == other.Id; //DB primary key, if this doesn't guarantee equality something is terribly wrong.
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is Graph && Equals((Graph)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[Graph: Id={0}, Data={1}]", Id, Data);
+        }
     }
 }

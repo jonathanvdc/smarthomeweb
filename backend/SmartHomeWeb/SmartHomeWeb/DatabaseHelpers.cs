@@ -191,11 +191,11 @@ namespace SmartHomeWeb
                 GetString(record, "owner") != null)
             {
                 return new Graph(
-                    GetString(record, "graph"),
-                    GetString(record, "name"),
-                    GetString(record, "owner"),
-                    GetInt32(record, "graphId")
-                );
+                    GetInt32(record, "graphId"),
+                    new GraphData(
+                        GetString(record, "graph"),
+                        GetString(record, "name"),
+                        GetGuid(record, "owner")));
             }
             return null;
 
@@ -208,8 +208,7 @@ namespace SmartHomeWeb
                 ReadPerson(record, 0),
                 ReadPerson(record, 1),
                 GetString(record, "message"),
-                ReadGraph(record)
-                );
+                ReadGraph(record));
         }
     }
 }

@@ -32,9 +32,9 @@
                         <div style="display: table-row">
                             <div style="display: table-cell;">
                                 <div class="text-center">
-                                    <strong>@g.GraphName</strong>
+                                    <strong>@g.Data.Name</strong>
                                 </div>
-                                <input id="hg@(i)" style="display: none;" value='@g.GraphURI'/>
+                                <input id="hg@(i)" style="display: none;" value='@g.Data.Uri'/>
                                 <input id="hg@(i)id" style="display: none;" value='@g.Id'/>
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                             {
                                 <div id="imagePreview@(previewCounter)Wrapper" class="col-md-4">
                                     <div class="container">
-                                        <img id="imagePreview@(previewCounter)" src="@m.Image.GraphURI" alt="@TextResources.GraphWontShow" style="height: 200px; width: 200px;" />
+                                        <img id="imagePreview@(previewCounter)" src="@m.Image.Data.Uri" alt="@TextResources.GraphWontShow" style="height: 200px; width: 200px;" />
                                         @{
                                             previewCounter++;
                                         }
@@ -113,7 +113,7 @@
     for (i = 0; i < @Model.Item4.Count(); ++i) {
         document.getElementById('g' + i).addEventListener("click", createGraphPreviewClickFunction(i));
     }
-    
+
     function createBigImagePreviewClickFunction(i) {
         return function() {
             document.getElementById('imagePreview' + i).style = 'height: 400px; width: 400px;';

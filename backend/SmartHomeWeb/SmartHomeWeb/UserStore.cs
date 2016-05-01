@@ -35,13 +35,12 @@ namespace SmartHomeWeb
 
         public string UserName => Person.Data.UserName;
         public string Password => Person.Data.Password;
+        public Guid Guid => Person.Guid;
 
         public IEnumerable<string> Claims
         {
             get { if (Person.Data.IsAdministrator) yield return "admin"; }
         }
-
-        public Guid Guid => Person.Guid;
 
         public UserIdentity(Person person)
         {

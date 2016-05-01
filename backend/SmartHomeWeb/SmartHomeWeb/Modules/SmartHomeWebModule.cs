@@ -271,7 +271,7 @@ namespace SmartHomeWeb.Modules
             {
                 Person sender = signedIn ? await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName) : null;
                 Person recipient = await dc.GetPersonByUsernameAsync(parameters.username);
-                graphs = signedIn ? await dc.GetGraphsByOwnerAsync(sender.Guid.ToString()) : new List<Graph>();
+                graphs = signedIn ? await dc.GetGraphsByOwnerAsync(sender.Guid) : new List<Graph>();
                 posts = await dc.GetWallPostsAsync(recipient.Guid);
                 recipientName = recipient.Data.Name;
             }
@@ -311,7 +311,7 @@ namespace SmartHomeWeb.Modules
             {
                 Person sender = signedIn ? await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName) : null;
                 Person recipient = await dc.GetPersonByUsernameAsync(parameters.username);
-                graphs = signedIn ? await dc.GetGraphsByOwnerAsync(sender.Guid.ToString()) : new List<Graph>();
+                graphs = signedIn ? await dc.GetGraphsByOwnerAsync(sender.Guid) : new List<Graph>();
                 posts = await dc.GetWallPostsAsync(recipient.Guid);
                 recipientName = recipient.Data.Name;
             }

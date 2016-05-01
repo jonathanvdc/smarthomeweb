@@ -2027,40 +2027,43 @@ namespace SmartHomeWeb
 
         }
         /// <summary>
-        /// Returns a graph matching the owner and name, should only ever be 1.
-        /// Returns null if no matching graph is found.
+        /// Returns a graph matching the owner and name.
+        /// If no such graph is found, null is returned.
         /// </summary>
-        public async Task<Graph> GetGraphByOwnerAndNameAsync(string owner, string name)
+        public async Task<Graph> GetGraphByOwnerAndNameAsync(Guid OwnerGuid, string GraphName)
         {
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner AND name=@name";
-                cmd.Parameters.AddWithValue("@owner", owner);
-                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@owner", OwnerGuid.ToString());
+                cmd.Parameters.AddWithValue("@name", GraphName);
 
                 return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
             }
         }
 
-        public async Task<IEnumerable<Graph>> GetGraphsByOwnerAsync(string owner)
+        /// <summary>
+        /// Returns all graphs that belong to the person with the given GUID.
+        /// </summary>
+        public async Task<IEnumerable<Graph>> GetGraphsByOwnerAsync(Guid OwnerGuid)
         {
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner";
-                cmd.Parameters.AddWithValue("@owner", owner);
+                cmd.Parameters.AddWithValue("@owner", OwnerGuid.ToString());
 
                 return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGraph);
             }
         }
 
-        public async Task InsertGraphAsync(string graphUri, string ownerGuid, string graphName)
+        public async Task InsertGraphAsync(GraphData Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = "INSERT INTO Graph (owner, graph, name) VALUES (@owner, @graph, @name)";
-                cmd.Parameters.AddWithValue("@owner", ownerGuid);
-                cmd.Parameters.AddWithValue("@graph", graphUri);
-                cmd.Parameters.AddWithValue("@name", graphName);
+                cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
+                cmd.Parameters.AddWithValue("@graph", Data.Uri);
+                cmd.Parameters.AddWithValue("@name", Data.Name);
 
                 await cmd.ExecuteNonQueryAsync();
             }

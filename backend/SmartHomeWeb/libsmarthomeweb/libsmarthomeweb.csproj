@@ -61,6 +61,7 @@
     <Compile Include="Model\PersonPair.cs" />
     <Compile Include="Model\FriendsState.cs" />
     <Compile Include="Model\FrozenPeriod.cs" />
+    <Compile Include="Model\GraphData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
