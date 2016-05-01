@@ -160,6 +160,22 @@ span.no-tags{
 		background-image: url("profilepic3.png");
 	}
 
+	.profile-avatar-small.avatar-4, .profile-avatar.avatar-4{
+		background-image: url("profilepic4.png");
+	}
+
+	.profile-avatar-small.avatar-5, .profile-avatar.avatar-5{
+		background-image: url("profilepic5.png");
+	}
+
+	.profile-avatar-small.avatar-6, .profile-avatar.avatar-6{
+		background-image: url("profilepic6.png");
+	}
+
+	.profile-avatar-small.avatar-7, .profile-avatar.avatar-7{
+		background-image: url("profilepic7.png");
+	}
+
 .profile-avatar-small-centered {
 	width: 64px;
 	height: 64px;
