@@ -8,7 +8,7 @@
 @* Model is a (SensorId, StartTime, EndTime, MaxMeasurements) tuple *@
 @inherits NancyRazorViewBase<Tuple<int, DateTime, DateTime, int>>
 
-@Html.Partial("graph.cshtml");
+@Html.Partial("graph.cshtml")
 
 <script>
     measurementsGraph.setData(@Model.Item1, new Date("@Model.Item2"), new Date("@Model.Item3"), @Model.Item4);
