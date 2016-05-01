@@ -154,7 +154,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // Converts this autofitted range to an autofit URL request.
     // This function is "private".
     var toUrl = function() {
-        return "/api/autofit/" + this.urlPathEncode();
+        return "/api/autofit/" + urlPathEncode();
     };
 
     // Retrieves this sensor's measurements, as
@@ -162,13 +162,22 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // of JSON measurement objects.
     // This function is part of the public API.
     this.getMeasurementsAsync = function() {
-        return GraphHelpers.requestDataAsync(this.toUrl()).then(GraphHelpers.processData);
+        return GraphHelpers.requestDataAsync(toUrl()).then(GraphHelpers.processData);
+    };
+
+    // Retrieves this sensor's total usage, as
+    // a deferred task that returns a floating-point
+    // number.
+    // This function is part of the public API.
+    this.getTotalUsageAsync = function() {
+        var url = "/api/autofit/total/" + urlPathEncode();
+        return $.get(url).then(parseFloat);
     };
 
     // Retrieves this sensor's measurements.
     // This function is part of the public API.
     this.getMeasurements = function(callback) {
-        GraphHelpers.requestData(this.toUrl(), function(results) { callback(GraphHelpers.processData(results)); });
+        GraphHelpers.requestData(toUrl(), function(results) { callback(GraphHelpers.processData(results)); });
     };
 
     // Gets this sensor's location object.
@@ -179,6 +188,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
 
     // Computes and displays the total electricity price
     // for the given array of measurements.
+    // This function is part of the public API.
     this.computePrice = function(measurements, callback) {
         GraphHelpers.computePrice(this.sensorId, measurements, callback);
     };
@@ -207,12 +217,14 @@ ChartDescription = function() {
     // Registers a (parameterless) handler function
     // with this chart description that is fired
     // whenever the chart changes.
+    // This function is part of the public API.
     this.onChanged = function(handler) {
         onChangedHandlers.push(handler);
     };
 
     // Performs an action. Any changes to this chart description are
     // only reported when the entire action has completed.
+    // This function is part of the public API.
     this.batchChanges = function(action) {
         // Replace the on-changed handlers by
         // a single function that remembers whether
@@ -232,6 +244,7 @@ ChartDescription = function() {
     };
 
     // Gets this chart's ranges.
+    // This function is part of the public API.
     this.getRanges = function() {
         // Copy the ranges, so external users don't
         // corrupt our painstakingly constructed
@@ -240,12 +253,14 @@ ChartDescription = function() {
     };
 
     // Adds the given range to this chart description.
+    // This function is part of the public API.
     this.addRange = function(value) {
         ranges.push(value);
         changed();
     };
 
     // Add the given ranges to this chart description.
+    // This function is part of the public API.
     this.addRanges = function(values) {
         ranges = ranges.concat(values);
         changed();
@@ -255,6 +270,7 @@ ChartDescription = function() {
     // Any ranges for which the predicate returns
     // 'false' are discarded. All other ranges
     // remain.
+    // This function is part of the public API.
     this.filterRanges = function(predicate) {
         ranges = $.grep(ranges, predicate);
         changed();
@@ -262,11 +278,13 @@ ChartDescription = function() {
 
     // Checks if this graph contains at least one range
     // for which the given predicate returns 'true'.
+    // This function is part of the public API.
     this.containsRange = function(predicate) {
         return $.grep(ranges, predicate).length > 0;
     };
 
     // Removes all ranges from this chart description.
+    // This function is part of the public API.
     this.clearRanges = function() {
         ranges = [];
         changed();
