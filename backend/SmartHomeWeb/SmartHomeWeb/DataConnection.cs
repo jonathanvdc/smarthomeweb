@@ -61,6 +61,8 @@ namespace SmartHomeWeb
 				cmd.ExecuteNonQuery();
 				cmd.CommandText = $"PRAGMA synchronous = {Synchronous}";
 				cmd.ExecuteNonQuery();
+                cmd.CommandText = $"PRAGMA foreign_keys = ON";
+                cmd.ExecuteNonQuery();
 			}
 		}
 
