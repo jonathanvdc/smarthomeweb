@@ -185,20 +185,30 @@ namespace SmartHomeWeb
 				(CompactionLevel)GetInt32(Record, "compactionLevel"));
 		}
 
-        public static Graph ReadGraph(IDataRecord record)
+        /// <summary>
+        /// Reads an autofitted range from the database.
+        /// </summary>
+        public static AutofitRange ReadAutofitRange(IDataRecord Record)
         {
-            if (GetString(record, "graph") != null && GetString(record, "name") != null &&
-                GetString(record, "owner") != null)
-            {
-                return new Graph(
-                    GetInt32(record, "graphId"),
-                    new GraphData(
-                        GetString(record, "graph"),
-                        GetString(record, "name"),
-                        GetGuid(record, "owner")));
-            }
-            return null;
+            return new AutofitRange(
+                GetInt32(Record, "sensorId"), GetDateTime(Record, "startTime"),
+                GetDateTime(Record, "endTime"), GetInt32(Record, "maxMeasurements"));
+        }
 
+        /// <summary>
+        /// Reads an empty graph from the database: the 
+        /// graph's identifier, name and owner fields are
+        /// parsed, but its graph elements is set to the
+        /// empty sequence.
+        /// </summary>
+        public static Graph ReadEmptyGraph(IDataRecord Record)
+        {
+            return new Graph(
+                GetInt32(Record, "graphId"),
+                new GraphData(
+                    Enumerable.Empty<AutofitRange>(),
+                    GetString(Record, "name"),
+                    GetGuid(Record, "owner")));
         }
 
         public static WallPost ReadWallPost(IDataRecord record)
@@ -208,7 +218,7 @@ namespace SmartHomeWeb
                 ReadPerson(record, 0),
                 ReadPerson(record, 1),
                 GetString(record, "message"),
-                ReadGraph(record));
+                ReadEmptyGraph(record));
         }
     }
 }

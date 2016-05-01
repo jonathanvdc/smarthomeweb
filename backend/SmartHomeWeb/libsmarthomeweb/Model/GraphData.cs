@@ -18,16 +18,14 @@ namespace SmartHomeWeb.Model
         /// Initializes a new instance of the <see cref="SmartHomeWeb.Model.GraphData"/> class.
         /// </summary>
         /// <param name="OwnerGuid">The graph's owner GUID.</param>
-        /// <param name="Uri">The graph's URI.</param>
+        /// <param name="Chart">The autofitted ranges that define this graph.</param>
         /// <param name="Name">The graph's name.</param>
-        public GraphData(string Uri, string Name, Guid OwnerGuid)
+        public GraphData(IEnumerable<AutofitRange> Chart, string Name, Guid OwnerGuid)
         {
             this.OwnerGuid = OwnerGuid;
-            this.Uri = Uri;
+            this.Chart = Chart;
             this.Name = Name;
         }
-
-        //{"ownerGuid":"diana", "uri":"", "name":"test"}
 
         /// <summary>
         /// Gets the owner's globally unique identifier.
@@ -45,15 +43,22 @@ namespace SmartHomeWeb.Model
             private set { OwnerGuid = new Guid(value); }
         }
 
-        [JsonProperty("uri", Required = Required.Always)]
-        public string Uri { get; private set; }
+        [JsonProperty("chart", Required = Required.Always)]
+        private AutofitRange[] chartArray;
+
+        [JsonIgnore]
+        public IEnumerable<AutofitRange> Chart
+        {
+            get { return chartArray; }
+            private set { chartArray = value.ToArray(); }
+        }
 
         [JsonProperty("name", Required = Required.Always)]
         public string Name { get; private set; }
 
         public override string ToString()
         {
-            return string.Format("[GraphData: OwnerGuid={0}, Uri={1}, Name={2}]", OwnerGuid, Uri, Name);
+            return string.Format("[GraphData: OwnerGuid={0}, Range={1}, Name={2}]", OwnerGuid, Chart, Name);
         }
     }
 }

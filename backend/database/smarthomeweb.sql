@@ -36,12 +36,30 @@ create table PersonGroup (
 	description text not null
 );
 
+-- Describes saved graphs.
 create table Graph (
+    -- A unique identifier for this graph.
 	graphId integer primary key autoincrement,
-	owner text not null references Person(guid) on delete cascade,
-	graph text not null,
-	name text not null,
+    -- The graph's owner GUID
+    owner text not null references Person(guid) on delete cascade,
+    -- The graph's name, i.e. the title.
+    name text not null,
 	unique (owner, name)
+);
+
+-- Describes ranges of measurements that are displayed in graphs graphs.
+create table GraphElement (
+    -- A unique identifier for the graph that we're attaching a sensor to.
+    graphId integer not null references Graph(graphId) on delete cascade,
+    -- The sensor ID for the sensor whose measurements we're
+    -- rendering.
+    sensorId integer not null references Sensor(id) on delete cascade,
+    -- The graph's start time, in unix time.
+    startTime integer not null,
+    -- The graph's end time, in unix time.
+    endTime integer not null,
+    -- The maximal number of measurements to render.
+    maxMeasurements integer not null
 );
 
 create table BelongsTo (

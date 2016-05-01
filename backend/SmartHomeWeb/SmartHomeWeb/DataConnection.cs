@@ -1881,6 +1881,7 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<WallPost>> GetWallPostsAsync(Guid personGuid)
         {
+            IEnumerable<WallPost> results;
             using (var cmd = sqlite.CreateCommand())
             { 
                 cmd.CommandText = @"SELECT * FROM Message as m
@@ -1891,20 +1892,11 @@ namespace SmartHomeWeb
                 WHERE m.recipient=@person";
                 
                 cmd.Parameters.AddWithValue("@person", personGuid.ToString());
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
+                results = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
             }
+            return await Task.WhenAll(results.Select(WithGraphElementsAsync));
         }
-
-        public async Task<Graph> GetGraphByIdAsync(int id)
-        {
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = "SELECT * FROM Graph WHERE graphId=@id";
-                cmd.Parameters.AddWithValue("@id", id);
-
-                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
-            }
-        }
+            
         public async Task InsertWallPostAsync(WallPost wp)
         {
             using (var cmd = sqlite.CreateCommand())
@@ -1960,6 +1952,7 @@ namespace SmartHomeWeb
         }
         public async Task<IEnumerable<WallPost>> GetPostsForGroupAsync(long groupid)
         {
+            IEnumerable<WallPost> results;
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = @"SELECT * FROM Message as m
@@ -1973,8 +1966,9 @@ namespace SmartHomeWeb
                 SELECT person FROM BelongsTo WHERE personGroup=@groupid)";
                 cmd.Parameters.AddWithValue("@groupid", groupid);
 
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
+                results = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
             }
+            return await Task.WhenAll(results.Select(WithGraphElementsAsync));
         }
         /// <summary>
         /// Creates a task to fetch a group entity from its id
@@ -2024,22 +2018,78 @@ namespace SmartHomeWeb
                 
                 await InsertGroupMembersAsync(g);
             }
-
         }
+
+        /// <summary>
+        /// Reads all graph elements that belong to the graph with
+        /// the given identifier.
+        /// </summary>
+        private async Task<IEnumerable<AutofitRange>> GetGraphElementsAsync(int GraphId)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM GraphElement WHERE graphId = @id";
+                cmd.Parameters.AddWithValue("@id", GraphId);
+
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadAutofitRange);
+            }
+        }
+
+        /// <summary>
+        /// Updates the given (empty) graph with its graph
+        /// elements: the ranges of measurements that it 
+        /// portrays.
+        /// </summary>
+        private async Task<Graph> WithGraphElementsAsync(Graph EmptyGraph)
+        {
+            return new Graph(
+                EmptyGraph.Id, 
+                new GraphData(
+                    await GetGraphElementsAsync(EmptyGraph.Id), 
+                    EmptyGraph.Data.Name, EmptyGraph.Data.OwnerGuid));
+        }
+
+        /// <summary>
+        /// Updates the given wall post with graph
+        /// elements: the ranges of measurements that its
+        /// graph portrays.
+        /// </summary>
+        private async Task<WallPost> WithGraphElementsAsync(WallPost Post)
+        {
+            return Post.Image == null 
+                ? Post
+                : new WallPost(Post.Id, Post.Source, Post.Destination, Post.Message, await WithGraphElementsAsync(Post.Image));
+        }
+        
+        public async Task<Graph> GetGraphByIdAsync(int id)
+        {
+            Graph result;
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE graphId = @id";
+                cmd.Parameters.AddWithValue("@id", id);
+
+                result = await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadEmptyGraph);
+            }
+            return await WithGraphElementsAsync(result);
+        }
+
         /// <summary>
         /// Returns a graph matching the owner and name.
         /// If no such graph is found, null is returned.
         /// </summary>
         public async Task<Graph> GetGraphByOwnerAndNameAsync(Guid OwnerGuid, string GraphName)
         {
+            Graph result;
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner AND name=@name";
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner = @owner AND name = @name";
                 cmd.Parameters.AddWithValue("@owner", OwnerGuid.ToString());
                 cmd.Parameters.AddWithValue("@name", GraphName);
 
-                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
+                result = await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadEmptyGraph);
             }
+            return await WithGraphElementsAsync(result);
         }
 
         /// <summary>
@@ -2047,25 +2097,48 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<Graph>> GetGraphsByOwnerAsync(Guid OwnerGuid)
         {
+            IEnumerable<Graph> results;
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner";
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner = @owner";
                 cmd.Parameters.AddWithValue("@owner", OwnerGuid.ToString());
 
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGraph);
+                results = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadEmptyGraph);
             }
+            return await Task.WhenAll(results.Select(WithGraphElementsAsync));
         }
 
         public async Task InsertGraphAsync(GraphData Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = "INSERT INTO Graph (owner, graph, name) VALUES (@owner, @graph, @name)";
+                cmd.CommandText = "INSERT INTO Graph (owner, name) VALUES (@owner, @name)";
                 cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
-                cmd.Parameters.AddWithValue("@graph", Data.Uri);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
 
                 await cmd.ExecuteNonQueryAsync();
+            }
+
+            int graphId = (await GetGraphByOwnerAndNameAsync(Data.OwnerGuid, Data.Name)).Id;
+
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"INSERT INTO GraphElement (graphId, sensorId, startTime, endTime, maxMeasurements) 
+                    VALUES (@graphId, @sensorId, @startTime, @endTime, @maxMeasurements)";
+                cmd.Parameters.AddWithValue("@graphId", graphId);
+                cmd.Parameters.AddWithValue("@sensorId", 0);
+                cmd.Parameters.AddWithValue("@startTime", 0L);
+                cmd.Parameters.AddWithValue("@endTime", 0L);
+                cmd.Parameters.AddWithValue("@maxMeasurements", 0);
+
+                foreach (var elem in Data.Chart)
+                {
+                    cmd.Parameters["@sensorId"].Value = elem.SensorId;
+                    cmd.Parameters["@startTime"].Value = elem.StartTime;
+                    cmd.Parameters["@endTime"].Value = elem.EndTime;
+                    cmd.Parameters["@maxMeasurements"].Value = elem.MaxMeasurements;
+                    await cmd.ExecuteNonQueryAsync();
+                }
             }
         }
         /// <summary>
