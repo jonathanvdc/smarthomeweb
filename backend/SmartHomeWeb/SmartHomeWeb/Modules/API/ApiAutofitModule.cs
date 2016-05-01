@@ -65,10 +65,6 @@ namespace SmartHomeWeb.Modules.API
             DataConnection Connection, int SensorId, DateTime StartTime, DateTime EndTime,
             int MaxMeasurementCount)
         {
-            if (EndTime < StartTime)
-                throw new ArgumentException($"{nameof(StartTime)} was greater than {nameof(EndTime)}");
-
-
             var measurements = await GetFittedMeasurements(Connection, SensorId, StartTime, EndTime, MaxMeasurementCount);
 
             double sum = 0;
