@@ -376,7 +376,7 @@
     <value>This user's wall is empty!</value>
   </data>
   <data name="NewWallPostLabel" xml:space="preserve">
-    <value>Put a message on {0}'s wall!</value>
+    <value>Write a message on {0}'s wall</value>
   </data>
   <data name="FriendRequestAccepted" xml:space="preserve">
     <value>Friend request accepted.</value>

@@ -835,7 +835,7 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Put a message on {0}&apos;s wall!.
+        ///   Looks up a localized string similar to Write a message on {0}&apos;s wall.
         /// </summary>
         public static string NewWallPostLabel {
             get {

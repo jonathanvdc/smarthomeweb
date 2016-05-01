@@ -376,7 +376,7 @@
     <value>Er zijn geen berichten aanwezig op de muur van deze gebruiker.</value>
   </data>
   <data name="NewWallPostLabel" xml:space="preserve">
-    <value>Zet een bericht op de muur van {0}!</value>
+    <value>Schrijf een bericht op de muur van {0}!</value>
   </data>
   <data name="FriendRequestAccepted" xml:space="preserve">
     <value>Vriendschapsverzoek aanvaard.</value>
