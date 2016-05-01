@@ -73,10 +73,13 @@ if __name__ == "__main__":
 
         log('Creating friendships...')
         add_friend_request('bruce','clark')
+        add_friend_request('bruce','diana')
         add_friend_request('diana','clark')
         add_friend_request('clark','lex')
+        add_friend_request('lex','bruce')
         add_friendship('jimmy','clark')
         add_friendship('lois','clark')
+        add_friendship('robin','bruce')
 
         post_elecsim(arg)
         log('Success!')
