@@ -81,7 +81,7 @@ if __name__ == "__main__":
         add_friendship('lois','clark')
         add_friendship('dick','bruce')
 
-        post_elecsim(arg)
+        configure_and_post_elecsim(arg)
         log('Success!')
 
     finally:
