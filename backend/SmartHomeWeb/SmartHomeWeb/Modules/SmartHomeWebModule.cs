@@ -266,6 +266,9 @@ namespace SmartHomeWeb.Modules
                     parameters["endTime"], parameters["maxMeasurements"]);
                 return View["view-graph.cshtml", model];
             };
+
+
+            Get["/cluster", true] = getCluster;
         }
 
         private async Task<Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>> GetWallParameter(dynamic parameters)
@@ -946,5 +949,12 @@ namespace SmartHomeWeb.Modules
 
             return await GetEditProfile(parameters, ct);
         }
-    }    
+
+        private async Task<dynamic> getCluster(dynamic parameters, CancellationToken ct)
+        {
+            IEnumerable<Location> Locations = await DataConnection.Ask(x => x.GetLocationsAsync());
+            return View["cluster.cshtml", Locations];
+        }
+
+    }
 }
