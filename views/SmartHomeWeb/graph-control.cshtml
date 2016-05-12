@@ -101,7 +101,7 @@
         var createMeasurementEntry = function(rangeAndData, index) {
             if (rangeAndData.length === 1)
                 return createSingleMeasurementEntry(rangeAndData[0]);
-            else if (aggregateMeasurements === null)
+            else if (aggregateMeasurements === null || rangeAndData.length === 0)
                 return createMultiMeasurementEntry(rangeAndData, index);
             else
                 return createSingleMeasurementEntry(aggregateMeasurements(rangeAndData));
@@ -258,7 +258,8 @@
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Time');
                 data.addColumn('string', 'Notes');
-				for (var x = 0; x < rangesAndMeasurements.length; x++) {
+                var extraRowCount = aggregateMeasurements !== null ? 1 : rangesAndMeasurements.length;
+				for (var x = 0; x < extraRowCount; x++) {
                     data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
 					data.addColumn('number', 'Usage');
 				}

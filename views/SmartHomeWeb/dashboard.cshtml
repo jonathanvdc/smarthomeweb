@@ -57,8 +57,7 @@ else
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
 					<div class="panel-body tab-content">
-						<button onclick="measurementsGraph.toggleCompare()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="compare">C</button>
-						<button onclick="measurementsGraph.toggleGroup()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="group">G</button>
+						<button onclick="toggleSum()" class="btn btn-default" style="padding: 0px;height: 25px;outline:none" id="totalButtom">Sum</button>
 					</div>
 				</div>
 			</div>
@@ -171,7 +170,7 @@ else
 <script type="text/javascript">
 
     var now = Date();
-    var state = { 'sensorIds' : [], 'startTime' : null, 'endTime' : null };
+    var state = { 'sensorIds' : [], 'startTime' : null, 'endTime' : null, 'sum' : false };
 
     setTimeframe = function(startTime, endTime) {
         state['startTime'] = startTime;
@@ -201,14 +200,52 @@ else
         }
     };
 
+    toggleSum = function() {
+        state['sum'] = !state['sum'];
+        if (isValidState())
+            flushSum();
+    };
+
     var isValidState = function() {
         return state['sensorIds'] !== null && state['startTime'] !== null
-            && state['endTime'] !== null;
+            && state['endTime'] !== null && state['sum'] !== null;
+    };
+
+    // Computes the sum measurement of the given list of range-measurement pairs.
+    // It is safe to assume that the given list is nonempty. (graph-control.cshtml
+    // maintains this invariant.)
+    var measurementSum = function(rangesAndData, index) {
+        var totalData = { measurement : 0.0, notes : '' };
+
+        for (var i = 0; i < rangesAndData.length; i++) {
+            var dataPoint = rangesAndData[i][1];
+            totalData.sensorId = dataPoint.sensorId;
+            totalData.timestamp = dataPoint.timestamp;
+            totalData.measurement += dataPoint.measurement;
+            if (dataPoint.notes !== null && dataPoint.notes !== '') {
+                if (totalData.notes !== '') {
+                    totalData.notes += "<br/>";
+                }
+                totalData.notes += dataPoint.notes;
+            }
+        }
+
+        // Return the first range as a key, along with the
+        // aggregated data.
+        return [rangesAndData[0][0], totalData];
+    };
+
+    var flushSum = function() {
+        if (state['sum'])
+            measurementsGraph.setAggregationFunction(measurementSum);
+        else
+            measurementsGraph.setAggregationFunction(null);
     };
 
     var flushState = function() {
         if (isValidState()) {
             measurementsGraph.chartDesc.batchChanges(function() {
+                flushSum();
                 measurementsGraph.chartDesc.clearRanges();
                 var sensorIds = state['sensorIds'];
                 for (var i = 0; i < sensorIds.length; i++) {
