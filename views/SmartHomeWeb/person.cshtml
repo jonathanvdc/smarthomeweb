@@ -57,12 +57,10 @@
 	        <th>@TextResources.PersonCityLabel</th>
         </tr>
 		
-    @foreach (var item in @Model)
+    @foreach (var item in Model)
     {
-        @{ 
-            var person = item.Item1;
-            var friendStatus = item.Item2;
-        }
+        var person = item.Item1;
+        var friendStatus = item.Item2;
         <tr class="person-row">
             
                 @if (Context.CurrentUser.IsAuthenticated())
@@ -102,7 +100,7 @@
                 }
 
             <td style="padding: 5px;">
-                <div class="profile-avatar avatar-@(Math.Abs(person.Guid.GetHashCode() % 8))"
+                <div class="profile-avatar @person.AvatarClass()"
                      style="width:35px;height:35px;" />
             </td>
 	        <th><a href="/person/@person.Data.UserName">@person.Data.UserName</a></th>

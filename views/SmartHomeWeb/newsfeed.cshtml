@@ -1,3 +1,4 @@
+@using System
 @using System.Collections.Generic
 @using System.Linq
 @using SmartHomeWeb.Model
@@ -15,13 +16,12 @@
 <ul class="media-list">
 @for(int x = Model.Count()-1; x >= 0; x--)
 {
-    @{ 
-        NewsfeedPost post = Model.ElementAt(x);
-    }
+    NewsfeedPost post = Model.ElementAt(x);
+
     <li class="media">
       <div class="media-left">
         <a href="/person/@post.Sender.Data.UserName">
-	        <div class="profile-avatar-small avatar-@(Math.Abs(post.Sender.Guid.GetHashCode() % 8))"></div>
+	        <div class="profile-avatar-small @post.Sender.AvatarClass()"></div>
         </a>
       </div>
       <div class="media-body">

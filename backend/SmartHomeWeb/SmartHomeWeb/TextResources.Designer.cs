@@ -313,6 +313,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Compare.
+        /// </summary>
+        public static string DashboardCompareButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardCompareButtonLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group.
+        /// </summary>
+        public static string DashboardGroupButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardGroupButtonLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dashboard.
         /// </summary>
         public static string DashboardPageTitle {

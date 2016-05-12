@@ -1931,101 +1931,7 @@ namespace SmartHomeWeb
 
 
         }
-        /// <summary>
-        /// Creates a task to fetch all the groups for a given user.
-        /// ie, all the groups that that user is a member of
-        /// </summary>
-        
-        public async Task<IEnumerable<Group>> GetGroupsForUserAsync(Guid personGuid)
-        {
-            using (var cmd = sqlite.CreateCommand())
-            {
-            
-                cmd.CommandText = @"SELECT * 
-                FROM PersonGroup 
-                WHERE @personGuid 
-                IN (
-                SELECT person 
-                FROM BelongsTo 
-                WHERE PersonGroup.id=BelongsTo.personGroup)";
-                cmd.Parameters.AddWithValue("@personGuid", personGuid.ToString());
-                var groups = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGroup);
-                foreach (var group in groups)
-                {
-                    group.MemberList = (await GetMembersForGroupAsync(group.Id)).ToList();
-                }
 
-                return groups;
-            }
-        }
-        public async Task<IEnumerable<WallPost>> GetPostsForGroupAsync(long groupid)
-        {
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = @"SELECT * FROM Message as m
-                LEFT JOIN HasAttachment as ha ON (m.id == ha.messageId)
-                LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
-                INNER JOIN Person as p1 ON (m.sender=p1.guid)
-                INNER JOIN Person as p2 ON (m.recipient=p2.guid)
-                WHERE recipient IN (
-                SELECT person FROM BelongsTo WHERE personGroup=@groupid) 
-                OR sender IN (
-                SELECT person FROM BelongsTo WHERE personGroup=@groupid)";
-                cmd.Parameters.AddWithValue("@groupid", groupid);
-
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
-            }
-        }
-        /// <summary>
-        /// Creates a task to fetch a group entity from its id
-        /// </summary>
-        public async Task<Group> GetGroupByIdAsync(long groupid)
-        {
-            
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = @"SELECT * FROM PersonGroup WHERE id=@groupid";
-                cmd.Parameters.AddWithValue("@groupid", groupid);
-                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGroup);
-            }
-        }
-
-        /// <summary>
-        /// Creates a task to fetch the members for a group
-        /// </summary>
-        public async Task<IEnumerable<Person>> GetMembersForGroupAsync(long groupid)
-        {
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = @"SELECT * FROM Person WHERE Person.guid IN (
-                SELECT person FROM BelongsTo WHERE BelongsTo.personGroup=@groupid)";
-                cmd.Parameters.AddWithValue("@groupid", groupid);
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
-            }
-        }
-        /// <summary>
-        /// Inserts a group with name and description, taken from the group object.
-        /// </summary>
-        public async Task InsertGroupAsync(Group g)
-        {
-            
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = @"INSERT INTO PersonGroup (name, description)
-                VALUES (@name, @desc)";
-                cmd.Parameters.AddWithValue("@name", g.Name);
-                cmd.Parameters.AddWithValue("@desc", g.Description);
-                await cmd.ExecuteNonQueryAsync();
-                cmd.CommandText = "SELECT last_insert_rowid()";
-                var i = await cmd.ExecuteScalarAsync();
-                cmd.CommandText = "SELECT id from PersonGroup WHERE rowid=" + (long)i;
-                i = await cmd.ExecuteScalarAsync();
-                g.Id = (long)i;
-                
-                await InsertGroupMembersAsync(g);
-            }
-
-        }
         /// <summary>
         /// Returns a graph matching the owner and name.
         /// If no such graph is found, null is returned.
@@ -2066,25 +1972,6 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@name", Data.Name);
 
                 await cmd.ExecuteNonQueryAsync();
-            }
-        }
-        /// <summary>
-        /// Inserts the members present in the group object (Group::MemberList) into the database
-        /// </summary>
-        private async Task InsertGroupMembersAsync(Group g)
-        {
-            foreach (var m in g.MemberList)
-            {
-                using (var cmd = sqlite.CreateCommand())
-                {
-                    cmd.CommandText = @"INSERT INTO BelongsTo (personGroup, person)
-                VALUES (@groupId, @personGuid)";
-                    cmd.Parameters.AddWithValue("@groupId", g.Id);
-                    cmd.Parameters.AddWithValue("@personGuid", m.Guid.ToString());
-
-                    await cmd.ExecuteNonQueryAsync();
-                }
-                    
             }
         }
 

@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\Graph.cs" />
-    <Compile Include="Model\Group.cs" />
     <Compile Include="Model\NewsfeedPost.cs" />
     <Compile Include="Model\LocationWithSensors.cs" />
     <Compile Include="Model\WallPost.cs" />

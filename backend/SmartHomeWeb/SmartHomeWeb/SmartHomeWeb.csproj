@@ -197,12 +197,6 @@
     <None Include="..\..\..\views\SmartHomeWeb\graph.cshtml">
       <Link>View Links\SmartHomeWeb\graph.cshtml</Link>
     </None>
-    <None Include="..\..\..\views\SmartHomeWeb\group.cshtml">
-      <Link>View Links\SmartHomeWeb\group.cshtml</Link>
-    </None>
-    <None Include="..\..\..\views\SmartHomeWeb\groupprofile.cshtml">
-      <Link>View Links\SmartHomeWeb\groupprofile.cshtml</Link>
-    </None>
     <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
       <Link>View Links\SmartHomeWeb\home.cshtml</Link>
     </None>
