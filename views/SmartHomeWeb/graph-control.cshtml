@@ -1,0 +1,338 @@
+@using System
+@using System.Collections.Generic
+@using Nancy.Security
+@using SmartHomeWeb
+@using SmartHomeWeb.Model
+@using Nancy.ViewEngines.Razor
+@inherits NancyRazorViewBase<dynamic>
+
+<style>
+.modal{
+    position: absolute !important;
+	margin-top:40%;
+}
+</style>
+
+<div id="chart_wrapper">
+    <div id="no-sensor-message">
+        <h3>@TextResources.NoSensorSelected</h3>
+        <span class="subtitle-text">@TextResources.NoSensorSelectedHelpText</span>
+    </div>
+
+    <div id="no-data-message" hidden>
+        <h3>@TextResources.NoSensorData</h3>
+        <span class="subtitle-text">@TextResources.NoSensorDataHelpText</span>
+    </div>
+
+    <div id="loading-message" style="position: relative; top:50px;" hidden>
+        <img class="center-block loading-image" width="200px" src="/content/loading.gif" />
+        <h3 class="text-center">@TextResources.Loading</h3>
+    </div>
+
+    <div id="price-div" hidden>
+ 		<h4>@TextResources.TotalElectricityPrice: ???</h4>
+    </div>
+
+	<div id="chart_div" hidden>
+		<!-- Graph goes here -->
+	</div>
+
+	<div id="graphSave_div" hidden>
+		<input type="text" id="graphURI" name="graphURI" style="display: none"/>
+		<div class="input-group">
+			<input type="text" id="graphName" name="graphName" class="form-control"/>
+			<span class="input-group-btn">
+                <button class="btn btn-default form-control" type="button" id="graphSaveButton" name="graphSaveButton">Save</button>
+            </span>
+		</div>
+	</div>
+
+</div>
+
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="content/js/smarthomeweb-charts.js"></script>
+
+<script type="text/javascript">
+
+    var request = new XMLHttpRequest();
+    var done = false;
+    request.onreadystatechange = function() {
+        if ((request.status == 200 || request.status == 201 || request.status == 202) && !done) {
+            alert('@(TextResources.SuccessfullySaved)!');
+            done = true;
+        }
+        if ((request.status == 404 || request.status == 500 || request.status == 403 || request.status == 400 || request.status == 401 || request.status == 408) && !done) {
+            alert('@(TextResources.SaveFailure)');
+            done = true;
+        }
+
+    }
+    document.getElementById("graphSaveButton").addEventListener("click", function () {
+        done = false;
+        var graphname = document.getElementById("graphName").value;
+        if (graphname == '') {
+            alert('@TextResources.PleaseEnterAName');
+            return;
+        } else {
+            var username = '@Model';
+            var url = '/api/graphs';
+
+            var params = '{"ownerGuid":"' + username + '", "uri":"' + document.getElementById("graphURI").value + '", "name":"' + graphname + '"}';
+            request.open("POST", url, true);
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(params);
+        }
+    });
+
+    var chartElement = document.getElementById("chart_div");
+
+	measurementsGraph = new function() {
+
+        // Stores autofitted ranges.
+        this.chartDesc = new ChartDescription();
+
+        this.chartDesc.onChanged(function() {
+
+        });
+
+		var measurementCount = 60;
+		var endTime = new Date();
+		var startTime = new Date();
+		startTime.setHours(endTime.getHours() - 1);
+		var currentsensor = [];
+		var notesupdate = {};
+		var comparebool = false;
+		var groupbool = false;
+		var array = [];
+
+		var getInterval = function() {
+            return GraphHelpers.getIntervalType(startTime, endTime, measurementCount);
+		}
+
+		var showElement = function(index) {
+		    chartElement.hidden = !(index == 0);
+		    document.getElementById('graphSave_div').hidden = !(index == 0);
+		    document.getElementById("no-data-message").hidden = !(index == 1);
+		    document.getElementById("no-sensor-message").hidden = !(index == 2);
+		    document.getElementById("loading-message").hidden = !(index == 3);
+		};
+
+		var showChart = function() {
+		    showElement(0);
+		};
+
+		var showNoDataSaved = function() {
+		    showElement(1);
+		};
+
+		var showNoSensorSelected = function() {
+	    	showElement(2);
+		};
+
+		var showLoading = function() {
+	    	showElement(3);
+		};
+
+		var hidePrice = function() {
+			document.getElementById("price-div").hidden = true;
+		};
+
+		var showPrice = function(value) {
+			var elem = document.getElementById("price-div");
+			elem.innerHTML = "<h3>Total cost: $" + value.toString() + "</h3>";
+	    	elem.hidden = false;
+		};
+
+		// Actually draws the chart, based on the given array
+		// of JSON measurements.
+		var drawData = function(json) {
+			if (json.length === 0) {
+			    showNoDataSaved();
+			}
+			else {
+				array = (!comparebool && !groupbool) ? [] : array;
+				for (var i = 0; i < json.length; i++) {
+					var sensorData = json[i];
+					var date = new Date(sensorData.timestamp);
+                    var hmsstring = GraphHelpers.printTime(date, getInterval());
+					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
+					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
+					var regex = new RegExp('<br/>', 'g');
+					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
+					if(comparebool && array.length == json.length){
+						array[i].push(measured);
+						array[i][0] = i.toString();
+					}else if(groupbool && array.length == json.length){
+						array[i][1] += measured;
+					}else{
+						array.push([hmsstring, measured, notes, notespre+notes])
+					}
+				}
+
+				var data = new google.visualization.DataTable();
+				data.addColumn('string', 'Time');
+				data.addColumn('number', 'Usage');
+				data.addColumn('string', 'Notes');
+				data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
+				for(var x = 4; x < array[0].length; x++){
+					data.addColumn('number', 'Usage');
+				}
+				data.addRows(array);
+
+				// Set chart options
+				var options = {'width':600,
+								'height':500,
+								tooltip: {isHtml: true}};
+				// Instantiate and draw our chart, passing in some options.
+				var myView = new google.visualization.DataView(data);
+				myView.hideColumns([2]);
+				showChart();
+				var chart = new google.visualization.LineChart(chartElement);
+				google.visualization.events.addListener(chart, 'select', function(){
+					if(groupbool){return};
+					$('#dialog_confirm_map').modal({backdrop: false});
+					var selection = chart.getSelection()[0].row;
+					var oldnotes = data.getValue(selection, 2);
+					document.getElementById("notesarea").value = oldnotes;
+					notesupdate = '{"sensorId":' + currentsensor + ',"timestamp": "' + data.getValue(selection, 0).toString() + '","measurement":' + data.getValue(selection, 1) + ',"notes":"';
+				});
+				chart.draw(myView, options);
+				document.getElementById('graphURI').value = chart.getImageURI();
+				computePrice(currentsensor, json);
+			}
+		};
+
+	    // Callback that creates and populates a data table,
+	    // instantiates the line chart, passes in the data and
+	    // draws it.
+	    var drawChart = function() {
+	    	if (currentsensor.length === 0) {
+	    	    showNoSensorSelected();
+				return;
+	    	}
+	    	hidePrice();
+	    	showLoading();
+
+			for (var x = 0; x < currentsensor.length; ++x){
+				var url = "/api/autofit/" + currentsensor[x].toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
+				requestData(url, drawData);
+			}
+	    };
+
+	    // Load the Visualization API and the corechart package.
+	    google.charts.load('current', {'packages':['corechart']});
+
+	    // Set a callback to run when the Google Visualization API is loaded.
+		google.charts.setOnLoadCallback(drawChart);
+
+		// Updates the notes in the database
+		this.updateNotes = function(){
+			var diff = endTime.getTime() - startTime.getTime();
+			var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+			var hours = Math.floor(diff / (1000 * 60 * 60));
+			var mins = Math.floor(diff / (1000 * 60));
+			var xmlhttp = new XMLHttpRequest();
+			if (mins <= measurementCount) {
+				xmlhttp.open("PUT", "api/measurements/updatetag");
+			}
+            else if (hours <= measurementCount) {
+				xmlhttp.open("PUT", "api/hour-average/updatetag");
+			}
+            else if (days <= measurementCount) {
+				xmlhttp.open("PUT", "api/day-average/updatetag");
+			}
+            else {
+				xmlhttp.open("PUT", "api/month-average/updatetag");
+			}
+
+			xmlhttp.setRequestHeader("Content-type", "application/json");
+			var area = document.getElementById('notesarea').value;
+			var regex = new RegExp('\n', 'g');
+			var raw = area.replace(regex, "<br/>");            
+			var str = JSON.parse(notesupdate + raw + '"}');
+			xmlhttp.send(JSON.stringify(str));
+			drawChart();
+		};
+
+		this.toggleCompare = function(){
+			if(groupbool){this.toggleGroup()}
+			if(comparebool){
+				comparebool=false;
+				$('#compare').addClass('btn-default');
+				$('#compare').removeClass('btn-success');
+			}else{
+				comparebool=true;
+				$('#compare').addClass('btn-success');
+				$('#compare').removeClass('btn-default');
+			}
+		};
+
+		this.toggleGroup = function(){
+			if(comparebool){this.toggleCompare()}
+			if(groupbool){
+				groupbool=false;
+				$('#group').addClass('btn-default');
+				$('#group').removeClass('btn-success');
+			}else{
+				groupbool=true;
+				$('#group').addClass('btn-success');
+				$('#group').removeClass('btn-default');
+			}
+		};
+
+        // Asynchronously gets the given sensors' total usages, as an
+        // array of floating-point numbers.
+        // This function is part of the public API.
+        this.getSensorTotalUsages = function(sensorIds, callback) {
+            // Create an array of GET tasks.
+            var tasks = [];
+            var urlSuffix = "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount;
+            for (var i = 0; i < sensorIds.length; i++) {
+                var url = "/api/autofit/total/" + sensorIds[i].toString() + urlSuffix;
+                tasks.push($.get(url));
+            }
+            // Wait for all tasks to complete...
+            return $.when.apply($, tasks).then(function() {
+                // ... then parse the argument array, and call the
+                // callback on the result.
+                callback($.map(arguments, parseFloat));
+            });
+        };
+
+        // Asynchronously gets the given sensor's total usage, as a
+        // floating-point number.
+        // This function is part of the public API.
+		this.getSensorTotalUsage = function(sensorId, callback) {
+            return this.getSensorTotalUsages([sensorId], function(values) {
+                callback(values[0]);
+            });
+		};
+
+		this.getGroup = function() {
+			return groupbool;
+		};
+
+		// Re-renders this chart.
+		this.draw = drawChart;
+	}
+
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="dialog_confirm_map" tabindex="-1" role="dialog" aria-labelledby="dialog_confirm_mapLabel" aria-hidden="true">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<textarea id="notesarea" rows=5></textarea>
+			</div>
+			<div class="modal-footer"> <span style="float:left"><button type="button" onclick="measurementsGraph.updateNotes()" class="btn btn-success" data-dismiss="modal">Save</button></span>
+			<span style="float:right"><button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button></span>
+
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

@@ -316,7 +316,9 @@ ChartDescription = function() {
     this.getRangesWithMeasurementsAsync = function() {
         var results = [];
         ranges.each(function(kvPair) {
-            results.push(kvPair.getValue().then(function(val) { return [kvPair.getKey(), val]; }));
+            results.push(kvPair.getValue().then(function(val) {
+                return [kvPair.getKey(), val];
+            }));
         });
         return GraphHelpers.whenAll(results);
     };
