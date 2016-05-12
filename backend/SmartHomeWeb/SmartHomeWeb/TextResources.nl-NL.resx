@@ -597,4 +597,10 @@
   <data name="TryAddingFriends" xml:space="preserve">
     <value>Probeer vrienden toe te voegen aan de hand van de gebruikerspagina!</value>
   </data>
+  <data name="DashboardCompareButtonLabel" xml:space="preserve">
+    <value>Vergelijk</value>
+  </data>
+  <data name="DashboardGroupButtonLabel" xml:space="preserve">
+    <value>Groepeer</value>
+  </data>
 </root>

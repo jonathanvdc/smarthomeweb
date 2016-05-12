@@ -609,4 +609,10 @@
   <data name="TryAddingFriends" xml:space="preserve">
     <value>Try adding friends by searching through the users page!</value>
   </data>
+  <data name="DashboardCompareButtonLabel" xml:space="preserve">
+    <value>Compare</value>
+  </data>
+  <data name="DashboardGroupButtonLabel" xml:space="preserve">
+    <value>Group</value>
+  </data>
 </root>

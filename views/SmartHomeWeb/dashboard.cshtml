@@ -56,9 +56,9 @@ else
 			<div class="col-sm-2" style="padding:0px">
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
-					<div class="panel-body tab-content">
-						<button onclick="measurementsGraph.toggleCompare()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="compare">C</button>
-						<button onclick="measurementsGraph.toggleGroup()" class="btn btn-default" style="padding: 0px;width: 25px; height: 25px;outline:none" id="group">G</button>
+					<div class="panel-body tab-content btn-group">
+						<a href="#" onclick="measurementsGraph.toggleCompare()" class="btn btn-default dashboard-tool-button" id="compare">@TextResources.DashboardCompareButtonLabel</a>
+						<a href="#" onclick="measurementsGraph.toggleGroup()" class="btn btn-default dashboard-tool-button" id="group">@TextResources.DashboardGroupButtonLabel</a>
 					</div>
 				</div>
 			</div>
