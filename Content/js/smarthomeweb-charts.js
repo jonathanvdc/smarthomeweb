@@ -262,7 +262,8 @@ ChartDescription = function() {
     var onChangedHandlers = [];
 
     // Invokes all on-changed handlers.
-    var changed = function() {
+    // This function is part of the public API.
+    this.changed = function() {
         for (var i = 0; i < onChangedHandlers.length; i++) {
             onChangedHandlers[i]();
         }
@@ -308,6 +309,12 @@ ChartDescription = function() {
             results.push(ranges[i].getKey());
         }
         return results;
+    };
+
+    // Gets the number of ranges in this chart.
+    // This function is part of the public API.
+    this.getRangeCount = function() {
+        return ranges.length;
     };
 
     // Gets a promise that returns a list of

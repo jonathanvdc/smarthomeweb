@@ -37,16 +37,6 @@
 		<!-- Graph goes here -->
 	</div>
 
-	<div id="graphSave_div" hidden>
-		<input type="text" id="graphURI" name="graphURI" style="display: none"/>
-		<div class="input-group">
-			<input type="text" id="graphName" name="graphName" class="form-control"/>
-			<span class="input-group-btn">
-                <button class="btn btn-default form-control" type="button" id="graphSaveButton" name="graphSaveButton">Save</button>
-            </span>
-		</div>
-	</div>
-
 </div>
 
 
@@ -55,64 +45,120 @@
 
 <script type="text/javascript">
 
-    var request = new XMLHttpRequest();
-    var done = false;
-    request.onreadystatechange = function() {
-        if ((request.status == 200 || request.status == 201 || request.status == 202) && !done) {
-            alert('@(TextResources.SuccessfullySaved)!');
-            done = true;
-        }
-        if ((request.status == 404 || request.status == 500 || request.status == 403 || request.status == 400 || request.status == 401 || request.status == 408) && !done) {
-            alert('@(TextResources.SaveFailure)');
-            done = true;
-        }
-
-    }
-    document.getElementById("graphSaveButton").addEventListener("click", function () {
-        done = false;
-        var graphname = document.getElementById("graphName").value;
-        if (graphname == '') {
-            alert('@TextResources.PleaseEnterAName');
-            return;
-        } else {
-            var username = '@Model';
-            var url = '/api/graphs';
-
-            var params = '{"ownerGuid":"' + username + '", "uri":"' + document.getElementById("graphURI").value + '", "name":"' + graphname + '"}';
-            request.open("POST", url, true);
-            request.setRequestHeader('Content-Type', 'application/json');
-            request.send(params);
-        }
-    });
-
     var chartElement = document.getElementById("chart_div");
 
 	measurementsGraph = new function() {
 
-        // Stores autofitted ranges.
+        // Stores autofitted ranges, and raises events when they change.
         this.chartDesc = new ChartDescription();
 
-        this.chartDesc.onChanged(function() {
+        // A function that aggregates multi-measurement entries, and returns
+        // single-measurement entries.
+        var aggregateMeasurements = null;
 
-        });
+        // A dictionary that describes a single update to a measurement's notes.
+        var notesUpdate = null;
 
-		var measurementCount = 60;
-		var endTime = new Date();
-		var startTime = new Date();
-		startTime.setHours(endTime.getHours() - 1);
-		var currentsensor = [];
-		var notesupdate = {};
-		var comparebool = false;
-		var groupbool = false;
-		var array = [];
+        // Creates a list of values that is suitable for use in a Google charts
+        // data table. Many sensor measurement objects are used to create this
+        // list.
+        var createMultiMeasurementEntry = function(sensorData, index) {
+            var results = [index.toString(), ""];
+            for (var i = 0; i < sensorData.length; i++) {
+                var timeString = GraphHelpers.printTime(date, getInterval());
+                var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
+                var notesPrefix = "<b>Time:</b> " + timeString + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
+                var regex = new RegExp('<br/>', 'g');
+                var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
+                results += [notesPrefix + notes, measured];
+            }
+            return results;
+        };
 
-		var getInterval = function() {
-            return GraphHelpers.getIntervalType(startTime, endTime, measurementCount);
-		}
+        // Creates a list of values that is suitable for use in a Google charts
+        // data table. A sensor measurement object is used to create this
+        // list.
+        var createSingleMeasurementEntry = function(sensorData) {
+            var date = new Date(sensorData.timestamp);
+            var timeString = GraphHelpers.printTime(date, getInterval());
+            var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
+            var notesPrefix = "<b>Time:</b> " + timeString + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
+            var regex = new RegExp('<br/>', 'g');
+            var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
+            return [timeString, notes, notesPrefix + notes, measured];
+        };
+
+        // Creates a list of values that is suitable for use in a Google charts
+        // data table. Many sensor measurement objects are used to create this
+        // list.
+        var createMeasurementEntry = function(sensorData, index) {
+            if (sensorData.length == 1)
+                return createSingleMeasurementEntry(sensorData);
+            else if (aggregateMeasurements === null)
+                return createMultiMeasurementEntry(sensorData, index);
+            else
+                return createSingleMeasurementEntry(aggregateMeasurements(sensorData));
+        };
+
+        // Computes the greatest common denominator of a and b.
+        var gcd = function(a, b) {
+            return !b ? a : gcd(b, a % b);
+        };
+
+        // Computes the least common multiple of a and b.
+        var lcm = function(a, b) {
+            return (a * b) / gcd(a, b);
+        };
+
+        // Expands the given array to match the given number of elements `count`,
+        // where `count` is a multiple of data set's size.
+        var replicateData = function(measurements, count) {
+            var factor = count / measurements.length;
+            var results = [];
+            for (var i = 0; i < measurements.length; i++) {
+                for (var j = 0; j < factor; j++) {
+                    results.push(measurements[i]);
+                }
+            }
+            return results;
+        };
+
+        // Matches up the data sizes of the given list of measurements.
+        // Empty measurement lists are discarded.
+        var matchDataSizes = function(measurementsList) {
+            var newSize = 1;
+            var newMeasurements = measurementsList;
+            for (var i = 0; i < measurementsList.length; i++) {
+                if (measurementsList[i].length !== 0) {
+                    newSize = lcm(newSize, measurementsList[i].length);
+                    newMeasurements.push(measurementsList[i]);
+                }
+            }
+            var results = [];
+            for (var i = 0; i < newMeasurements.length; i++) {
+                results.push(replicateData(newMeasurements[i], newSize));
+            }
+            return results;
+        };
+
+        var groupMeasurements = function(rangesAndMeasurements) {
+            var measurements = [];
+            for (var j = 0; j < rangesAndMeasurements.length; j++) {
+                measurements.push(getListValue(rangesAndMeasurements[j]));
+            }
+            measurements = matchDataSizes(measurements);
+            var groupedMeasurements = [];
+            for (var i = 0; i < measurements.length; i++) {
+                var data = measurements[i];
+                for (var j = 0; j < data.length; j++) {
+                    groupedMeasurements[j][i] += [data[j]];
+                }
+            }
+            return groupedMeasurements;
+        };
 
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
-		    document.getElementById('graphSave_div').hidden = !(index == 0);
 		    document.getElementById("no-data-message").hidden = !(index == 1);
 		    document.getElementById("no-sensor-message").hidden = !(index == 2);
 		    document.getElementById("loading-message").hidden = !(index == 3);
@@ -144,38 +190,56 @@
 	    	elem.hidden = false;
 		};
 
-		// Actually draws the chart, based on the given array
-		// of JSON measurements.
-		var drawData = function(json) {
-			if (json.length === 0) {
-			    showNoDataSaved();
+        var getListKey = function(kvList) {
+            return kvList[0];
+        };
+
+        var getListValue = function(kvList) {
+            return kvList[1];
+        };
+
+        // Computes and displays the total electricity price
+        // for the given sensor and array of measurements.
+        var computePrice = function(rangesAndMeasurements) {
+            if (rangesAndMeasurements.length === 0) {
+                // Do nothing.
+                return;
+            }
+
+            // NOTE: this function assumes that that all sensors in the
+            // rangesAndMeasurements list belong to the same location. This
+            // is always the case for our purposes.
+            var totalMeasurements = [];
+            for (var i = 0; i < rangesAndMeasurements.length; i++) {
+                totalMeasurements += getListValue(rangesAndMeasurements[i]);
+            }
+            GraphHelpers.computePrice(rangesAndMeasurements[0], totalMeasurements, showPrice);
+        };
+
+		// Actually draws the chart, based on the given list of
+        // range-measurements key-value pair lists.
+		var drawData = function(rangesAndMeasurements) {
+			if (rangesAndMeasurements.length === 0) {
+			    showNoSensorSelected();
 			}
 			else {
-				array = (!comparebool && !groupbool) ? [] : array;
-				for (var i = 0; i < json.length; i++) {
-					var sensorData = json[i];
-					var date = new Date(sensorData.timestamp);
-                    var hmsstring = GraphHelpers.printTime(date, getInterval());
-					var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
-					var notespre = "<b>Time:</b> " + hmsstring + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
-					var regex = new RegExp('<br/>', 'g');
-					var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-					if(comparebool && array.length == json.length){
-						array[i].push(measured);
-						array[i][0] = i.toString();
-					}else if(groupbool && array.length == json.length){
-						array[i][1] += measured;
-					}else{
-						array.push([hmsstring, measured, notes, notespre+notes])
-					}
-				}
+                var grouped = groupMeasurements(rangesAndMeasurements);
+
+                if (grouped.length === 0) {
+                    showNoDataSaved();
+                    return;
+                }
+
+                var array = [];
+                for (var i = 0; i < grouped.length; i++) {
+                    array.push(createMeasurementEntry(grouped[i]));
+                }
 
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Time');
-				data.addColumn('number', 'Usage');
-				data.addColumn('string', 'Notes');
-				data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
-				for(var x = 4; x < array[0].length; x++){
+                data.addColumn('string', 'Notes');
+				for (var x = 0; x < grouped.length; x++) {
+                    data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
 					data.addColumn('number', 'Usage');
 				}
 				data.addRows(array);
@@ -186,20 +250,27 @@
 								tooltip: {isHtml: true}};
 				// Instantiate and draw our chart, passing in some options.
 				var myView = new google.visualization.DataView(data);
-				myView.hideColumns([2]);
+				myView.hideColumns([1]);
 				showChart();
 				var chart = new google.visualization.LineChart(chartElement);
-				google.visualization.events.addListener(chart, 'select', function(){
-					if(groupbool){return};
+				google.visualization.events.addListener(chart, 'select', function() {
+                    if (aggregateMeasurements !== null || rangesAndMeasurements.length !== 1) {
+                        // Attaching a note is nonsensical if the user has
+                        // highlighted an aggregated plot.
+                        return;
+                    }
 					$('#dialog_confirm_map').modal({backdrop: false});
 					var selection = chart.getSelection()[0].row;
-					var oldnotes = data.getValue(selection, 2);
+					var oldnotes = data.getValue(selection, 1);
 					document.getElementById("notesarea").value = oldnotes;
-					notesupdate = '{"sensorId":' + currentsensor + ',"timestamp": "' + data.getValue(selection, 0).toString() + '","measurement":' + data.getValue(selection, 1) + ',"notes":"';
+                    notesUpdate = {};
+                    notesUpdate['sensorId'] = getListKey(rangesAndMeasurements);
+                    notesUpdate['timestamp'] = data.getValue(selection, 0).toString();
+                    notesUpdate['measurement'] = data.getValue(selection, 3);
 				});
 				chart.draw(myView, options);
-				document.getElementById('graphURI').value = chart.getImageURI();
-				computePrice(currentsensor, json);
+
+                computePrice(rangesAndMeasurements);
 			}
 		};
 
@@ -207,18 +278,20 @@
 	    // instantiates the line chart, passes in the data and
 	    // draws it.
 	    var drawChart = function() {
-	    	if (currentsensor.length === 0) {
+	    	if (chartDesc.getRangeCount() === 0) {
 	    	    showNoSensorSelected();
 				return;
 	    	}
+
 	    	hidePrice();
 	    	showLoading();
 
-			for (var x = 0; x < currentsensor.length; ++x){
-				var url = "/api/autofit/" + currentsensor[x].toString() + "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount.toString();
-				requestData(url, drawData);
-			}
+            // Retrieve and draw the data.
+            chartDesc.getRangesWithMeasurements(drawData);
 	    };
+
+        // Re-draw the chart whenever the underlying model changes.
+        this.chartDesc.onChanged(drawChart);
 
 	    // Load the Visualization API and the corechart package.
 	    google.charts.load('current', {'packages':['corechart']});
@@ -249,36 +322,10 @@
 			xmlhttp.setRequestHeader("Content-type", "application/json");
 			var area = document.getElementById('notesarea').value;
 			var regex = new RegExp('\n', 'g');
-			var raw = area.replace(regex, "<br/>");            
-			var str = JSON.parse(notesupdate + raw + '"}');
-			xmlhttp.send(JSON.stringify(str));
+			var raw = area.replace(regex, "<br/>");
+            notesUpdate['notes'] = raw;
+			xmlhttp.send(str);
 			drawChart();
-		};
-
-		this.toggleCompare = function(){
-			if(groupbool){this.toggleGroup()}
-			if(comparebool){
-				comparebool=false;
-				$('#compare').addClass('btn-default');
-				$('#compare').removeClass('btn-success');
-			}else{
-				comparebool=true;
-				$('#compare').addClass('btn-success');
-				$('#compare').removeClass('btn-default');
-			}
-		};
-
-		this.toggleGroup = function(){
-			if(comparebool){this.toggleCompare()}
-			if(groupbool){
-				groupbool=false;
-				$('#group').addClass('btn-default');
-				$('#group').removeClass('btn-success');
-			}else{
-				groupbool=true;
-				$('#group').addClass('btn-success');
-				$('#group').removeClass('btn-default');
-			}
 		};
 
         // Asynchronously gets the given sensors' total usages, as an
@@ -309,9 +356,12 @@
             });
 		};
 
-		this.getGroup = function() {
-			return groupbool;
-		};
+        // Sets the aggregation function to the given function.
+        // This function is part of the public API.
+        this.setAggregationFunction = function(func) {
+            aggregateMeasurements = func;
+            this.chartDesc.changed();
+        };
 
 		// Re-renders this chart.
 		this.draw = drawChart;
