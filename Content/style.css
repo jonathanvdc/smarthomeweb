@@ -264,6 +264,6 @@ a#notificationCountElement:hover{
 	color:#FFF;
 }
 
-
-
-
+.dashboard-tool-button {
+	padding: 5px;
+}

@@ -42,6 +42,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\DashboardTypes.cs" />
     <Compile Include="Model\Graph.cs" />
     <Compile Include="Model\Group.cs" />
     <Compile Include="Model\NewsfeedPost.cs" />

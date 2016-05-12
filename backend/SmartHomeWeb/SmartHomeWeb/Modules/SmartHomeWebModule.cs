@@ -518,8 +518,9 @@ namespace SmartHomeWeb.Modules
         {
             this.RequiresAuthentication();
             var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
-            var items = new Tuple<List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>, string>
-                                        (new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>(), CurrentUserGuid().ToString());
+            var items = new DashboardType(
+                new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>(),
+                CurrentUserGuid().ToString());
 
             foreach (var location in locations)
             {

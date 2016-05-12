@@ -5,7 +5,7 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@inherits NancyRazorViewBase<Tuple<List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>, string>>
+@inherits NancyRazorViewBase<DashboardType>
 @*
     Model.Item2 is the user's GUID.
     Model.Item1 is a list of tuples T, so that:
@@ -53,7 +53,7 @@ else
             <div class="col-sm-4">
                 <div class="panel panel-default">
 
-                    <div class="panel-heading">@(TextResources.RangeSelectorTitle)</div>
+                    <div class="panel-heading">@TextResources.RangeSelectorTitle</div>
                     <div class="panel-body">
                         <input id="daterange" name="daterange" size="35">
                     </div>
@@ -61,16 +61,18 @@ else
                 </div>
             </div>
 
-			<div class="col-sm-2" style="padding:0px">
+			<div class="col-sm-3" style="padding:0px">
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
-					<div class="panel-body tab-content">
-						<button onclick="toggleSum()" class="btn btn-default" style="padding: 0px;height: 25px;outline:none" id="totalButtom">Sum</button>
+					<div class="panel-body tab-content btn-group">
+						<a href="#" onclick="return false;" class="btn btn-default dashboard-tool-button" id="compareButton">@TextResources.DashboardCompareButtonLabel</a>
+						<a href="#" onclick="return false;" class="btn btn-default dashboard-tool-button" id="groupButton">@TextResources.DashboardGroupButtonLabel</a>
+                        <a href="#" onclick="toggleSum()" class="btn btn-default dashboard-tool-button" id="sumButton">@TextResources.DashboardSumButtonLabel</a>
 					</div>
 				</div>
 			</div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <div class="panel panel-default">
 
                     <div class="panel-heading">@(TextResources.TagSelectorTitle)</div>
@@ -80,9 +82,9 @@ else
                             var tags = @Model.Item1[x].Item2;
 
                             <div id="tags_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
-                                if (tags.Count() != 0)
+                                @if (tags.Count() != 0)
                                 {
-                                    @for (int i = 0; i < tags.Count(); i++)
+                                    for (int i = 0; i < tags.Count(); i++)
                                     {
                                         <span class="tag unselectable">
                                             @tags.ElementAt(i)
