@@ -77,7 +77,7 @@
                 <li class="media">
                     <div class="media-left">
                         <a href="/person/@post.Source.Data.UserName">
-                            <div class="profile-avatar-small avatar-@Math.Abs(post.Source.Guid.GetHashCode() % 8)"></div>
+                            <div class="profile-avatar-small @post.Source.AvatarClass()"></div>
                         </a>
                     </div>
                     <div class="media-body">
