@@ -51,6 +51,7 @@
 
         // Stores autofitted ranges, and raises events when they change.
         this.chartDesc = new ChartDescription();
+        var chartDesc = this.chartDesc;
 
         // A function that aggregates multi-measurement entries, and returns
         // single-measurement entries.
@@ -62,15 +63,19 @@
         // Creates a list of values that is suitable for use in a Google charts
         // data table. Many sensor measurement objects are used to create this
         // list.
-        var createMultiMeasurementEntry = function(sensorData, index) {
+        var createMultiMeasurementEntry = function(rangeAndData, index) {
             var results = [index.toString(), ""];
-            for (var i = 0; i < sensorData.length; i++) {
-                var timeString = GraphHelpers.printTime(date, getInterval());
+            for (var i = 0; i < rangeAndData.length; i++) {
+                var range = getListKey(rangeAndData[i]);
+                var sensorData = getListValue(rangeAndData[i]);
+                var date = new Date(sensorData.timestamp);
+                var timeString = GraphHelpers.printTime(date, range.getIntervalType());
                 var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
                 var notesPrefix = "<b>Time:</b> " + timeString + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
                 var regex = new RegExp('<br/>', 'g');
                 var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-                results += [notesPrefix + notes, measured];
+                results.push(notesPrefix + notes);
+                results.push(measured);
             }
             return results;
         };
@@ -78,9 +83,11 @@
         // Creates a list of values that is suitable for use in a Google charts
         // data table. A sensor measurement object is used to create this
         // list.
-        var createSingleMeasurementEntry = function(sensorData) {
+        var createSingleMeasurementEntry = function(rangeAndData) {
+            var range = getListKey(rangeAndData);
+            var sensorData = getListValue(rangeAndData);
             var date = new Date(sensorData.timestamp);
-            var timeString = GraphHelpers.printTime(date, getInterval());
+            var timeString = GraphHelpers.printTime(date, range.getIntervalType());
             var measured = sensorData.measurement === null ? 0 : sensorData.measurement;
             var notesPrefix = "<b>Time:</b> " + timeString + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
             var regex = new RegExp('<br/>', 'g');
@@ -91,18 +98,23 @@
         // Creates a list of values that is suitable for use in a Google charts
         // data table. Many sensor measurement objects are used to create this
         // list.
-        var createMeasurementEntry = function(sensorData, index) {
-            if (sensorData.length == 1)
-                return createSingleMeasurementEntry(sensorData);
+        var createMeasurementEntry = function(rangeAndData, index) {
+            if (rangeAndData.length === 1)
+                return createSingleMeasurementEntry(rangeAndData[0]);
             else if (aggregateMeasurements === null)
-                return createMultiMeasurementEntry(sensorData, index);
+                return createMultiMeasurementEntry(rangeAndData, index);
             else
-                return createSingleMeasurementEntry(aggregateMeasurements(sensorData));
+                return createSingleMeasurementEntry(aggregateMeasurements(rangeAndData));
         };
 
         // Computes the greatest common denominator of a and b.
         var gcd = function(a, b) {
-            return !b ? a : gcd(b, a % b);
+            while (b != 0) {
+                var tmp = a % b;
+                a = b;
+                b = tmp;
+            }
+            return a;
         };
 
         // Computes the least common multiple of a and b.
@@ -127,16 +139,20 @@
         // Empty measurement lists are discarded.
         var matchDataSizes = function(measurementsList) {
             var newSize = 1;
-            var newMeasurements = measurementsList;
+            var newMeasurements = [];
             for (var i = 0; i < measurementsList.length; i++) {
-                if (measurementsList[i].length !== 0) {
-                    newSize = lcm(newSize, measurementsList[i].length);
+                var vals = getListValue(measurementsList[i]);
+                if (vals.length !== 0) {
+                    newSize = lcm(newSize, vals.length);
                     newMeasurements.push(measurementsList[i]);
                 }
             }
             var results = [];
             for (var i = 0; i < newMeasurements.length; i++) {
-                results.push(replicateData(newMeasurements[i], newSize));
+                results.push([
+                    getListKey(newMeasurements[i]),
+                    replicateData(getListValue(newMeasurements[i]), newSize)
+                ]);
             }
             return results;
         };
@@ -144,14 +160,18 @@
         var groupMeasurements = function(rangesAndMeasurements) {
             var measurements = [];
             for (var j = 0; j < rangesAndMeasurements.length; j++) {
-                measurements.push(getListValue(rangesAndMeasurements[j]));
+                measurements.push(rangesAndMeasurements[j]);
             }
             measurements = matchDataSizes(measurements);
             var groupedMeasurements = [];
             for (var i = 0; i < measurements.length; i++) {
-                var data = measurements[i];
+                var key = getListKey(measurements[i]);
+                var data = getListValue(measurements[i]);
                 for (var j = 0; j < data.length; j++) {
-                    groupedMeasurements[j][i] += [data[j]];
+                    if (!(j in groupedMeasurements)) {
+                        groupedMeasurements[j] = [];
+                    }
+                    groupedMeasurements[j].push([key, data[j]]);
                 }
             }
             return groupedMeasurements;
@@ -211,9 +231,9 @@
             // is always the case for our purposes.
             var totalMeasurements = [];
             for (var i = 0; i < rangesAndMeasurements.length; i++) {
-                totalMeasurements += getListValue(rangesAndMeasurements[i]);
+                totalMeasurements.concat(getListValue(rangesAndMeasurements[i]));
             }
-            GraphHelpers.computePrice(rangesAndMeasurements[0], totalMeasurements, showPrice);
+            GraphHelpers.computePrice(getListKey(rangesAndMeasurements[0]).sensorId, totalMeasurements, showPrice);
         };
 
 		// Actually draws the chart, based on the given list of
@@ -232,13 +252,13 @@
 
                 var array = [];
                 for (var i = 0; i < grouped.length; i++) {
-                    array.push(createMeasurementEntry(grouped[i]));
+                    array.push(createMeasurementEntry(grouped[i], i));
                 }
 
 				var data = new google.visualization.DataTable();
 				data.addColumn('string', 'Time');
                 data.addColumn('string', 'Notes');
-				for (var x = 0; x < grouped.length; x++) {
+				for (var x = 0; x < rangesAndMeasurements.length; x++) {
                     data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
 					data.addColumn('number', 'Usage');
 				}
@@ -264,7 +284,7 @@
 					var oldnotes = data.getValue(selection, 1);
 					document.getElementById("notesarea").value = oldnotes;
                     notesUpdate = {};
-                    notesUpdate['sensorId'] = getListKey(rangesAndMeasurements);
+                    notesUpdate['sensorId'] = getListKey(rangesAndMeasurements[chart.getSelection()[1]]);
                     notesUpdate['timestamp'] = data.getValue(selection, 0).toString();
                     notesUpdate['measurement'] = data.getValue(selection, 3);
 				});
@@ -300,7 +320,7 @@
 		google.charts.setOnLoadCallback(drawChart);
 
 		// Updates the notes in the database
-		this.updateNotes = function(){
+		this.updateNotes = function() {
 			var diff = endTime.getTime() - startTime.getTime();
 			var days = Math.floor(diff / (1000 * 60 * 60 * 24));
 			var hours = Math.floor(diff / (1000 * 60 * 60));
@@ -334,7 +354,8 @@
         this.getSensorTotalUsages = function(sensorIds, callback) {
             // Create an array of GET tasks.
             var tasks = [];
-            var urlSuffix = "/" + timeString(startTime) + "/" + timeString(endTime) + "/" + measurementCount;
+            var urlSuffix = "/" + GraphHelpers.printTime(startTime) + "/"
+                + GraphHelpers.printTime(endTime) + "/" + measurementCount;
             for (var i = 0; i < sensorIds.length; i++) {
                 var url = "/api/autofit/total/" + sensorIds[i].toString() + urlSuffix;
                 tasks.push($.get(url));

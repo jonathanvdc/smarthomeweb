@@ -76,13 +76,14 @@ GraphHelpers = new function()
         };
         xmlhttp.send(null);
     };
+    var requestData = this.requestData;
 
     // Performs a GET REST call to our API,
     // and parses the response as JSON.
     // A jQuery deferred task is returned that
     // accomplishes this behavior.
     this.requestDataAsync = function(url) {
-        return $.get(url).then(JSON.parse);
+        return $.get(url);
     };
 
     // Gets the location that is associated with the given
@@ -90,8 +91,9 @@ GraphHelpers = new function()
     // The given callback handles the resulting value.
     this.getLocation = function(locationId, callback) {
         var url = "/api/locations/" + locationId.toString();
-        return this.requestData(url, callback);
+        return requestData(url, callback);
     };
+    var getLocation = this.getLocation;
 
     // Gets the location belonging to the given sensor.
     // The given callback handles the resulting value.
@@ -134,6 +136,11 @@ GraphHelpers = new function()
     // Once they have completed, the given callback is
     // called on an array that holds their results.
     this.whenAll = function(tasks, callback) {
+        if (tasks.length === 0)
+            return callback([]);
+        else if (tasks.length === 1)
+            return tasks[0].then(function() { callback(arguments); });
+
         // Wait for all tasks to complete...
         return $.when.apply($, tasks).then(function() {
             // ... then call the callback on the results.
@@ -159,27 +166,27 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // autofitted range.
     // This function is part of the public API.
     this.getIntervalType = function() {
-        return GraphHelpers.getIntervalType(this.startTime, this.endTime, this.maxMeasurements);
+        return GraphHelpers.getIntervalType(startTime, endTime, maxMeasurements);
     };
 
     // Creates a JSON object literal that describes this range.
     // This function is part of the public API.
     this.toJSON = function() {
         return JSON.stringify({
-            'sensorId' : this.sensorId,
-            'startTime' : GraphHelpers.TimeString(this.startTime),
-            'endTime' : GraphHelpers.TimeString(this.endTime),
-            'maxMeasurements' : this.maxMeasurements
+            'sensorId' : sensorId,
+            'startTime' : GraphHelpers.timeString(startTime),
+            'endTime' : GraphHelpers.timeString(endTime),
+            'maxMeasurements' : maxMeasurements
         });
     };
 
     // Encodes this autofitted range as a relative path.
     // This function is "private".
     var urlPathEncode = function() {
-        return this.sensorId.toString()
-            + "/" + timeString(this.startTime) + "/"
-            + timeString(this.endTime) + "/"
-            + this.maxMeasurements.toString();
+        return sensorId.toString()
+            + "/" + GraphHelpers.timeString(startTime) + "/"
+            + GraphHelpers.timeString(endTime) + "/"
+            + maxMeasurements.toString();
     };
 
     // Converts this autofitted range to an autofit URL request.
@@ -202,7 +209,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // This function is part of the public API.
     this.getTotalUsageAsync = function() {
         var url = "/api/autofit/total/" + urlPathEncode();
-        return $.get(url).then(parseFloat);
+        return $.get(url);
     };
 
     // Retrieves this sensor's measurements.
@@ -214,14 +221,14 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // Gets this sensor's location object.
     // This function is part of the public API.
     this.getLocation = function(callback) {
-        GraphHelpers.getSensorLocation(this.sensorId, callback);
+        GraphHelpers.getSensorLocation(sensorId, callback);
     };
 
     // Computes and displays the total electricity price
     // for the given array of measurements.
     // This function is part of the public API.
     this.computePrice = function(measurements, callback) {
-        GraphHelpers.computePrice(this.sensorId, measurements, callback);
+        GraphHelpers.computePrice(sensorId, measurements, callback);
     };
 };
 
@@ -268,6 +275,8 @@ ChartDescription = function() {
             onChangedHandlers[i]();
         }
     };
+    // Define this as a private alias.
+    var changed = this.changed;
 
     // Registers a (parameterless) handler function
     // with this chart description that is fired
@@ -322,7 +331,7 @@ ChartDescription = function() {
     // This function is part of the public API.
     this.getRangesWithMeasurements = function(callback) {
         var results = [];
-        ranges.each(function(kvPair) {
+        $.each(ranges, function(index, kvPair) {
             results.push(kvPair.getValue().then(function(val) {
                 return [kvPair.getKey(), val];
             }));
@@ -352,13 +361,21 @@ ChartDescription = function() {
     // Filters ranges based on the given predicate.
     // Any ranges for which the predicate returns
     // 'false' are discarded. All other ranges
-    // remain.
+    // remain. A boolean is returned that is 'true'
+    // if at least one range has been removed.
     // This function is part of the public API.
     this.filterRanges = function(predicate) {
+        var oldLength = ranges.length;
         ranges = $.grep(ranges, function(kvPair) {
             return predicate(kvPair.getKey());
         });
-        changed();
+        if (ranges.length === oldLength) {
+            return false;
+        }
+        else {
+            changed();
+            return true;
+        }
     };
 
     // Checks if this graph contains at least one range

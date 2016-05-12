@@ -99,7 +99,7 @@ else
             <div class="panel panel-default" style="height:560px">
                 <div class="panel-heading">@(TextResources.GraphTitle)</div>
                 <div class="panel-body chartwrapper">
-                    @Html.Partial("graph.cshtml", Model.Item2)
+                    @Html.Partial("graph-control.cshtml", Model.Item2)
                 </div>
             </div>
         </div>
@@ -122,7 +122,7 @@ else
                                         Sensor sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
-                                    <li sensor-id="@sensor.Id" onClick="measurementsGraph.setId(@sensor.Id)">
+                                    <li sensor-id="@sensor.Id" onClick="toggleId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
 
                                             <div style="display: table-row">
@@ -171,6 +171,53 @@ else
 <script type="text/javascript">
 
     var now = Date();
+    var state = { 'sensorIds' : [], 'startTime' : null, 'endTime' : null };
+
+    setTimeframe = function(startTime, endTime) {
+        state['startTime'] = startTime;
+        state['endTime'] = endTime;
+        flushState();
+    };
+
+    toggleId = function(sensorId) {
+        var oldIdCount = state['sensorIds'].length;
+        var filteredIds = $.grep(state['sensorIds'], function(id) {
+            return id !== sensorId;
+        });
+        if (oldIdCount === filteredIds.length) {
+            state['sensorIds'].push(sensorId);
+            if (isValidState()) {
+                measurementsGraph.chartDesc.addRange(new AutofitRange(
+                    sensorId, state['startTime'], state['endTime'], 60));
+            }
+        }
+        else {
+            state['sensorIds'] = filteredIds;
+            if (isValidState()) {
+                measurementsGraph.chartDesc.filterRanges(function(range) {
+                    return range.sensorId !== sensorId;
+                });
+            }
+        }
+    };
+
+    var isValidState = function() {
+        return state['sensorIds'] !== null && state['startTime'] !== null
+            && state['endTime'] !== null;
+    };
+
+    var flushState = function() {
+        if (isValidState()) {
+            measurementsGraph.chartDesc.batchChanges(function() {
+                measurementsGraph.chartDesc.clearRanges();
+                var sensorIds = state['sensorIds'];
+                for (var i = 0; i < sensorIds.length; i++) {
+                    measurementsGraph.chartDesc.addRange(new AutofitRange(
+                        sensorIds[i], state['startTime'], state['endTime'], 60));
+                }
+            });
+        }
+    };
 
     $(function () {
         $('input[name="daterange"]').daterangepicker({
@@ -194,23 +241,20 @@ else
         }, function (start, end, label) {
             var date1 = new Date(start.format('YYYY-MM-DDTHH:mm:ss'));
             var date2 = new Date(end.format('YYYY-MM-DDTHH:mm:ss'));
-            measurementsGraph.setTimeframe(date1, date2);
+            setTimeframe(date1, date2);
         });
     });
 
-</script>
-
-<script>
     $(document).ready(function () {
         // Make sensor selection look good
         $('.nav').on('click', "li .clickable-item", function (e) {
             var $parent = $(this).parent();
             var $holder = $parent.parent();
-			if(!measurementsGraph.getGroup()){$holder.children().removeClass('active');}
 
             if (!$parent.hasClass('active')) {
                 $parent.addClass('active');
-            }else if(measurementsGraph.getGroup()){
+            }
+            else {
 				$parent.removeClass('active');
 			}
         });
@@ -223,7 +267,8 @@ else
             if ($(this).hasClass('active')) {
                 $(this).removeClass('active');
                 filteredTags[currentLocation].splice(filteredTags[currentLocation].indexOf(tag),1);
-            } else {
+            }
+            else {
                 $(this).addClass('active');
                 filteredTags[currentLocation].push(tag);
             }
