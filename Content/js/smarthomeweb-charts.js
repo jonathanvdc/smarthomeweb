@@ -310,15 +310,15 @@ ChartDescription = function() {
         return results;
     };
 
-    // Gets a dictionary that maps ranges to
-    // measurement promises for this chart.
+    // Gets a promise that returns a list of
+    // range-measurements key-value pair lists.
     // This function is part of the public API.
-    this.getRangesWithMeasurements = function() {
-        var results = {};
-        for (var i = 0; i < ranges.length; i++) {
-            results[ranges[i].getKey()] = ranges[i].getValue();
-        }
-        return results;
+    this.getRangesWithMeasurementsAsync = function() {
+        var results = [];
+        ranges.each(function(kvPair) {
+            results.push(kvPair.getValue().then(function(val) { return [kvPair.getKey(), val]; }));
+        });
+        return GraphHelpers.whenAll(results);
     };
 
     // Adds the given range to this chart description.
