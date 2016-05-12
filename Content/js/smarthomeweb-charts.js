@@ -225,6 +225,29 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     };
 };
 
+// A key-value pair that has a "key" object, and a lazily
+// computed "value."
+// Note: the computeValue function must take exactly
+// one argument, which is the key.
+LazyKeyValuePair = function(key, computeValue) {
+    var cachedVal = null;
+
+    // Gets this key-value pair's key.
+    this.getKey = function() {
+        return key;
+    };
+
+    // Gets this key-value pair's value.
+    // If this value does not exist yet,
+    // then it is computed.
+    this.getValue = function() {
+        if (cachedVal === null) {
+            cachedVal = computeValue(key);
+        }
+        return cachedVal;
+    };
+};
+
 // Describes a measurements chart. This type does two things:
 //
 //     * Store autofitted ranges of measurements
@@ -280,21 +303,41 @@ ChartDescription = function() {
         // Copy the ranges, so external users don't
         // corrupt our painstakingly constructed
         // event system.
-        return ranges.slice();
+        var results = [];
+        for (var i = 0; i < ranges.length; i++) {
+            results.push(ranges[i].getKey());
+        }
+        return results;
+    };
+
+    // Gets a dictionary that maps ranges to
+    // measurement promises for this chart.
+    // This function is part of the public API.
+    this.getRangesWithMeasurements = function() {
+        var results = {};
+        for (var i = 0; i < ranges.length; i++) {
+            results[ranges[i].getKey()] = ranges[i].getValue();
+        }
+        return results;
     };
 
     // Adds the given range to this chart description.
     // This function is part of the public API.
     this.addRange = function(value) {
-        ranges.push(value);
+        ranges.push(new LazyKeyValuePair(value, function(key) {
+            return key.getMeasurementsAsync();
+        }));
         changed();
     };
 
     // Add the given ranges to this chart description.
     // This function is part of the public API.
     this.addRanges = function(values) {
-        ranges = ranges.concat(values);
-        changed();
+        batchChanges(function() {
+            for (var i = 0; i < values.length; i++) {
+                this.addRange(values[i]);
+            }
+        });
     };
 
     // Filters ranges based on the given predicate.
@@ -303,7 +346,9 @@ ChartDescription = function() {
     // remain.
     // This function is part of the public API.
     this.filterRanges = function(predicate) {
-        ranges = $.grep(ranges, predicate);
+        ranges = $.grep(ranges, function(kvPair) {
+            return predicate(kvPair.getKey());
+        });
         changed();
     };
 
@@ -311,7 +356,9 @@ ChartDescription = function() {
     // for which the given predicate returns 'true'.
     // This function is part of the public API.
     this.containsRange = function(predicate) {
-        return $.grep(ranges, predicate).length > 0;
+        return $.grep(ranges, function(kvPair) {
+            return predicate(kvPair.getKey());
+        }).length > 0;
     };
 
     // Removes all ranges from this chart description.
@@ -329,7 +376,7 @@ ChartDescription = function() {
         // Create an array of GET tasks.
         var tasks = [];
         for (var i = 0; i < ranges.length; i++) {
-            var ran = ranges[i];
+            var ran = ranges[i].getKey();
             tasks.push(ran.getTotalUsageAsync().then(function(result) {
                 return { 'range' : ran, 'usage' : result };
             }));
