@@ -30,12 +30,6 @@ create table Friends (
     primary key (personOne, personTwo)
 );
 
-create table PersonGroup (
-	id integer primary key autoincrement,
-	name text not null,
-	description text not null
-);
-
 create table Graph (
 	graphId integer primary key autoincrement,
 	owner text not null references Person(guid) on delete cascade,
