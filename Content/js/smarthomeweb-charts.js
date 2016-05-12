@@ -313,14 +313,14 @@ ChartDescription = function() {
     // Gets a promise that returns a list of
     // range-measurements key-value pair lists.
     // This function is part of the public API.
-    this.getRangesWithMeasurementsAsync = function() {
+    this.getRangesWithMeasurements = function(callback) {
         var results = [];
         ranges.each(function(kvPair) {
             results.push(kvPair.getValue().then(function(val) {
                 return [kvPair.getKey(), val];
             }));
         });
-        return GraphHelpers.whenAll(results);
+        return GraphHelpers.whenAll(results, callback);
     };
 
     // Adds the given range to this chart description.
