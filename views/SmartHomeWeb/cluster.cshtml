@@ -6,6 +6,11 @@
 @using Nancy.ViewEngines.Razor
 @inherits NancyRazorViewBase<IEnumerable<Location>>
 
+<!-- Include Date Range Picker -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
 <div class="container" style="margin-top: 50px">
 	<div class="row">
 		<div id="location_select" class="col_lg_12">
@@ -17,6 +22,8 @@
 					</option>
 				}
 			</select>
+			
+			<input id="daterange" name="daterange" size="5" style="margin-left: 20px;">
 		</div>
 	</div>
 	<div class="row">
@@ -24,10 +31,34 @@
 			<!-- Graph goes here -->
 		</div>
 		<div id="steps" class="col_lg_4">
-		  <b>Current iteration: </b><p id="currentiteration">0</p>
-		  <b>Low usage: </b><p id="firstlimit">0</p>
-		  <b>Medium usage: </b><p id="secondlimit">0</p>
-		  <b>High usage: </b><p id="thirdlimit">0</p>
+		  <table>
+		    <tr>
+		      <td style="padding: 5px;"><b>Current iteration: </b></td>
+			  <td id="currentiteration">0</td>
+		    </tr>
+			<tr>
+		      <td style="padding: 5px;"><b>Low usage: </b></td>
+			  <td id="firstlimit">0</td>
+			  <td style="padding: 5px;padding-left:20px;"><b>Low usage wcss: </b></td>
+			  <td id="firstinner">0</td>
+		    </tr>
+		    <tr>
+		      <td style="padding: 5px;"><b>Medium usage: </b></td>
+			  <td id="secondlimit">0</td>
+			  <td style="padding: 5px;padding-left:20px;"><b>Middle usage wcss: </b></td>
+			  <td id="secondinner">0</td>
+			</tr>
+		    <tr>
+		      <td style="padding: 5px;"><b>High usage: </b></td>
+			  <td id="thirdlimit">0</td>
+			  <td style="padding: 5px;padding-left:20px;"><b>high usage wcss: </b></td>
+			  <td id="thirdinner">0</td>
+		    </tr>
+			<tr>
+			  <td style="padding: 5px;"><b>Total wcss:</b></td>
+			  <td id="totwcss">0</td>
+			</tr>
+		  </table>
 		</div>
 		<button onclick="kmeans()">Apply kmeans</button>
 	</div>
@@ -36,11 +67,38 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
+
+    var now = new Date();
+    $(function () {
+        $('input[name="daterange"]').daterangepicker({
+            locale: {
+                format: 'YYYY/MM'
+            },
+			singleDatePicker: true,
+            autoApply: true,
+            linkedCalendars: false,
+			showDropdowns: true,
+        }, function (start, end, label) {
+            var date1 = new Date(start.format('YYYY-MM-DDTHH:mm:ss'));
+			now = date1;
+			if(currenthousehold >= 0){
+			  getSensors(currenthousehold);
+			}
+        });
+    });
+
+</script>
+
+<script type="text/javascript">
 	var sensorlist = [];
 	var lowmean = 0;
 	var midmean = 0;
 	var highmean = 0;
-	
+	var lowwcss = 0;
+	var midwcss = 0;
+	var highwcss = 0;
+	var currenthousehold = -1;
+	var currentiteration = 0;
 	// Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
 
@@ -48,27 +106,34 @@
     // instantiates the pie chart, passes in the data and
     // draws it.
 	function kmeans(){
+	  ++currentiteration; 
 	  var newlowmean = 0;
 	  var newmidmean = 0;
 	  var newhighmean = 0;
+	  lowwcss = 0;
+	  midwcss = 0;
+	  highwcss = 0;
 	  lowcount = 0;
 	  midcount = 0;
 	  highcount = 0;
 	  for(var i = 0; i < sensorlist.length; ++i){
-	    var distancelow = Math.abs(sensorlist[i][1] - lowmean);
-		var distancemid = Math.abs(sensorlist[i][1] - midmean);
-		var distancehigh = Math.abs(sensorlist[i][1] - highmean);
+	    var distancelow = Math.pow(sensorlist[i][1] - lowmean, 2);
+		var distancemid = Math.pow(sensorlist[i][1] - midmean, 2);
+		var distancehigh = Math.pow(sensorlist[i][1] - highmean, 2);
 		var lowest = Math.min(distancelow, distancemid, distancehigh);
 		if(lowest == distancelow){
 		  newlowmean = newlowmean + sensorlist[i][1];
+		  lowwcss = lowwcss + distancelow;
 		  ++lowcount;
 		  sensorlist[i][2] = "#05F228";
 		}else if(lowest == distancemid){
 		  newmidmean = newmidmean + sensorlist[i][1];
+		  midwcss = midwcss + distancemid;
 		  ++midcount;
 		  sensorlist[i][2] = "#FFD903";		
 		}else{
 		  newhighmean = newhighmean + sensorlist[i][1];
+		  highwcss = highwcss + distancehigh;
 		  ++highcount;
 		  sensorlist[i][2] = "#FF5447";		
 		}
@@ -94,6 +159,10 @@
 	  document.getElementById('firstlimit').innerHTML = lowmean;
 	  document.getElementById('secondlimit').innerHTML = midmean;
 	  document.getElementById('thirdlimit').innerHTML = highmean;
+	  document.getElementById('firstinner').innerHTML = Math.round(lowwcss*100)/100;
+	  document.getElementById('secondinner').innerHTML = Math.round(midwcss*100)/100;
+	  document.getElementById('thirdinner').innerHTML = Math.round(highwcss*100)/100;
+	  document.getElementById('totwcss').innerHTML = Math.round((lowwcss+midwcss+highwcss)*100)/100;
 	}
 	
     function drawChart() {
@@ -145,13 +214,14 @@
 	
 	function getMonthlyMeasurement(sensorid){
 		var xhttp = new XMLHttpRequest();
-		xhttp.open("GET", "/api/month-average/"+sensorid.toString() + "/2016-04-01T00:00:00", false);
+		xhttp.open("GET", "/api/month-average/"+sensorid.toString() + "/" + (now.getFullYear()).toString() + "-" + (now.getMonth()+1).toString() + "-01T00:00:00", false);
 		xhttp.send();
 		measured = JSON.parse(xhttp.responseText);
 		return Math.round(measured.measurement*100)/100;
 	};
 	
 	function getSensors(id){
+	    currenthousehold = id;
 		sensorlist = [];
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
@@ -172,6 +242,17 @@
 			   midmean = Math.round((lowmean + interval)*100)/100;
 			   highmean = Math.round((midmean + interval)*100)/100;
 			   addcolors();
+			   //Set the initial wcss:
+			   for(var i = 0; i < sensorlist.length; ++i){
+			     if(sensorlist[i][2] == "#05F228"){
+				   lowwcss = lowwcss + Math.pow(sensorlist[i][1] - lowmean, 2);
+				 }else if(sensorlist[i][2] == "#FFD903"){
+				   midwcss = midwcss + Math.pow(sensorlist[i][1] - midmean, 2);
+				 }else{
+				   highwcss = highwcss + Math.pow(sensorlist[i][1] - highmean, 2);
+				 }
+			   }
+			   updateDisplay();
 			   drawChart();
 			}
 		};
