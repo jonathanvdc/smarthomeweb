@@ -63,8 +63,13 @@
         // Creates a list of values that is suitable for use in a Google charts
         // data table. Many sensor measurement objects are used to create this
         // list.
-        var createMultiMeasurementEntry = function(rangeAndData, index) {
-            var results = [index.toString(), ""];
+        var createMultiMeasurementEntry = function(rangeAndData, index, alignedDates) {
+            var xCoord = alignedDates && rangeAndData.length > 0
+                ? GraphHelpers.printTime(
+                    new Date(getListValue(rangeAndData[0]).timestamp),
+                    getListKey(rangeAndData[0]).getIntervalType())
+                : index.toString();
+            var results = [xCoord, ""];
             for (var i = 0; i < rangeAndData.length; i++) {
                 var range = getListKey(rangeAndData[i]);
                 var sensorData = getListValue(rangeAndData[i]);
@@ -97,12 +102,14 @@
 
         // Creates a list of values that is suitable for use in a Google charts
         // data table. Many sensor measurement objects are used to create this
-        // list.
-        var createMeasurementEntry = function(rangeAndData, index) {
+        // list. The index of the entry to create, and a boolean that indicates
+        // whether the measurement timestamps are aligned for all measurements,
+        // are also used.
+        var createMeasurementEntry = function(rangeAndData, index, alignedDates) {
             if (rangeAndData.length === 1)
                 return createSingleMeasurementEntry(rangeAndData[0]);
             else if (aggregateMeasurements === null || rangeAndData.length === 0)
-                return createMultiMeasurementEntry(rangeAndData, index);
+                return createMultiMeasurementEntry(rangeAndData, index, alignedDates);
             else
                 return createSingleMeasurementEntry(aggregateMeasurements(rangeAndData));
         };
@@ -177,6 +184,23 @@
             return groupedMeasurements;
         };
 
+        // Checks whether all timestamps in the given grouped-measurements
+        // array are aligned.
+        var checkAlignedDates = function(groupedMeasurements) {
+            for (var i = 0; i < groupedMeasurements.length; i++) {
+                var dataArr = groupedMeasurements[i];
+                var timestamp = null;
+                for (var j = 0; j < dataArr.length; j++) {
+                    var val = getListValue(dataArr[j]).timestamp;
+                    if (timestamp === null)
+                        timestamp = val;
+                    else if (timestamp !== val)
+                        return false;
+                }
+            }
+            return true;
+        };
+
 		var showElement = function(index) {
 		    chartElement.hidden = !(index == 0);
 		    document.getElementById("no-data-message").hidden = !(index == 1);
@@ -244,6 +268,7 @@
 			}
 			else {
                 var grouped = groupMeasurements(rangesAndMeasurements);
+                var alignedDates = checkAlignedDates(grouped);
 
                 if (grouped.length === 0) {
                     showNoDataSaved();
@@ -252,7 +277,7 @@
 
                 var array = [];
                 for (var i = 0; i < grouped.length; i++) {
-                    array.push(createMeasurementEntry(grouped[i], i));
+                    array.push(createMeasurementEntry(grouped[i], i, alignedDates));
                 }
 
                 // Set chart options
