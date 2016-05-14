@@ -85,9 +85,17 @@ GraphHelpers = new function()
     // Gets the location that is associated with the given
     // location identifier.
     // The given callback handles the resulting value.
-    this.getLocation = function(locationId, callback) {
+    this.getLocationAsync = function(locationId) {
         var url = "/api/locations/" + locationId.toString();
-        return requestData(url, callback);
+        return requestDataAsync(url);
+    };
+    var getLocationAsync = this.getLocationAsync;
+
+    // Gets the location that is associated with the given
+    // location identifier.
+    // The given callback handles the resulting value.
+    this.getLocation = function(locationId, callback) {
+        return getLocationAsync(locationId).then(callback);
     };
     var getLocation = this.getLocation;
 
@@ -107,42 +115,6 @@ GraphHelpers = new function()
         getSensorAsync(sensorId).then(callback);
     };
     var getSensor = this.getSensor;
-
-    // Gets the location belonging to the given sensor.
-    // The given callback handles the resulting value.
-    this.getSensorLocation = function(sensorId, callback) {
-        return getSensor(sensorId, function(sensor) {
-            getLocation(sensor.data.locationId, callback);
-        });
-    };
-
-    // Computes and displays the total electricity price
-    // for the given array of measurements.
-    this.computePrice = function(sensorId, measurements, callback) {
-        this.getSensorLocation(sensorId, function(loc) {
-            // A location stores its price per unit of electricity as currency/kWh.
-            // Since we want the total electricity price, we will multiply
-            // the location's price per unit by the total time, and the average
-            // electricity usage of the currently selected sensor.
-            var elecPrice = loc.data.electricityPrice;
-            if (elecPrice === null)
-                // This is kind of lame, really.
-                return;
-
-            var hourDiff = Math.abs(endTime.getTime() - startTime.getTime()) / 1000 / 3600;
-            var totalUsage = 0.0;
-            var n = 0;
-            for (var i = 0; i < measurements.length; i++) {
-                var sensorData = measurements[i];
-                if (sensorData.measurement !== null) {
-                    totalUsage += sensorData.measurement;
-                    n++;
-                }
-            }
-            var totalPrice = elecPrice * hourDiff * totalUsage / n;
-            callback(totalPrice);
-        });
-    };
 
     // Executes the given array of tasks in parallel.
     // Once they have completed, the given callback is
@@ -175,6 +147,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     this.maxMeasurements = maxMeasurements;
 
     var cachedSensorData = null;
+    var cachedLocationData = null;
 
     // Determines the type of interval described by this
     // autofitted range.
@@ -232,14 +205,8 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
         GraphHelpers.requestData(toUrl(), function(results) { callback(GraphHelpers.processData(results)); });
     };
 
-    // Gets this sensor's location object.
-    // This function is part of the public API.
-    this.getLocation = function(callback) {
-        GraphHelpers.getSensorLocation(sensorId, callback);
-    };
-
     // Gets this sensor's additional data, such as its name.
-    // This data is returned as a promise.
+    // The requested data is returned as a promise.
     // This function is part of the public API.
     this.getSensorAsync = function() {
         if (cachedSensorData === null) {
@@ -247,12 +214,53 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
         }
         return cachedSensorData;
     };
+    var getSensorAsync = this.getSensorAsync;
 
-    // Computes and displays the total electricity price
-    // for the given array of measurements.
+    // Gets this sensor's location.
+    // The requested data is returned as a promise.
     // This function is part of the public API.
-    this.computePrice = function(measurements, callback) {
-        GraphHelpers.computePrice(sensorId, measurements, callback);
+    this.getLocationAsync = function() {
+        if (cachedLocationData === null) {
+            cachedLocationData = getSensorAsync().pipe(function(sensor) {
+                return GraphHelpers.getLocationAsync(sensor.data.locationId);
+            });
+        }
+        return cachedLocationData;
+    };
+    var getLocationAsync = this.getLocationAsync;
+
+    // Gets this sensor's location object.
+    // This function is part of the public API.
+    this.getLocation = function(callback) {
+        getLocationAsync().then(callback);
+    };
+    var getLocation = this.getLocation;
+
+    // Computes the total electricity price
+    // for the given array of measurements.
+    // The requested data is returned as a promise.
+    // This function is part of the public API.
+    this.computePriceAsync = function(measurements) {
+        return getLocationAsync().then(function(loc) {
+            // A location stores its price per unit of electricity as currency/kWh.
+            // Since we want the total electricity price, we will multiply
+            // the location's price per unit by the total time, and the average
+            // electricity usage of the currently selected sensor.
+            var elecPrice = loc.data.electricityPrice;
+            if (elecPrice === null)
+                // This is kind of lame, really.
+                return;
+
+            var hourDiff = Math.abs(endTime.getTime() - startTime.getTime()) / 1000 / 3600;
+            var totalUsage = 0.0;
+            for (var i = 0; i < measurements.length; i++) {
+                var sensorData = measurements[i];
+                if (sensorData.measurement !== null) {
+                    totalUsage += sensorData.measurement;
+                }
+            }
+            return elecPrice * hourDiff * totalUsage / measurements.length;
+        });
     };
 
     // Clears all non-essential data that was cached
@@ -260,6 +268,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // This function is part of the public API.
     this.invalidateCache = function() {
         cachedSensorData = null;
+        cachedLocationData = null;
     };
 };
 

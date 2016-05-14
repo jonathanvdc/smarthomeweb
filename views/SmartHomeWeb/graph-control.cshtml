@@ -250,14 +250,17 @@
                 return;
             }
 
-            // NOTE: this function assumes that that all sensors in the
-            // rangesAndMeasurements list belong to the same location. This
-            // is always the case for our purposes.
-            var totalMeasurements = [];
+            var tasks = [];
             for (var i = 0; i < rangesAndMeasurements.length; i++) {
-                totalMeasurements.concat(getListValue(rangesAndMeasurements[i]));
+                tasks.push(getListKey(rangesAndMeasurements[i]).computePriceAsync(
+                    getListValue(rangesAndMeasurements[i])));
             }
-            GraphHelpers.computePrice(getListKey(rangesAndMeasurements[0]).sensorId, totalMeasurements, showPrice);
+            return GraphHelpers.whenAll(tasks, function(results) {
+                var totalPrice = 0.0;
+                for (var i = 0; i < results.length; i++)
+                    totalPrice += results[i];
+                showPrice(totalPrice);
+            });
         };
 
 		// Actually draws the chart, based on the given list of
