@@ -74,8 +74,8 @@
                 var notesPrefix = "<b>Time:</b> " + timeString + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
                 var regex = new RegExp('<br/>', 'g');
                 var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-                results.push(notesPrefix + notes);
                 results.push(measured);
+                results.push(notesPrefix + notes);
             }
             return results;
         };
@@ -92,7 +92,7 @@
             var notesPrefix = "<b>Time:</b> " + timeString + "<br/><b>Measurement:</b> " + measured + "<br/><b>Notes:</b>\n";
             var regex = new RegExp('<br/>', 'g');
             var notes = sensorData.notes === null ? "" : sensorData.notes.replace(regex, "\n");
-            return [timeString, notes, notesPrefix + notes, measured];
+            return [timeString, notes, measured, notesPrefix + notes];
         };
 
         // Creates a list of values that is suitable for use in a Google charts
@@ -255,25 +255,41 @@
                     array.push(createMeasurementEntry(grouped[i], i));
                 }
 
+                // Set chart options
+                var options = {'width':600,
+                                'height':500,
+                                tooltip: {isHtml: true}};
 				var data = new google.visualization.DataTable();
+
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.LineChart(chartElement);
+
 				data.addColumn('string', 'Time');
                 data.addColumn('string', 'Notes');
-                var extraRowCount = aggregateMeasurements !== null ? 1 : rangesAndMeasurements.length;
-				for (var x = 0; x < extraRowCount; x++) {
+                if (aggregateMeasurements !== null) {
+                    data.addColumn('number', 'Total usage');
                     data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
-					data.addColumn('number', 'Usage');
-				}
+                }
+                else {
+                    $.each(rangesAndMeasurements, function(i, rangeAndData) {
+                        // First name all columns 'Usage', then retrieve the actual
+                        // column names.
+    					data.addColumn('number', 'Usage');
+                        data.addColumn({type: 'string', role: 'tooltip', 'p': {'html': true}});
+                        var range = getListKey(rangeAndData);
+                        range.getSensorAsync().then(function(sensor) {
+                            // Update the column label.
+                            data.setColumnLabel(i * 2 + 2, sensor.data.name);
+                            var myView = new google.visualization.DataView(data);
+                            myView.hideColumns([1]);
+                            // Re-draw the chart.
+                            chart.draw(myView, options);
+                        });
+                    });
+                }
 				data.addRows(array);
 
-				// Set chart options
-				var options = {'width':600,
-								'height':500,
-								tooltip: {isHtml: true}};
-				// Instantiate and draw our chart, passing in some options.
-				var myView = new google.visualization.DataView(data);
-				myView.hideColumns([1]);
 				showChart();
-				var chart = new google.visualization.LineChart(chartElement);
 				google.visualization.events.addListener(chart, 'select', function() {
                     if (aggregateMeasurements !== null || rangesAndMeasurements.length !== 1) {
                         // Attaching a note is nonsensical if the user has
@@ -289,6 +305,8 @@
                     notesUpdate['timestamp'] = data.getValue(selection, 0).toString();
                     notesUpdate['measurement'] = data.getValue(selection, 3);
 				});
+                var myView = new google.visualization.DataView(data);
+                myView.hideColumns([1]);
 				chart.draw(myView, options);
 
                 computePrice(rangesAndMeasurements);

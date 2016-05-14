@@ -68,23 +68,19 @@ GraphHelpers = new function()
 
     // Performs a GET REST call to our API,
     // and parses the response as JSON.
-    this.requestData = function(url, callback) {
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET", url, true);
-        xmlhttp.onload = function (e) {
-            callback(JSON.parse(xmlhttp.responseText));
-        };
-        xmlhttp.send(null);
-    };
-    var requestData = this.requestData;
-
-    // Performs a GET REST call to our API,
-    // and parses the response as JSON.
     // A jQuery deferred task is returned that
     // accomplishes this behavior.
     this.requestDataAsync = function(url) {
         return $.get(url);
     };
+    var requestDataAsync = this.requestDataAsync;
+
+    // Performs a GET REST call to our API,
+    // and parses the response as JSON.
+    this.requestData = function(url, callback) {
+        requestDataAsync(url).then(callback);
+    };
+    var requestData = this.requestData;
 
     // Gets the location that is associated with the given
     // location identifier.
@@ -95,11 +91,27 @@ GraphHelpers = new function()
     };
     var getLocation = this.getLocation;
 
+    // Gets the sensor that is associated with the given
+    // sensor identifier.
+    // The given callback handles the resulting value.
+    this.getSensorAsync = function(sensorId) {
+        var url = "/api/sensors/" + sensorId.toString();
+        return requestDataAsync(url);
+    };
+    var getSensorAsync = this.getSensorAsync;
+
+    // Gets the sensor that is associated with the given
+    // sensor identifier.
+    // The given callback handles the resulting value.
+    this.getSensor = function(sensorId, callback) {
+        getSensorAsync(sensorId).then(callback);
+    };
+    var getSensor = this.getSensor;
+
     // Gets the location belonging to the given sensor.
     // The given callback handles the resulting value.
     this.getSensorLocation = function(sensorId, callback) {
-        var url = "/api/sensors/" + sensorId.toString();
-        return this.requestData(url, function(sensor) {
+        return getSensor(sensorId, function(sensor) {
             getLocation(sensor.data.locationId, callback);
         });
     };
@@ -161,6 +173,8 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     this.startTime = startTime;
     this.endTime = endTime;
     this.maxMeasurements = maxMeasurements;
+
+    var cachedSensorData = null;
 
     // Determines the type of interval described by this
     // autofitted range.
@@ -224,11 +238,28 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
         GraphHelpers.getSensorLocation(sensorId, callback);
     };
 
+    // Gets this sensor's additional data, such as its name.
+    // This data is returned as a promise.
+    // This function is part of the public API.
+    this.getSensorAsync = function() {
+        if (cachedSensorData === null) {
+            cachedSensorData = GraphHelpers.getSensorAsync(sensorId);
+        }
+        return cachedSensorData;
+    };
+
     // Computes and displays the total electricity price
     // for the given array of measurements.
     // This function is part of the public API.
     this.computePrice = function(measurements, callback) {
         GraphHelpers.computePrice(sensorId, measurements, callback);
+    };
+
+    // Clears all non-essential data that was cached
+    // by this autofitted range.
+    // This function is part of the public API.
+    this.clearCache = function() {
+        cachedSensorData = null;
     };
 };
 
