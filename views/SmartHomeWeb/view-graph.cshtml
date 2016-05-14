@@ -5,11 +5,16 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@* Model is a (SensorId, StartTime, EndTime, MaxMeasurements) tuple *@
-@inherits NancyRazorViewBase<AutofitRange>
+@* Model is a sequence of (SensorId, StartTime, EndTime, MaxMeasurements) tuples *@
+@inherits NancyRazorViewBase<IEnumerable<AutofitRange>>
 
-@Html.Partial("graph.cshtml")
+@Html.Partial("graph-control.cshtml")
 
 <script>
-    measurementsGraph.setData(@Model.SensorId, new Date("@Model.StartTime"), new Date("@Model.EndTime"), @Model.MaxMeasurements);
+@foreach (var tuple in Model)
+{
+    <text>measurementsGraph.chartDesc.addRange(new AutofitRange(
+        @tuple.SensorId, new Date("@tuple.StartTime"),
+        new Date("@tuple.EndTime"), @tuple.MaxMeasurements));</text>
+}
 </script>

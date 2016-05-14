@@ -41,7 +41,7 @@
 
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript" src="content/js/smarthomeweb-charts.js"></script>
+<script type="text/javascript" src="/content/js/smarthomeweb-charts.js"></script>
 
 <script type="text/javascript">
 
@@ -347,10 +347,15 @@
 			}
 		};
 
+        var hasLoadedGoogleCharts = false;
+
 	    // Callback that creates and populates a data table,
 	    // instantiates the line chart, passes in the data and
 	    // draws it.
 	    var drawChart = function() {
+            if (!hasLoadedGoogleCharts)
+                return;
+
 	    	if (chartDesc.getRangeCount() === 0) {
 	    	    showNoSensorSelected();
 				return;
@@ -370,7 +375,10 @@
 	    google.charts.load('current', {'packages':['corechart']});
 
 	    // Set a callback to run when the Google Visualization API is loaded.
-		google.charts.setOnLoadCallback(drawChart);
+		google.charts.setOnLoadCallback(function() {
+            hasLoadedGoogleCharts = true;
+            drawChart();
+        });
 
 		// Updates the notes in the database
 		this.updateNotes = function() {

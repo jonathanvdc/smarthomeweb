@@ -261,9 +261,26 @@ namespace SmartHomeWeb.Modules
 
             Get["/view-graph/{sensorId}/{startTime}/{endTime}/{maxMeasurements}"] = parameters =>
             {
-                var model = new AutofitRange(
-                    parameters["sensorId"], parameters["startTime"], 
-                    parameters["endTime"], parameters["maxMeasurements"]);
+                // sensor ids, start times, end times and max number of measurements are formatted
+                // as comma-separated lists.
+
+                var sensorIds = ((string)parameters["sensorId"]).Split(',').Select(s => int.Parse(s.Trim())).ToArray();
+                var startTimes = ((string)parameters["startTime"]).Split(',').Select(s => DateTime.Parse(s.Trim())).ToArray();
+                var endTimes = ((string)parameters["endTime"]).Split(',').Select(s => DateTime.Parse(s.Trim())).ToArray();
+                var maxMeasurements = ((string)parameters["maxMeasurements"]).Split(',').Select(s => int.Parse(s.Trim())).ToArray();
+             
+                if (sensorIds.Length != startTimes.Length 
+                    || sensorIds.Length != endTimes.Length 
+                    || sensorIds.Length != maxMeasurements.Length)
+                {
+                    return HttpStatusCode.BadRequest;
+                }
+
+                var model = new List<AutofitRange>();
+                for (int i = 0; i < sensorIds.Length; i++)
+                {
+                    model.Add(new AutofitRange(sensorIds[i], startTimes[i], endTimes[i], maxMeasurements[i]));       
+                }
                 return View["view-graph.cshtml", model];
             };
         }
