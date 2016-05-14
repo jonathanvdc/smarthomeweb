@@ -1,0 +1,61 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{pxfonts}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\author{Sibert Aerts\\
+Ken Bauwens\\
+Pieter Hendriks\\
+Jonathan Van der Cruysse\\
+Mauris Van Hauwe}
+\title{Project Databases: Verslag 9}
+\date{}
+\newcommand{\red}[1]{{\color{red!80!green}#1}}
+\newcommand{\green}[1]{{\color{green!60!blue}#1}}
+
+\begin{document}
+  \maketitle
+  \section{Aanwezigheden}
+  Iedereen was aanwezig op de vergadering van 12 mei. 
+  
+  \section{Status en onderwerpen}
+  
+  Vorige weken zijn de volgende zaken gebeurd:
+  
+  \begin{itemize}
+  	\item Ken heeft $k$-means clustering ge\"implementeerd.
+  
+	\item Jonathan is begonnen aan het refactoren van grafieken: het \emph{client-side} \emph{model} en de \emph{view} zijn nu duidelijk van elkaar gescheiden.
+	
+	\item De encoding van \emph{saved graphs} in de database is nu een pak effici\"enter.
+	
+	\item Mauris heeft een kleine schoonmaak van de repository gedaan: oude code is verwijderd, en ongebruikte files ook.
+  
+  \end{itemize}
+  
+  \section{Afspraken en planning}
+  Voor volgende week staan deze punten op de agenda:
+  
+  \begin{itemize}
+  	
+  	\item $k$-means clustering afwerken. (Ken)
+  	
+  	\item Predictie van totaalverbruik. (Mauris)
+  	
+  	\item Een aparte \emph{compare}-pagina maken voor grafieken. (Sibert)
+  	
+  	\item Het herwerken van de \emph{dashboard} om het nieuwe grafiek-\emph{model} te gebruiken, enkel voor \emph{grouping}. (Jonathan)
+  	
+  	\item Het updaten van de \emph{wall} UI om \emph{interactive graphs} te tonen. (Pieter)
+  	
+  	\item Het toevoegen van een timer aan de \emph{graph control}, zodat nieuwe \emph{measurements} \emph{live} getoond kunnen worden, zonder dat een \emph{refresh} nodig is. (Mauris)
+  	
+  \end{itemize}
+  
+\end{document}
