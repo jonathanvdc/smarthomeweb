@@ -8,6 +8,10 @@
 @* Model is a sequence of (SensorId, StartTime, EndTime, MaxMeasurements) tuples *@
 @inherits NancyRazorViewBase<IEnumerable<AutofitRange>>
 
+@{
+    this.Layout = "basic-layout.cshtml";
+}
+
 @Html.Partial("graph-control.cshtml")
 
 <script>

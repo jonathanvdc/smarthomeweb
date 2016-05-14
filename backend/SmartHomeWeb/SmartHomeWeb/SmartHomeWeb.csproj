@@ -158,6 +158,9 @@
     <None Include="..\..\..\views\Admin\admin-sensor.cshtml">
       <Link>View Links\Admin\admin-sensor.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\basic-layout.cshtml">
+      <Link>View Links\basic-layout.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\layout.cshtml">
       <Link>View Links\layout.cshtml</Link>
     </None>
