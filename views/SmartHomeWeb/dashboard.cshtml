@@ -178,6 +178,14 @@ else
         flushState();
     };
 
+    // Creates an autofitted range for the sensor with the given identifier,
+    // that has the given start and end time.
+    // This function relies on the assumption that the current state is valid.
+    var createRange = function(sensorId) {
+        return new AutofitRange(
+            sensorId, state['startTime'], state['endTime'], 60);
+    };
+
     toggleId = function(sensorId) {
         var oldIdCount = state['sensorIds'].length;
         var filteredIds = $.grep(state['sensorIds'], function(id) {
@@ -186,8 +194,7 @@ else
         if (oldIdCount === filteredIds.length) {
             state['sensorIds'].push(sensorId);
             if (isValidState()) {
-                measurementsGraph.chartDesc.addRange(new AutofitRange(
-                    sensorId, state['startTime'], state['endTime'], 60));
+                measurementsGraph.chartDesc.addRange(createRange(sensorId));
             }
         }
         else {
@@ -249,8 +256,7 @@ else
                 measurementsGraph.chartDesc.clearRanges();
                 var sensorIds = state['sensorIds'];
                 for (var i = 0; i < sensorIds.length; i++) {
-                    measurementsGraph.chartDesc.addRange(new AutofitRange(
-                        sensorIds[i], state['startTime'], state['endTime'], 60));
+                    measurementsGraph.chartDesc.addRange(createRange(sensorIds[i]));
                 }
             });
         }
@@ -382,9 +388,9 @@ else
 		var sensors = document.getElementById('u_' + currentLocation).children[0];
 		var items = sensors.getElementsByTagName("li");
         var ids = $.map(items, function(elem) {
-            return elem.getAttribute("sensor-id");
+            return createRange(elem.getAttribute("sensor-id")).getTotalUsageAsync();
         });
-        measurementsGraph.getSensorTotalUsages(ids, function(results) {
+        GraphHelpers.whenAll(ids, function(results) {
             var x = [];
     		var newitems = [];
     		for (var i = 0; i < results.length; ++i) {
