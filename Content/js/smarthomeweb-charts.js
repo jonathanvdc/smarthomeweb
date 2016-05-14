@@ -258,7 +258,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // Clears all non-essential data that was cached
     // by this autofitted range.
     // This function is part of the public API.
-    this.clearCache = function() {
+    this.invalidateCache = function() {
         cachedSensorData = null;
     };
 };
@@ -370,12 +370,16 @@ ChartDescription = function() {
         return GraphHelpers.whenAll(results, callback);
     };
 
+    var createRangeKvPair = function(range) {
+        return new LazyKeyValuePair(range, function(key) {
+            return key.getMeasurementsAsync();
+        });
+    };
+
     // Adds the given range to this chart description.
     // This function is part of the public API.
     this.addRange = function(value) {
-        ranges.push(new LazyKeyValuePair(value, function(key) {
-            return key.getMeasurementsAsync();
-        }));
+        ranges.push(createRangeKvPair(value));
         changed();
     };
 
@@ -440,5 +444,18 @@ ChartDescription = function() {
         }
         // Run them all in parallel.
         return GraphHelpers.whenAll(tasks, callback);
+    };
+
+    // Invalidates this chart description's
+    // data cache. An optional predicate function
+    // controls which ranges get ejected from the
+    // cache.
+    this.invalidateCache = function(predicate) {
+        ranges = $.map(ranges, function(kvPair) {
+            if (predicate === undefined || predicate(kvPair.getKey()))
+                return createRangeKvPair(kvPair.getKey());
+            else
+                return kvPair;
+        });
     };
 };
