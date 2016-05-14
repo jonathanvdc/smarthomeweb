@@ -256,6 +256,12 @@ else
         }
     };
 
+    var momentToDate = function(m) {
+        return new Date(m.format('YYYY-MM-DDTHH:mm:ss'));
+    };
+
+    var defaultStartMoment = moment().subtract(6, 'days');
+    var defaultEndMoment = moment();
     $(function () {
         $('input[name="daterange"]').daterangepicker({
             locale: {
@@ -273,14 +279,13 @@ else
                 '@TextResources.TimeLast365Days': [moment().subtract(364, 'days'), moment()],
                 '@TextResources.TimeThisYear': [moment().startOf('year'), moment().endOf('year')]
             },
-            startDate: moment().subtract(6, 'days'),
-            endDate: moment()
+            startDate: defaultStartMoment,
+            endDate: defaultEndMoment
         }, function (start, end, label) {
-            var date1 = new Date(start.format('YYYY-MM-DDTHH:mm:ss'));
-            var date2 = new Date(end.format('YYYY-MM-DDTHH:mm:ss'));
-            setTimeframe(date1, date2);
+            setTimeframe(momentToDate(start), momentToDate(end));
         });
     });
+    setTimeframe(momentToDate(defaultStartMoment), momentToDate(defaultEndMoment));
 
     $(document).ready(function () {
         // Make sensor selection look good
@@ -317,7 +322,7 @@ else
     var filteredTags = [];
 
     // currentLocation is a variable that holds the index to the currently selected location
-    @if(Model.Item1.Count > 0)
+    @if (Model.Item1.Count > 0)
     {
         <text>var currentLocation = 0;</text>
     }
@@ -332,7 +337,7 @@ else
         // Only filter the sensors for the current location
         var $sensors = $("#u_" + currentLocation + " .nav").children("li");
 
-        for(var i = 0; i < $sensors.length; i++){
+        for (var i = 0; i < $sensors.length; i++) {
 
             var $sensor = $sensors.eq(i);
             var $tags = $sensor.children().eq(1).children();
@@ -345,13 +350,14 @@ else
 
             var visible = true;
             // Check if the filtered tags are a subset of the sensor's tags
-            if(filteredTags[currentLocation].length > 0)
+            if (filteredTags[currentLocation].length > 0)
                 visible = filteredTags[currentLocation].every(function (val) { return sensorTags.indexOf(val) >= 0; });
 
-            if(visible){
+            if (visible) {
                 if( $sensor.hasClass('hidden'))
                     $sensor.removeClass('hidden');
-            } else {
+            }
+            else {
                 if (!$sensor.hasClass('hidden')) {
                     $sensor.addClass('hidden');
                 }
@@ -359,11 +365,12 @@ else
         }
     }
 
-	function sort(){
+	function sort() {
 		var select = document.getElementById('sortselect').value;
-		if(select == "usage"){
+		if (select == "usage") {
 			byconsumption();
-		}else if(select == "a-z"){
+		}
+        else if (select == "a-z") {
 			byalphabet();
 		}
 
