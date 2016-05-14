@@ -268,13 +268,13 @@
 			}
 			else {
                 var grouped = groupMeasurements(rangesAndMeasurements);
-                var alignedDates = checkAlignedDates(grouped);
 
                 if (grouped.length === 0) {
                     showNoDataSaved();
                     return;
                 }
 
+                var alignedDates = aggregateMeasurements === null && checkAlignedDates(grouped);
                 var array = [];
                 for (var i = 0; i < grouped.length; i++) {
                     array.push(createMeasurementEntry(grouped[i], i, alignedDates));
@@ -321,12 +321,18 @@
                         // highlighted an aggregated plot.
                         return;
                     }
+                    var cursor = chart.getSelection()[0];
+                    if (cursor === undefined)
+                        return;
+
 					$('#dialog_confirm_map').modal({backdrop: false});
-					var selection = chart.getSelection()[0].row;
+                    var selection = cursor.row;
 					var oldnotes = data.getValue(selection, 1);
 					document.getElementById("notesarea").value = oldnotes;
+                    var selectedCol = cursor.column;
+                    var sensorIndex = selectedCol - 1;
                     notesUpdate = {};
-                    notesUpdate['sensorId'] = getListKey(rangesAndMeasurements[chart.getSelection()[1]]);
+                    notesUpdate['sensorId'] = getListKey(rangesAndMeasurements[sensorIndex]);
                     notesUpdate['timestamp'] = data.getValue(selection, 0).toString();
                     notesUpdate['measurement'] = data.getValue(selection, 3);
 				});
