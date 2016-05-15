@@ -322,6 +322,33 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All.
+        /// </summary>
+        public static string DashboardSensorSelectAllLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectAllLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string DashboardSensorSelectNoneLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectNoneLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle.
+        /// </summary>
+        public static string DashboardSensorSelectToggleLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectToggleLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sum.
         /// </summary>
         public static string DashboardSumButtonLabel {

@@ -116,7 +116,26 @@ else
 		<div class="col-sm-4">
             <div class="panel panel-default" style="height: 560px;">
 
-                <div class="panel-heading">@(TextResources.SensorSelectorTitle)<select id='sortselect' style="float:right;width: 25%;" onchange="sort()"><option value="a-z">A-Z</option><option value="usage">Usage</option></select></div>
+	            <div class="panel-heading">
+		            <!-- @(TextResources.SensorSelectorTitle) -->
+
+		            <div class="panel-body tab-content btn-group">
+			            <a href="#" onclick="sensorSelectAll();" class="btn btn-default dashboard-tool-button" id="sensorSelectAllButton">
+                            @TextResources.DashboardSensorSelectAllLabel
+                        </a>
+			            <a href="#" onclick="sensorSelectNone();" class="btn btn-default dashboard-tool-button" id="sensorSelectNoneButton">
+				            @TextResources.DashboardSensorSelectNoneLabel
+			            </a>
+			            <a href="#" onclick="sensorSelectToggle();" class="btn btn-default dashboard-tool-button" id="sensorSelectToggleButton">
+                            @TextResources.DashboardSensorSelectToggleLabel
+                        </a>
+		            </div>
+
+		            <select id='sortselect' style="float: right; width: 25%;" onchange="sort()">
+			            <option value="a-z">A-Z</option>
+                        <option value="usage">Usage</option>
+		            </select>
+	            </div>
 
                 <div class="panel-body tab-content pre-scrollable" style="max-height: 93%">
 
@@ -193,6 +212,44 @@ else
         return new AutofitRange(
             sensorId, state['startTime'], state['endTime'], 60);
     };
+
+    // All <li> tags in the sensor list.
+    var allSensors = function() {
+        return $('#u_' + currentLocation + ' li');
+    };
+
+    // All sensors' IDs.
+    var allSensorIds = function() {
+        return allSensors().map(function() { return +this.getAttribute('sensor-id'); });
+    };
+
+    // All <li> tags in the sensor list that occur in state['sensorIds'].
+    var allSelectedSensors = function() {
+        return allSensors().filter(function(index, li) {
+            return $.inArray(+li.getAttribute('sensor-id'), state['sensorIds']) !== -1;
+        });
+    }
+    
+    // Given f : Boolean -> Boolean, apply f to the "is-selected" state of
+    // each sensor in the current location: f(x => 1) will select all,
+    // f(x => 0) will select none, and f(x => !x) will toggle the selection.
+    var massSelect = function(f) {
+        state['sensorIds'] =
+            $.grep(allSensorIds(), function(id) {
+                var current = $.inArray(id, state['sensorIds']) !== -1;
+                return f(current);
+            });
+
+        flushState();
+
+        // Update all <li> tags' classes.
+        allSensors().removeClass('active');
+        allSelectedSensors().addClass('active');
+    };
+
+    sensorSelectAll    = function() { massSelect(function(b) { return true; }); };
+    sensorSelectNone   = function() { massSelect(function(b) { return false; }); };
+    sensorSelectToggle = function() { massSelect(function(b) { return !b; }); };
 
     toggleId = function(sensorId) {
         var oldIdCount = state['sensorIds'].length;

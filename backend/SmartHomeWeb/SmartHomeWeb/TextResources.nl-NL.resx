@@ -597,6 +597,15 @@
   <data name="DashboardGroupButtonLabel" xml:space="preserve">
     <value>Groepeer</value>
   </data>
+  <data name="DashboardSensorSelectAllLabel" xml:space="preserve">
+    <value>Alles</value>
+  </data>
+  <data name="DashboardSensorSelectNoneLabel" xml:space="preserve">
+    <value>Niets</value>
+  </data>
+  <data name="DashboardSensorSelectToggleLabel" xml:space="preserve">
+    <value>Omkeren</value>
+  </data>
   <data name="DashboardSumButtonLabel" xml:space="preserve">
     <value>Som</value>
   </data>

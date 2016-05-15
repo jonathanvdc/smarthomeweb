@@ -609,6 +609,15 @@
   <data name="DashboardGroupButtonLabel" xml:space="preserve">
     <value>Group</value>
   </data>
+  <data name="DashboardSensorSelectAllLabel" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="DashboardSensorSelectNoneLabel" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="DashboardSensorSelectToggleLabel" xml:space="preserve">
+    <value>Toggle</value>
+  </data>
   <data name="DashboardSumButtonLabel" xml:space="preserve">
     <value>Sum</value>
   </data>
