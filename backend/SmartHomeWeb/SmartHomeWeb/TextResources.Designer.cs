@@ -340,11 +340,20 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Toggle.
+        ///   Looks up a localized string similar to Invert.
         /// </summary>
         public static string DashboardSensorSelectToggleLabel {
             get {
                 return ResourceManager.GetString("DashboardSensorSelectToggleLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stack.
+        /// </summary>
+        public static string DashboardStackButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardStackButtonLabel", resourceCulture);
             }
         }
         

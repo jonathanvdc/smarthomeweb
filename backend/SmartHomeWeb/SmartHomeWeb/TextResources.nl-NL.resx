@@ -609,4 +609,7 @@
   <data name="DashboardSumButtonLabel" xml:space="preserve">
     <value>Som</value>
   </data>
+  <data name="DashboardStackButtonLabel" xml:space="preserve">
+    <value>Stapel</value>
+  </data>
 </root>

@@ -64,8 +64,13 @@ else
 			<div class="col-sm-3" style="padding:0px">
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
-					<div class="panel-body tab-content btn-group">
-                        <a href="#" onclick="toggleSum()" class="btn btn-default dashboard-tool-button" id="sumButton">@TextResources.DashboardSumButtonLabel</a>
+					<div class="panel-body tab-content btn-group hold-when-clicked" style="padding:12px">
+                        <a href="#" onclick="setSum(false)" class="btn btn-default dashboard-tool-button active" id="sumButton">
+                            @TextResources.DashboardStackButtonLabel
+                        </a>
+                        <a href="#" onclick="setSum(true)" class="btn btn-default dashboard-tool-button" id="sumButton">
+                            @TextResources.DashboardSumButtonLabel
+                        </a>
 					</div>
 				</div>
 			</div>
@@ -117,7 +122,7 @@ else
 	            <div class="panel-heading">
 		            <!-- @(TextResources.SensorSelectorTitle) -->
 
-		            <div class="panel-body tab-content btn-group">
+		            <div class="panel-body tab-content btn-group" style="padding: 0px;">
 			            <a href="#" onclick="sensorSelectAll();" class="btn btn-default dashboard-tool-button" id="sensorSelectAllButton">
                             @TextResources.DashboardSensorSelectAllLabel
                         </a>
@@ -129,13 +134,13 @@ else
                         </a>
 		            </div>
 
-		            <select id='sortselect' style="float: right; width: 25%;" onchange="sort()">
+		            <select id='sortselect' style="float: right; width: 25%; margin: 5px;" onchange="sort()">
 			            <option value="a-z">A-Z</option>
                         <option value="usage">Usage</option>
 		            </select>
 	            </div>
 
-                <div class="panel-body tab-content pre-scrollable" style="max-height: 93%">
+                <div class="panel-body tab-content pre-scrollable" style="max-height: 91%">
 
                     @for (int x = 0; x < Model.Item1.Count; ++x)
                     {
@@ -269,6 +274,12 @@ else
         }
     };
 
+    setSum = function(bool) {
+        state['sum'] = bool;
+        if (isValidState())
+            flushSum();
+    };
+
     toggleSum = function() {
         state['sum'] = !state['sum'];
         if (isValidState())
@@ -384,6 +395,12 @@ else
             }
 
             updateFilteredSensors();
+        });
+
+        // make button groups look good
+        $(".btn-group.hold-when-clicked a").click(function(){
+            $(this).siblings().removeClass("active");
+            $(this).addClass("active");
         });
     });
 

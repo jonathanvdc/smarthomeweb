@@ -251,6 +251,8 @@ namespace SmartHomeWeb.Modules
 
             Get["/dashboard", true] = GetDashboard;
 
+            Get["/graph-compare", true] = GetGraphCompare;
+
             Get["/set-culture"] = parameters =>
             {
                 string lcid = Request.Query["lcid"];
@@ -529,13 +531,37 @@ namespace SmartHomeWeb.Modules
 
                 foreach (var sensor in sensors)
                     taggedSensors.Add(new Tuple<Sensor, IEnumerable<string>>(sensor, await DataConnection.Ask(x => x.GetSensorTagsAsync(sensor.Id))));
-                
+
                 IEnumerable<string> tags = await DataConnection.Ask(x => x.GetTagsAtLocationAsync(location));
 
                 items.Item1.Add(new Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>(location, tags, taggedSensors));
             }
 
             return View["dashboard.cshtml", items];
+        }
+
+        private async Task<dynamic> GetGraphCompare(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
+            var items = new DashboardType(
+                new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>(),
+                CurrentUserGuid().ToString());
+
+            foreach (var location in locations)
+            {
+                var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocationAsync(location));
+                var taggedSensors = new List<Tuple<Sensor, IEnumerable<string>>>();
+
+                foreach (var sensor in sensors)
+                    taggedSensors.Add(new Tuple<Sensor, IEnumerable<string>>(sensor, await DataConnection.Ask(x => x.GetSensorTagsAsync(sensor.Id))));
+
+                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetTagsAtLocationAsync(location));
+
+                items.Item1.Add(new Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>(location, tags, taggedSensors));
+            }
+
+            return View["graph-compare.cshtml", items];
         }
 
         private async Task<dynamic> GetSensors(dynamic parameters, CancellationToken ct)
