@@ -353,10 +353,10 @@ else
             ranges:{
                 '@TextResources.TimeToday': [moment(), moment()],
                 '@TextResources.TimeLast7Days': [moment().subtract(6, 'days'), moment()],
-                '@TextResources.TimeLast30Days': [moment().subtract(29, 'days'), moment()],
                 '@TextResources.TimeThisMonth': [moment().startOf('month'), moment().endOf('month')],
+                '@TextResources.TimeLast30Days': [moment().subtract(29, 'days'), moment()],
+                '@TextResources.TimeThisYear': [moment().startOf('year'), moment().endOf('year')],
                 '@TextResources.TimeLast365Days': [moment().subtract(364, 'days'), moment()],
-                '@TextResources.TimeThisYear': [moment().startOf('year'), moment().endOf('year')]
             },
             startDate: defaultStartMoment,
             endDate: defaultEndMoment
