@@ -109,6 +109,14 @@ span.no-tags{
 	color: #DDCCCC;
 }
 
+li.active .glyphicon.glyphicon-cog{
+	color:#AAAAFF;
+}
+
+li.active .glyphicon.glyphicon-plus{
+	color:#DD88FF;
+}
+
 .navbar-nav>li>a.debug-page{
 	color:#FF6688;
 }
@@ -185,11 +193,11 @@ span.no-tags{
 	float: none;
 }
 
-.sensor-desciption {
+.sensor-description {
 	color: #AABBCC;
 }
-	li.active .sensor-desciption{
-		color: #CCDDEE;
+	li.active .sensor-description{
+		color: #AABBFF;
 	}
 
 
@@ -207,7 +215,7 @@ span.no-tags{
 
 	.clickable-item:hover {
 	    text-decoration: none;
-	    background-color: #eee;
+	    background-color: #eef;
 	}
 	
 	li.active .clickable-item{
