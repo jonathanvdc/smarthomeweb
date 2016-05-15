@@ -74,7 +74,7 @@ namespace SmartHomeWeb
         /// </summary>
         public static Person ReadPerson(IDataRecord Record, int index)
         {
-            var offset = 10 + index * 9;
+            var offset = 9 + index * 9;
             return new Person(Record.GetGuid(offset), 
                 new PersonData(
                     Record.GetString(offset + 1), Record.GetString(offset + 3),
@@ -203,6 +203,8 @@ namespace SmartHomeWeb
         /// </summary>
         public static Graph ReadEmptyGraph(IDataRecord Record)
         {
+            Console.WriteLine(Record.FieldCount);
+            if (Record.IsDBNull(Record.GetOrdinal("graphId"))) return null;
             return new Graph(
                 GetInt32(Record, "graphId"),
                 new GraphData(

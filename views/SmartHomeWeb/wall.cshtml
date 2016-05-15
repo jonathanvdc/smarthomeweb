@@ -42,7 +42,21 @@
                                 <div class="text-center">
                                     <strong>@item.Data.Name</strong>
                                 </div>
-                                <input id="hg@(i)" style="display: none;" value='@item.Data.Uri'/>
+                                @{
+                                    string starts = "", ends = "", maxMeasurements = "";
+                                    foreach (var z in item.Data.Chart)
+                                    {
+                                        starts += z.StartTime.ToString() + ", ";
+                                        ends += z.EndTime.ToString() + ", ";
+                                        maxMeasurements += z.MaxMeasurements.ToString() + ", ";
+
+                                    }
+                                    starts = starts.Remove(starts.Length - 2);
+                                    ends = ends.Remove(ends.Length - 2);
+                                    maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 2);
+                                    var url = string.Format("../view-graph/{0}/{1}/{2}", starts, ends, maxMeasurements);
+                                }
+                                <input id="hg@(i)" style="display: none;" value='@url'/>
                                 <input id="hg@(i)id" style="display: none;" value='@item.Id'/>
                             </div>
                         </div>
@@ -90,16 +104,35 @@
                             {
                                 <div id="imagePreview@(previewCounter)Wrapper" class="col-md-4">
                                     <div class="container">
-                                        <img id="imagePreview@(previewCounter)" src="@post.Image.Data.Uri" alt="@TextResources.GraphWontShow" style="height: 200px; width: 200px;" />
+                                        @{
+                                            string starts = "", ends = "", maxMeasurements = "";
+                                            foreach (var z in post.Image.Data.Chart)
+                                            {
+                                                starts += z.StartTime.ToString() + ", ";
+                                                ends += z.EndTime.ToString() + ", ";
+                                                maxMeasurements += z.MaxMeasurements.ToString() + ", ";
+
+                                            }
+                                            starts = starts.Remove(starts.Length - 2);
+                                            ends = ends.Remove(ends.Length - 2);
+                                            maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 2);
+                                            var url = string.Format("../view-graph/{0}/{1}/{2}", starts, ends, maxMeasurements);
+                                        }
+                                        <iframe id="imagePreview@(previewCounter)" src="@(url)" style="height: 200px; width: 200px;">
+
+                                        </iframe>
+                                        
                                         @{
                                             previewCounter++;
                                         }
                                     </div>
-                                </div>}
+                                </div>
+                            }
                         </div>
 
                     </div>
-                </li>   }
+                </li>
+            }
         </ul>
     }
 </div>
