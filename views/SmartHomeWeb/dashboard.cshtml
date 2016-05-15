@@ -12,7 +12,7 @@
         T.Item1 is a Location.
         T.Item2 is a list of its tags.
         T.Item3 a list of tuples U, so that:
-            U.Item1 is a Sensor. 
+            U.Item1 is a Sensor.
             U.Item2 is a list of tags.
 *@
 
@@ -65,8 +65,6 @@ else
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
 					<div class="panel-body tab-content btn-group">
-						<a href="#" onclick="return false;" class="btn btn-default dashboard-tool-button" id="compareButton">@TextResources.DashboardCompareButtonLabel</a>
-						<a href="#" onclick="return false;" class="btn btn-default dashboard-tool-button" id="groupButton">@TextResources.DashboardGroupButtonLabel</a>
                         <a href="#" onclick="toggleSum()" class="btn btn-default dashboard-tool-button" id="sumButton">@TextResources.DashboardSumButtonLabel</a>
 					</div>
 				</div>
@@ -229,7 +227,7 @@ else
             return $.inArray(+li.getAttribute('sensor-id'), state['sensorIds']) !== -1;
         });
     }
-    
+
     // Given f : Boolean -> Boolean, apply f to the "is-selected" state of
     // each sensor in the current location: f(x => 1) will select all,
     // f(x => 0) will select none, and f(x => !x) will toggle the selection.

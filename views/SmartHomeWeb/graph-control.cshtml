@@ -356,12 +356,13 @@
             if (!hasLoadedGoogleCharts)
                 return;
 
+            hidePrice();
+
 	    	if (chartDesc.getRangeCount() === 0) {
 	    	    showNoSensorSelected();
 				return;
 	    	}
 
-	    	hidePrice();
 	    	showLoading();
 
             // Retrieve and draw the data.
