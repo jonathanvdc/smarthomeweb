@@ -5,8 +5,16 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@using WORKAROUND=System.Tuple<System.Collections.Generic.List<System.Tuple<SmartHomeWeb.Model.Location, System.Collections.Generic.IEnumerable<System.String>, System.Collections.Generic.List<System.Tuple<SmartHomeWeb.Model.Sensor, System.Collections.Generic.IEnumerable<System.String>>>>>, System.String>
-@inherits NancyRazorViewBase<WORKAROUND>
+@inherits NancyRazorViewBase<Tuple<List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>, string>>
+@*
+    Model.Item2 is the user's GUID.
+    Model.Item1 is a list of tuples T, so that:
+        T.Item1 is a Location.
+        T.Item2 is a list of its tags.
+        T.Item3 a list of tuples U, so that:
+            U.Item1 is a Sensor. 
+            U.Item2 is a list of tags.
+*@
 
 <!-- Include Date Range Picker -->
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -31,7 +39,7 @@ else
     <ul class="nav nav-tabs col-sm-12">
         @for (var x = 0; x < @Model.Item1.Count; ++x)
         {
-            <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))>
+            <li class="@(x == 0 ? "active" : "")">
                 <a data-toggle="tab" data-target="#u_@x, #tags_@x" onclick="currentLocation = @x">
                     @Model.Item1[@x].Item1.Data.Name
                 </a>
@@ -69,10 +77,10 @@ else
                     <div class="panel-body tab-content">
                         @for (int x = 0; x < @Model.Item1.Count; ++x)
                         {
-                            @{ var tags = @Model.Item1[x].Item2;}
+                            var tags = @Model.Item1[x].Item2;
 
                             <div id="tags_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
-                                @if (tags.Count() != 0)
+                                if (tags.Count() != 0)
                                 {
                                     @for (int i = 0; i < tags.Count(); i++)
                                     {
@@ -117,10 +125,8 @@ else
 
                                 @foreach (var item in Model.Item1[x].Item3)
                                 {
-                                    @{
-                                        Sensor sensor = item.Item1;
-                                        var tags = item.Item2;
-                                    }
+                                    Sensor sensor = item.Item1;
+                                    var tags = item.Item2;
                                     <li sensor-id="@sensor.Id" onClick="toggleId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
 
