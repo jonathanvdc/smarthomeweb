@@ -425,6 +425,8 @@ else
         });
 
         $('input[name=date-granularity]').change(flushState);
+
+        setInterval(flushState, 60000);  // 60000 ms = 1 minute.
     });
 
     var filteredTags = [];
