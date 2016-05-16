@@ -532,6 +532,7 @@ namespace SmartHomeWeb.Modules
                 var list = new List<AutofitRange>(); //Probably should replace this with an array from the get-go, but this works and the overhead should be minimal.
                 foreach (var q in g.chart)
                 {
+                    Console.WriteLine(q.sensorId);
                     int sensor = q.sensorId; 
                     var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds((long)q.startTime);
                     var end = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds((long)q.endTime);
