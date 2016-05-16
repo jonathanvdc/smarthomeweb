@@ -63,7 +63,7 @@
                                     ends = ends.Remove(ends.Length - 1);
                                     maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 1);
                                     ids = ids.Remove(ids.Length - 1);
-                                    var url = string.Format("../view-graph/{0}/{1}/{2}/{3}", ids, starts, ends, maxMeasurements);
+                                    var url = string.Format("/view-graph/{0}/{1}/{2}/{3}", ids, starts, ends, maxMeasurements);
                                 }
                                 <input id="hg@(i)" style="display: none;" value='@url'/>
                                 <input id="hg@(i)id" style="display: none;" value='@item.Id'/>
@@ -142,7 +142,7 @@
                                             ends = ends.Remove(ends.Length - 1);
                                             maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 1);
                                             ids = ids.Remove(ids.Length - 1);
-                                            var url = string.Format("../../view-graph/{0}/{1}/{2}/{3}", ids, starts, ends, maxMeasurements);
+                                            var url = string.Format("/view-graph/{0}/{1}/{2}/{3}", ids, starts, ends, maxMeasurements);
                                         }
                                         <iframe id="imagePreview@(previewCounter)" src="@(url)" style="height: 625px; width: 625px;">
 
