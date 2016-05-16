@@ -5,8 +5,16 @@
 @using SmartHomeWeb
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
-@using WORKAROUND=System.Tuple<System.Collections.Generic.List<System.Tuple<SmartHomeWeb.Model.Location, System.Collections.Generic.IEnumerable<System.String>, System.Collections.Generic.List<System.Tuple<SmartHomeWeb.Model.Sensor, System.Collections.Generic.IEnumerable<System.String>>>>>, System.String>
-@inherits NancyRazorViewBase<WORKAROUND>
+@inherits NancyRazorViewBase<DashboardType>
+@*
+    Model.Item2 is the user's GUID.
+    Model.Item1 is a list of tuples T, so that:
+        T.Item1 is a Location.
+        T.Item2 is a list of its tags.
+        T.Item3 a list of tuples U, so that:
+            U.Item1 is a Sensor.
+            U.Item2 is a list of tags.
+*@
 
 <!-- Include Date Range Picker -->
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -31,7 +39,7 @@ else
     <ul class="nav nav-tabs col-sm-12">
         @for (var x = 0; x < @Model.Item1.Count; ++x)
         {
-            <li @(x == 0 ? Html.Raw("class=\"active\"") : Html.Raw(""))>
+            <li class="@(x == 0 ? "active" : "")">
                 <a data-toggle="tab" data-target="#u_@x, #tags_@x" onclick="currentLocation = @x">
                     @Model.Item1[@x].Item1.Data.Name
                 </a>
@@ -39,42 +47,62 @@ else
         }
     </ul>
 
-    <div class="container col-sm-12">
+    <div class="container col-sm-12" style="padding:0px">
 
         <div class="container col-sm-12" style="margin-top: 15px; padding:0px">
             <div class="col-sm-4">
                 <div class="panel panel-default">
 
-                    <div class="panel-heading">@(TextResources.RangeSelectorTitle)</div>
-                    <div class="panel-body">
-                        <input id="daterange" name="daterange" size="35">
+                    <div class="panel-heading">@TextResources.RangeSelectorTitle</div>
+                    <div id="range-selector" class="panel-body">
+	                    <input id="daterange" name="daterange" size="35"/>
+	                    <br/>
+                        <div style="margin-top:5px;margin-bottom:-5px;">
+                            <label class="radio-inline">
+                                <input type="radio" name="date-granularity" id="dg-fine" value="500" checked="checked">
+                                Fine
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="date-granularity" id="dg-medium" value="150">
+                                Medium
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="date-granularity" id="dg-coarse" value="50">
+                                Coarse
+                            </label>
+                        </div>
                     </div>
 
                 </div>
             </div>
 
-			<div class="col-sm-2" style="padding:0px">
+			<div class="col-sm-3">
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
-					<div class="panel-body tab-content">
-						<button onclick="toggleSum()" class="btn btn-default" style="padding: 0px;height: 25px;outline:none" id="totalButtom">Sum</button>
+					<div class="panel-body tab-content btn-group hold-when-clicked" style="padding:12px">
+                        <a href="#" onclick="setSum(false)" class="btn btn-default dashboard-tool-button active" id="sumButton">
+                            @TextResources.DashboardStackButtonLabel
+                        </a>
+                        <a href="#" onclick="setSum(true)" class="btn btn-default dashboard-tool-button" id="sumButton">
+                            @TextResources.DashboardSumButtonLabel
+                        </a>
 					</div>
 				</div>
 			</div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <div class="panel panel-default">
 
                     <div class="panel-heading">@(TextResources.TagSelectorTitle)</div>
                     <div class="panel-body tab-content">
                         @for (int x = 0; x < @Model.Item1.Count; ++x)
                         {
-                            @{ var tags = @Model.Item1[x].Item2;}
+                            var tags = @Model.Item1[x].Item2;
 
                             <div id="tags_@x" class="tab-pane fade @(x == 0 ? "in active" : "")">
                                 @if (tags.Count() != 0)
                                 {
-                                    @for (int i = 0; i < tags.Count(); i++)
+                                    for (int i = 0; i < tags.Count(); i++)
                                     {
                                         <span class="tag unselectable">
                                             @tags.ElementAt(i)
@@ -95,7 +123,7 @@ else
         </div>
 
         <div class="col-sm-8">
-            <div class="panel panel-default" style="height: 615px">
+            <div class="panel panel-default" style="height: 620px">
                 <div class="panel-heading">@(TextResources.GraphTitle)</div>
                 <div class="panel-body chartwrapper">
                     @Html.Partial("graph-control.cshtml", Model.Item2)
@@ -116,11 +144,30 @@ else
         </div>
 
 		<div class="col-sm-4">
-            <div class="panel panel-default" style="height: 615px;">
+            <div class="panel panel-default" style="height: 620px;">
 
-                <div class="panel-heading">@(TextResources.SensorSelectorTitle)<select id='sortselect' style="float:right;width: 25%;" onchange="sort()"><option value="a-z">A-Z</option><option value="usage">Usage</option></select></div>
+	            <div class="panel-heading">
+		            <!-- @(TextResources.SensorSelectorTitle) -->
 
-                <div class="panel-body tab-content pre-scrollable" style="max-height: 93%">
+		            <div class="panel-body tab-content btn-group" style="padding: 0px;">
+			            <a href="#" onclick="sensorSelectAll();" class="btn btn-default dashboard-tool-button" id="sensorSelectAllButton">
+                            @TextResources.DashboardSensorSelectAllLabel
+                        </a>
+			            <a href="#" onclick="sensorSelectNone();" class="btn btn-default dashboard-tool-button" id="sensorSelectNoneButton">
+				            @TextResources.DashboardSensorSelectNoneLabel
+			            </a>
+			            <a href="#" onclick="sensorSelectToggle();" class="btn btn-default dashboard-tool-button" id="sensorSelectToggleButton">
+                            @TextResources.DashboardSensorSelectToggleLabel
+                        </a>
+		            </div>
+
+		            <select id='sortselect' style="float: right; width: 25%; margin: 5px;" onchange="sort()">
+			            <option value="a-z">A-Z</option>
+                        <option value="usage">Usage</option>
+		            </select>
+	            </div>
+
+                <div class="panel-body tab-content pre-scrollable" style="max-height: 91.5%">
 
                     @for (int x = 0; x < Model.Item1.Count; ++x)
                     {
@@ -129,11 +176,9 @@ else
 
                                 @foreach (var item in Model.Item1[x].Item3)
                                 {
-                                    @{
-                                        Sensor sensor = item.Item1;
-                                        var tags = item.Item2;
-                                    }
-                                    <li id="@sensor.Id" sensor-id="@sensor.Id" onClick="toggleId(@sensor.Id)">
+                                    Sensor sensor = item.Item1;
+                                    var tags = item.Item2;
+                                    <li sensor-id="@sensor.Id" onClick="toggleId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
 
                                             <div style="display: table-row">
@@ -147,9 +192,9 @@ else
                                             </div>
                                             <div style="display:table-row;">
 
-                                                <div id="@(sensor.Id)-description" class="sensor-desciption" style="display:table-cell">
+                                                <div id="@(sensor.Id)-description" class="sensor-description" style="display:table-cell">
                                                     @sensor.Data.Description
-                                                    <a href="#" style="float:right;" data-toggle="tooltip" class="sensor-desciption"
+                                                    <a href="#" style="float:right;" data-toggle="tooltip" class="sensor-description"
                                                        title="@(TextResources.TaggedAsLabel): @foreach( var tag in tags){@(tag)<text> </text>}">tags</a>
                                                 </div>
 
@@ -181,7 +226,6 @@ else
 
 <script type="text/javascript">
 
-    var now = Date();
     var state = { 'sensorIds' : [], 'startTime' : null, 'endTime' : null, 'sum' : false };
 
     setTimeframe = function(startTime, endTime) {
@@ -190,13 +234,57 @@ else
         flushState();
     };
 
+    // Get the maximum number of measurements to fetch in an autofit range.
+    // This number is controlled by the user (fine-medium-coarse).
+    var getMaxMeasurementCount = function() {
+        return +$("[name=date-granularity]:checked").val();
+    };
+
     // Creates an autofitted range for the sensor with the given identifier,
     // that has the given start and end time.
     // This function relies on the assumption that the current state is valid.
     var createRange = function(sensorId) {
         return new AutofitRange(
-            sensorId, state['startTime'], state['endTime'], 60);
+            sensorId, state['startTime'], state['endTime'], getMaxMeasurementCount());
     };
+
+    // All <li> tags in the sensor list.
+    var allSensors = function() {
+        return $('#u_' + currentLocation + ' li');
+    };
+
+    // All sensors' IDs.
+    var allSensorIds = function() {
+        return allSensors().map(function() { return +this.getAttribute('sensor-id'); });
+    };
+
+    // All <li> tags in the sensor list that occur in state['sensorIds'].
+    var allSelectedSensors = function() {
+        return allSensors().filter(function(index, li) {
+            return $.inArray(+li.getAttribute('sensor-id'), state['sensorIds']) !== -1;
+        });
+    }
+
+    // Given f : Boolean -> Boolean, apply f to the "is-selected" state of
+    // each sensor in the current location: f(x => 1) will select all,
+    // f(x => 0) will select none, and f(x => !x) will toggle the selection.
+    var massSelect = function(f) {
+        state['sensorIds'] =
+            $.grep(allSensorIds(), function(id) {
+                var current = $.inArray(id, state['sensorIds']) !== -1;
+                return f(current);
+            });
+
+        flushState();
+
+        // Update all <li> tags' classes.
+        allSensors().removeClass('active');
+        allSelectedSensors().addClass('active');
+    };
+
+    sensorSelectAll    = function() { massSelect(function(b) { return true; }); };
+    sensorSelectNone   = function() { massSelect(function(b) { return false; }); };
+    sensorSelectToggle = function() { massSelect(function(b) { return !b; }); };
 
     toggleId = function(sensorId) {
         var oldIdCount = state['sensorIds'].length;
@@ -217,6 +305,12 @@ else
                 });
             }
         }
+    };
+
+    setSum = function(bool) {
+        state['sum'] = bool;
+        if (isValidState())
+            flushSum();
     };
 
     toggleSum = function() {
@@ -292,10 +386,10 @@ else
             ranges:{
                 '@TextResources.TimeToday': [moment(), moment()],
                 '@TextResources.TimeLast7Days': [moment().subtract(6, 'days'), moment()],
-                '@TextResources.TimeLast30Days': [moment().subtract(29, 'days'), moment()],
                 '@TextResources.TimeThisMonth': [moment().startOf('month'), moment().endOf('month')],
+                '@TextResources.TimeLast30Days': [moment().subtract(29, 'days'), moment()],
+                '@TextResources.TimeThisYear': [moment().startOf('year'), moment().endOf('year')],
                 '@TextResources.TimeLast365Days': [moment().subtract(364, 'days'), moment()],
-                '@TextResources.TimeThisYear': [moment().startOf('year'), moment().endOf('year')]
             },
             startDate: defaultStartMoment,
             endDate: defaultEndMoment
@@ -338,6 +432,16 @@ else
 
             updateFilteredSensors();
         });
+
+        // make button groups look good
+        $(".btn-group.hold-when-clicked a").click(function(){
+            $(this).siblings().removeClass("active");
+            $(this).addClass("active");
+        });
+
+        $('input[name=date-granularity]').change(flushState);
+
+        setInterval(flushState, 60000);  // 60000 ms = 1 minute.
     });
 
     var filteredTags = [];
@@ -423,30 +527,12 @@ else
                 }
             });
     }
-
-
-    function byalphabet() {
-        var sensors = document.getElementById('u_' + currentLocation).children[0];
-        var items = sensors.getElementsByTagName("li");
-        var x = [];
-        var newitems = [];
-
-        for (var i = 0; i < items.length; ++i) {
-            x.push([i, items[i].firstElementChild.firstElementChild.firstElementChild.firstElementChild.innerHTML]);
-        }
-
-        x.sort(function(a, b) {
-            return a[1] > b[1] ? 1 : -1;
-        });
-
-        for (var i = 0; i < x.length; ++i) {
-            newitems.push(items[x[i][0]].cloneNode(true));
-        }
-
-        for (var i = 0; i < items.length; ++i) {
-            sensors.replaceChild(newitems[i], items[i]);
-        }
-    }
+	function byalphabet() {
+	    var ul = allSensors();
+	    ul.append(ul.children().sort(function(a, b) {
+	        return $("p", a).text() > $("p", b).text() ? 1 : -1;
+	    }));
+	}
     var actives = [];
     function setActive(e) {
         actives.push(e);

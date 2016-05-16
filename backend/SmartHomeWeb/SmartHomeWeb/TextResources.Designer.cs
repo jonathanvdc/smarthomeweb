@@ -70,6 +70,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add comparison.
+        /// </summary>
+        public static string AddComparisonButton {
+            get {
+                return ResourceManager.GetString("AddComparisonButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The location has been registered!.
         /// </summary>
         public static string AddedLocationMessage {
@@ -268,6 +277,42 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Compare ranges.
+        /// </summary>
+        public static string CompareGraphPageTitle {
+            get {
+                return ResourceManager.GetString("CompareGraphPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comparisons.
+        /// </summary>
+        public static string ComparisonPanelTitle {
+            get {
+                return ResourceManager.GetString("ComparisonPanelTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comp..
+        /// </summary>
+        public static string ComparisonSensorLabel {
+            get {
+                return ResourceManager.GetString("ComparisonSensorLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comparison time select.
+        /// </summary>
+        public static string ComparisonStartTimeSelectorTitle {
+            get {
+                return ResourceManager.GetString("ComparisonStartTimeSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to add a location.
         /// </summary>
         public static string DashboardAddLocation {
@@ -295,11 +340,74 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Compare.
+        /// </summary>
+        public static string DashboardCompareButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardCompareButtonLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Group.
+        /// </summary>
+        public static string DashboardGroupButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardGroupButtonLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dashboard.
         /// </summary>
         public static string DashboardPageTitle {
             get {
                 return ResourceManager.GetString("DashboardPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All.
+        /// </summary>
+        public static string DashboardSensorSelectAllLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectAllLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string DashboardSensorSelectNoneLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectNoneLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invert.
+        /// </summary>
+        public static string DashboardSensorSelectToggleLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectToggleLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stack.
+        /// </summary>
+        public static string DashboardStackButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardStackButtonLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sum.
+        /// </summary>
+        public static string DashboardSumButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardSumButtonLabel", resourceCulture);
             }
         }
         
@@ -480,6 +588,15 @@ namespace SmartHomeWeb {
         public static string FriendUsernameLabel {
             get {
                 return ResourceManager.GetString("FriendUsernameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Graphing.
+        /// </summary>
+        public static string GraphingDropdownTitle {
+            get {
+                return ResourceManager.GetString("GraphingDropdownTitle", resourceCulture);
             }
         }
         
@@ -1105,6 +1222,24 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reference range select.
+        /// </summary>
+        public static string ReferenceRangeSelectorTitle {
+            get {
+                return ResourceManager.GetString("ReferenceRangeSelectorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ref..
+        /// </summary>
+        public static string ReferenceSensorLabel {
+            get {
+                return ResourceManager.GetString("ReferenceSensorLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Something went wrong while trying to save the graph.\nMaybe you  already have a graph with this name?.
         /// </summary>
         public static string SaveFailure {
@@ -1312,6 +1447,33 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 30 days ago.
+        /// </summary>
+        public static string Time30DaysAgo {
+            get {
+                return ResourceManager.GetString("Time30DaysAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 365 days ago.
+        /// </summary>
+        public static string Time365DaysAgo {
+            get {
+                return ResourceManager.GetString("Time365DaysAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 7 days ago.
+        /// </summary>
+        public static string Time7DaysAgo {
+            get {
+                return ResourceManager.GetString("Time7DaysAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Last 30 days.
         /// </summary>
         public static string TimeLast30Days {
@@ -1335,6 +1497,24 @@ namespace SmartHomeWeb {
         public static string TimeLast7Days {
             get {
                 return ResourceManager.GetString("TimeLast7Days", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start of this month.
+        /// </summary>
+        public static string TimeStartOfThisMonth {
+            get {
+                return ResourceManager.GetString("TimeStartOfThisMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start of this year.
+        /// </summary>
+        public static string TimeStartOfThisYear {
+            get {
+                return ResourceManager.GetString("TimeStartOfThisYear", resourceCulture);
             }
         }
         
@@ -1380,6 +1560,15 @@ namespace SmartHomeWeb {
         public static string TotalElectricityPrice {
             get {
                 return ResourceManager.GetString("TotalElectricityPrice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total.
+        /// </summary>
+        public static string TotalUsageLabel {
+            get {
+                return ResourceManager.GetString("TotalUsageLabel", resourceCulture);
             }
         }
         

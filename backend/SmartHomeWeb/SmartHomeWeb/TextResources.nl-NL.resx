@@ -591,4 +591,67 @@
   <data name="TryAddingFriends" xml:space="preserve">
     <value>Probeer vrienden toe te voegen aan de hand van de gebruikerspagina!</value>
   </data>
+  <data name="DashboardCompareButtonLabel" xml:space="preserve">
+    <value>Vergelijk</value>
+  </data>
+  <data name="DashboardGroupButtonLabel" xml:space="preserve">
+    <value>Groepeer</value>
+  </data>
+  <data name="DashboardSensorSelectAllLabel" xml:space="preserve">
+    <value>Alles</value>
+  </data>
+  <data name="DashboardSensorSelectNoneLabel" xml:space="preserve">
+    <value>Niets</value>
+  </data>
+  <data name="DashboardSensorSelectToggleLabel" xml:space="preserve">
+    <value>Omkeren</value>
+  </data>
+  <data name="DashboardSumButtonLabel" xml:space="preserve">
+    <value>Som</value>
+  </data>
+  <data name="AddComparisonButton" xml:space="preserve">
+    <value>Voeg vergelijking toe</value>
+  </data>
+  <data name="ComparisonStartTimeSelectorTitle" xml:space="preserve">
+    <value>Vegelijkingstijd selectie</value>
+  </data>
+  <data name="DashboardStackButtonLabel" xml:space="preserve">
+    <value>Stapel</value>
+  </data>
+  <data name="ReferenceRangeSelectorTitle" xml:space="preserve">
+    <value>Referentie-intervalselectie</value>
+  </data>
+  <data name="Time30DaysAgo" xml:space="preserve">
+    <value>30 dagen geleden</value>
+  </data>
+  <data name="Time365DaysAgo" xml:space="preserve">
+    <value>365 dagen geleden</value>
+  </data>
+  <data name="Time7DaysAgo" xml:space="preserve">
+    <value>7 dagen geleden</value>
+  </data>
+  <data name="TimeStartOfThisMonth" xml:space="preserve">
+    <value>Start van deze maand</value>
+  </data>
+  <data name="TimeStartOfThisYear" xml:space="preserve">
+    <value>Start van dit jaar</value>
+  </data>
+  <data name="CompareGraphPageTitle" xml:space="preserve">
+    <value>Vergelijk periodes</value>
+  </data>
+  <data name="ComparisonPanelTitle" xml:space="preserve">
+    <value>Vergelijkingen</value>
+  </data>
+  <data name="ComparisonSensorLabel" xml:space="preserve">
+    <value>Vgl.</value>
+  </data>
+  <data name="GraphingDropdownTitle" xml:space="preserve">
+    <value>Grafieken</value>
+  </data>
+  <data name="ReferenceSensorLabel" xml:space="preserve">
+    <value>Ref.</value>
+  </data>
+  <data name="TotalUsageLabel" xml:space="preserve">
+    <value>Totaal</value>
+  </data>
 </root>

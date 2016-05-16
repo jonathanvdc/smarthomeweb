@@ -394,10 +394,11 @@ ChartDescription = function() {
 
     // Add the given ranges to this chart description.
     // This function is part of the public API.
-    this.addRanges = function(values) {
-        batchChanges(function() {
+    this.addRanges = function (values) {
+        var chart = this;
+        this.batchChanges(function() {
             for (var i = 0; i < values.length; i++) {
-                this.addRange(values[i]);
+                chart.addRange(values[i]);
             }
         });
     };
