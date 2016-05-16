@@ -621,7 +621,49 @@
   <data name="DashboardSumButtonLabel" xml:space="preserve">
     <value>Sum</value>
   </data>
+  <data name="AddComparisonButton" xml:space="preserve">
+    <value>Add comparison</value>
+  </data>
+  <data name="ComparisonStartTimeSelectorTitle" xml:space="preserve">
+    <value>Comparison time select</value>
+  </data>
   <data name="DashboardStackButtonLabel" xml:space="preserve">
     <value>Stack</value>
+  </data>
+  <data name="ReferenceRangeSelectorTitle" xml:space="preserve">
+    <value>Reference range select</value>
+  </data>
+  <data name="Time30DaysAgo" xml:space="preserve">
+    <value>30 days ago</value>
+  </data>
+  <data name="Time365DaysAgo" xml:space="preserve">
+    <value>365 days ago</value>
+  </data>
+  <data name="Time7DaysAgo" xml:space="preserve">
+    <value>7 days ago</value>
+  </data>
+  <data name="TimeStartOfThisMonth" xml:space="preserve">
+    <value>Start of this month</value>
+  </data>
+  <data name="TimeStartOfThisYear" xml:space="preserve">
+    <value>Start of this year</value>
+  </data>
+  <data name="CompareGraphPageTitle" xml:space="preserve">
+    <value>Compare ranges</value>
+  </data>
+  <data name="ComparisonPanelTitle" xml:space="preserve">
+    <value>Comparisons</value>
+  </data>
+  <data name="ComparisonSensorLabel" xml:space="preserve">
+    <value>Comp.</value>
+  </data>
+  <data name="GraphingDropdownTitle" xml:space="preserve">
+    <value>Graphing</value>
+  </data>
+  <data name="ReferenceSensorLabel" xml:space="preserve">
+    <value>Ref.</value>
+  </data>
+  <data name="TotalUsageLabel" xml:space="preserve">
+    <value>Total</value>
   </data>
 </root>

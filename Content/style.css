@@ -200,6 +200,16 @@ li.active .glyphicon.glyphicon-plus{
 		color: #AABBFF;
 	}
 
+.close-panel-button {	
+    position: absolute;
+    right: 20px;
+    top: 7px;
+    width: 31px;
+    padding-left: 8;
+    background-color: #eee;
+    color: #888;
+}
+	
 
 /* For list items that can be clicked. */
 .clickable-item {
