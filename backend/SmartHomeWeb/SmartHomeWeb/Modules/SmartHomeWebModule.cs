@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom;
 using Nancy;
 using Nancy.Authentication.Forms;
 using Nancy.Security;
@@ -14,6 +15,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nancy.Extensions;
 using Nancy.Session;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SmartHomeWeb.Modules
 {
@@ -240,6 +243,10 @@ namespace SmartHomeWeb.Modules
 
             Get["/dashboard", true] = GetDashboard;
 
+            Post["/dashboard", true] = PostDashboard;
+
+            Get["/compare-graph", true] = CompareGraph;
+
             Get["/set-culture"] = parameters =>
             {
                 string lcid = Request.Query["lcid"];
@@ -250,9 +257,26 @@ namespace SmartHomeWeb.Modules
 
             Get["/view-graph/{sensorId}/{startTime}/{endTime}/{maxMeasurements}"] = parameters =>
             {
-                var model = new AutofitRange(
-                    parameters["sensorId"], parameters["startTime"], 
-                    parameters["endTime"], parameters["maxMeasurements"]);
+                // sensor ids, start times, end times and max number of measurements are formatted
+                // as comma-separated lists.
+
+                var sensorIds = ((string)parameters["sensorId"]).Split(',').Select(s => int.Parse(s.Trim())).ToArray();
+                var startTimes = ((string)parameters["startTime"]).Split(',').Select(s => DateTime.Parse(s.Trim())).ToArray();
+                var endTimes = ((string)parameters["endTime"]).Split(',').Select(s => DateTime.Parse(s.Trim())).ToArray();
+                var maxMeasurements = ((string)parameters["maxMeasurements"]).Split(',').Select(s => int.Parse(s.Trim())).ToArray();
+             
+                if (sensorIds.Length != startTimes.Length 
+                    || sensorIds.Length != endTimes.Length 
+                    || sensorIds.Length != maxMeasurements.Length)
+                {
+                    return HttpStatusCode.BadRequest;
+                }
+
+                var model = new List<AutofitRange>();
+                for (int i = 0; i < sensorIds.Length; i++)
+                {
+                    model.Add(new AutofitRange(sensorIds[i], startTimes[i], endTimes[i], maxMeasurements[i]));       
+                }
                 return View["view-graph.cshtml", model];
             };
 
@@ -443,12 +467,25 @@ namespace SmartHomeWeb.Modules
             }
         }
 
+        private async Task<dynamic> PostDashboard(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            var obj = JsonConvert.DeserializeObject<GraphData>(Request.Body.AsString());
+            await DataConnection.Ask(dc =>
+            {
+                return dc.InsertGraphAsync(obj);
+            });
+
+            return HttpStatusCode.OK;
+        }
+
         private async Task<dynamic> GetDashboard(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
             var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
-            var items = new Tuple<List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>, string>
-                                        (new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>(), CurrentUserGuid().ToString());
+            var items = new DashboardType(
+                new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>(),
+                CurrentUserGuid().ToString());
 
             foreach (var location in locations)
             {
@@ -457,13 +494,37 @@ namespace SmartHomeWeb.Modules
 
                 foreach (var sensor in sensors)
                     taggedSensors.Add(new Tuple<Sensor, IEnumerable<string>>(sensor, await DataConnection.Ask(x => x.GetSensorTagsAsync(sensor.Id))));
-                
+
                 IEnumerable<string> tags = await DataConnection.Ask(x => x.GetTagsAtLocationAsync(location));
 
                 items.Item1.Add(new Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>(location, tags, taggedSensors));
             }
 
             return View["dashboard.cshtml", items];
+        }
+
+        private async Task<dynamic> CompareGraph(dynamic parameters, CancellationToken ct)
+        {
+            this.RequiresAuthentication();
+            var locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
+            var items = new DashboardType(
+                new List<Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>>(),
+                CurrentUserGuid().ToString());
+
+            foreach (var location in locations)
+            {
+                var sensors = await DataConnection.Ask(x => x.GetSensorsAtLocationAsync(location));
+                var taggedSensors = new List<Tuple<Sensor, IEnumerable<string>>>();
+
+                foreach (var sensor in sensors)
+                    taggedSensors.Add(new Tuple<Sensor, IEnumerable<string>>(sensor, await DataConnection.Ask(x => x.GetSensorTagsAsync(sensor.Id))));
+
+                IEnumerable<string> tags = await DataConnection.Ask(x => x.GetTagsAtLocationAsync(location));
+
+                items.Item1.Add(new Tuple<Location, IEnumerable<string>, List<Tuple<Sensor, IEnumerable<string>>>>(location, tags, taggedSensors));
+            }
+
+            return View["compare-graph.cshtml", items];
         }
 
         private async Task<dynamic> GetSensors(dynamic parameters, CancellationToken ct)
@@ -516,7 +577,6 @@ namespace SmartHomeWeb.Modules
                         }
                         else
                         {
-                            await Console.Out.WriteLineAsync(name);
                             var loc = await dc.GetLocationByNameAsync(name);
                             if (loc != null)
                             {
@@ -596,7 +656,6 @@ namespace SmartHomeWeb.Modules
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync((string) Request.Form["messagename"]);
                         var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "messagename"));
                         if (recipient == null)
                         {
@@ -636,7 +695,6 @@ namespace SmartHomeWeb.Modules
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync((string) Request.Form["friendname"]);
                         var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
                         if (recipient == null)
                         {
@@ -670,8 +728,6 @@ namespace SmartHomeWeb.Modules
                 {
                     int sensorId = (int)parameters["id"];
                     string tag = FormHelpers.GetString(Request.Form, "tag-name");
-
-                    Console.WriteLine("Tagging Sensor {0} with \"{1}\"", sensorId, tag);
 
                     var sensor = await dc.GetSensorByIdAsync(sensorId);
 
@@ -709,8 +765,6 @@ namespace SmartHomeWeb.Modules
                     string sensorName = FormHelpers.GetString(Request.Form, "sensor-name");
                     string sensorDesc = FormHelpers.GetString(Request.Form, "sensor-description");
                     string sensorNotes = FormHelpers.GetString(Request.Form, "sensor-notes");
-
-                    Console.WriteLine("Adding Sensor \"{0}\" to location {1}", sensorName, locationId);
 
                     var location = await dc.GetLocationByIdAsync(locationId);
 

@@ -158,6 +158,9 @@
     <None Include="..\..\..\views\Admin\admin-sensor.cshtml">
       <Link>View Links\Admin\admin-sensor.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\basic-layout.cshtml">
+      <Link>View Links\basic-layout.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\layout.cshtml">
       <Link>View Links\layout.cshtml</Link>
     </None>
@@ -175,6 +178,9 @@
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\add-tag.cshtml">
       <Link>View Links\SmartHomeWeb\add-tag.cshtml</Link>
+    </None>
+    <None Include="..\..\..\views\SmartHomeWeb\compare-graph.cshtml">
+      <Link>View Links\SmartHomeWeb\compare-graph.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\dashboard.cshtml">
       <Link>View Links\SmartHomeWeb\dashboard.cshtml</Link>
@@ -194,8 +200,8 @@
     <None Include="..\..\..\views\SmartHomeWeb\friends.cshtml">
       <Link>View Links\SmartHomeWeb\friends.cshtml</Link>
     </None>
-    <None Include="..\..\..\views\SmartHomeWeb\graph.cshtml">
-      <Link>View Links\SmartHomeWeb\graph.cshtml</Link>
+    <None Include="..\..\..\views\SmartHomeWeb\graph-control.cshtml">
+      <Link>View Links\SmartHomeWeb\graph-control.cshtml</Link>
     </None>
     <None Include="..\..\..\views\SmartHomeWeb\home.cshtml">
       <Link>View Links\SmartHomeWeb\home.cshtml</Link>

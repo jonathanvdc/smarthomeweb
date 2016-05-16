@@ -10,8 +10,8 @@
 
 namespace SmartHomeWeb {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace SmartHomeWeb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class TextResources {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal TextResources() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace SmartHomeWeb {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,7 +59,7 @@ namespace SmartHomeWeb {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Accept.
         /// </summary>
@@ -68,7 +68,16 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AcceptFriendRequestButton", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add comparison.
+        /// </summary>
+        public static string AddComparisonButton {
+            get {
+                return ResourceManager.GetString("AddComparisonButton", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to The location has been registered!.
         /// </summary>
@@ -77,7 +86,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddedLocationMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Your profile has been created. Thanks for registering!.
         /// </summary>
@@ -86,7 +95,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddedPersonMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add friend.
         /// </summary>
@@ -95,7 +104,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddFriendButton", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Click here to add people to your friends list!.
         /// </summary>
@@ -104,7 +113,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddFriendExplanation", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You must log in to send friend requests..
         /// </summary>
@@ -113,7 +122,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddFriendNotAuthenticatedText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add a friend.
         /// </summary>
@@ -122,7 +131,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddFriendTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add a location to your profile.
         /// </summary>
@@ -131,7 +140,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddHasLocationPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Register location.
         /// </summary>
@@ -140,7 +149,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddLocationButtonText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You must log in to register a location..
         /// </summary>
@@ -149,7 +158,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddLocationNotAuthenticatedText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Register a new location..
         /// </summary>
@@ -158,7 +167,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddLocationPageDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Register location.
         /// </summary>
@@ -167,7 +176,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddLocationPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Create profile.
         /// </summary>
@@ -176,7 +185,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddPersonButtonText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Register.
         /// </summary>
@@ -185,7 +194,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddPersonPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add sensor.
         /// </summary>
@@ -194,7 +203,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddSensor", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add a sensor.
         /// </summary>
@@ -203,7 +212,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddSensorPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add tag.
         /// </summary>
@@ -212,16 +221,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddTag", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add tags to sensor.
-        /// </summary>
-        public static string AddTagExplanation {
-            get {
-                return ResourceManager.GetString("AddTagExplanation", resourceCulture);
-            }
-        }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You need to log in to add a tag..
         /// </summary>
@@ -230,16 +230,16 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AddTagNotAuthenticated", resourceCulture);
             }
         }
-        
+
         /// <summary>
-        ///   Looks up a localized string similar to Add tags to a sensor.
+        ///   Looks up a localized string similar to Add a tag to a sensor.
         /// </summary>
         public static string AddTagPageTitle {
             get {
                 return ResourceManager.GetString("AddTagPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Admin pages.
         /// </summary>
@@ -248,7 +248,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AdminPagesTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All friends.
         /// </summary>
@@ -257,7 +257,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AllFriendsLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All messages.
         /// </summary>
@@ -266,7 +266,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("AllMessagesTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Your birth date could not be parsed. Have you tried formatting it as &apos;YYYY/MM/DD&apos;?.
         /// </summary>
@@ -275,16 +275,43 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("BadlyFormattedBirthDateError", resourceCulture);
             }
         }
-        
+
         /// <summary>
-        ///   Looks up a localized string similar to Current tags.
+        ///   Looks up a localized string similar to Compare ranges.
         /// </summary>
-        public static string CurrentTagsHeading {
+        public static string CompareGraphPageTitle {
             get {
-                return ResourceManager.GetString("CurrentTagsHeading", resourceCulture);
+                return ResourceManager.GetString("CompareGraphPageTitle", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Comparisons.
+        /// </summary>
+        public static string ComparisonPanelTitle {
+            get {
+                return ResourceManager.GetString("ComparisonPanelTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Comp..
+        /// </summary>
+        public static string ComparisonSensorLabel {
+            get {
+                return ResourceManager.GetString("ComparisonSensorLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Comparison time select.
+        /// </summary>
+        public static string ComparisonStartTimeSelectorTitle {
+            get {
+                return ResourceManager.GetString("ComparisonStartTimeSelectorTitle", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to add a location.
         /// </summary>
@@ -293,7 +320,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("DashboardAddLocation", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to to your profile..
         /// </summary>
@@ -302,7 +329,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("DashboardAddLocationPost", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Maybe you should.
         /// </summary>
@@ -311,7 +338,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("DashboardAddLocationPre", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Compare.
         /// </summary>
@@ -320,7 +347,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("DashboardCompareButtonLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Group.
         /// </summary>
@@ -329,7 +356,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("DashboardGroupButtonLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Dashboard.
         /// </summary>
@@ -338,7 +365,52 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("DashboardPageTitle", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to All.
+        /// </summary>
+        public static string DashboardSensorSelectAllLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectAllLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string DashboardSensorSelectNoneLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectNoneLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invert.
+        /// </summary>
+        public static string DashboardSensorSelectToggleLabel {
+            get {
+                return ResourceManager.GetString("DashboardSensorSelectToggleLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stack.
+        /// </summary>
+        public static string DashboardStackButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardStackButtonLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sum.
+        /// </summary>
+        public static string DashboardSumButtonLabel {
+            get {
+                return ResourceManager.GetString("DashboardSumButtonLabel", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Delete.
         /// </summary>
@@ -347,7 +419,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("Delete", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edited sensor!.
         /// </summary>
@@ -356,7 +428,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditedSensorSuccess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit location.
         /// </summary>
@@ -365,7 +437,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditLocationButtonText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit location.
         /// </summary>
@@ -374,7 +446,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditLocationPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edited location!.
         /// </summary>
@@ -383,7 +455,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditLocationSuccess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit profile.
         /// </summary>
@@ -392,7 +464,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditPersonButtonText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit your profile.
         /// </summary>
@@ -401,7 +473,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditPersonPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Update Sensor.
         /// </summary>
@@ -410,7 +482,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditSensorButtonText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit this Sensor.
         /// </summary>
@@ -419,7 +491,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EditSensorPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Couldn&apos;t parse &apos;{0}&apos; as a floating-point number..
         /// </summary>
@@ -428,7 +500,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("ElectricityPriceParseError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Seems kind of lonely in here..
         /// </summary>
@@ -437,7 +509,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EmptyDashboardTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Names must be non-empty..
         /// </summary>
@@ -446,7 +518,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EmptyNameError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Passwords must be non-empty..
         /// </summary>
@@ -455,7 +527,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EmptyPasswordError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Usernames must be non-empty..
         /// </summary>
@@ -464,7 +536,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("EmptyUserNameError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Error.
         /// </summary>
@@ -473,7 +545,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("Error", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Friend request accepted..
         /// </summary>
@@ -482,7 +554,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("FriendRequestAccepted", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to {0} has sent you a friend request..
         /// </summary>
@@ -491,7 +563,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("FriendRequestReceived", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Friend request sent..
         /// </summary>
@@ -500,7 +572,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("FriendRequestSent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Friends.
         /// </summary>
@@ -509,7 +581,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("FriendsPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Friend&apos;s username.
         /// </summary>
@@ -518,7 +590,16 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("FriendUsernameLabel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Graphing.
+        /// </summary>
+        public static string GraphingDropdownTitle {
+            get {
+                return ResourceManager.GetString("GraphingDropdownTitle", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Graph.
         /// </summary>
@@ -527,7 +608,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("GraphTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to A pretty graph, that, for reasons unknown, won&apos;t render..
         /// </summary>
@@ -536,7 +617,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("GraphWontShow", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You aren&apos;t a member of any groups yet. Click the button above to make one!.
         /// </summary>
@@ -545,7 +626,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("GroupOverviewNoGroups", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Groups.
         /// </summary>
@@ -554,7 +635,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("GroupOverviewPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Message from &lt;a href=&quot;/person/{0}&quot;&gt;{1}&lt;/a&gt; to &lt;a href=&quot;/person/{2}&quot;&gt;{3}&lt;/a&gt;.
         /// </summary>
@@ -563,7 +644,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("GroupPostHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to There are no posts yet by or to users in {0}..
         /// </summary>
@@ -572,7 +653,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("GroupProfileNoPosts", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Group: {0}.
         /// </summary>
@@ -581,7 +662,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("GroupProfilePageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to ID.
         /// </summary>
@@ -590,7 +671,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("IDLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid username or password..
         /// </summary>
@@ -599,7 +680,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("InvalidLoginError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Language.
         /// </summary>
@@ -608,7 +689,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("Language", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Loading....
         /// </summary>
@@ -617,7 +698,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("Loading", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to There is a pre-existing location called &apos;{0}&apos;..
         /// </summary>
@@ -626,7 +707,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationAlreadyExistsError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The location does not exist..
         /// </summary>
@@ -635,7 +716,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationDoesNotExist", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Electricity price, in $/kWh.
         /// </summary>
@@ -644,7 +725,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationElectricityPriceLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Location name.
         /// </summary>
@@ -653,7 +734,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationNameLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Owner GUID.
         /// </summary>
@@ -662,7 +743,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationOwnerGuidLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Owner.
         /// </summary>
@@ -671,7 +752,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationOwnerLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Manage locations.
         /// </summary>
@@ -680,7 +761,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationsAdminPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Locations.
         /// </summary>
@@ -689,7 +770,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LocationsPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Log in.
         /// </summary>
@@ -698,7 +779,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LogIn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Log out.
         /// </summary>
@@ -707,7 +788,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("LogOut", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Make report for selected users.
         /// </summary>
@@ -716,7 +797,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MakeReportLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Measurements.
         /// </summary>
@@ -725,7 +806,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MeasurementsPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Body.
         /// </summary>
@@ -734,7 +815,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageComposerBodyLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Send a message.
         /// </summary>
@@ -743,7 +824,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageComposerTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to To.
         /// </summary>
@@ -752,7 +833,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageComposerToLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to {0} wrote:.
         /// </summary>
@@ -761,7 +842,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to ID.
         /// </summary>
@@ -770,7 +851,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageIDLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Message.
         /// </summary>
@@ -779,7 +860,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageMessageLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Recipient.
         /// </summary>
@@ -788,7 +869,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageRecipientLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sender.
         /// </summary>
@@ -797,7 +878,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageSenderLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Message sent..
         /// </summary>
@@ -806,7 +887,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessageSent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Messages.
         /// </summary>
@@ -815,7 +896,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MessagesPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to My profile.
         /// </summary>
@@ -824,7 +905,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("MyProfileTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to New friend requests.
         /// </summary>
@@ -833,7 +914,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NewFriendRequestsLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Description.
         /// </summary>
@@ -842,7 +923,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NewGroupDescriptionLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Group Name.
         /// </summary>
@@ -851,7 +932,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NewGroupNameLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Your news feed is empty..
         /// </summary>
@@ -860,7 +941,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NewsfeedNoMessages", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to News Feed.
         /// </summary>
@@ -869,7 +950,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NewsfeedPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Write a message on {0}&apos;s wall.
         /// </summary>
@@ -878,7 +959,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NewWallPostLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You have no friends :(.
         /// </summary>
@@ -887,7 +968,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoFriends", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No new friend requests..
         /// </summary>
@@ -896,7 +977,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoNewFriendRequests", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No pending friend requests..
         /// </summary>
@@ -905,7 +986,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoPendingFriendRequests", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No data for that sensor or period.
         /// </summary>
@@ -914,7 +995,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoSensorData", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Select a different time period using the input above, or select a different sensor from the list on the right..
         /// </summary>
@@ -923,7 +1004,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoSensorDataHelpText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No sensor selected.
         /// </summary>
@@ -932,7 +1013,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoSensorSelected", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Select a sensor from the list on the right..
         /// </summary>
@@ -941,7 +1022,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoSensorSelectedHelpText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No tags.
         /// </summary>
@@ -950,7 +1031,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("NoTagsText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The passwords you entered did not match..
         /// </summary>
@@ -959,7 +1040,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PasswordMismatchError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter your password.
         /// </summary>
@@ -968,7 +1049,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PasswordPlease", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Pending friend requests.
         /// </summary>
@@ -977,7 +1058,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PendingFriendRequestsLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Address.
         /// </summary>
@@ -986,7 +1067,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonAddressLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Username &apos;{0}&apos; is already taken. ಠ_ಠ.
         /// </summary>
@@ -995,7 +1076,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonAlreadyExistsError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Date of birth.
         /// </summary>
@@ -1004,7 +1085,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonBirthdateLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Area of residence.
         /// </summary>
@@ -1013,7 +1094,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonCityLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to GUID.
         /// </summary>
@@ -1022,7 +1103,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonGUIDLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
@@ -1031,7 +1112,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonNameLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
@@ -1040,7 +1121,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonNewPasswordLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
@@ -1049,7 +1130,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonPasswordLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Repeat new password.
         /// </summary>
@@ -1058,7 +1139,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonRepeatNewPasswordLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Repeat password.
         /// </summary>
@@ -1067,7 +1148,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonRepeatPasswordLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Username.
         /// </summary>
@@ -1076,7 +1157,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonUserNameLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Zip code.
         /// </summary>
@@ -1085,7 +1166,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PersonZipCodeLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Pick a location:.
         /// </summary>
@@ -1094,7 +1175,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PickALocation", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Pick a sensor.
         /// </summary>
@@ -1103,7 +1184,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PickASensor", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please enter a name to save the graph as..
         /// </summary>
@@ -1112,7 +1193,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PleaseEnterAName", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You&apos;re not logged in.\nPlease log in to continue..
         /// </summary>
@@ -1121,7 +1202,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("PleaseLogIn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Your profile has been updated!.
         /// </summary>
@@ -1130,7 +1211,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("ProfileEditSuccess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Range select.
         /// </summary>
@@ -1139,7 +1220,25 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("RangeSelectorTitle", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reference range select.
+        /// </summary>
+        public static string ReferenceRangeSelectorTitle {
+            get {
+                return ResourceManager.GetString("ReferenceRangeSelectorTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ref..
+        /// </summary>
+        public static string ReferenceSensorLabel {
+            get {
+                return ResourceManager.GetString("ReferenceSensorLabel", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Something went wrong while trying to save the graph.\nMaybe you  already have a graph with this name?.
         /// </summary>
@@ -1148,7 +1247,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SaveFailure", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Search for a user.
         /// </summary>
@@ -1157,7 +1256,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SearchUserTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Send {0} a friend request.
         /// </summary>
@@ -1166,7 +1265,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SendFriendRequestButton", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You must log in to send messages..
         /// </summary>
@@ -1175,7 +1274,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SendMessageNotAuthenticatedText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sensor &apos;{0}&apos; added!.
         /// </summary>
@@ -1184,7 +1283,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorAdded", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Description.
         /// </summary>
@@ -1193,7 +1292,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorDescriptionLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That sensor does not exist..
         /// </summary>
@@ -1202,7 +1301,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorDoesNotExistError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to ID.
         /// </summary>
@@ -1211,7 +1310,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorIDLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Location.
         /// </summary>
@@ -1220,7 +1319,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorLocationLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
@@ -1229,7 +1328,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorNameLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Notes.
         /// </summary>
@@ -1238,7 +1337,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorNotesLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Manage sensors.
         /// </summary>
@@ -1247,7 +1346,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorsAdminPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sensor select.
         /// </summary>
@@ -1256,7 +1355,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorSelectorTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to My sensors.
         /// </summary>
@@ -1265,7 +1364,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("Sensorsfromuser", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sensors.
         /// </summary>
@@ -1274,7 +1373,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorsPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Tags.
         /// </summary>
@@ -1283,7 +1382,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SensorTagsLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Submit.
         /// </summary>
@@ -1292,7 +1391,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("Submit", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Success.
         /// </summary>
@@ -1301,7 +1400,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("Success", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Successfully saved graph.
         /// </summary>
@@ -1310,7 +1409,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("SuccessfullySaved", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Tag added!.
         /// </summary>
@@ -1319,7 +1418,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TagAdded", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Tagged as.
         /// </summary>
@@ -1328,7 +1427,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TaggedAsLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Tag.
         /// </summary>
@@ -1337,7 +1436,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TagNameLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Tag select.
         /// </summary>
@@ -1346,7 +1445,34 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TagSelectorTitle", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to 30 days ago.
+        /// </summary>
+        public static string Time30DaysAgo {
+            get {
+                return ResourceManager.GetString("Time30DaysAgo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 365 days ago.
+        /// </summary>
+        public static string Time365DaysAgo {
+            get {
+                return ResourceManager.GetString("Time365DaysAgo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 7 days ago.
+        /// </summary>
+        public static string Time7DaysAgo {
+            get {
+                return ResourceManager.GetString("Time7DaysAgo", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Last 30 days.
         /// </summary>
@@ -1355,7 +1481,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TimeLast30Days", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Last 365 days.
         /// </summary>
@@ -1364,7 +1490,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TimeLast365Days", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Last 7 days.
         /// </summary>
@@ -1373,7 +1499,25 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TimeLast7Days", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Start of this month.
+        /// </summary>
+        public static string TimeStartOfThisMonth {
+            get {
+                return ResourceManager.GetString("TimeStartOfThisMonth", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Start of this year.
+        /// </summary>
+        public static string TimeStartOfThisYear {
+            get {
+                return ResourceManager.GetString("TimeStartOfThisYear", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to This month.
         /// </summary>
@@ -1382,7 +1526,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TimeThisMonth", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to This year.
         /// </summary>
@@ -1391,7 +1535,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TimeThisYear", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Today.
         /// </summary>
@@ -1400,7 +1544,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TimeToday", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Tools.
         /// </summary>
@@ -1409,7 +1553,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("ToolSelectorTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Estimated total price of electricity.
         /// </summary>
@@ -1418,7 +1562,16 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TotalElectricityPrice", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Total.
+        /// </summary>
+        public static string TotalUsageLabel {
+            get {
+                return ResourceManager.GetString("TotalUsageLabel", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Try adding friends by searching through the users page!.
         /// </summary>
@@ -1427,7 +1580,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("TryAddingFriends", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit sensor.
         /// </summary>
@@ -1436,7 +1589,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("UpdateSensorLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That user does not exist..
         /// </summary>
@@ -1445,7 +1598,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("UserDoesNotExistError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to I couldn&apos;t find your username in the database..
         /// </summary>
@@ -1454,7 +1607,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("UserNameNotFoundError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Manage users.
         /// </summary>
@@ -1463,7 +1616,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("UsersAdminPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Users.
         /// </summary>
@@ -1472,7 +1625,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("UsersPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You must log in to view your friends..
         /// </summary>
@@ -1481,7 +1634,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("ViewFriendsNotLoggedInError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to This user&apos;s wall is empty!.
         /// </summary>
@@ -1490,7 +1643,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("WallNoMessages", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to {0}&apos;s Wall.
         /// </summary>
@@ -1499,7 +1652,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("WallPageTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &lt;a href=&quot;/person/{0}&quot;&gt;{1}&lt;/a&gt; wrote:.
         /// </summary>
@@ -1508,7 +1661,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("WallPostHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Log, track, and organize your devices&apos; electricity usage. Create graphs of aggregated data and share them with friends..
         /// </summary>
@@ -1517,7 +1670,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("WelcomeBody", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Get started.
         /// </summary>
@@ -1526,7 +1679,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("WelcomeCreateAccountButton", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Already have an account?.
         /// </summary>
@@ -1535,7 +1688,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("WelcomeLogInLabel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Welcome to SmartHomeWeb..
         /// </summary>
@@ -1544,7 +1697,7 @@ namespace SmartHomeWeb {
                 return ResourceManager.GetString("WelcomeTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You are friends with {0}..
         /// </summary>

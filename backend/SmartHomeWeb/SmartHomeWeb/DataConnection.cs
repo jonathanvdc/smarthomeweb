@@ -61,6 +61,8 @@ namespace SmartHomeWeb
 				cmd.ExecuteNonQuery();
 				cmd.CommandText = $"PRAGMA synchronous = {Synchronous}";
 				cmd.ExecuteNonQuery();
+                cmd.CommandText = $"PRAGMA foreign_keys = ON";
+                cmd.ExecuteNonQuery();
 			}
 		}
 
@@ -87,7 +89,7 @@ namespace SmartHomeWeb
                 while (await reader.ReadAsync())
                 {
                     results.Add(ReadTuple(reader));
-                    
+
                 }
             }
             return results;
@@ -166,11 +168,11 @@ namespace SmartHomeWeb
 			using (var cmd = sqlite.CreateCommand())
 			{
 				cmd.CommandText = $@"
-                  SELECT loc.*, p.username FROM 
-				  {LocationTableName} as loc, {PersonTableName} as p 
+                  SELECT loc.*, p.username FROM
+				  {LocationTableName} as loc, {PersonTableName} as p
 				  WHERE loc.owner = p.guid";
 
-				return await ExecuteCommandAsync(cmd, item => 
+				return await ExecuteCommandAsync(cmd, item =>
 					Tuple.Create(DatabaseHelpers.ReadLocation(item), DatabaseHelpers.GetString(item, "username")));
 			}
 		}
@@ -242,7 +244,7 @@ namespace SmartHomeWeb
 				cmd.CommandText = @"
                   SELECT pair.personOne, pair.PersonTwo
                   FROM Friends as pair
-                  WHERE (pair.personOne = @guid1 AND pair.personTwo = @guid2) 
+                  WHERE (pair.personOne = @guid1 AND pair.personTwo = @guid2)
                      OR (pair.personOne = @guid2 AND pair.personTwo = @guid1)";
 				cmd.Parameters.AddWithValue("@guid1", PersonOneGuid.ToString());
 				cmd.Parameters.AddWithValue("@guid2", PersonTwoGuid.ToString());
@@ -280,7 +282,7 @@ namespace SmartHomeWeb
 
         /// <summary>
         /// Creates a task that eagerly fetches persons who sent friend requests
-        /// *to* the person with the given globally unique identifier. 
+        /// *to* the person with the given globally unique identifier.
         /// </summary>
         public async Task<IEnumerable<Person>> GetRecievedFriendRequestsAsync(Guid PersonGuid)
 		{
@@ -315,7 +317,7 @@ namespace SmartHomeWeb
 
         /// <summary>
 		/// Creates a task that eagerly fetches persons who were sent friend requests
-		/// *by* the person with the given globally unique identifier. 
+		/// *by* the person with the given globally unique identifier.
 		/// </summary>
 		public async Task<IEnumerable<Person>> GetSentFriendRequestsAsync(Guid PersonGuid)
 		{
@@ -332,7 +334,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Actually computes the month average for the 
+		/// Actually computes the month average for the
 		/// given sensor during the given month.
 		/// </summary>
 		private async Task<Measurement> ComputeYearAverageAsync(int SensorId, DateTime Year)
@@ -346,12 +348,12 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
-        /// Creates a task that fetches or computes the average measurement for the 
-        /// given sensor at the given time. A cache table name and an average 
+        /// Creates a task that fetches or computes the average measurement for the
+        /// given sensor at the given time. A cache table name and an average
         /// computation function are also given.
         /// </summary>
         private async Task<Measurement> GetAverageAsync(
-            int SensorId, DateTime Time, string TableName, 
+            int SensorId, DateTime Time, string TableName,
             Func<int, DateTime, Task<Measurement>> ComputeAverageAsync)
         {
             // Perhaps we have already computed the average.
@@ -400,7 +402,7 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
-        /// Creates a task that fetches or computes the hour average for the 
+        /// Creates a task that fetches or computes the hour average for the
         /// given sensor during the given hour.
         /// </summary>
         public Task<Measurement> GetHourAverageAsync(int SensorId, DateTime Hour)
@@ -409,7 +411,7 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
-		/// Creates a task that fetches or computes a number of hour averages for the 
+		/// Creates a task that fetches or computes a number of hour averages for the
 		/// given sensor during the given hours.
 		/// </summary>
 		public async Task<IEnumerable<Measurement>> GetHourAveragesAsync(int SensorId, DateTime StartHour, int Count)
@@ -422,7 +424,7 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
-        /// Creates a task that fetches or computes the day average for the 
+        /// Creates a task that fetches or computes the day average for the
         /// given sensor during the given day.
         /// </summary>
         public Task<Measurement> GetDayAverageAsync(int SensorId, DateTime Day)
@@ -431,7 +433,7 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
-		/// Creates a task that fetches or computes a number of day-averages for the 
+		/// Creates a task that fetches or computes a number of day-averages for the
 		/// given sensor during the given days.
 		/// </summary>
 		public async Task<IEnumerable<Measurement>> GetDayAveragesAsync(int SensorId, DateTime StartDay, int Count)
@@ -471,7 +473,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Creates a task that fetches or computes the month average for the 
+        /// Creates a task that fetches or computes the month average for the
         /// given sensor during the given month.
         /// </summary>
         public Task<Measurement> GetMonthAverageAsync(int SensorId, DateTime Month)
@@ -480,7 +482,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Creates a task that fetches or computes a number of month averages for the 
+		/// Creates a task that fetches or computes a number of month averages for the
 		/// given sensor during the given month.
 		/// </summary>
 		public async Task<IEnumerable<Measurement>> GetMonthAveragesAsync(int SensorId, DateTime StartMonth, int Count)
@@ -493,7 +495,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Creates a task that fetches or computes the year average for the 
+		/// Creates a task that fetches or computes the year average for the
 		/// given sensor during the given year.
 		/// </summary>
 		public Task<Measurement> GetYearAverageAsync(int SensorId, DateTime Year)
@@ -502,7 +504,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Creates a task that fetches or computes the year average for the 
+		/// Creates a task that fetches or computes the year average for the
 		/// given sensor during the given year.
 		/// </summary>
 		public Task<IEnumerable<Measurement>> GetYearAveragesAsync(int SensorId, DateTime StartYear, int Count)
@@ -528,7 +530,7 @@ namespace SmartHomeWeb
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                // Write SQL code for 
+                // Write SQL code for
                 //    SELECT * FROM {TableName} WHERE k1 = @v1 AND k2 = @v2 AND ... AND kn = @vn LIMIT 1
 
                 var sql = new StringBuilder();
@@ -1009,7 +1011,7 @@ namespace SmartHomeWeb
         }
 
         /// <summary>
-        /// Updates the given locations list of locations 
+        /// Updates the given locations list of locations
         /// in the Locations table.
         /// </summary>
         public Task UpdateLocationAsync(IEnumerable<Location> Data)
@@ -1062,12 +1064,11 @@ namespace SmartHomeWeb
 
 
         /// <summary>
-        /// Updates the notes of the measurement in the database whose 
+        /// Updates the notes of the measurement in the database whose
 		/// sensor ID and timestamp match the given measurement.
         /// </summary>
         public async Task UpdateMeasurementNotesAsync(Measurement measurement, string tablename)
         {
-            Console.WriteLine(tablename);
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = $@"UPDATE {tablename}
@@ -1076,7 +1077,6 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@notes", measurement.Notes);
                 cmd.Parameters.AddWithValue("@sensor", measurement.SensorId);
                 cmd.Parameters.AddWithValue("@time", DatabaseHelpers.CreateUnixTimeStamp(measurement.Time));
-                Console.WriteLine(cmd.CommandText);
                 await cmd.ExecuteNonQueryAsync();
             }
         }
@@ -1127,8 +1127,8 @@ namespace SmartHomeWeb
         }
 
 		/// <summary>
-		/// Deletes the measurement made by the given sensor at the given time 
-		/// from the table with the given name.  
+		/// Deletes the measurement made by the given sensor at the given time
+		/// from the table with the given name.
 		/// </summary>
 		/// <remarks>
 		/// This method's intended use case is that of clearing the aggregation cache,
@@ -1147,9 +1147,9 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Deletes the measurement made by the given sensor during 
+		/// Deletes the measurement made by the given sensor during
 		/// the given period of time [StartTime, EndTime)
-		/// from the table with the given name.  
+		/// from the table with the given name.
 		/// </summary>
 		private async Task DeleteMeasurementAsync(string TableName, int SensorId, DateTime StartTime, DateTime EndTime)
 		{
@@ -1165,9 +1165,9 @@ namespace SmartHomeWeb
 		}
 
         /// <summary>
-        /// Deletes the measurement made by the given sensor during 
+        /// Deletes the measurement made by the given sensor during
         /// the given period of time [StartTime, EndTime)
-        /// from the table with the given name.  
+        /// from the table with the given name.
         /// </summary>
         private async Task DeleteMeasurementAsync(string TableName, DateTime StartTime, DateTime EndTime)
         {
@@ -1192,16 +1192,16 @@ namespace SmartHomeWeb
 
 			// Invalidate the aggregation cache first...
 			await DeleteMeasurementAsync(
-				HourAverageTableName, Data.SensorId, 
+				HourAverageTableName, Data.SensorId,
 				MeasurementAggregation.Quantize(Data.Time, TimeSpan.FromHours(1)));
 			await DeleteMeasurementAsync(
-				DayAverageTableName, Data.SensorId, 
+				DayAverageTableName, Data.SensorId,
 				MeasurementAggregation.Quantize(Data.Time, TimeSpan.FromDays(1)));
 			await DeleteMeasurementAsync(
-				MonthAverageTableName, Data.SensorId, 
+				MonthAverageTableName, Data.SensorId,
 				MeasurementAggregation.QuantizeMonth(Data.Time));
 			await DeleteMeasurementAsync(
-				YearAverageTableName, Data.SensorId, 
+				YearAverageTableName, Data.SensorId,
 				MeasurementAggregation.QuantizeYear(Data.Time));
 			// ... then insert a tuple into the Measurement table.
             await InsertMeasurementAsync(Data, MeasurementTableName);
@@ -1249,7 +1249,7 @@ namespace SmartHomeWeb
         /// <param name="Data">The list of measurements to insert into the table.</param>
         public async Task InsertMeasurementAsync(IEnumerable<Measurement> Data)
         {
-			// This has to be really fast. 
+			// This has to be really fast.
 			// That means that there will be no more half-measures.
 			//
 			// What follows is a horribly monolithic
@@ -1259,7 +1259,7 @@ namespace SmartHomeWeb
 			// Additionally, it uses a number of tricks to
 			// make the common case very fast, especially
 			// for large data sets: checks are skipped and
-			// caches are not invalidated, if the algorithm 
+			// caches are not invalidated, if the algorithm
 			// determines that doing so is not necessary.
 
 			// Compute a time period that encompasses all measurements,
@@ -1270,7 +1270,7 @@ namespace SmartHomeWeb
 			var period = await TimeHelpers.ComputeConflictPeriodAsync(Data);
 
 			// Create six commands, which we will re-use.
-			SqliteCommand insertCommand = sqlite.CreateCommand(), deleteHourCommand = null, deleteDayCommand = null, 
+			SqliteCommand insertCommand = sqlite.CreateCommand(), deleteHourCommand = null, deleteDayCommand = null,
 				deleteMonthCommand = null, deleteYearCommand = null, checkFrozenCommand = null;
 			try
 			{
@@ -1282,10 +1282,10 @@ namespace SmartHomeWeb
 				insertCommand.Parameters.AddWithValue("@measured", 0.0);
 				insertCommand.Parameters.AddWithValue("@notes", "");
 
-				// We will initialize and execute these commands if we 
+				// We will initialize and execute these commands if we
 				// can't know for sure that we won't have to.
-				// We have a good idea of which caches we may have to 
-				// invalidate, based on the conflict periods we have 
+				// We have a good idea of which caches we may have to
+				// invalidate, based on the conflict periods we have
 				// already computed.
 				if (period == null || HasMeasurementDuring(HourAverageTableName, period.Item1, period.Item2, period.Item3))
 				{
@@ -1295,7 +1295,7 @@ namespace SmartHomeWeb
 					deleteHourCommand.Parameters.AddWithValue("@sensorId", 0);
 					deleteHourCommand.Parameters.AddWithValue("@unixtime", 0L);
 				}
-				
+
 				if (period == null || HasMeasurementDuring(DayAverageTableName, period.Item1, period.Item2, period.Item3))
 				{
 					deleteDayCommand = sqlite.CreateCommand();
@@ -1335,7 +1335,7 @@ namespace SmartHomeWeb
 				foreach (var m in Data)
 				{
 					// We will now update these commands' parameters,
-					// and execute them _synchronously_. SQLite 
+					// and execute them _synchronously_. SQLite
 					// locks the database during a write operation anyway,
 					// so there's really no point in task-based parallelism.
 
@@ -1434,7 +1434,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Reads all frozen periods from the database that completely or 
+		/// Reads all frozen periods from the database that completely or
 		/// partially overlap with the given period of time.
 		/// </summary>
 		public async Task<IEnumerable<FrozenPeriod>> GetFrozenPeriodsAsync(DateTime StartTime, DateTime EndTime)
@@ -1524,12 +1524,12 @@ namespace SmartHomeWeb
 
 		/// <summary>
 		/// Compacts the given period of time. First, all data in the given
-		/// period of time is aggregated, then all measurements are deleted. 
-		/// The given period of time is subsequently frozen: further 
+		/// period of time is aggregated, then all measurements are deleted.
+		/// The given period of time is subsequently frozen: further
 		/// measurement insertion is disallowed during this period.
 		/// </summary>
 		public async Task CompactAsync(
-            DateTime StartTime, DateTime EndTime, 
+            DateTime StartTime, DateTime EndTime,
             CompactionLevel Level = CompactionLevel.Measurements)
 		{
 			if (EndTime < StartTime)
@@ -1565,7 +1565,7 @@ namespace SmartHomeWeb
                     compactQuantizer = MeasurementAggregation.QuantizeHour;
                     freezeQuantizer = MeasurementAggregation.QuantizeDay;
                     aggregate = async (id, start, end) =>
-                    {           
+                    {
                         // Compute day averages.
                         int dayCount = (int)Math.Ceiling((end - start).TotalDays);
 
@@ -1610,7 +1610,7 @@ namespace SmartHomeWeb
             for (int i = 0; i < allSensors.Length; i++)
             {
                 aggregationTasks[i] = aggregate(
-                    allSensors[i].Id, freezeQuantizer(StartTime), 
+                    allSensors[i].Id, freezeQuantizer(StartTime),
                     freezeQuantizer(EndTime));
             }
             await Task.WhenAll(aggregationTasks);
@@ -1632,7 +1632,7 @@ namespace SmartHomeWeb
                 }
             }
 
-            // Finally, freeze measurements in the vicinity, to keep 
+            // Finally, freeze measurements in the vicinity, to keep
             // aggregation from going haywire.
             await FreezeAsync(
                 freezeQuantizer(StartTime), freezeQuantizer(EndTime), Level);
@@ -1666,11 +1666,11 @@ namespace SmartHomeWeb
 
         /// <summary>
         /// Inserts the given person-location pair into the
-        /// HasLocation table. 
+        /// HasLocation table.
         /// </summary>
         /// <param name="Data">The person-location pair to insert into the table.</param>
         public async Task InsertHasLocationPairAsync(PersonLocationPair Pair)
-        {            
+        {
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = $"INSERT INTO {HasLocationTableName}(personGuid, locationId) " +
@@ -1732,7 +1732,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Checks if the database has associated the sensor with 
+		/// Checks if the database has associated the sensor with
 		/// the given identifier, with the given tag.
 		/// </summary>
 		public async Task<bool> ContainsSensorTagAsync(int SensorId, string Tag)
@@ -1781,7 +1781,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Deletes the given tag from the sensor with the 
+		/// Deletes the given tag from the sensor with the
 		/// given identifier.
 		/// </summary>
 		public async Task DeleteSensorTagAsync(int SensorId, string Tag)
@@ -1812,7 +1812,7 @@ namespace SmartHomeWeb
 		}
 
 		/// <summary>
-		/// Gets all sensors that have been tagged by the given 
+		/// Gets all sensors that have been tagged by the given
 		/// string.
 		/// </summary>
 		public async Task<IEnumerable<Sensor>> GetSensorsByTagAsync(string Tag)
@@ -1823,19 +1823,19 @@ namespace SmartHomeWeb
 					$"FROM {SensorTagTableName} as t, {SensorTableName} as s " +
 					"WHERE t.sensorId = s.id AND t.tag = @tag";
 				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
-				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor); 
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor);
 			}
 		}
 
 		/// <summary>
-		/// Gets all sensors at the location specified by the given 
+		/// Gets all sensors at the location specified by the given
 		/// unique identifier, that have been tagged by the given string.
 		/// </summary>
 		public async Task<IEnumerable<Sensor>> GetSensorsAtLocationByTagAsync(int LocationId, string Tag)
 		{
 			using (var cmd = sqlite.CreateCommand())
 			{
-				// This orders sensors by total usage 
+				// This orders sensors by total usage
 				// (which may be useful later on, so I'm leaving it here for now).
 				//
 				// cmd.CommandText = $"SELECT s.id, s.locationId, s.title, s.description, s.notes " +
@@ -1849,7 +1849,7 @@ namespace SmartHomeWeb
 					"WHERE t.sensorId = s.id AND s.locationId = @locId AND t.tag = @tag";
 				cmd.Parameters.AddWithValue("@locId", LocationId);
 				cmd.Parameters.AddWithValue("@tag", Tag.ToLowerInvariant());
-				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor); 
+				return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadSensor);
 			}
 		}
 
@@ -1875,36 +1875,28 @@ namespace SmartHomeWeb
             }
         }
         /// <summary>
-        /// Creates a task to fetch all wallposts for a given user. 
+        /// Creates a task to fetch all wallposts for a given user.
         /// Retrieves all messages sent to that user, currently no private messaging is implemented.
         /// TODO: private messaging(?)
         /// </summary>
         public async Task<IEnumerable<WallPost>> GetWallPostsAsync(Guid personGuid)
         {
+            IEnumerable<WallPost> results;
             using (var cmd = sqlite.CreateCommand())
-            { 
+            {
                 cmd.CommandText = @"SELECT * FROM Message as m
                 LEFT JOIN HasAttachment as ha ON (m.id == ha.message_Id)
                 LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
                 INNER JOIN Person as p1 ON (m.sender = p1.guid)
                 INNER JOIN Person as p2 ON (m.recipient = p2.guid)
                 WHERE m.recipient=@person";
-                
+
                 cmd.Parameters.AddWithValue("@person", personGuid.ToString());
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
+                results = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
             }
+            return await Task.WhenAll(results.Select(WithGraphElementsAsync));
         }
 
-        public async Task<Graph> GetGraphByIdAsync(int id)
-        {
-            using (var cmd = sqlite.CreateCommand())
-            {
-                cmd.CommandText = "SELECT * FROM Graph WHERE graphId=@id";
-                cmd.Parameters.AddWithValue("@id", id);
-
-                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
-            }
-        }
         public async Task InsertWallPostAsync(WallPost wp)
         {
             using (var cmd = sqlite.CreateCommand())
@@ -1926,10 +1918,160 @@ namespace SmartHomeWeb
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-                
+
             }
 
 
+        }
+        /// <summary>
+        /// Creates a task to fetch all the groups for a given user.
+        /// ie, all the groups that that user is a member of
+        /// </summary>
+
+        public async Task<IEnumerable<Group>> GetGroupsForUserAsync(Guid personGuid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+
+                cmd.CommandText = @"SELECT *
+                FROM PersonGroup
+                WHERE @personGuid
+                IN (
+                SELECT person
+                FROM BelongsTo
+                WHERE PersonGroup.id=BelongsTo.personGroup)";
+                cmd.Parameters.AddWithValue("@personGuid", personGuid.ToString());
+                var groups = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGroup);
+                foreach (var group in groups)
+                {
+                    group.MemberList = (await GetMembersForGroupAsync(group.Id)).ToList();
+                }
+
+                return groups;
+            }
+        }
+        public async Task<IEnumerable<WallPost>> GetPostsForGroupAsync(long groupid)
+        {
+            IEnumerable<WallPost> results;
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM Message as m
+                LEFT JOIN HasAttachment as ha ON (m.id == ha.messageId)
+                LEFT JOIN Graph as g ON (ha.graph_Id == g.graphId)
+                INNER JOIN Person as p1 ON (m.sender=p1.guid)
+                INNER JOIN Person as p2 ON (m.recipient=p2.guid)
+                WHERE recipient IN (
+                SELECT person FROM BelongsTo WHERE personGroup=@groupid)
+                OR sender IN (
+                SELECT person FROM BelongsTo WHERE personGroup=@groupid)";
+                cmd.Parameters.AddWithValue("@groupid", groupid);
+
+                results = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadWallPost);
+            }
+            return await Task.WhenAll(results.Select(WithGraphElementsAsync));
+        }
+        /// <summary>
+        /// Creates a task to fetch a group entity from its id
+        /// </summary>
+        public async Task<Group> GetGroupByIdAsync(long groupid)
+        {
+
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM PersonGroup WHERE id=@groupid";
+                cmd.Parameters.AddWithValue("@groupid", groupid);
+                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGroup);
+            }
+        }
+
+        /// <summary>
+        /// Creates a task to fetch the members for a group
+        /// </summary>
+        public async Task<IEnumerable<Person>> GetMembersForGroupAsync(long groupid)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM Person WHERE Person.guid IN (
+                SELECT person FROM BelongsTo WHERE BelongsTo.personGroup=@groupid)";
+                cmd.Parameters.AddWithValue("@groupid", groupid);
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
+            }
+        }
+        /// <summary>
+        /// Inserts a group with name and description, taken from the group object.
+        /// </summary>
+        public async Task InsertGroupAsync(Group g)
+        {
+
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"INSERT INTO PersonGroup (name, description)
+                VALUES (@name, @desc)";
+                cmd.Parameters.AddWithValue("@name", g.Name);
+                cmd.Parameters.AddWithValue("@desc", g.Description);
+                await cmd.ExecuteNonQueryAsync();
+                cmd.CommandText = "SELECT last_insert_rowid()";
+                var i = await cmd.ExecuteScalarAsync();
+                cmd.CommandText = "SELECT id from PersonGroup WHERE rowid=" + (long)i;
+                i = await cmd.ExecuteScalarAsync();
+                g.Id = (long)i;
+
+                await InsertGroupMembersAsync(g);
+            }
+        }
+
+        /// <summary>
+        /// Reads all graph elements that belong to the graph with
+        /// the given identifier.
+        /// </summary>
+        private async Task<IEnumerable<AutofitRange>> GetGraphElementsAsync(int GraphId)
+        {
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM GraphElement WHERE graphId = @id";
+                cmd.Parameters.AddWithValue("@id", GraphId);
+
+                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadAutofitRange);
+            }
+        }
+
+        /// <summary>
+        /// Updates the given (empty) graph with its graph
+        /// elements: the ranges of measurements that it
+        /// portrays.
+        /// </summary>
+        private async Task<Graph> WithGraphElementsAsync(Graph EmptyGraph)
+        {
+            return new Graph(
+                EmptyGraph.Id,
+                new GraphData(
+                    await GetGraphElementsAsync(EmptyGraph.Id),
+                    EmptyGraph.Data.Name, EmptyGraph.Data.OwnerGuid));
+        }
+
+        /// <summary>
+        /// Updates the given wall post with graph
+        /// elements: the ranges of measurements that its
+        /// graph portrays.
+        /// </summary>
+        private async Task<WallPost> WithGraphElementsAsync(WallPost Post)
+        {
+            return Post.Image == null
+                ? Post
+                : new WallPost(Post.Id, Post.Source, Post.Destination, Post.Message, await WithGraphElementsAsync(Post.Image));
+        }
+
+        public async Task<Graph> GetGraphByIdAsync(int id)
+        {
+            Graph result;
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Graph WHERE graphId = @id";
+                cmd.Parameters.AddWithValue("@id", id);
+
+                result = await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadEmptyGraph);
+            }
+            return await WithGraphElementsAsync(result);
         }
 
         /// <summary>
@@ -1938,14 +2080,16 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<Graph> GetGraphByOwnerAndNameAsync(Guid OwnerGuid, string GraphName)
         {
+            Graph result;
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner AND name=@name";
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner = @owner AND name = @name";
                 cmd.Parameters.AddWithValue("@owner", OwnerGuid.ToString());
                 cmd.Parameters.AddWithValue("@name", GraphName);
 
-                return await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadGraph);
+                result = await ExecuteCommandSingleAsync(cmd, DatabaseHelpers.ReadEmptyGraph);
             }
+            return await WithGraphElementsAsync(result);
         }
 
         /// <summary>
@@ -1953,25 +2097,48 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task<IEnumerable<Graph>> GetGraphsByOwnerAsync(Guid OwnerGuid)
         {
+            IEnumerable<Graph> results;
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = "SELECT * FROM Graph WHERE owner=@owner";
+                cmd.CommandText = "SELECT * FROM Graph WHERE owner = @owner";
                 cmd.Parameters.AddWithValue("@owner", OwnerGuid.ToString());
 
-                return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadGraph);
+                results = await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadEmptyGraph);
             }
+            return await Task.WhenAll(results.Select(WithGraphElementsAsync));
         }
 
         public async Task InsertGraphAsync(GraphData Data)
         {
             using (var cmd = sqlite.CreateCommand())
             {
-                cmd.CommandText = "INSERT INTO Graph (owner, graph, name) VALUES (@owner, @graph, @name)";
+                cmd.CommandText = "INSERT INTO Graph (owner, name) VALUES (@owner, @name)";
                 cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
-                cmd.Parameters.AddWithValue("@graph", Data.Uri);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
 
                 await cmd.ExecuteNonQueryAsync();
+            }
+
+            int graphId = (await GetGraphByOwnerAndNameAsync(Data.OwnerGuid, Data.Name)).Id;
+
+            using (var cmd = sqlite.CreateCommand())
+            {
+                cmd.CommandText = @"INSERT INTO GraphElement (graphId, sensorId, startTime, endTime, maxMeasurements)
+                    VALUES (@graphId, @sensorId, @startTime, @endTime, @maxMeasurements)";
+                cmd.Parameters.AddWithValue("@graphId", graphId);
+                cmd.Parameters.AddWithValue("@sensorId", 0);
+                cmd.Parameters.AddWithValue("@startTime", 0L);
+                cmd.Parameters.AddWithValue("@endTime", 0L);
+                cmd.Parameters.AddWithValue("@maxMeasurements", 0);
+
+                foreach (var elem in Data.Chart)
+                {
+                    cmd.Parameters["@sensorId"].Value = elem.SensorId;
+                    cmd.Parameters["@startTime"].Value = (elem.StartTime - new DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
+                    cmd.Parameters["@endTime"].Value = (elem.EndTime - new DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
+                    cmd.Parameters["@maxMeasurements"].Value = elem.MaxMeasurements;
+                    await cmd.ExecuteNonQueryAsync();
+                }
             }
         }
 
@@ -1989,7 +2156,7 @@ namespace SmartHomeWeb
 		/// in a transaction.
         /// </summary>
 		public static async Task<T> Ask<T>(
-			Func<DataConnection, Task<T>> operation, 
+			Func<DataConnection, Task<T>> operation,
 			string JournalMode = "MEMORY", string Synchronous = "NORMAL")
         {
             using (var dc = await CreateAsync(JournalMode, Synchronous))
@@ -2001,7 +2168,7 @@ namespace SmartHomeWeb
 		/// The operation is wrapped in a transaction.
         /// </summary>
         public static async Task Ask(
-			Func<DataConnection, Task> operation, 
+			Func<DataConnection, Task> operation,
 			string JournalMode = "MEMORY", string Synchronous = "NORMAL")
         {
             using (var dc = await CreateAsync(JournalMode, Synchronous))

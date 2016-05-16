@@ -66,6 +66,11 @@ namespace SmartHomeWeb.Model
         /// <value><c>true</c> if this range is empty; otherwise, <c>false</c>.</value>
         [JsonIgnore]
         public bool IsEmpty => FrozenPeriod.IsEmptyRange(Tuple.Create(StartTime, EndTime));
+
+        public override string ToString()
+        {
+            return string.Format("[AutofitRange: SensorId={0}, StartTime={1}, EndTime={2}, MaxMeasurements={3}]", SensorId, StartTime, EndTime, MaxMeasurements);
+        }
     }
 }
 

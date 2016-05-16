@@ -90,7 +90,8 @@ namespace SmartHomeWeb.Modules.API
     {
         public ApiHourAverageModule() : base("api/hour-average")
         {
-            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => dc.UpdateMeasurementNotesAsync(item, "HourAverage"));
+            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => 
+                dc.UpdateMeasurementNotesAsync(item, DataConnection.HourAverageTableName));
         }
 
         public override TimeSpan TimeQuantum

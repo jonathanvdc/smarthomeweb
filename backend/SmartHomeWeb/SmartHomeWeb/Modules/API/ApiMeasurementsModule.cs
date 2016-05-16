@@ -16,7 +16,8 @@ namespace SmartHomeWeb.Modules.API
 
             ApiPost<List<Measurement>, object>("/", (_, items, dc) => dc.InsertMeasurementAsync(items));
 
-            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => dc.UpdateMeasurementNotesAsync(item, "Measurement"));
+            ApiPut<Measurement, object>("/updatetag", (_, item, dc) => 
+                dc.UpdateMeasurementNotesAsync(item, DataConnection.MeasurementTableName));
         }
     }
 }

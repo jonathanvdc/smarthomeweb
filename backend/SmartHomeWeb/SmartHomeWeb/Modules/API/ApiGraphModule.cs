@@ -30,14 +30,11 @@ namespace SmartHomeWeb.Modules.API
             ApiPost<GraphData, object>("/", async (_, g, dc) =>
             {
                 this.RequiresAuthentication();
-                const string regex = @"^data:image\/png;base64,.*$";
-                var match = Regex.Match(g.Uri, regex, RegexOptions.None);
-                if ((await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName)).GuidString == g.OwnerGuidString
-                    && match.Success && match.Captures[0].Value == g.Uri)
+                if ((await dc.GetPersonByUsernameAsync(Context.CurrentUser.UserName)).GuidString == g.OwnerGuidString)
                     // Check regex match and username correctness, if it's correct, insert graph to DB, else fail silently (Server side debug message - client side silence)
                     await dc.InsertGraphAsync(g);
                 else 
-                    Console.WriteLine("Graph was submitted, but not saved due to reasons.\r\n(Regex mismatch on image data or incorrect username)");
+                    Console.WriteLine("Graph was submitted, but not saved due to reasons. (incorrect username)");
             });
         }
     }

@@ -3,6 +3,9 @@
 PRAGMA journal_mode = MEMORY;
 PRAGMA synchronous = OFF;
 
+-- This pragma enforces foreign keys.
+PRAGMA foreign_keys = ON;
+
 create table Person (
     guid text primary key not null,
     username text not null unique,
@@ -30,12 +33,36 @@ create table Friends (
     primary key (personOne, personTwo)
 );
 
-create table Graph (
-	graphId integer primary key autoincrement,
-	owner text not null references Person(guid) on delete cascade,
-	graph text not null,
+create table PersonGroup (
+	id integer primary key autoincrement,
 	name text not null,
+	description text not null
+);
+
+-- Describes saved graphs.
+create table Graph (
+    -- A unique identifier for this graph.
+	graphId integer primary key autoincrement,
+    -- The graph's owner GUID
+    owner text not null references Person(guid) on delete cascade,
+    -- The graph's name, i.e. the title.
+    name text not null,
 	unique (owner, name)
+);
+
+-- Describes ranges of measurements that are displayed in graphs graphs.
+create table GraphElement (
+    -- A unique identifier for the graph that we're attaching a sensor to.
+    graphId integer not null references Graph(graphId) on delete cascade,
+    -- The sensor ID for the sensor whose measurements we're
+    -- rendering.
+    sensorId integer not null references Sensor(id) on delete cascade,
+    -- The graph's start time, in unix time.
+    startTime integer not null,
+    -- The graph's end time, in unix time.
+    endTime integer not null,
+    -- The maximal number of measurements to render.
+    maxMeasurements integer not null
 );
 
 create table BelongsTo (
@@ -95,32 +122,27 @@ create table Location (
 -- to store its tuples.
 create table HasLocation (
     personGuid text not null references Person(guid) on delete cascade,
-    locationId integer not null references Location(id),
+    locationId integer not null references Location(id) on delete cascade,
     primary key (personGuid, locationId)
 );
 
 create table Sensor (
     id integer primary key autoincrement,
-    locationid integer not null references Location(id),
+    locationid integer not null references Location(id) on delete cascade,
     title text not null,
     description text not null,
     notes text,
     unique (locationid, title)
 );
 
-create table ElectricityPrice (
-    locationId integer not null references Location(id),
-    price real
-);
-
 create table SensorTag (
-    sensorId integer not null references Sensor(id),
+    sensorId integer not null references Sensor(id) on delete cascade,
     tag text not null,
     primary key (sensorId, tag)
 );
 
 create table Measurement (
-    sensorId integer not null references Sensor(id),
+    sensorId integer not null references Sensor(id) on delete cascade,
     unixtime integer not null,
     measured real not null,
     notes text,
@@ -128,7 +150,7 @@ create table Measurement (
 );
 
 create table HourAverage (
-    sensorId integer not null references Sensor(id),
+    sensorId integer not null references Sensor(id) on delete cascade,
     -- Unix time for YYYY-MM-DD XX:00. Identifies the hour.
     unixtime integer not null,
     -- Note that this measurement can be null.
@@ -146,7 +168,7 @@ create table HourAverage (
 
 -- Separately track day averages after removing outliers from the HourAverage results.
 create table DayAverage (
-    sensorId integer not null references Sensor(id),
+    sensorId integer not null references Sensor(id) on delete cascade,
     -- Unix time for YYYY-MM-DD 00:00. Identifies the day.
     unixtime integer not null,
     -- Note that this measurement can be null.
@@ -158,7 +180,7 @@ create table DayAverage (
 );
 
 create table MonthAverage (
-    sensorId integer not null references Sensor(id),
+    sensorId integer not null references Sensor(id) on delete cascade,
     -- Unix time for YYYY-MM-00 00:00. Identifies the month.
     unixtime integer not null,
     -- Note that this measurement can be null.
@@ -171,7 +193,7 @@ create table MonthAverage (
 );
 
 create table YearAverage (
-    sensorId integer not null references Sensor(id),
+    sensorId integer not null references Sensor(id) on delete cascade,
     -- Unix time for YYYY-00-00 00:00. Identifies the month.
     unixtime integer not null,
     -- Note that this measurement can be null.
