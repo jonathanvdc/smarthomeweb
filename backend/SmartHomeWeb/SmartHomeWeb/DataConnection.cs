@@ -2036,8 +2036,8 @@ namespace SmartHomeWeb
                 foreach (var elem in Data.Chart)
                 {
                     cmd.Parameters["@sensorId"].Value = elem.SensorId;
-                    cmd.Parameters["@startTime"].Value = (elem.StartTime - new DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
-                    cmd.Parameters["@endTime"].Value = (elem.EndTime - new DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
+                    cmd.Parameters["@startTime"].Value = DatabaseHelpers.CreateUnixTimeStamp(elem.StartTime);
+                    cmd.Parameters["@endTime"].Value = DatabaseHelpers.CreateUnixTimeStamp(elem.EndTime);
                     cmd.Parameters["@maxMeasurements"].Value = elem.MaxMeasurements;
                     await cmd.ExecuteNonQueryAsync();
                 }
