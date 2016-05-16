@@ -53,11 +53,15 @@ behandelen.
 
 \item Ken heeft \textbf{clustering} ge\"implementeerd.
 
-\item Mauris heeft \textbf{predictie} ge\"implementeerd.
+\item Mauris heeft het \textbf{voorspellen van verbruik} ge\"implementeerd.
 
 \item Pieter heeft het \textbf{delen} van \textbf{live grafieken} ge\"implementeerd.
 
+\item Jonathan heeft de \textbf{JavaScript API} opgesteld voor measurement charts.
+
 \end{itemize}
+
+Naast de voorgaande features, zijn sinds het vorige rapport ook de \emph{dashboard} en \emph{compare} pagina's opgedeeld en volledig herschreven, door Jonathan en Sibert, respectievelijk.
 
 \section{Design}
 
@@ -229,6 +233,14 @@ We ondersteunen \emph{compaction} tot \emph{tier} 3. Maandgegevens verwijderen l
 \emph{Compaction} wordt tot uitvoering gebracht door middel van de REST API. Voor de command-line wordt zo'n request naar de server verstuurd door het \texttt{compact.py} script, dat ofwel manueel kan gebruikt worden, ofwel periodisch tot uitvoering gebracht kan worden door middel van een extern programma als \texttt{cron}.
 
 \subsection{Extra functionaliteit}
+
+\subsubsection{JavaScript API}
+
+\subsubsection{$k$-means clustering}
+
+\subsubsection{Voorspellen van verbruik}
+
+\subsubsection{Continuous integration}
 
 We hebben
 \emph{continuous integration} opgezet voor het project. Telkens we een {commit} 
