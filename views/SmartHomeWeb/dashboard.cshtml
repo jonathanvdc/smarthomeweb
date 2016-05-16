@@ -137,7 +137,7 @@ else
                             @TextResources.Submit
                         </button>
                     </span>
-                   
+
 
                 </div>
             </div>
@@ -286,6 +286,8 @@ else
     sensorSelectNone   = function() { massSelect(function(b) { return false; }); };
     sensorSelectToggle = function() { massSelect(function(b) { return !b; }); };
 
+    // Toggles the sensor with the given identifier. This function requires
+    // O(1) communication with the server.
     toggleId = function(sensorId) {
         var oldIdCount = state['sensorIds'].length;
         var filteredIds = $.grep(state['sensorIds'], function(id) {
@@ -355,6 +357,8 @@ else
             measurementsGraph.setAggregationFunction(null);
     };
 
+    // Flushes the state to the chart from scratch. This requires
+    // O(n) communication with the server.
     var flushState = function() {
         if (isValidState()) {
             measurementsGraph.chartDesc.batchChanges(function() {
@@ -406,21 +410,17 @@ else
             var $holder = $parent.parent();
             if (!$parent.hasClass('active')) {
                 $parent.addClass('active');
-                setActive($parent[0].id);
-                
             }
             else {
                 $parent.removeClass('active');
-                setInactive($parent[0].id);
             }
-            
         });
 
         // Make tag selection work and look good
         $('.tag').click(function (e) {
 
             var tag = $(this).text().trim();
-            
+
             if ($(this).hasClass('active')) {
                 $(this).removeClass('active');
                 filteredTags[currentLocation].splice(filteredTags[currentLocation].indexOf(tag),1);
@@ -533,16 +533,6 @@ else
 	        return $("p", a).text() > $("p", b).text() ? 1 : -1;
 	    }));
 	}
-    var actives = [];
-    function setActive(e) {
-        actives.push(e);
-    }
-    function setInactive(e) {
-        var index = actives.indexOf(e);
-        if (index > -1) {
-            actives.splice(index, 1);
-        }
-    }
     document.getElementById("saveButton").addEventListener("click", function() {
         var name = document.getElementById("saveName").value;
         if (name === null || name === "") {
@@ -558,15 +548,11 @@ else
                 "chart": [],
                 "name": name
             };
-            alert(actives);
-            if (actives.length !== 0) {
-                for (var q = 0; q < actives.length; ++q) {
-                    json.chart.push({
-                        "sensorId": actives[q],
-                        "startTime": start.getTime() / 1000,
-                        "endTime": end.getTime() / 1000,
-                        "maxMeasurements": maxMeasurements
-                    });
+            var chartRanges = measurementsGraph.chartDesc.getRanges();
+            alert(chartRanges);
+            if (chartRanges.length !== 0) {
+                for (var q = 0; q < chartRanges.length; ++q) {
+                    json.chart.push(chartRanges[q].toJSON());
                 }
                 rq.setRequestHeader("Content-type", "application/json");
                 rq.send(JSON.stringify(json));

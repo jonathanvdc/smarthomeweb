@@ -159,12 +159,12 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // Creates a JSON object literal that describes this range.
     // This function is part of the public API.
     this.toJSON = function() {
-        return JSON.stringify({
+        return {
             'sensorId' : sensorId,
             'startTime' : GraphHelpers.timeString(startTime),
             'endTime' : GraphHelpers.timeString(endTime),
             'maxMeasurements' : maxMeasurements
-        });
+        };
     };
 
     // Encodes this autofitted range as a relative path.
