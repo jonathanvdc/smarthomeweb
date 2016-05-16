@@ -95,16 +95,28 @@ else
         </div>
 
         <div class="col-sm-8">
-            <div class="panel panel-default" style="height:560px">
+            <div class="panel panel-default" style="height: 615px">
                 <div class="panel-heading">@(TextResources.GraphTitle)</div>
                 <div class="panel-body chartwrapper">
                     @Html.Partial("graph-control.cshtml", Model.Item2)
                 </div>
             </div>
+            <div class="panel panel-default" style="height: 35px;">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="saveName"/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" id="saveButton" name="saveButton">
+                            @TextResources.Submit
+                        </button>
+                    </span>
+                   
+
+                </div>
+            </div>
         </div>
 
 		<div class="col-sm-4">
-            <div class="panel panel-default" style="height: 560px;">
+            <div class="panel panel-default" style="height: 615px;">
 
                 <div class="panel-heading">@(TextResources.SensorSelectorTitle)<select id='sortselect' style="float:right;width: 25%;" onchange="sort()"><option value="a-z">A-Z</option><option value="usage">Usage</option></select></div>
 
@@ -121,7 +133,7 @@ else
                                         Sensor sensor = item.Item1;
                                         var tags = item.Item2;
                                     }
-                                    <li sensor-id="@sensor.Id" onClick="toggleId(@sensor.Id)">
+                                    <li id="@sensor.Id" sensor-id="@sensor.Id" onClick="toggleId(@sensor.Id)">
                                         <div class="clickable-item" style="width: 100%; display: table;">
 
                                             <div style="display: table-row">
@@ -298,20 +310,23 @@ else
         $('.nav').on('click', "li .clickable-item", function (e) {
             var $parent = $(this).parent();
             var $holder = $parent.parent();
-
             if (!$parent.hasClass('active')) {
                 $parent.addClass('active');
+                setActive($parent[0].id);
+                
             }
             else {
-				$parent.removeClass('active');
-			}
+                $parent.removeClass('active');
+                setInactive($parent[0].id);
+            }
+            
         });
 
         // Make tag selection work and look good
         $('.tag').click(function (e) {
 
             var tag = $(this).text().trim();
-
+            
             if ($(this).hasClass('active')) {
                 $(this).removeClass('active');
                 filteredTags[currentLocation].splice(filteredTags[currentLocation].indexOf(tag),1);
@@ -357,13 +372,12 @@ else
             var visible = true;
             // Check if the filtered tags are a subset of the sensor's tags
             if (filteredTags[currentLocation].length > 0)
-                visible = filteredTags[currentLocation].every(function (val) { return sensorTags.indexOf(val) >= 0; });
+                visible = filteredTags[currentLocation].every(function(val) { return sensorTags.indexOf(val) >= 0; });
 
             if (visible) {
-                if( $sensor.hasClass('hidden'))
+                if ($sensor.hasClass('hidden'))
                     $sensor.removeClass('hidden');
-            }
-            else {
+            } else {
                 if (!$sensor.hasClass('hidden')) {
                     $sensor.addClass('hidden');
                 }
@@ -371,67 +385,107 @@ else
         }
     }
 
-	function sort() {
-		var select = document.getElementById('sortselect').value;
-		if (select == "usage") {
-			byconsumption();
-		}
-        else if (select == "a-z") {
-			byalphabet();
-		}
+    function sort() {
+        var select = document.getElementById('sortselect').value;
+        if (select == "usage") {
+            byconsumption();
+        } else if (select == "a-z") {
+            byalphabet();
+        }
 
         // Reload tooltips, since moving elements disables them
-		$('[data-toggle="tooltip"]').tooltip();
-	}
+        $('[data-toggle="tooltip"]').tooltip();
+    }
 
-	function byconsumption(){
-		var sensors = document.getElementById('u_' + currentLocation).children[0];
-		var items = sensors.getElementsByTagName("li");
-        var ids = $.map(items, function(elem) {
-            return createRange(elem.getAttribute("sensor-id")).getTotalUsageAsync();
-        });
-        GraphHelpers.whenAll(ids, function(results) {
-            var x = [];
-    		var newitems = [];
-    		for (var i = 0; i < results.length; ++i) {
-    		    x.push([i, results[i]]);
-    		}
-            x.sort(function(a, b) {
-                return a[1] < b[1] ? 1 : -1;
+    function byconsumption() {
+        var sensors = document.getElementById('u_' + currentLocation).children[0];
+        var items = sensors.getElementsByTagName("li");
+        var ids = $.map(items,
+            function(elem) {
+                return createRange(elem.getAttribute("sensor-id")).getTotalUsageAsync();
             });
+        GraphHelpers.whenAll(ids,
+            function(results) {
+                var x = [];
+                var newitems = [];
+                for (var i = 0; i < results.length; ++i) {
+                    x.push([i, results[i]]);
+                }
+                x.sort(function(a, b) {
+                    return a[1] < b[1] ? 1 : -1;
+                });
 
-            for (var i = 0; i < x.length; ++i){
-                newitems.push(items[x[i][0]].cloneNode(true));
-            }
-            for (var i = 0; i < items.length; ++i){
-                sensors.replaceChild(newitems[i], items[i]);
-            }
+                for (var i = 0; i < x.length; ++i) {
+                    newitems.push(items[x[i][0]].cloneNode(true));
+                }
+                for (var i = 0; i < items.length; ++i) {
+                    sensors.replaceChild(newitems[i], items[i]);
+                }
+            });
+    }
+
+
+    function byalphabet() {
+        var sensors = document.getElementById('u_' + currentLocation).children[0];
+        var items = sensors.getElementsByTagName("li");
+        var x = [];
+        var newitems = [];
+
+        for (var i = 0; i < items.length; ++i) {
+            x.push([i, items[i].firstElementChild.firstElementChild.firstElementChild.firstElementChild.innerHTML]);
+        }
+
+        x.sort(function(a, b) {
+            return a[1] > b[1] ? 1 : -1;
         });
-	}
 
+        for (var i = 0; i < x.length; ++i) {
+            newitems.push(items[x[i][0]].cloneNode(true));
+        }
 
-	function byalphabet(){
-	    var sensors = document.getElementById('u_' + currentLocation).children[0];
-		var items = sensors.getElementsByTagName("li");
-		var x = [];
-		var newitems = [];
-
-		for(var i = 0; i < items.length; ++i){
-			x.push([i, items[i].firstElementChild.firstElementChild.firstElementChild.firstElementChild.innerHTML]);
-		}
-
-		x.sort(function(a, b) {
-			return a[1] > b[1] ? 1 : -1;
-		});
-
-		for(var i = 0; i < x.length; ++i){
-			newitems.push(items[x[i][0]].cloneNode(true));
-		}
-
-		for(var i = 0; i < items.length; ++i){
-		    sensors.replaceChild(newitems[i], items[i]);
-		}
-	}
-
-
+        for (var i = 0; i < items.length; ++i) {
+            sensors.replaceChild(newitems[i], items[i]);
+        }
+    }
+    var actives = [];
+    function setActive(e) {
+        actives.push(e);
+    }
+    function setInactive(e) {
+        var index = actives.indexOf(e);
+        if (index > -1) {
+            actives.splice(index, 1);
+        }
+    }
+    document.getElementById("saveButton").addEventListener("click", function() {
+        var name = document.getElementById("saveName").value;
+        if (name === null || name === "") {
+            confirm("@TextResources.PleaseEnterAName");
+        } else {
+            var rq = new XMLHttpRequest();
+            rq.open("POST", "/dashboard", true);
+            var range = document.getElementById("daterange").value;
+            var start = range.substring(0, 16);
+            var end = range.substring(19, 35);
+            var maxMeasurements = 4096;
+            var i = 0;
+            var json = {
+                "name" : name,
+                "data" : []
+            };
+            if (actives.length !== 0) {
+                for (var q = 0; q < actives.length; ++q) {
+                    json.data.push({
+                        "sensorId": actives[q],
+                        "startDate": start,
+                        "endDate": end,
+                        "maxMeasurements": maxMeasurements
+                    });
+                }
+                rq.setRequestHeader("Content-type", "application/json");
+                rq.send();
+                confirm(JSON.stringify(json));
+            }
+        }
+    });
 </script>
