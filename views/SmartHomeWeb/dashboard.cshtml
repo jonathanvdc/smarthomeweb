@@ -57,12 +57,20 @@ else
                     <div id="range-selector" class="panel-body">
 	                    <input id="daterange" name="daterange" size="35"/>
 	                    <br/>
-	                    <input type="radio" name="date-granularity" id="dg-fine" value="500" checked="checked"/>
-	                    <label for="dg-fine">Fine</label>
-                        <input type="radio" name="date-granularity" id="dg-medium" value="150"/>
-	                    <label for="dg-medium">Medium</label>
-                        <input type="radio" name="date-granularity" id="dg-coarse" value="50"/>
-	                    <label for="dg-coarse">Coarse</label>
+                        <div style="margin-top:5px;margin-bottom:-5px;">
+                            <label class="radio-inline">
+                                <input type="radio" name="date-granularity" id="dg-fine" value="500" checked="checked">
+                                Fine
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="date-granularity" id="dg-medium" value="150">
+                                Medium
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="date-granularity" id="dg-coarse" value="50">
+                                Coarse
+                            </label>
+                        </div>
                     </div>
 
                 </div>
