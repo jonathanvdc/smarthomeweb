@@ -1,0 +1,380 @@
+\documentclass[12pt,parskip=full]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[a4paper]{geometry}
+\usepackage[final]{listings}
+\usepackage{pxfonts}
+\usepackage{microtype}
+\usepackage{relsize}
+\usepackage{parskip}
+% \usepackage{all_is_fuck}
+\begin{document}
+\title{Rapport 3}
+\author{Sibert Aerts \\ Ken Bauwens \\ Pieter Hendriks \\ Jonathan Van der Cruysse \\ Mauris Van Hauwe}
+\maketitle
+
+\newcommand{\code}[1]{\texttt{#1}}
+%
+%\newcommand{\CS}{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-2}{\textbf{\#}}}}}
+\newcommand{\CS}{{C\#}}
+\lstset{language=[Sharp]C,basicstyle=\ttfamily}
+
+\section{Status}
+We hebben intussen de volgende features ge\"implementeerd:
+
+\begin{itemize}
+\item Mauris, Jonathan en Sibert hebben de \textbf{REST API} verzorgd, wat
+inhoudt dat we ruwe JSON data uit de database kunnen requesten en hiernaar
+kunnen posten.
+
+\item Pieter, Jonathan en Mauris hebben de \textbf{database structuur}
+opgesteld. Dit zijn alle huidige tables en de \textit{constraints} die hierop gedefinieerd zijn.
+
+\item Jonathan en Pieter hebben de interne \textbf{database queries} voorzien,
+die de server gebruikt om data uit de database te lezen en om data weg te
+schrijven naar de database.
+
+\item Sibert, Jonathan, Mauris en Pieter hebben gewerkt aan \textbf{database
+integration}. Dit omvat de meer complexe methodes die data uit de database
+behandelen.
+
+\item Jonathan heeft de \textbf{aggregatie-strategie} opgesteld en ge\"implementeerd.
+
+\item Mauris heeft het \textbf{verwijderen van outliers} ge\"implementeerd.
+
+\item Mauris en Pieter hebben \textbf{login}-functionaliteit ge\"implementeerd.
+
+\item Ken, Sibert, Jonathan, Mauris en Pieter hebben \textbf{HTML views} opgesteld.
+
+\end{itemize}
+
+\section{Design}
+
+\subsection{Keuzes}
+% Korte motivatie van de belangrijkste keuzes in het ontwerp.
+\subsubsection{Programmeertaal}
+We hebben gekozen voor de programmeertaal \CS{}. Deze taal is vergelijkbaar met C++, maar is wat expressiever en meer memory-safe. \CS{} ondersteunt ook \textit{task-based parallellism}, wat ons toelaat heel eenvoudig requests asynchroon af te handelen.
+
+\subsubsection{Framework}
+Als framework voor onze web-applicatie gebruiken we \textit{Nancy}. Dit is een
+minimalistisch web-framework ge\"inspireerd door het Ruby-framework
+\textit{Sinatra}. Een Nancy-project bestaat uit modules, waarin we per URL
+defini\"eren hoe requests beantwoord moeten worden:
+
+\begin{lstlisting}[caption=Een \textit{hello world}-applicatie in Nancy]
+    public class MyModule : NancyModule {
+        public MyModule() { Get["/"] = _ => "Hey!"; }
+    }
+\end{lstlisting}
+
+\subsubsection{View engine}
+We gebruiken het \textit{Razor} view engine om data in onze pagina's te
+verwerken. Hiertoe schrijven we \textit{view templates}: HTML-pagina's waarin
+C\#-code zit. Deze worden gecompileerd, en Nancy vult data in waar nodig.
+
+\lstset{language=HTML}
+\begin{lstlisting}[caption=Een simpel voorbeeld van een Razor view, label=razor]
+    <h2>Logged in as @CurrentUser.UserName.</h2>
+\end{lstlisting}
+
+\subsection{Database schema}
+Het ER-diagram is toegevoegd als bijlage (\texttt{erdiagram.png}). Het database schema zelf kan teruggevonden worden in de appendix.
+
+\subsection{UML schema}
+
+Het UML schema zelf is toegevoegd als bijlage (\texttt{uml-diagram.pdf}). De \emph{back-end} bestaat uit de volgende componenten:
+
+\begin{itemize}
+
+\item \textbf{model classes}: het \emph{model} stelt tuples in de database voor. Concreet is het \emph{model} opgesplitst in twee soorten klassen.
+
+\begin{itemize}
+
+\item \textbf{identity classes}: stellen een tuple in de database voor met een 
+unieke \emph{identifier}, die door de \emph{data connection} gegenereerd wordt. 
+Hun data wordt voorgesteld door een instantie van een \emph{data class}. Zo 
+zijn \code{Person}, \code{Location} en \code{Sensor} enkele voorbeelden van 
+\emph{identity classes}.
+
+\item \textbf{data classes}: stellen concrete data voor. Deze data komt niet
+noodzakelijk precies overeen met een tuple in de database, maar altijd wel met
+een bepaalde deelverzameling daarvan, zonder unieke identifier.
+
+Er bestaan twee voorname \emph{use cases} voor deze \emph{data objects}.
+Enerzijds worden ze gebruikt om, zij het in samenwerking met een
+  \emph{identity object}, zij het onafhankelijk, informatie uit de database
+  voor te stellen.
+Anderzijds kunnen ze ook gebruikt worden om data van objecten die nog
+  toegevoegd moeten worden aan de database -- en dus nog geen unieke
+  \emph{identifier} hebben -- voor te stellen. \code{PersonData},
+  \code{LocationData} en \code{Measurement} zijn voorbeelden van \emph{data
+  classes}.
+
+\end{itemize}
+
+\item \textbf{data connection}: spant de brug tussen de database en de \emph{back-end}. De \code{DataConnection} klasse opent en sluit de database, en bedient zich van SQL queries om records aan de database toe te voegen, en deze later weer uit de database te halen. \code{DataConnection} vormt een laag abstractie bovenop directe communicatie met de database: database tuples worden meteen vertaald in \emph{model objects}, en omgekeerd.
+
+\item \textbf{Nancy modules}: een \emph{module} voorziet
+\emph{routing}-functionaliteit; elke module geeft een lijst URL's op, en
+bepaalt welke \emph{content} de server doorstuurt of aanvaardt wanneer een HTTP
+\textsc{get}, \textsc{put} of \textsc{post} request voorkomt. Hier wordt geen
+onderscheid gemaakt tussen de API, dat door scripts een applicaties gebruikt
+kan worden, en de HTML pagina's, die in een browser bekeken kunnen worden.
+
+Elke \emph{module} heeft zijn eigen verantwoordelijkheid, en toegang (via de
+API) tot de verschillende \emph{tables} van de database wordt voorzien door
+verschillende modules. De {modules} zelf komen echter nooit direct in
+contact met de database: ze manipuleren enkel \emph{model objects}, en laten
+het communiceren met de database over aan de klasse \code{DataConnection}.
+
+\item \textbf{Configuratie en bootstrapping}: naast interactie met gebruikers en database, bestaan er ook nog enkele \emph{utility classes}, die de configuratie en het opstarten van de server organiseren. Daarnaast voorzien deze klassen ook extra functionaliteit in de vorm van \emph{user login}.
+
+\end{itemize}
+\section{Product}
+\subsection{Basisvereisten}
+\subsubsection{Back-end}
+In de database worden onder andere gebruikers, berichten, sensoren, en locaties
+(i.e.\ huishoudens)
+opgeslagen, samen met de verbanden tussen deze records (bv.\ ``gebruiker A
+woont op locatie B'' of ``gebruikers C en D zijn bevriend''). Ook metingen
+worden hier verzameld: elke meetwaarde wordt gekoppeld aan een sensor ID en een
+zekere timestamp.
+
+Een Python script, \texttt{init-db.py}, laadt alle mock-up data in de database
+en communiceert met \textit{ElecSim} om metingen aan te maken. Dit script
+communiceert met onze API, die \textsc{get/put/post} implementeert
+voor de nodige tabellen. Tabel~\ref{api-table}, achteraan dit document, toont
+hoe deze API precies werkt.
+
+\subsubsection{Front-end}
+Op de hoofdpagina kunnen gebruikers zich registreren en inloggen. Er is een
+\textit{navigation bar} met links naar hun dashboard, en overzichten van hun locaties en sensoren. Gebruikers kunnen ook berichten lezen die ze van anderen ontvangen.
+
+Het dashboard laat de gebruiker een locatie en een sensor kiezen, en toont de gebruiker een Google Charts-grafiek van die sensor over de gewenste
+tijdsperiode.
+
+\subsubsection{Aggregatie}
+
+Onze aggregatiestrategie bestaat uit twee onderdelen, die we \emph{aggregation} en \emph{compaction} noemen.
+
+\emph{Aggregation} heeft als doel snel uur-, dag-, maand- of jaargemiddeldes aan gebruikers te tonen, en verwijdert op zich geen data. Er wordt zelfs ``nieuwe'' data aangemaakt en aan de database toegevoegd door \emph{aggregation} in isolatie. Om aggregatie snel te laten verlopen, beroepen we ons op een vijftal \emph{aggregation tiers}, die opgeslagen worden in aparte \emph{tables} in de database:
+
+\begin{enumerate}
+	\item \textbf{Measurement}: minuut-per-minuut data, van sensoren afkomstig.
+
+	\item \textbf{Hour-average}: uurgemiddeldes. Deze worden bekomen door het gemiddelde van de metingen voor dat uur te nemen, na het verwijderen van outliers.
+
+	\item \textbf{Day-average}: daggemiddeldes, die overeen komen met het gemiddelde van alle uurgemiddeldes van een dag.
+
+	\item \textbf{Month-average}: maandgemiddeldes, die overeen komen met het gemiddelde van alle daggemiddeldes van een maand.
+
+	\item \textbf{Year-average}: jaargemiddeldes, die overeen komen met het gemiddelde van alle maandgemiddeldes van een jaar.
+\end{enumerate}
+
+Merk op dat deze \emph{tiers} niet steeds opnieuw verwijzen naar de metingen zelf, maar wel naar de onderliggende \emph{tier}. Dit is van belang voor zowel de effici\"entie van de \emph{aggregation} stap als de goede werking van de \emph{compaction} stap.
+
+De voorname \emph{use-case} voor pure \emph{aggregation} is het bekijken van een grafiek die een aanzienlijke tijdsperiode omvat. Simpele metingen zijn dan te talrijk om door te sturen, en boven te onoverzichtelijk voor de gebruiker.
+
+Onze aggregatiestrategie is erg gelijkend op de werking van het programma \texttt{make}. Wanneer data van \emph{tier} $n$ (met $n > 1$) voor een bepaalde sensor opgevraagd wordt, bepalen we het resultaat als volgt:
+
+\begin{enumerate}
+	\item Onderzoek of de gevraagde data zich al (deels) in de database bevindt. Indien dit het geval is, halen we alle reeds geaggregeerde data voor de gevraagde periode uit de database.
+
+	\item Data die nog niet reeds geaggregeerd in de database aanwezig is, wordt alle nodige data uit \emph{tier} $n - 1$ -- de \emph{dependencies}, als het ware -- opgevraagd of berekend.
+
+	\item Een aggregatie-algoritme wordt losgelaten uit deze data uit \emph{tier} $n - 1$. Voor de uurgemiddeldes houdt dit het verwijderen van outliers in, voor de overige \emph{tiers} komt dit neer op het gemiddelde nemen.
+
+	\item Alle nieuw-geaggregeerde data wordt naar de database, in de tabel van \emph{tier} $n$, geschreven, zodat dezelfde \emph{query} in de toekomst onmiddelijk beantwoord kan worden, en enkel stap \'e\'en van dit algoritme uitgevoerd moet worden.
+\end{enumerate}
+
+Wanneer een nieuwe meting aan de database toegevoegd wordt, wordt deze meteen meegerekend wanneer geaggregeerde data opgevraagd wordt. Concreet worden alle aggregaten, die be\"invloed worden door de voorgenoemde meting, uit de database verwijderd. Die geaggregeerde metingen zullen opnieuw berekend worden, rekening houdend met de nieuwe data, de volgende dat ze keer opgevraagd worden.
+
+De rekenkracht nodig om geaggregeerde data deels te herberekenen is gewoonlijk beperkt, aangezien voor elk uur aan nieuwe metingen hoogstens \'e\'en geaggregeerde waarde per \emph{aggregation tier} herberekend moet worden.
+
+Als implementatie-detail wordt een \emph{in-memory aggregation cache} gebruikt, die eerst data uit de database haalt en deze aggregeert, om de resultaten pas later terug naar de database te schrijven. Dit wordt door de volgende redenen gemotiveerd:
+
+\begin{itemize}
+	\item Een blok aan \textsc{insert} queries wordt op zich al wat sneller behandeld, daar we niet steeds opnieuw een \emph{command}-object moeten maken. Een \emph{write} op het einde van de \emph{transaction} vermindert ook de \emph{starvation} van andere database \emph{queries}. SQLite ondersteunt immers parallele \emph{reads}, maar \emph{writes} naar de database gebeuren steeds sequentieel, en verhinderen ook dat \emph{reads} uitgevoerd worden.
+
+	\item Door eerst een aanzienlijke hoeveelheid data in de \emph{cache} te plaatsen, kan aggregatie geparalleliseerd worden: het aggregeren van data wordt onder verschillende \emph{threads} verdeeld. Zo maken we handig gebruik van moderne \emph{multi-core} processors.
+\end{itemize}
+
+Het is ook nuttig te vermelden dat, hoewel de voorgaande paragrafen vooral het \emph{just-in-time} berekenen van geaggreerde data bespreken, het natuurlijk ook mogelijk is al deze data \emph{ahead-of-time} te berekenen, door periodisch geaggregeerde data op te vragen voor alle sensoren.
+
+\emph{Compaction} heeft als doel oudere data uit de database te verwijderen, en zo ruimte vrij te maken voor nieuwe metingen. Tegelijkertijd worden altijd wel geaggregeerde varianten van deze data bijgehouden, zodat er geen periodes ontstaan waar metingen volledig verloren gaan.
+
+De \emph{aggregation} stap maakt dit echter wel wat complexer. Zo zou het na\"ief verwijderen van metingen uit de database catastrofale gevolgen kunnen hebben, als deze data niet eerst geaggregeerd is. Dit probleem wordt makkelijk opgelost door eerst \emph{tier} $n + 1$ op te vullen met geaggregeerde data voor de tijdsperiode waar \emph{compaction} op toegepast wordt, indien \emph{tier} $n$ het doel was van de \emph{compaction}, dat wil zeggen, de data voor een bepaalde tijdsperiode in \emph{tier} $n$ wordt verwijderd.
+
+Verder keert de aggregatie-hi\"erarchie zich deels om wanneer \emph{compaction} toegepast is op een bepaalde \emph{tier}: deze \emph{tier} zal zijn data niet ontlenen aan de onderliggende \emph{tiers} -- deze zijn immers intussen volledig leeg -- maar wel aan de bovenliggende \emph{tiers}, die nog wel data bevatten.
+
+Om te kunnen weten op welke tijdsperiodes \emph{compaction} is toegepast, wordt een tuple in de \texttt{FrozenPeriod} tabel bijgestoken, die het begin- en eindpunt van de \emph{compaction} aanduidt, en verder ook tot op welke \emph{tier} \emph{compaction} is toegepast. 
+
+De \texttt{FrozenPeriod} tabel wordt ook onderzocht wanneer metingen aan de database toegevoegd worden. Het is immers niet mogelijk om de geaggregeerde data correct aan te passen op basis van een enkele extra meting, vanaf \emph{compaction} toegepast is. Daarom is het niet mogelijk om een meting aan de database toe te voegen tijdens een periode waarin \emph{compaction} is toegevoegd.
+
+Aangezien de tijdsperiodes waarop \emph{compaction} toegepast wordt niet opeenvolgend hoeven te zijn, is het ook mogelijk om \emph{compaction} niet uit te voeren voor een bepaalde historisch significante gebeurtenis, zoals een maand waarin de stroom op grote schaal uitviel, om daarna gewoon verder gaan met het gewoonlijke \emph{compaction}-schema.
+
+We ondersteunen \emph{compaction} tot \emph{tier} 3. Maandgegevens verwijderen leek ons niet meteen nodig: een volledig decennium aan maandgegevens (\emph{tier} 4) komt immers overeen in grootte met slechts twee uur aan minuutgegevens.
+
+\emph{Compaction} wordt tot uitvoering gebracht door middel van de REST API. Voor de command-line wordt zo'n request naar de server verstuurd door het \texttt{compact.py} script, dat ofwel manueel kan gebruikt worden, ofwel periodisch tot uitvoering gebracht kan worden door middel van een extern programma als \texttt{cron}.
+
+\subsection{Extra functionaliteit}
+
+We hebben
+\emph{continuous integration} opgezet voor het project. Telkens we een {commit} 
+pushen naar onze GitHub {repository}, gaat Travis CI na dat de applicatie 
+correct compileert. Daarnaast wordt 
+momenteel ook het cre\"eren van een database en het toevoegen, aggregeren en 
+verwijderen van data automatisch getest. Als een commit de \textit{build} 
+breekt, worden we hiervan op de hoogte gebracht.
+
+\section{Planning}
+De basisvereisten zijn al ge\"implementeerd, maar er is nog wat fragmentatie in
+de user interface. We willen vlottere interactie met de grafieken voorzien.
+
+Voor de grafieken lijkt het nog nuttig om \emph{side-by-side} grafieken toe te laten, waardoor men de specifieke verbruiken van verschillende sensoren kan vergelijken op een scherm.
+
+Een interessant idee lijkt ook het berekenen en delen van totaalverbruik aan de hand van tags. Waar per unieke tag het totale verbruik van alle getagde sensoren per maand berekend wordt, en men deze kan delen en vergelijken met die van vrienden.
+
+Extra \emph{diagnostics} op de ingelezen data, zowel voor de gebruikers als voor de admins, lijkt nuttig. Data zoals: het gemiddelde verbruik binnen een periode, de toename of afname in verbruik over meerdere periodes, de afwijking van het gemiddelde verbruik van een periode of van alle sensoren in het algemeen, de bijdrage aan het totale verbruik, etc.
+
+Het uitbreiden van het \emph{social media} aspect van het project lijkt ook nuttig. Hierbij denken we aan het uploaden van gepersonaliseerde profielfoto's, het uitwisselen van privéberichten met andere gebruikers, een meer gedetaileerde \emph{feed} en \emph{wall} per gebruiker, het delen van verschillende soorten van data en informatie met vrienden, etc.
+
+
+\pagebreak
+\newgeometry{margin=2cm}
+\section{Appendix: SQL}
+\label{dbschema}
+\lstset{language=SQL,basicstyle=\ttfamily}
+\lstinputlisting{smarthomeweb.sql}
+
+\pagebreak
+\def\arraystretch{1.8}
+\newcommand{\argu}[1]{\textbf{<\textit{#1}>}}
+\newcommand{\getallDesc}[1]{Toont een JSON-lijst van alle \code{#1} records.}
+\newcommand{\getDesc}[1]{Toont de \code{#1} met de gegeven ID.}
+\newcommand{\insertDesc}[1]{Leest een \code{#1{}Data} JSON-object uit de
+  request body, en maakt een nieuwe \code{#1} aan in de database.}
+\newcommand{\deleteDesc}[1]{Verwijdert de \code{#1} met
+  de gegeven ID uit de database.}
+\newcommand{\crud}[3]{
+  \code{GET /api/{#1}} & \getallDesc{#2} \\
+  \code{GET /api/{#1}/\argu{#3}} & \getDesc{#2} \\
+  \code{POST /api/{#1}} & \insertDesc{#2} \\
+  \code{DELETE /api/{#1}/\argu{#3}} & \deleteDesc{#2}
+}
+
+\newcommand{\compact}[1]{
+    \code{PUT /api/compact/{#1} /\argu{from}/\argu{to}} & Geeft de server de opdracht om \emph{compaction} toe te passen op de \code{#1} \emph{tier}, tijdens de periode tussen \code{from} en \code{to}.
+}
+\newcommand{\periodAverage}[3]{
+\hline
+  \code{GET /api/#1-average\newline/\argu{id}/\argu{time}}
+  & Levert een gemiddelde op van alle data uit de gegeven \code{Sensor}, over 
+  #2 bij de gegeven time\-stamp \code{time} hoort. \\
+  \code{GET /api/#1-average\newline/\argu{id}/\argu{time}/\argu{n}}
+  & Levert $n$ gemiddelden op, beginnende bij #2 bij \code{time} 
+  hoort, gevolgd door de $n-1$ volgende #3{}gemiddelden.
+}
+
+\section{Appendix: API calls}
+{\small
+  \begin{longtable}{p{.40\textwidth} p{.50\textwidth}}
+    \textbf{Commando} & \textbf{Beschrijving} \\
+    \hline
+    \crud{persons}{Person}{guid} \\
+    \hline
+    \code{GET /api/friends}
+    & Toont een JSON-lijst van alle \code{Friends} records. \\
+    \code{GET /api/friends/\argu{guid}}
+    & Toont alle vrienden de \code{Person} met de gegeven GUID. \\
+    \code{GET /api/friends/requests /received/\argu{guid}}
+    & Toont alle \code{Persons} die de gegeven \code{Person} een
+    vriendschapsverzoek gestuurd hebben. \\
+    \code{GET /api/friends/requests /sent/\argu{guid}}
+    & Toont alle \code{Persons} waarheen de gegeven \code{Person} een
+    vriendschapsverzoek gestuurd heeft. \\
+    \hline
+    \crud{locations}{Location}{id} \\
+    \hline
+    \code{GET /api/has-location}
+    & Toont alle koppels $(A, B)$ in de relatie \textit{``persoon A heeft zicht op
+    locatie B''}. \\
+    \code{GET /api/has-location /locations/\argu{guid}}
+    & Toont alle locaties voor de \code{Person} met de gegeven GUID. \\
+    \code{GET /api/has-location /persons/\argu{id}}
+    & Toont alle persons voor de \code{Location} met de gegeven ID. \\
+    \code{POST /api/has-location}
+    & Voegt een koppel aan de \textit{has-location} relatie toe. \\
+    \hline
+    \crud{message}{Message}{id} \\
+    \hline
+    \crud{sensors}{Sensor}{id} \\
+    \hline
+    \code{GET /api/sensors/by-tag/\argu{tag}}
+    & Toont alle \code{Sensors} met de gegeven tag. \\
+    \code{GET /api/sensors /at-location/\argu{id}}
+    & Toont alle \code{Sensors} op de gegeven locatie. \\
+    \code{GET /api/sensors /at-location/\argu{id}/by-tag/\argu{tag}}
+    & Toont alle \code{Sensors} met de gegeven tag op de gegeven locatie. \\
+    \code{PUT /api/sensors/\argu{id}}
+    & Voert een update uit op de gegeven \code{Sensor}. \\
+    \hline
+    \code{GET /api/sensor-tags/\argu{id}}
+    & Toont alle tags van de \code{Sensor} met de gegeven ID. \\
+    \code{POST /api/sensor-tags/\argu{id}}
+    & Voegt een tag toe aan de \code{Sensor} met de gegeven ID. De naam van de
+    tag wordt gelezen als een JSON string. \\
+    \code{DELETE /api/sensor-tags/\argu{id}}
+    & Verwijdert een tag van de \code{Sensor} met de gegeven ID. De naam van de
+    tag wordt gelezen als een JSON string. \\
+    \hline
+    \code{GET /api/measurements}
+    & Toont een JSON lijst van \textit{alle} metingen in de database. \\
+    \code{GET /api/measurements/\argu{id}}
+    & Toont alle metingen voor een gegeven \code{Sensor} ID. \\
+    \code{GET /api/measurements /\argu{id}/\argu{time}}
+    & Toont \'e\'en measurement, voor de gegeven \code{Sensor} op het gegeven
+    tijdstip. \\
+    \code{GET /api/measurements /\argu{id}/\argu{from}/\argu{to}}
+    & Toont alle metingen voor de gegeven \code{Sensor} tussen de tijdstippen
+    \code{from} en \code{to}. \\
+    \code{GET /api/measurements/virtual /\argu{id}/\argu{from}/\argu{to}}
+    & Toont alle metingen voor de gegeven \code{Sensor} tussen de tijdstippen \code{from} en \code{to}. Indien \emph{compaction} reeds is toegepast op de gevraagde periode, wordt \'e\'en meting per minuut gegenereerd uit de uurgemiddeldes. \\
+    \code{POST /api/measurements}
+    & Voegt een JSON-lijst van metingen toe aan de database. \\
+    \code{PUT /api/measurements/updatetag}
+    & Past de \emph{notes} van een meting aan. \\
+    
+    \hline \periodAverage{hour}{het uur dat}{uur} \\
+    \hline \periodAverage{day}{de dag die}{dag} \\
+    \hline \periodAverage{month}{de maand die}{maand} \\
+    \hline \periodAverage{year}{het jaar dat}{jaar} \\
+    \hline
+    \code{GET /api/autofit /\argu{id}/\argu{from}/\argu{to}/\argu{max\_results}}
+    & Levert data op voor de gegeven \code{Sensor} tussen de tijdstippen \code{from} en \code{to}. Dit kunnen ofwel directe metingen zijn, ofwel geaggregeerde metingen. Uit welke \emph{aggregation tier} ze komen, hangt van \code{max\_results} af, dat een bovengrens op de hoeveelheid resultaten stelt. \\
+    \hline
+    \compact{measurement} \\
+    \compact{hour-average} \\
+    \compact{day-average} \\
+    \code{PUT /api/vacuum}
+    & Geeft de server de opdracht om de database te herschikken zodat ruimte vrijkomt op het storage device dat de database bevat. Dit is vooral nuttig na het toepassen van een \textsc{delete} of een vorm van \emph{compaction}. \\
+    \hline
+    \code{GET /api/frozen}
+    & Toont een JSON-lijst van alle \code{FrozenPeriod} records. \\
+    \code{GET /api/frozen/\argu{time}}
+    & Onderzoekt of \code{time} \emph{frozen} is, en geeft het resultaat weer als een Boolean. Indien dit het geval is, is het niet mogelijk om op dit moment een meting aan de database toe te voegen. \\
+    \code{GET /api/frozen/\argu{from}/\argu{to}}
+    & Toont een JSON-lijst van alle \code{FrozenPeriod} records die overlappen met de periode tussen \code{from} en \code{to}. \\
+    \code{PUT /api/frozen/\argu{from}/\argu{to}}
+    & Voegt een tuple toe aan de \code{FrozenPeriod} tabel, die nog geen \emph{compaction} aangeeft, maar wel al verhindert dat er nog metingen worden toegevoegd tussen \code{from} en \code{to}. \\
+    % Nu /xxx-average nog.
+    \label{api-table}
+  \end{longtable}
+}
+
+\end{document}
