@@ -13,7 +13,7 @@
 
 <div class="container" style="margin-top: 50px">
 	<div class="row">
-		<div id="location_select" class="col_lg_12">
+		<div id="location_select" class="col-sm-12">
 			<select onchange="getSensors(this.value)">
 				@foreach (var x in Model)
 				{
@@ -27,10 +27,21 @@
 		</div>
 	</div>
 	<div class="row">
-		<div id="chart_div" class="col_lg_8">
+		<div id="chart_div" class="col-sm-8">
 			<!-- Graph goes here -->
 		</div>
-		<div id="steps" class="col_lg_4">
+		<div class="col-sm-4">
+			<div class="panel panel-default">
+				<div class="panel-heading">Sensors</div>
+				<div class="panel-body pre-scrollable" style="max-height: 350px;">
+					<ul class="nav nav-pills nav-stacked" id="sensoren">
+					  <li>No location selected</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div id="steps" class="col-sm-8">
 		  <table>
 		    <tr>
 		      <td style="padding: 5px;"><b>Current iteration: </b></td>
@@ -59,8 +70,8 @@
 			  <td id="totwcss">0</td>
 			</tr>
 		  </table>
+		  <button onclick="kmeans()">Apply kmeans</button>
 		</div>
-		<button onclick="kmeans()">Apply kmeans</button>
 	</div>
 </div>
 
@@ -126,16 +137,19 @@
 		  lowwcss = lowwcss + distancelow;
 		  ++lowcount;
 		  sensorlist[i][2] = "#05F228";
+		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-success";
 		}else if(lowest == distancemid){
 		  newmidmean = newmidmean + sensorlist[i][1];
 		  midwcss = midwcss + distancemid;
 		  ++midcount;
-		  sensorlist[i][2] = "#FFD903";		
+		  sensorlist[i][2] = "#FFD903";	
+		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-warning";		  
 		}else{
 		  newhighmean = newhighmean + sensorlist[i][1];
 		  highwcss = highwcss + distancehigh;
 		  ++highcount;
-		  sensorlist[i][2] = "#FF5447";		
+		  sensorlist[i][2] = "#FF5447";	
+		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-danger";		  
 		}
 	  }
 	  //calculate new means with centroids(or averages because 1d)
@@ -178,7 +192,7 @@
       data.addRows(sensorlist);
 
       // Set chart options
-      var options = {'title':'How Much Pizza I Ate Last Night',
+      var options = {'title':'Energy usage ',
                      'width':600,
                      'height':450,
 					 seriesType: 'bars',
@@ -199,11 +213,14 @@
 	  //Also adds the mean of the clusters to display these in the graph
 	  for(var i = 0; i < sensorlist.length; ++i){
 	    if(sensorlist[i][1] <= lowmean){
-		  sensorlist[i].push("#05F228");		  
+		  sensorlist[i].push("#05F228");
+		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-success";
 		}else if(sensorlist[i][1] <= midmean){
-		  sensorlist[i].push("#FFD903");		
+		  sensorlist[i].push("#FFD903");
+		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-warning";		  
 		}else{
 		  sensorlist[i].push("#FF5447");
+		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-danger";		  
 		}
 		sensorlist[i].push(lowmean);
 		sensorlist[i].push(midmean);
@@ -221,15 +238,23 @@
 	};
 	
 	function getSensors(id){
+	    $("#sensoren").empty();
 	    currenthousehold = id;
 		sensorlist = [];
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (xhttp.readyState == 4) {
 			   sensors = JSON.parse(xhttp.responseText);
+			   var list = document.getElementById("sensoren");
 			   for(var i = 0; i < sensors.length; i++)
 			   {
-				 sensorlist.push([sensors[i].data.name, getMonthlyMeasurement(sensors[i].id)]);
+			     var measurement = getMonthlyMeasurement(sensors[i].id);
+			     var entry = document.createElement('li');
+				 entry.innerHTML = '<span class="badge">Value: ' +measurement.toString() + '</span>';
+				 entry.appendChild(document.createTextNode(sensors[i].data.name));
+				 entry.id = sensors[i].data.name;
+				 list.appendChild(entry);
+				 sensorlist.push([sensors[i].data.name, measurement]);
 			   }
 			   sensorlist.sort(function(a, b) {
                 return a[1] > b[1] ? 1 : -1;
@@ -245,11 +270,11 @@
 			   //Set the initial wcss:
 			   for(var i = 0; i < sensorlist.length; ++i){
 			     if(sensorlist[i][2] == "#05F228"){
-				   lowwcss = lowwcss + Math.pow(sensorlist[i][1] - lowmean, 2);
+				   lowwcss = lowwcss + Math.pow(sensorlist[i][1] - lowmean, 2);		   
 				 }else if(sensorlist[i][2] == "#FFD903"){
-				   midwcss = midwcss + Math.pow(sensorlist[i][1] - midmean, 2);
+				   midwcss = midwcss + Math.pow(sensorlist[i][1] - midmean, 2);		   
 				 }else{
-				   highwcss = highwcss + Math.pow(sensorlist[i][1] - highmean, 2);
+				   highwcss = highwcss + Math.pow(sensorlist[i][1] - highmean, 2);			   
 				 }
 			   }
 			   updateDisplay();
