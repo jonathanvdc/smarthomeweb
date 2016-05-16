@@ -550,14 +550,12 @@ else
                 "ownerGuid" : '@(((UserIdentity)Context.CurrentUser).Guid)'
             };
             var chartRanges = measurementsGraph.chartDesc.getRanges();
-            alert(chartRanges);
             if (chartRanges.length !== 0) {
                 for (var q = 0; q < chartRanges.length; ++q) {
                     json.chart.push(chartRanges[q].toJSON());
                 }
                 rq.setRequestHeader("Content-type", "application/json");
                 rq.send(JSON.stringify(json));
-                alert(JSON.stringify(json));
             }
         }
     });
