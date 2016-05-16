@@ -546,7 +546,8 @@ else
             var maxMeasurements = 20;
             var json = {
                 "chart": [],
-                "name": name
+                "name": name,
+                "ownerGuid" : '@(((UserIdentity)Context.CurrentUser).Guid)'
             };
             var chartRanges = measurementsGraph.chartDesc.getRanges();
             alert(chartRanges);

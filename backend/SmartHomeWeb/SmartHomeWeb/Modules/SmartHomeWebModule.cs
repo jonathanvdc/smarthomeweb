@@ -524,28 +524,11 @@ namespace SmartHomeWeb.Modules
         private async Task<dynamic> PostDashboard(dynamic parameters, CancellationToken ct)
         {
             this.RequiresAuthentication();
-            using (var dct = DataConnection.CreateAsync())
+            var obj = JsonConvert.DeserializeObject<GraphData>(Request.Body.AsString());
+            await DataConnection.Ask(dc =>
             {
-                dynamic g = JObject.Parse(this.Request.Body.AsString()); //Parse the object. Was getting errors when serializing, so I did it manually.
-                var guid = CurrentUserGuid(); //Initialize all the variables as necessary, guid comes from current user, rest of the data comes from the JSON.
-                string name = g.name;
-                var list = new List<AutofitRange>(); //Probably should replace this with an array from the get-go, but this works and the overhead should be minimal.
-                foreach (var q in g.chart)
-                {
-                    Console.WriteLine(q.sensorId);
-                    int sensor = q.sensorId; 
-                    var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds((long)q.startTime);
-                    var end = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds((long)q.endTime);
-                    int maxMeasurements = q.maxMeasurements;
-
-                    list.Add(new AutofitRange(sensor, start, end, maxMeasurements));
-                }
-                var range = list.ToArray();
-                var GD = new GraphData(range, name, guid);
-                var dc = await dct;
-                await dc.InsertGraphAsync(GD);
-                
-            }
+                return dc.InsertGraphAsync(obj);
+            });
 
             return HttpStatusCode.OK;
         }
