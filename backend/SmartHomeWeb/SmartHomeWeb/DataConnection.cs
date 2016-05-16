@@ -1918,21 +1918,17 @@ namespace SmartHomeWeb
 
                     await cmd.ExecuteNonQueryAsync();
                 }
-
             }
-
-
         }
+
         /// <summary>
         /// Creates a task to fetch all the groups for a given user.
         /// ie, all the groups that that user is a member of
         /// </summary>
-
         public async Task<IEnumerable<Group>> GetGroupsForUserAsync(Guid personGuid)
         {
             using (var cmd = sqlite.CreateCommand())
             {
-
                 cmd.CommandText = @"SELECT *
                 FROM PersonGroup
                 WHERE @personGuid
@@ -1970,6 +1966,7 @@ namespace SmartHomeWeb
             }
             return await Task.WhenAll(results.Select(WithGraphElementsAsync));
         }
+        
         /// <summary>
         /// Creates a task to fetch a group entity from its id
         /// </summary>
@@ -1997,6 +1994,7 @@ namespace SmartHomeWeb
                 return await ExecuteCommandAsync(cmd, DatabaseHelpers.ReadPerson);
             }
         }
+
         /// <summary>
         /// Inserts a group with name and description, taken from the group object.
         /// </summary>
