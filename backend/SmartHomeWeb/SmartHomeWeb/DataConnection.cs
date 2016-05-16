@@ -1069,7 +1069,6 @@ namespace SmartHomeWeb
         /// </summary>
         public async Task UpdateMeasurementNotesAsync(Measurement measurement, string tablename)
         {
-            Console.WriteLine(tablename);
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = $@"UPDATE {tablename}
@@ -1078,7 +1077,6 @@ namespace SmartHomeWeb
                 cmd.Parameters.AddWithValue("@notes", measurement.Notes);
                 cmd.Parameters.AddWithValue("@sensor", measurement.SensorId);
                 cmd.Parameters.AddWithValue("@time", DatabaseHelpers.CreateUnixTimeStamp(measurement.Time));
-                Console.WriteLine(cmd.CommandText);
                 await cmd.ExecuteNonQueryAsync();
             }
         }
@@ -2115,8 +2113,6 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = "INSERT INTO Graph (owner, name) VALUES (@owner, @name)";
-                Console.WriteLine(Data.OwnerGuidString);
-                Console.WriteLine(Data.Name);
                 cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
 

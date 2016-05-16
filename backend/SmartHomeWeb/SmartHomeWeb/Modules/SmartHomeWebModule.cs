@@ -631,7 +631,6 @@ namespace SmartHomeWeb.Modules
                         }
                         else
                         {
-                            await Console.Out.WriteLineAsync(name);
                             var loc = await dc.GetLocationByNameAsync(name);
                             if (loc != null)
                             {
@@ -711,7 +710,6 @@ namespace SmartHomeWeb.Modules
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync((string) Request.Form["messagename"]);
                         var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "messagename"));
                         if (recipient == null)
                         {
@@ -751,7 +749,6 @@ namespace SmartHomeWeb.Modules
                     }
                     else
                     {
-                        await Console.Out.WriteLineAsync((string) Request.Form["friendname"]);
                         var recipient = await dc.GetPersonByUsernameAsync(FormHelpers.GetString(Request.Form, "friendname"));
                         if (recipient == null)
                         {
@@ -785,8 +782,6 @@ namespace SmartHomeWeb.Modules
                 {
                     int sensorId = (int)Request.Form["sensor-id"];
                     string tag = FormHelpers.GetString(Request.Form, "tag-name");
-
-                    Console.WriteLine("Tagging Sensor {0} with \"{1}\"", sensorId, tag);
 
                     var sensor = await dc.GetSensorByIdAsync(sensorId);
 
@@ -824,8 +819,6 @@ namespace SmartHomeWeb.Modules
                     string sensorName = FormHelpers.GetString(Request.Form, "sensor-name");
                     string sensorDesc = FormHelpers.GetString(Request.Form, "sensor-description");
                     string sensorNotes = FormHelpers.GetString(Request.Form, "sensor-notes");
-
-                    Console.WriteLine("Adding Sensor \"{0}\" to location {1}", sensorName, locationId);
 
                     var location = await dc.GetLocationByIdAsync(locationId);
 

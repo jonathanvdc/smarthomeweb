@@ -203,7 +203,6 @@ namespace SmartHomeWeb
         /// </summary>
         public static Graph ReadEmptyGraph(IDataRecord Record)
         {
-            Console.WriteLine(Record.FieldCount);
             if (Record.IsDBNull(Record.GetOrdinal("graphId"))) return null;
             return new Graph(
                 GetInt32(Record, "graphId"),
