@@ -47,7 +47,7 @@ else
         }
     </ul>
 
-    <div class="container col-sm-12">
+    <div class="container col-sm-12" style="padding:0px">
 
         <div class="container col-sm-12" style="margin-top: 15px; padding:0px">
             <div class="col-sm-4">
@@ -76,7 +76,7 @@ else
                 </div>
             </div>
 
-			<div class="col-sm-3" style="padding:0px">
+			<div class="col-sm-3">
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
 					<div class="panel-body tab-content btn-group hold-when-clicked" style="padding:12px">
@@ -123,7 +123,7 @@ else
         </div>
 
         <div class="col-sm-8">
-            <div class="panel panel-default" style="height:560px">
+            <div class="panel panel-default" style="height: 620px">
                 <div class="panel-heading">@(TextResources.GraphTitle)</div>
                 <div class="panel-body chartwrapper">
                     @Html.Partial("graph-control.cshtml", Model.Item2)
@@ -132,7 +132,7 @@ else
         </div>
 
 		<div class="col-sm-4">
-            <div class="panel panel-default" style="height: 560px;">
+            <div class="panel panel-default" style="height: 620px;">
 
 	            <div class="panel-heading">
 		            <!-- @(TextResources.SensorSelectorTitle) -->
@@ -155,7 +155,7 @@ else
 		            </select>
 	            </div>
 
-                <div class="panel-body tab-content pre-scrollable" style="max-height: 91%">
+                <div class="panel-body tab-content pre-scrollable" style="max-height: 91.5%">
 
                     @for (int x = 0; x < Model.Item1.Count; ++x)
                     {
