@@ -54,8 +54,15 @@ else
                 <div class="panel panel-default">
 
                     <div class="panel-heading">@TextResources.RangeSelectorTitle</div>
-                    <div class="panel-body">
-                        <input id="daterange" name="daterange" size="35">
+                    <div id="range-selector" class="panel-body">
+	                    <input id="daterange" name="daterange" size="35"/>
+	                    <br/>
+	                    <input type="radio" name="date-granularity" id="dg-fine" value="500" checked="checked"/>
+	                    <label for="dg-fine">Fine</label>
+                        <input type="radio" name="date-granularity" id="dg-medium" value="150"/>
+	                    <label for="dg-medium">Medium</label>
+                        <input type="radio" name="date-granularity" id="dg-coarse" value="50"/>
+	                    <label for="dg-coarse">Coarse</label>
                     </div>
 
                 </div>
@@ -207,12 +214,18 @@ else
         flushState();
     };
 
+    // Get the maximum number of measurements to fetch in an autofit range.
+    // This number is controlled by the user (fine-medium-coarse).
+    var getMaxMeasurementCount = function() {
+        return +$("[name=date-granularity]:checked").val();
+    };
+
     // Creates an autofitted range for the sensor with the given identifier,
     // that has the given start and end time.
     // This function relies on the assumption that the current state is valid.
     var createRange = function(sensorId) {
         return new AutofitRange(
-            sensorId, state['startTime'], state['endTime'], 60);
+            sensorId, state['startTime'], state['endTime'], getMaxMeasurementCount());
     };
 
     // All <li> tags in the sensor list.
@@ -402,6 +415,8 @@ else
             $(this).siblings().removeClass("active");
             $(this).addClass("active");
         });
+
+        $('input[name=date-granularity]').change(flushState);
     });
 
     var filteredTags = [];
