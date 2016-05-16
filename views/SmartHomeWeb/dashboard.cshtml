@@ -465,26 +465,25 @@ else
             var rq = new XMLHttpRequest();
             rq.open("POST", "/dashboard", true);
             var range = document.getElementById("daterange").value;
-            var start = range.substring(0, 16);
-            var end = range.substring(19, 35);
-            var maxMeasurements = 4096;
-            var i = 0;
+            var start = new Date(range.substring(0, 16));
+            var end = new Date(range.substring(19, 35));
+            var maxMeasurements = 20;
             var json = {
-                "name" : name,
-                "data" : []
+                "chart": [],
+                "name": name
             };
             if (actives.length !== 0) {
                 for (var q = 0; q < actives.length; ++q) {
-                    json.data.push({
+                    json.chart.push({
                         "sensorId": actives[q],
-                        "startDate": start,
-                        "endDate": end,
+                        "startTime": start.getTime() / 1000,
+                        "endTime": end.getTime() / 1000,
                         "maxMeasurements": maxMeasurements
                     });
                 }
                 rq.setRequestHeader("Content-type", "application/json");
-                rq.send();
-                confirm(JSON.stringify(json));
+                rq.send(JSON.stringify(json));
+                alert(JSON.stringify(json));
             }
         }
     });

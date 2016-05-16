@@ -2115,6 +2115,8 @@ namespace SmartHomeWeb
             using (var cmd = sqlite.CreateCommand())
             {
                 cmd.CommandText = "INSERT INTO Graph (owner, name) VALUES (@owner, @name)";
+                Console.WriteLine(Data.OwnerGuidString);
+                Console.WriteLine(Data.Name);
                 cmd.Parameters.AddWithValue("@owner", Data.OwnerGuidString);
                 cmd.Parameters.AddWithValue("@name", Data.Name);
 
@@ -2136,8 +2138,8 @@ namespace SmartHomeWeb
                 foreach (var elem in Data.Chart)
                 {
                     cmd.Parameters["@sensorId"].Value = elem.SensorId;
-                    cmd.Parameters["@startTime"].Value = elem.StartTime;
-                    cmd.Parameters["@endTime"].Value = elem.EndTime;
+                    cmd.Parameters["@startTime"].Value = (elem.StartTime - new DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
+                    cmd.Parameters["@endTime"].Value = (elem.EndTime - new DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
                     cmd.Parameters["@maxMeasurements"].Value = elem.MaxMeasurements;
                     await cmd.ExecuteNonQueryAsync();
                 }

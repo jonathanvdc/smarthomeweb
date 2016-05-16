@@ -1,6 +1,8 @@
 @using System
 @using System.Collections.Generic
+@using System.Globalization;
 @using System.Linq
+@using System.Threading
 @using SmartHomeWeb.Model
 @using Nancy.ViewEngines.Razor
 @using SmartHomeWeb
@@ -43,18 +45,25 @@
                                     <strong>@item.Data.Name</strong>
                                 </div>
                                 @{
-                                    string starts = "", ends = "", maxMeasurements = "";
+                                    string starts = "", ends = "", maxMeasurements = "", ids = "";
+                                    CultureInfo old = CultureInfo.CurrentCulture;
+                                    Thread.CurrentThread.CurrentCulture = new CultureInfo("nl-BE");
                                     foreach (var z in item.Data.Chart)
                                     {
-                                        starts += z.StartTime.ToString() + ", ";
-                                        ends += z.EndTime.ToString() + ", ";
-                                        maxMeasurements += z.MaxMeasurements.ToString() + ", ";
+                                        string start = z.StartTime.ToString("yyyy-MM-ddTHH:mm");
+                                        string end = z.EndTime.ToString("yyyy-MM-ddTHH:mm");
+                                        starts += start + ",";
+                                        ends +=  end + ",";
+                                        ids += z.SensorId + ",";
+                                        maxMeasurements += z.MaxMeasurements.ToString() + ",";
 
                                     }
-                                    starts = starts.Remove(starts.Length - 2);
-                                    ends = ends.Remove(ends.Length - 2);
-                                    maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 2);
-                                    var url = string.Format("../view-graph/{0}/{1}/{2}", starts, ends, maxMeasurements);
+                                    Thread.CurrentThread.CurrentCulture = old;
+                                    starts = starts.Remove(starts.Length - 1);
+                                    ends = ends.Remove(ends.Length - 1);
+                                    maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 1);
+                                    ids = ids.Remove(ids.Length - 1);
+                                    var url = string.Format("../view-graph/{0}/{1}/{2}/{3}", ids, starts, ends, maxMeasurements);
                                 }
                                 <input id="hg@(i)" style="display: none;" value='@url'/>
                                 <input id="hg@(i)id" style="display: none;" value='@item.Id'/>
@@ -64,8 +73,15 @@
                 }
             }
         </div>
-        <div id="graphPreview_div" class="center-block" style="display: none;">
-            <img id="graphPreview" src=""/>
+        <div id="graphPreview_div" class="center-block col-md-12" style="display: none;">
+            <div class="text-center">
+                <strong>
+                    @TextResources.GraphTitle
+                </strong>
+            </div>
+            <iframe id="graphPreview" style="width: 625px; height: 625px; display: block;" src="">
+
+            </iframe>
             <button id="removeGraphbtn" type="reset" class="btn btn-default">Remove graph</button>
         </div>
     }
@@ -99,26 +115,36 @@
                             @Html.Raw(string.Format(TextResources.WallPostHeader, post.Source.Data.UserName, post.Source.Data.Name))
                         </h4>
                         <div class="bubble col-md-8">
-                            @post.Message
+                            <div class style="display: block; margin-left: 15px; margin-right: 15px;">
+                                @post.Message
+                            </div>
+                            
                             @if (post.Image != null)
                             {
-                                <div id="imagePreview@(previewCounter)Wrapper" class="col-md-4">
+                                <div id="imagePreview@(previewCounter)Wrapper" style="display: block;">
                                     <div class="container">
                                         @{
-                                            string starts = "", ends = "", maxMeasurements = "";
+                                            string starts = "", ends = "", maxMeasurements = "", ids = "";
+                                            CultureInfo old = CultureInfo.CurrentCulture;
+                                            Thread.CurrentThread.CurrentCulture = new CultureInfo("nl-BE");
                                             foreach (var z in post.Image.Data.Chart)
                                             {
-                                                starts += z.StartTime.ToString() + ", ";
-                                                ends += z.EndTime.ToString() + ", ";
-                                                maxMeasurements += z.MaxMeasurements.ToString() + ", ";
+                                                string start = z.StartTime.ToString("yyyy-MM-ddTHH:mm");
+                                                string end = z.EndTime.ToString("yyyy-MM-ddTHH:mm");
+                                                starts += start + ",";
+                                                ends += end + ",";
+                                                ids += z.SensorId + ",";
+                                                maxMeasurements += z.MaxMeasurements.ToString() + ",";
 
                                             }
-                                            starts = starts.Remove(starts.Length - 2);
-                                            ends = ends.Remove(ends.Length - 2);
-                                            maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 2);
-                                            var url = string.Format("../view-graph/{0}/{1}/{2}", starts, ends, maxMeasurements);
+                                            Thread.CurrentThread.CurrentCulture = old;
+                                            starts = starts.Remove(starts.Length - 1);
+                                            ends = ends.Remove(ends.Length - 1);
+                                            maxMeasurements = maxMeasurements.Remove(maxMeasurements.Length - 1);
+                                            ids = ids.Remove(ids.Length - 1);
+                                            var url = string.Format("../../view-graph/{0}/{1}/{2}/{3}", ids, starts, ends, maxMeasurements);
                                         }
-                                        <iframe id="imagePreview@(previewCounter)" src="@(url)" style="height: 200px; width: 200px;">
+                                        <iframe id="imagePreview@(previewCounter)" src="@(url)" style="height: 625px; width: 625px;">
 
                                         </iframe>
                                         
