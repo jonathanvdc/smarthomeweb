@@ -25,7 +25,7 @@
     <div class="container col-sm-3">
         <div class="panel panel-default">
             <div class="panel-body">
-                <div class="profile-avatar avatar-@(Math.Abs(user.Guid.GetHashCode() % 8))"></div>
+                <div class="profile-avatar @user.AvatarClass()"></div>
             </div>
         </div>
     </div>

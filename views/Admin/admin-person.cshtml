@@ -44,19 +44,30 @@
 
 <h1>@TextResources.UsersAdminPageTitle</h1>
 
-<div class="btn-group">
-	<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		@TextResources.MakeReportLabel<span class="caret"></span>
-	</button>
-	<ul class="dropdown-menu">
-		<li><a href="#" onclick="makeReport(7)">@TextResources.TimeLast7Days</a></li>
-		<li><a href="#" onclick="makeReport(30)">@TextResources.TimeLast30Days</a></li>
-		<li><a href="#" onclick="makeReport(365)">@TextResources.TimeLast365Days</a></li>
-	</ul>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @TextResources.MakeReportLabel<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="#" onclick="makeReport(7)">@TextResources.TimeLast7Days</a></li>
+                <li><a href="#" onclick="makeReport(30)">@TextResources.TimeLast30Days</a></li>
+                <li><a href="#" onclick="makeReport(365)">@TextResources.TimeLast365Days</a></li>
+            </ul>
+        </div>
+
+    </div>
+    <div class="panel-body">
+
+        <textarea id="report-result" hidden="true" style="font-family: monospace;width:100%;height:240px;"></textarea>
+
+    </div>
 </div>
 
-<br/>
-<textarea id="report-result" hidden="true" style="font-family: monospace"></textarea>
 
 <table class="table">
         <tr class="tableHeader">

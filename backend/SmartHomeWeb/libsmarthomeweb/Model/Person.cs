@@ -60,5 +60,15 @@ namespace SmartHomeWeb.Model
 		{
 			return obj is Person && Equals((Person)obj);
 		}
+
+        /// <summary>
+        /// Return a CSS class name that assigns this person a "random"
+        /// (but consistent) avatar.
+        /// </summary>
+        /// <returns>A CSS class name like "avatar-2".</returns>
+	    public string AvatarClass()
+	    {
+	        return $"avatar-{Math.Abs(Guid.GetHashCode()) % 8}";
+	    }
 	}
 }

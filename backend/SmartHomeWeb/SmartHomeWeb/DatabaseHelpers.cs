@@ -98,17 +98,6 @@ namespace SmartHomeWeb
                     GetString(Record, "address"), GetString(Record, "city"),
                     GetString(Record, "zipcode"), GetBoolean(Record, "isAdmin")));
         }
-        /// <summary>
-        /// Reads a group entity from the given record.
-        /// </summary>
-        public static Group ReadGroup(IDataRecord Record)
-        {
-            return new Group(
-                GetInt32(Record, "id"),
-                GetString(Record, "name"),
-                GetString(Record, "description")
-            );
-        }
 
         /// <summary>
         /// Reads a message entity from the given record.
