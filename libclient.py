@@ -248,12 +248,14 @@ def generateAndUploadData(location, startTime, endTime):
     postChecked(api + 'measurements', json=measurements)
     return sensors
 
-def post_elecsim(day_count):
-    locations = json.loads(getChecked(api + 'locations').text)
-    num_locations = len(locations)
-    now = datetime.now()
+def get_locations():
+    return json.loads(getChecked(api + 'locations').text)
 
-    log("Current time: " + printDateTime(now))
+def config_elecsim():
+    locations = get_locations()
+    num_locations = len(locations)
+
+    log("Configuring ElecSim...")
 
     Popen(
         ['python3', 'main.py',
@@ -262,6 +264,14 @@ def post_elecsim(day_count):
          '--output=configuration.json'],
         cwd='ElecSim'
     ).wait()
+
+    return locations
+
+def post_elecsim(now, day_count, locations, must_aggregate):
+    num_locations = len(locations)
+
+    log("Generating and uploading ElecSim data...")
+    log("End time: " + printDateTime(now))
 
     for i in range(1, num_locations + 1):
         name = locations[i - 1]['data']['name']
@@ -285,7 +295,12 @@ def post_elecsim(day_count):
             startTime = endTime - timedelta(days = day_count - j)
             sensors = generateAndUploadData(locations[i - 1], startTime, endTime)
 
-        aggregateMeasurements(sensors, now, day_count)
+        if must_aggregate:
+            aggregateMeasurements(sensors, now, day_count)
+
+def configure_and_post_elecsim(day_count):
+    locations = config_elecsim()
+    post_elecsim(datetime.now(), day_count, locations, True)
 
 # Launches the server, and does not return until it is ready to handle
 # requests.

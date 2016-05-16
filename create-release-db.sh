@@ -6,3 +6,5 @@ python compact.py measurements $(date -I --date "14 days ago") $(date -I --date 
 python compact.py hour-average $(date -I --date "2 months ago") $(date -I --date "14 days ago")
 python compact.py day-average $(date -I --date "2 years ago") $(date -I --date "2 months ago")
 python vacuum.py
+
+python post-measurements.py $(date -I --date "3 days") 2

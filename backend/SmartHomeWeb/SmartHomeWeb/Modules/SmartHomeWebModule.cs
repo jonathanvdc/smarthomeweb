@@ -192,9 +192,9 @@ namespace SmartHomeWeb.Modules
 				return View["edit-location.cshtml", update];
 			};
 
-            Get["/add-tag/{id?}", true] = GetAddTag;
+            Get["/add-tag/{id}", true] = GetAddTag;
 
-            Post["/add-tag/{id?}", true] = PostAddTag;
+            Post["/add-tag/{id}", true] = PostAddTag;
 
             Get["/measurement", true] = async (parameters, ct) =>
             {
@@ -217,18 +217,7 @@ namespace SmartHomeWeb.Modules
                 return View["login.cshtml"];
             };
             Get["/logout"] = parameter => this.Logout("/");
-
-            //TODO this junk
-            Get["/groups", true] = GetGroups;
-
-            Post["/groups", true] = PostGroups;
-
-            Get["/groups/{groupid}", true] = GetGroup;
-
-            //Get["/groups/{groupid}/invite", true] = GetGroupInvite;
-
-            //Post["/groups/{groupid}/invite", true] = PostGroupInvite;
-
+            
             Get["/add-location", true] = GetAddLocation;
 
 			Post["/add-location", true] = PostAddLocation;
@@ -290,6 +279,9 @@ namespace SmartHomeWeb.Modules
                 }
                 return View["view-graph.cshtml", model];
             };
+
+
+            Get["/cluster", true] = getCluster;
         }
 
         private async Task<Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>> GetWallParameter(dynamic parameters)
@@ -308,24 +300,6 @@ namespace SmartHomeWeb.Modules
             }
             return new Tuple<string, IEnumerable<WallPost>, bool, IEnumerable<Graph>>(recipientName, posts, signedIn, graphs);
             
-        }
-        private async Task<dynamic> GetGroup(dynamic parameters, CancellationToken ct)
-        {
-            this.RequiresAuthentication();
-            Tuple<bool, IEnumerable<Person>, IEnumerable<WallPost>, string> tuple;
-            using (var dc = await DataConnection.CreateAsync())
-            {
-                IEnumerable<Person> memberList = await dc.GetMembersForGroupAsync(parameters.groupid);
-                IEnumerable<WallPost> postList = await dc.GetPostsForGroupAsync(parameters.groupid);
-                var isMember = false;
-                foreach (var m in memberList)
-                {
-                    if (m.Guid == CurrentUserGuid()) isMember = true;
-                }
-                tuple = new Tuple<bool, IEnumerable<Person>, IEnumerable<WallPost>, string>(isMember, memberList, postList, (await dc.GetGroupByIdAsync(parameters.groupid)).Name);
-            }
-            
-            return View["groupprofile", tuple];
         }
         private async Task<dynamic> GetWall(dynamic parameters, CancellationToken ct)
         {
@@ -382,34 +356,6 @@ namespace SmartHomeWeb.Modules
             }
 
             return Response.AsRedirect(".");
-        }
-        private async Task<dynamic> GetGroups(dynamic parameters, CancellationToken ct)
-        {
-            this.RequiresAuthentication();
-            List<Group> groups;
-            using (var dc = await DataConnection.CreateAsync())
-            {
-                groups = (await dc.GetGroupsForUserAsync(CurrentUserGuid())).ToList();
-
-            }
-            
-            return View["Group", groups];
-        }
-        private async Task<dynamic> PostGroups(dynamic parameters, CancellationToken ct)
-        {
-            this.RequiresAuthentication();
-
-            using (var dc = await DataConnection.CreateAsync())
-            {
-                var name = FormHelpers.GetString(Request.Form, "NG_name");
-                var description = FormHelpers.GetString(Request.Form, "NG_description");
-                var members = new List<Person> {await dc.GetPersonByGuidAsync(CurrentUserGuid())};
-                var group = new Group(-1, name, description, members);
-                await dc.InsertGroupAsync(group);
-            }
-
-
-            return await GetGroups(parameters, ct);
         }
         
         private async Task<dynamic> GetAddHasLocation(dynamic parameters, CancellationToken ct)
@@ -780,7 +726,7 @@ namespace SmartHomeWeb.Modules
             {
                 using (var dc = await DataConnection.CreateAsync())
                 {
-                    int sensorId = (int)Request.Form["sensor-id"];
+                    int sensorId = (int)parameters["id"];
                     string tag = FormHelpers.GetString(Request.Form, "tag-name");
 
                     var sensor = await dc.GetSensorByIdAsync(sensorId);
@@ -855,10 +801,10 @@ namespace SmartHomeWeb.Modules
         {
             this.RequiresAuthentication();
 
-            var sensors = await DataConnection.Ask(x => x.GetSensorsAsync());
-
-            ViewBag.HighlightedSensorId = parameters.id;
-            return View["add-tag.cshtml", sensors];
+            var sensor = await DataConnection.Ask(x => x.GetSensorByIdAsync((int)parameters.id));
+            var tags = await DataConnection.Ask(x => x.GetSensorTagsAsync((int)parameters.id));
+            
+            return View["add-tag.cshtml", new Tuple<Sensor, IEnumerable<string>>(sensor, tags)];
         }
 
         private async Task<dynamic> GetAddSensor(dynamic parameters, CancellationToken ct)
@@ -1000,5 +946,12 @@ namespace SmartHomeWeb.Modules
 
             return await GetEditProfile(parameters, ct);
         }
-    }    
+
+        private async Task<dynamic> getCluster(dynamic parameters, CancellationToken ct)
+        {
+            IEnumerable<Location> Locations = await DataConnection.Ask(x => x.GetLocationsAsync());
+            return View["cluster.cshtml", Locations];
+        }
+
+    }
 }
