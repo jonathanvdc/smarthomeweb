@@ -368,7 +368,7 @@
         // Callback that creates and populates a data table,
         // instantiates the line chart, passes in the data and
         // draws it.
-        var drawChart = function () {
+        var drawChart = function (hideLoading) {
             if (!hasLoadedGoogleCharts)
                 return;
 
@@ -379,7 +379,8 @@
                 return;
             }
 
-            showLoading();
+            if (!hideLoading)
+                showLoading();
 
             // Retrieve and draw the data.
             chartDesc.getRangesWithMeasurements(drawData);
@@ -387,6 +388,12 @@
 
         // Re-draw the chart whenever the underlying model changes.
         this.chartDesc.onChanged(drawChart);
+
+        // Fetch live updates and redraw silently every minute.
+        setInterval(function() {
+            chartDesc.invalidateCache();
+            drawChart(true);
+        }, 60000);
 
         // Load the Visualization API and the corechart package.
         google.charts.load('current', { 'packages': ['corechart'] });
