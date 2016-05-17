@@ -690,4 +690,7 @@
   <data name="StatisticalDataPanelTitle" xml:space="preserve">
     <value>Statistical Data</value>
   </data>
+  <data name="TotalCost" xml:space="preserve">
+    <value>Total cost</value>
+  </data>
 </root>
