@@ -179,6 +179,9 @@
     <None Include="..\..\..\views\SmartHomeWeb\add-tag.cshtml">
       <Link>View Links\SmartHomeWeb\add-tag.cshtml</Link>
     </None>
+    <None Include="..\..\..\views\SmartHomeWeb\cluster.cshtml">
+      <Link>View Links\SmartHomeWeb\cluster.cshtml</Link>
+    </None>
     <None Include="..\..\..\views\SmartHomeWeb\compare-graph.cshtml">
       <Link>View Links\SmartHomeWeb\compare-graph.cshtml</Link>
     </None>
