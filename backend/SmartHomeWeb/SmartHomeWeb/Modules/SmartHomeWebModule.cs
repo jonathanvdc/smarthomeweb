@@ -949,7 +949,9 @@ namespace SmartHomeWeb.Modules
 
         private async Task<dynamic> getCluster(dynamic parameters, CancellationToken ct)
         {
-            IEnumerable<Location> Locations = await DataConnection.Ask(x => x.GetLocationsAsync());
+            this.RequiresAuthentication();
+
+            IEnumerable<Location> Locations = await DataConnection.Ask(x => x.GetLocationsForPersonAsync(CurrentUserGuid()));
             return View["cluster.cshtml", Locations];
         }
 

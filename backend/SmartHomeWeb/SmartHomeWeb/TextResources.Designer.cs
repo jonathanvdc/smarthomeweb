@@ -286,6 +286,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clustering.
+        /// </summary>
+        public static string ClusteringPageTitle {
+            get {
+                return ResourceManager.GetString("ClusteringPageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Compare ranges.
         /// </summary>
         public static string CompareGraphPageTitle {
@@ -997,6 +1006,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No location selected..
+        /// </summary>
+        public static string NoLocationSelected {
+            get {
+                return ResourceManager.GetString("NoLocationSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No new friend requests..
         /// </summary>
         public static string NoNewFriendRequests {
@@ -1416,6 +1434,24 @@ namespace SmartHomeWeb {
         public static string SensorTagsLabel {
             get {
                 return ResourceManager.GetString("SensorTagsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        public static string Settings {
+            get {
+                return ResourceManager.GetString("Settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Statistical Data.
+        /// </summary>
+        public static string StatisticalDataPanelTitle {
+            get {
+                return ResourceManager.GetString("StatisticalDataPanelTitle", resourceCulture);
             }
         }
         

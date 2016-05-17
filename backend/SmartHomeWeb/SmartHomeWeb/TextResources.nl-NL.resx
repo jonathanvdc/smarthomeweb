@@ -660,4 +660,16 @@
   <data name="SaveGraphButton" xml:space="preserve">
     <value>Opslaan</value>
   </data>
+  <data name="ClusteringPageTitle" xml:space="preserve">
+    <value>Clusteren</value>
+  </data>
+  <data name="NoLocationSelected" xml:space="preserve">
+    <value>Geen locatie geselecteerd</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Instellingen</value>
+  </data>
+  <data name="StatisticalDataPanelTitle" xml:space="preserve">
+    <value>Statistische Data</value>
+  </data>
 </root>

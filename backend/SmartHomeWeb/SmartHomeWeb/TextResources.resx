@@ -678,4 +678,16 @@
   <data name="SaveGraphButton" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="ClusteringPageTitle" xml:space="preserve">
+    <value>Clustering</value>
+  </data>
+  <data name="NoLocationSelected" xml:space="preserve">
+    <value>No location selected.</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="StatisticalDataPanelTitle" xml:space="preserve">
+    <value>Statistical Data</value>
+  </data>
 </root>
