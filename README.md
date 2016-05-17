@@ -72,6 +72,9 @@ The following command should fill the database nicely, where `30` is the number 
 $ python init-db.py 30
 ```
 
+An alternate approach would be to manually create a database (from a database dump, or
+from `backend/database/smarthomeweb.sql`), and move it to `backend/database/smarthomeweb.db`.
+
 ### Step three: running the server
 
 The server can be started with the following command:
@@ -87,6 +90,8 @@ Mono:
 ```bash
 $ mono ./backend/SmartHomeWeb/SmartHomeWeb/bin/Release/SmartHomeWeb.exe
 ```
+
+__Note__: it is imperative that you run these commands from the project's top-level folder. For example, it is unlikely that running `mono SmartHomeWeb.exe` from `backend/SmartHomeWeb/SmartHomeWeb/bin/Release` will work.
 
 __Pro tip__: the server uses port TCP port _8088_ for all of its communication, so it can be killed by the command below if its process is accidentally detached from the current terminal.
 
