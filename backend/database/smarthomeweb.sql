@@ -33,12 +33,6 @@ create table Friends (
     primary key (personOne, personTwo)
 );
 
-create table PersonGroup (
-	id integer primary key autoincrement,
-	name text not null,
-	description text not null
-);
-
 -- Describes saved graphs.
 create table Graph (
     -- A unique identifier for this graph.
@@ -65,21 +59,9 @@ create table GraphElement (
     maxMeasurements integer not null
 );
 
-create table BelongsTo (
-	personGroup integer not null references PersonGroup(id),
-	person text not null references Person(guid) on delete cascade,
-	primary key (personGroup, person)
-);
-
 create table HasAttachment (
 	message_Id integer unique not null references Message(id),
 	graph_Id integer not null references Graph(graphId)
-);
-
-create table GroupInvite (
-	personGroup integer not null references PersonGroup(id),
-	person text not null references Person(guid) on delete cascade,
-	primary key (personGroup, person)
 );
 
 -- (A, B) is in this table if and only if:
