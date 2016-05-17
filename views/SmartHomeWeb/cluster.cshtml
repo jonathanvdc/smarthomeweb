@@ -44,7 +44,7 @@
 		<div id="steps" class="col-sm-8">
 		  <table>
 		    <tr>
-		      <td style="padding: 5px;"><b>Current iteration: </b></td>
+		      <td style="padding: 5px;"><b>Amount of clusters: </b></td>
 			  <td id="currentiteration">0</td>
 		    </tr>
 			<tr>
@@ -102,11 +102,10 @@
 	  var kamount = 1;
 	  var verhouding = 0;
 	  var wsccprev = 0;
-	  
-	  while(kamount < 10 && verhouding < 0.5){
-		  k = kamount;
+	  var historicwcss = [];
+	  var continuecheck = true;
+	  while(continuecheck){
 		  calculatemiddles(kamount);
-		  
 		  //Apply kmeans until convergence
 		  var prevwcss = 0;
 		  var totalwcss = 0;
@@ -119,12 +118,21 @@
 			}
 		  }while(prevwcss != totalwcss)
 		  
+		  historicwcss.push(totalwcss);
 		  
+		  ++kamount;		  
+		  //Check if an extra cluster would be beneficial
 		  verhouding = wsccprev != 0 ? totalwcss / wsccprev : 1/totalwcss;
+		  difference = Math.abs(totalwcss - wsccprev);
+		  if(kamount > 9 || verhouding > 0.5 || difference < (sensorlist[sensorlist.length - 1][1] - sensorlist[0][1])/10){
+		    continuecheck = false;
+		  }else{
+		    k = kamount;
+		  }
+		  
 		  wsccprev = totalwcss;
-		  ++kamount;
 	  }
-	
+	  kmeans(k);
 	}
 	
     // Function that calculates kmeans for n clusters
@@ -156,9 +164,15 @@
 	  }
 	  
 	  //calculate new means with centroids(or averages because 1d)
-	  for(var i = 0; i < sensorlist.length; ++i){
+	  for(var i = 0; i < n; ++i){
 	    means[i] = newcount[i] != 0 ? Math.round(newmeans[i]*100/newcount[i])/100 : 0;
 	  }
+	  
+	  //Sort means for display purpose
+	  means.sort(function(a, b) {
+	    return a > b ? 1 : -1;
+	  });
+	  
 	  
 	  updateDisplay(n);
 	  drawChart(n);
@@ -166,16 +180,12 @@
 	
 	//Divide the sensordata in n equally wide parts
 	function calculatemiddles(n){
+	  means = [];
 	  var diff = sensorlist[sensorlist.length-1][1] - sensorlist[0][1];
 	  var size = Math.round(diff*100/n)/100;
 	  for(var i = 0; i < n; ++i){
 	    means.push(sensorlist[0][1]+((i+0.5)*size));
 	  }
-	}
-	
-	//Calculate the wcss for each cluster
-	function calculatewcss(){
-	
 	}
 	
 	function updateDisplay(n){
@@ -200,9 +210,6 @@
       data.addColumn('string', 'Sensorname');
       data.addColumn('number', 'Measurement');
 	  data.addColumn({ type: 'string', role: 'style' });
-	  data.addColumn('number', 'Low mean');
-	  data.addColumn('number', 'Mid Mean');
-	  data.addColumn('number', 'High Mean');
       data.addRows(generatedrawdata(k));
 
       // Set chart options
@@ -225,7 +232,7 @@
 	function generatedrawdata(k){
 	  var drawabledata = [];
 	  for(var i = 0; i < sensorlist.length; ++i){
-	    drawabledata.push([sensorlist[i][0], sensorlist[i][1], generatecolor(sensorlist[i][2], k) , means[0], means[1], means[2]])
+	    drawabledata.push([sensorlist[i][0], sensorlist[i][1], generatecolor(sensorlist[i][2], k)])
 	  }
 	  return drawabledata;
 	}
@@ -291,7 +298,6 @@
 			   calculatemiddles(3);
 			   addindices();
 			   //Set the initial wcss:
-			   //calculatewcss(3);
 			   for(var i = 0; i < sensorlist.length; ++i){
 			     if(sensorlist[i][2] == 0){
 				   wcss[0] = wcss[0] != undefined ? wcss[0] + Math.pow(sensorlist[i][1] - means[0], 2) : Math.pow(sensorlist[i][1] - means[0], 2);		   
