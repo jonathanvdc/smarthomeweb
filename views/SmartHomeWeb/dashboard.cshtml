@@ -527,12 +527,16 @@ else
                 }
             });
     }
-	function byalphabet() {
-	    var ul = allSensors();
-	    ul.append(ul.children().sort(function(a, b) {
-	        return $("p", a).text() > $("p", b).text() ? 1 : -1;
-	    }));
-	}
+
+    function byalphabet() {
+        var $holder = $('#u_' + currentLocation).children().first();
+        var $kids = $holder.children('li');
+        $kids.sort(function(a, b) {
+            return $("p", a).text() > $("p", b).text() ? 1 : -1;
+        });
+        $kids.detach().appendTo($holder);
+    }
+
     document.getElementById("saveButton").addEventListener("click", function() {
         var name = document.getElementById("saveName").value;
         if (name === null || name === "") {

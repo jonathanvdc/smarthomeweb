@@ -452,38 +452,43 @@ else
         // Reload tooltips, since moving elements disables them
 		$('[data-toggle="tooltip"]').tooltip();
 	}
-
-	function byconsumption(){
-		var sensors = document.getElementById('u_' + currentLocation).children[0];
-		var items = sensors.getElementsByTagName("li");
-        var ids = $.map(items, function(elem) {
-            return createRange(elem.getAttribute("sensor-id")).getTotalUsageAsync();
-        });
-        GraphHelpers.whenAll(ids, function(results) {
-            var x = [];
-    		var newitems = [];
-    		for (var i = 0; i < results.length; ++i) {
-    		    x.push([i, results[i]]);
-    		}
-            x.sort(function(a, b) {
-                return a[1] < b[1] ? 1 : -1;
+    
+	function byconsumption() {
+	    var sensors = document.getElementById('u_' + currentLocation).children[0];
+	    var items = sensors.getElementsByTagName("li");
+	    var ids = $.map(items,
+            function(elem) {
+                return (new AutofitRange(elem.getAttribute("sensor-id"), state['referenceStartTime'], state['referenceEndTime'], 60)).getTotalUsageAsync();
             });
+	    GraphHelpers.whenAll(ids,
+            function(results) {
+                var x = [];
+                var newitems = [];
+                for (var i = 0; i < results.length; ++i) {
+                    x.push([i, results[i]]);
+                }
+                x.sort(function(a, b) {
+                    // Somehow, a[1] is an array of three elements. We are only
+                    // interested in the first element.
+                    return b[1][0] - a[1][0];
+                });
 
-            for (var i = 0; i < x.length; ++i){
-                newitems.push(items[x[i][0]].cloneNode(true));
-            }
-            for (var i = 0; i < items.length; ++i){
-                sensors.replaceChild(newitems[i], items[i]);
-            }
-        });
+                for (var i = 0; i < x.length; ++i) {
+                    newitems.push(items[x[i][0]].cloneNode(true));
+                }
+                for (var i = 0; i < items.length; ++i) {
+                    sensors.replaceChild(newitems[i], items[i]);
+                }
+            });
 	}
 
-
 	function byalphabet() {
-	    var ul = allSensors();
-	    ul.append(ul.children().sort(function(a, b) {
+	    var $holder = $('#u_' + currentLocation).children().first();
+	    var $kids = $holder.children('li');
+	    $kids.sort(function(a, b) {
 	        return $("p", a).text() > $("p", b).text() ? 1 : -1;
-	    }));
+	    });
+	    $kids.detach().appendTo($holder);
 	}
 
 
