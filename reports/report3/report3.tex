@@ -241,6 +241,10 @@ Dankzij de aggregatiestrategie, die moeiteloos rekening houdt met nieuwe metinge
 
 \subsubsection{JavaScript API}
 
+Een gedeeld JavaScript bestand zorgt voor de werking van grafieken op verschillende pagina's van de site, en geeft een flexibele interface om effici\"ent data op te vragen, die pasklaar is om in grafieken voorgesteld te worden. Het biedt een laag abstractie boven onze REST API, en houdt opgevraagde data in een \emph{cache} bij.
+
+Met deze API is het maken van pagina's die metingen voorstellen erg gemakkelijk, en tegelijkertijd wordt netwerkverkeer tot een minimum beperkt. Idiomatisch gebruik van de API zorgt ervoor dat dezelfde data immers geen twee keer opgevraagd wordt, tenzij dit expliciet gevraagd wordt door middel van een \emph{invalidate-cache} call -- dat laatste wordt tevens gebruikt om elke minuut nieuwe data op te vragen in de grafiek-pagina's die erop gebouwd zijn.
+
 \subsubsection{$k$-means clustering}
 
 \subsubsection{Voorspellen van verbruik}
