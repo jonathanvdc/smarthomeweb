@@ -133,6 +133,8 @@
 		  wsccprev = totalwcss;
 	  }
 	  kmeans(k);
+	  updateDisplay(k);
+	  drawChart(k);
 	}
 	
     // Function that calculates kmeans for n clusters
@@ -173,9 +175,6 @@
 	    return a > b ? 1 : -1;
 	  });
 	  
-	  
-	  updateDisplay(n);
-	  drawChart(n);
 	}
 	
 	//Divide the sensordata in n equally wide parts
@@ -202,6 +201,10 @@
 	  document.getElementById('firstlimit').innerHTML = meansstring;
 	  document.getElementById('firstinner').innerHTML = wcssstring;
 	  document.getElementById('totwcss').innerHTML = totalwcss;
+	  
+	 for(var i = 0; i < sensorlist.length; ++i){
+	   document.getElementById(sensorlist[i][0]).style.backgroundColor = generatecolor(sensorlist[i][2], n);
+	 }
 	}
 	
     function drawChart(k) {
@@ -248,13 +251,13 @@
 	  for(var i = 0; i < sensorlist.length; ++i){
 	    if(sensorlist[i][1] <= means[0]){
 		  sensorlist[i].push(0);
-		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-success";
+		  document.getElementById(sensorlist[i][0]).style.backgroundColor = generatecolor(0, 3);
 		}else if(sensorlist[i][1] <= means[1]){
 		  sensorlist[i].push(1);
-		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-warning";		  
+		  document.getElementById(sensorlist[i][0]).style.backgroundColor = generatecolor(1, 3);		  
 		}else{
 		  sensorlist[i].push(2);
-		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-danger";		  
+		  document.getElementById(sensorlist[i][0]).style.backgroundColor = generatecolor(2, 3);		  
 		}
 	  }
 	}
@@ -287,6 +290,7 @@
 				 entry.innerHTML = '<span class="badge">Value: ' +measurement.toString() + '</span>';
 				 entry.appendChild(document.createTextNode(sensors[i].data.name));
 				 entry.id = sensors[i].data.name;
+				 entry.className = "list-group-item"; 
 				 list.appendChild(entry);
 				 sensorlist.push([sensors[i].data.name, measurement]);
 			   }
