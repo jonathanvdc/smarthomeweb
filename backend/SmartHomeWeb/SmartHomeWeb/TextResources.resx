@@ -672,6 +672,9 @@
   <data name="TotalUsageLabel" xml:space="preserve">
     <value>Total</value>
   </data>
+  <data name="DashboardPredictionCheckboxLabel" xml:space="preserve">
+    <value>Prediction</value>
+  </data>
   <data name="NameForThisGraph" xml:space="preserve">
     <value>Name for this graph</value>
   </data>

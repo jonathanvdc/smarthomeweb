@@ -79,14 +79,16 @@ else
 			<div class="col-sm-3">
                 <div class="panel panel-default">
                     <div class="panel-heading">@(TextResources.ToolSelectorTitle)</div>
-					<div class="panel-body tab-content btn-group hold-when-clicked" style="padding:12px">
-                        <a href="#" onclick="setSum(false)" class="btn btn-default dashboard-tool-button active" id="sumButton">
-                            @TextResources.DashboardStackButtonLabel
-                        </a>
-                        <a href="#" onclick="setSum(true)" class="btn btn-default dashboard-tool-button" id="sumButton">
-                            @TextResources.DashboardSumButtonLabel
-                        </a>
-					</div>
+	                <div class="panel-body tab-content btn-group hold-when-clicked" style="padding: 12px">
+		                <a href="#" onclick="setSum(false)" class="btn btn-default dashboard-tool-button active" id="sumButton">
+			                @TextResources.DashboardStackButtonLabel
+		                </a>
+		                <a href="#" onclick="setSum(true)" class="btn btn-default dashboard-tool-button" id="sumButton">
+			                @TextResources.DashboardSumButtonLabel
+		                </a>
+	                </div>
+	                <input type="checkbox" id="prediction-checkbox"/>
+                    <label for="prediction-checkbox">@TextResources.DashboardPredictionCheckboxLabel</label>
 				</div>
 			</div>
 
@@ -243,9 +245,9 @@ else
     // Creates an autofitted range for the sensor with the given identifier,
     // that has the given start and end time.
     // This function relies on the assumption that the current state is valid.
-    var createRange = function(sensorId) {
+    var createRange = function(sensorId, isPredicted) {
         return new AutofitRange(
-            sensorId, state['startTime'], state['endTime'], getMaxMeasurementCount());
+            sensorId, state['startTime'], state['endTime'], getMaxMeasurementCount(), isPredicted);
     };
 
     // All <li> tags in the sensor list.
@@ -357,6 +359,11 @@ else
             measurementsGraph.setAggregationFunction(null);
     };
 
+    // Is the prediction checkbox checked?
+    var predictionEnabled = function() {
+        return $("#prediction-checkbox").is(':checked');
+    };
+
     // Flushes the state to the chart from scratch. This requires
     // O(n) communication with the server.
     var flushState = function() {
@@ -367,6 +374,9 @@ else
                 var sensorIds = state['sensorIds'];
                 for (var i = 0; i < sensorIds.length; i++) {
                     measurementsGraph.chartDesc.addRange(createRange(sensorIds[i]));
+                    if (predictionEnabled()) {
+                        measurementsGraph.chartDesc.addRange(createRange(sensorIds[i], true));
+                    }
                 }
             });
         }
@@ -560,3 +570,4 @@ else
         }
     });
 </script>
+

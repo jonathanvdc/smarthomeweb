@@ -140,11 +140,12 @@ GraphHelpers = new function()
 //
 //     new AutofitRange(...)
 //
-AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
+AutofitRange = function(sensorId, startTime, endTime, maxMeasurements, isPredictive) {
     this.sensorId = sensorId;
     this.startTime = startTime;
     this.endTime = endTime;
     this.maxMeasurements = maxMeasurements;
+    this.isPredictive = isPredictive;
 
     var cachedSensorData = null;
     var cachedLocationData = null;
@@ -163,7 +164,8 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
             'sensorId' : sensorId,
             'startTime' : GraphHelpers.timeString(startTime),
             'endTime' : GraphHelpers.timeString(endTime),
-            'maxMeasurements' : maxMeasurements
+            'maxMeasurements': maxMeasurements,
+            'isPredictive': isPredictive
         };
     };
 
@@ -178,8 +180,8 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
 
     // Converts this autofitted range to an autofit URL request.
     // This function is "private".
-    var toUrl = function() {
-        return "/api/autofit/" + urlPathEncode();
+    var toUrl = function () {
+        return (this.isPredictive ? "/api/predictive/" : "/api/autofit/") + urlPathEncode();
     };
 
     // Retrieves this sensor's measurements, as

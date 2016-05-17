@@ -385,6 +385,15 @@ namespace SmartHomeWeb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Prediction.
+        /// </summary>
+        public static string DashboardPredictionCheckboxLabel {
+            get {
+                return ResourceManager.GetString("DashboardPredictionCheckboxLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All.
         /// </summary>
         public static string DashboardSensorSelectAllLabel {
