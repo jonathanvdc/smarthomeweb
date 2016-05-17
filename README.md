@@ -23,7 +23,8 @@ To get SmartHomeWeb to work, you'll need the following:
 * An MSBuild-compatible build system: `msbuild` for the .NET framework, or `xbuild` for Mono.
 * A Python interpreter.
 * The `requests` Python module.
-* SQLite3
+* SQLite3.
+* The NuGet package manager.
 
 #### Windows
 
@@ -34,7 +35,7 @@ Recent versions of Windows ship with the .NET framework pre-installed. `csc` and
 On Debian-based Linux distributions, punching in the following command should install Mono, `xbuild`, `mcs`, `sqlite3` and the `requests` module:
 
 ```bash
-$ sudo apt-get install mono-complete mono-devel sqlite3 python-requests
+$ sudo apt-get install mono-complete mono-devel sqlite3 python-requests nuget
 ```
 
 [Install Mono on Linux](http://www.mono-project.com/docs/getting-started/install/linux/) provides a more detailed guide on how to install Mono.
@@ -47,9 +48,10 @@ The server has not been tested on Mac OS X, so we can't certify it for that plat
 
 #### Windows
 
-One option is opening SmartHomeWeb `backend/SmartHomeWeb/SmartHomeWeb.sln` in the Visual Studio GUI, and compiling it in _Release_ mode from there. Alternatively, you can issue the following command.
+One option is opening SmartHomeWeb `backend/SmartHomeWeb/SmartHomeWeb.sln` in the Visual Studio GUI, and compiling it in _Release_ mode from there. Alternatively, you can issue the following commands.
 
 ```bash
+$ nuget restore backend\SmartHomeWeb\SmartHomeWeb.sln
 $ msbuild /p:Configuration=Release backend\SmartHomeWeb\SmartHomeWeb.sln
 ```
 
@@ -58,6 +60,7 @@ $ msbuild /p:Configuration=Release backend\SmartHomeWeb\SmartHomeWeb.sln
 Analogous to the Windows shell command:
 
 ```bash
+$ nuget restore backend/SmartHomeWeb/SmartHomeWeb.sln
 $ xbuild /p:Configuration=Release backend/SmartHomeWeb/SmartHomeWeb.sln
 ```
 
