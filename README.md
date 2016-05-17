@@ -32,7 +32,7 @@ Recent versions of Windows ship with the .NET framework pre-installed. `csc` and
 
 #### Linux
 
-On Debian-based Linux distributions, punching in the following command should install Mono, `xbuild`, `mcs`, `sqlite3` and the `requests` module:
+On Debian-based Linux distributions, punching in the following command should install Mono, `xbuild`, `mcs`, `sqlite3`, the `requests` module, and the NuGet package manager:
 
 ```bash
 $ sudo apt-get install mono-complete mono-devel sqlite3 python-requests nuget
