@@ -230,8 +230,12 @@
 
         var showPrice = function (value) {
             var elem = document.getElementById("price-div");
-            elem.innerHTML = "<h3>Total cost: $" + value.toString() + "</h3>";
-            elem.hidden = false;
+            if (value !== null && value > 0) {
+                elem.innerHTML = "<h3>@TextResources.TotalCost: $" + value.toString() + "</h3>";
+                elem.hidden = false;
+            } else {
+                elem.hidden = true;
+            }
         };
 
         var getListKey = function (kvList) {
