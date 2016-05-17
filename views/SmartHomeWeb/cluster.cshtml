@@ -48,29 +48,17 @@
 			  <td id="currentiteration">0</td>
 		    </tr>
 			<tr>
-		      <td style="padding: 5px;"><b>Low usage: </b></td>
+		      <td style="padding: 5px;"><b>Usages: </b></td>
 			  <td id="firstlimit">0</td>
-			  <td style="padding: 5px;padding-left:20px;"><b>Low usage wcss: </b></td>
+			  <td style="padding: 5px;padding-left:20px;"><b>Within cluster sum of squares: </b></td>
 			  <td id="firstinner">0</td>
-		    </tr>
-		    <tr>
-		      <td style="padding: 5px;"><b>Medium usage: </b></td>
-			  <td id="secondlimit">0</td>
-			  <td style="padding: 5px;padding-left:20px;"><b>Middle usage wcss: </b></td>
-			  <td id="secondinner">0</td>
-			</tr>
-		    <tr>
-		      <td style="padding: 5px;"><b>High usage: </b></td>
-			  <td id="thirdlimit">0</td>
-			  <td style="padding: 5px;padding-left:20px;"><b>high usage wcss: </b></td>
-			  <td id="thirdinner">0</td>
 		    </tr>
 			<tr>
 			  <td style="padding: 5px;"><b>Total wcss:</b></td>
 			  <td id="totwcss">0</td>
 			</tr>
 		  </table>
-		  <button onclick="kmeans()">Apply kmeans</button>
+		  <button onclick="startkmeans()">Apply kmeans</button>
 		</div>
 	</div>
 </div>
@@ -101,95 +89,121 @@
 </script>
 
 <script type="text/javascript">
+    var k = 0;
 	var sensorlist = [];
-	var lowmean = 0;
-	var midmean = 0;
-	var highmean = 0;
-	var lowwcss = 0;
-	var midwcss = 0;
-	var highwcss = 0;
+    var means = [];
+    var wcss = [];
 	var currenthousehold = -1;
-	var currentiteration = 0;
 	// Load the Visualization API and the corechart package.
     google.charts.load('current', {'packages':['corechart']});
 
-    // Callback that creates and populates a data table,
-    // instantiates the pie chart, passes in the data and
-    // draws it.
-	function kmeans(){
-	  ++currentiteration; 
-	  var newlowmean = 0;
-	  var newmidmean = 0;
-	  var newhighmean = 0;
-	  lowwcss = 0;
-	  midwcss = 0;
-	  highwcss = 0;
-	  lowcount = 0;
-	  midcount = 0;
-	  highcount = 0;
+	//Function that will look for optimal amount of k's
+	function startkmeans(){
+	  var kamount = 1;
+	  var verhouding = 0;
+	  var wsccprev = 0;
+	  
+	  while(kamount < 10 && verhouding < 0.5){
+		  k = kamount;
+		  calculatemiddles(kamount);
+		  
+		  //Apply kmeans until convergence
+		  var prevwcss = 0;
+		  var totalwcss = 0;
+		  do{
+			prevwcss = totalwcss;
+			kmeans(kamount);
+			totalwcss = 0;
+			for(var i = 0; i < kamount; ++i){
+			  totalwcss = totalwcss + wcss[i];
+			}
+		  }while(prevwcss != totalwcss)
+		  
+		  
+		  verhouding = wsccprev != 0 ? totalwcss / wsccprev : 1/totalwcss;
+		  wsccprev = totalwcss;
+		  ++kamount;
+	  }
+	
+	}
+	
+    // Function that calculates kmeans for n clusters
+	function kmeans(n){
+      var newmeans = [];
+	  var newcount = [];
+	  var clustermiddles = [];
+	  for(var i = 0; i < n; ++i){
+	    newmeans[i] = 0;
+		newcount[i] = 0;
+		wcss[i] = 0;
+		clustermiddles[i] = 0;
+	  }
+	  
 	  for(var i = 0; i < sensorlist.length; ++i){
-	    var distancelow = Math.pow(sensorlist[i][1] - lowmean, 2);
-		var distancemid = Math.pow(sensorlist[i][1] - midmean, 2);
-		var distancehigh = Math.pow(sensorlist[i][1] - highmean, 2);
-		var lowest = Math.min(distancelow, distancemid, distancehigh);
-		if(lowest == distancelow){
-		  newlowmean = newlowmean + sensorlist[i][1];
-		  lowwcss = lowwcss + distancelow;
-		  ++lowcount;
-		  sensorlist[i][2] = "#05F228";
-		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-success";
-		}else if(lowest == distancemid){
-		  newmidmean = newmidmean + sensorlist[i][1];
-		  midwcss = midwcss + distancemid;
-		  ++midcount;
-		  sensorlist[i][2] = "#FFD903";	
-		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-warning";		  
-		}else{
-		  newhighmean = newhighmean + sensorlist[i][1];
-		  highwcss = highwcss + distancehigh;
-		  ++highcount;
-		  sensorlist[i][2] = "#FF5447";	
-		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-danger";		  
+	    var smallestdist = Math.pow(sensorlist[i][1] - means[0], 2);
+		var index = 0;
+		for(var x = 1; x < n; ++x){
+		  var dist = Math.pow(sensorlist[i][1] - means[x], 2);
+		  if(dist < smallestdist){
+		    smallestdist = dist;
+			index = x;
+		  }
 		}
+		sensorlist[i][2] = index;
+		newmeans[index] = newmeans[index] + sensorlist[i][1];
+		newcount[index] = newcount[index] + 1;
+		wcss[index] = wcss[index] + smallestdist;
 	  }
+	  
 	  //calculate new means with centroids(or averages because 1d)
-	  lowmean = lowcount != 0 ? Math.round(newlowmean*100/lowcount)/100 : lowmean;
-	  midmean = midcount != 0 ? Math.round(newmidmean*100/midcount)/100 : midmean;
-	  highmean = highcount != 0 ? Math.round(newhighmean*100/highcount)/100 : highmean;
-	  updatemeanlines();
-	  updateDisplay();
-	  drawChart();
+	  for(var i = 0; i < sensorlist.length; ++i){
+	    means[i] = newcount[i] != 0 ? Math.round(newmeans[i]*100/newcount[i])/100 : 0;
+	  }
+	  
+	  updateDisplay(n);
+	  drawChart(n);
 	}
 	
-	function updatemeanlines(){
-	  for(var i = 0; i < sensorlist.length; ++i){
-	    sensorlist[i][3] = lowmean;
-	    sensorlist[i][4] = midmean;	  
-	    sensorlist[i][5] = highmean;	  
+	//Divide the sensordata in n equally wide parts
+	function calculatemiddles(n){
+	  var diff = sensorlist[sensorlist.length-1][1] - sensorlist[0][1];
+	  var size = Math.round(diff*100/n)/100;
+	  for(var i = 0; i < n; ++i){
+	    means.push(sensorlist[0][1]+((i+0.5)*size));
 	  }
 	}
 	
-	function updateDisplay(){
-	  document.getElementById('firstlimit').innerHTML = lowmean;
-	  document.getElementById('secondlimit').innerHTML = midmean;
-	  document.getElementById('thirdlimit').innerHTML = highmean;
-	  document.getElementById('firstinner').innerHTML = Math.round(lowwcss*100)/100;
-	  document.getElementById('secondinner').innerHTML = Math.round(midwcss*100)/100;
-	  document.getElementById('thirdinner').innerHTML = Math.round(highwcss*100)/100;
-	  document.getElementById('totwcss').innerHTML = Math.round((lowwcss+midwcss+highwcss)*100)/100;
+	//Calculate the wcss for each cluster
+	function calculatewcss(){
+	
 	}
 	
-    function drawChart() {
+	function updateDisplay(n){
+	  var meansstring = "";
+	  var wcssstring = "";
+	  var totalwcss = 0;
+	  for(var i = 0; i < n; ++i){
+	    meansstring = meansstring + means[i] + "<br/>";
+		wcssstring = wcssstring + Math.round(wcss[i]*100)/100 + "<br/>";
+		totalwcss = totalwcss + wcss[i];
+	  }
+	  totalwcss = Math.round(totalwcss*100)/100;
+	  document.getElementById('currentiteration').innerHTML = k;
+	  document.getElementById('firstlimit').innerHTML = meansstring;
+	  document.getElementById('firstinner').innerHTML = wcssstring;
+	  document.getElementById('totwcss').innerHTML = totalwcss;
+	}
+	
+    function drawChart(k) {
       // Create the data table.
       var data = new google.visualization.DataTable();
-	  updateDisplay();
       data.addColumn('string', 'Sensorname');
       data.addColumn('number', 'Measurement');
 	  data.addColumn({ type: 'string', role: 'style' });
 	  data.addColumn('number', 'Low mean');
 	  data.addColumn('number', 'Mid Mean');
 	  data.addColumn('number', 'High Mean');
-      data.addRows(sensorlist);
+      data.addRows(generatedrawdata(k));
 
       // Set chart options
       var options = {'title':'Energy usage ',
@@ -207,28 +221,38 @@
       var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
       chart.draw(data, options);
     }
-	  
-	function addcolors(){
-	  //Add the initial colors for each measurement belonging to the correct cluster
-	  //Also adds the mean of the clusters to display these in the graph
+	
+	function generatedrawdata(k){
+	  var drawabledata = [];
 	  for(var i = 0; i < sensorlist.length; ++i){
-	    if(sensorlist[i][1] <= lowmean){
-		  sensorlist[i].push("#05F228");
+	    drawabledata.push([sensorlist[i][0], sensorlist[i][1], generatecolor(sensorlist[i][2], k) , means[0], means[1], means[2]])
+	  }
+	  return drawabledata;
+	}
+	
+	function generatecolor(index, k){
+	    var colors = ["#00FF00","#9DFF00","#AEFF00","#D9FF00","#FFF700","#FFDD00","#FFBF00" ,"#FF6A00","#FF0400"];
+		var returncolor = Math.round((9*((index+1)/k))-1);
+		return colors[returncolor];
+	}
+	  
+	//Adds indices to indicate to which cluster the measurement belongs
+	function addindices(){
+	  for(var i = 0; i < sensorlist.length; ++i){
+	    if(sensorlist[i][1] <= means[0]){
+		  sensorlist[i].push(0);
 		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-success";
-		}else if(sensorlist[i][1] <= midmean){
-		  sensorlist[i].push("#FFD903");
+		}else if(sensorlist[i][1] <= means[1]){
+		  sensorlist[i].push(1);
 		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-warning";		  
 		}else{
-		  sensorlist[i].push("#FF5447");
+		  sensorlist[i].push(2);
 		  document.getElementById(sensorlist[i][0]).className = "list-group-item list-group-item-danger";		  
 		}
-		sensorlist[i].push(lowmean);
-		sensorlist[i].push(midmean);
-		sensorlist[i].push(highmean);
 	  }
 	}
 	
-	
+	//Function that gets the monthly measurement for a certain id
 	function getMonthlyMeasurement(sensorid){
 		var xhttp = new XMLHttpRequest();
 		xhttp.open("GET", "/api/month-average/"+sensorid.toString() + "/" + (now.getFullYear()).toString() + "-" + (now.getMonth()+1).toString() + "-01T00:00:00", false);
@@ -237,7 +261,10 @@
 		return Math.round(measured.measurement*100)/100;
 	};
 	
+	//Function that gets all sensors at the selected location, called when the location selection changes
 	function getSensors(id){
+	    means = [];
+		wcss = [];
 	    $("#sensoren").empty();
 	    currenthousehold = id;
 		sensorlist = [];
@@ -259,26 +286,23 @@
 			   sensorlist.sort(function(a, b) {
                 return a[1] > b[1] ? 1 : -1;
                });
-			   var difference = sensorlist[sensorlist.length - 1][1] - sensorlist[0][1];
-			   var interval = difference/3;
 			   
 			   //Set each cluster to 1/3 of the usage
-			   lowmean = Math.round((sensorlist[0][1] + (interval/2))*100)/100;
-			   midmean = Math.round((lowmean + interval)*100)/100;
-			   highmean = Math.round((midmean + interval)*100)/100;
-			   addcolors();
+			   calculatemiddles(3);
+			   addindices();
 			   //Set the initial wcss:
+			   //calculatewcss(3);
 			   for(var i = 0; i < sensorlist.length; ++i){
-			     if(sensorlist[i][2] == "#05F228"){
-				   lowwcss = lowwcss + Math.pow(sensorlist[i][1] - lowmean, 2);		   
-				 }else if(sensorlist[i][2] == "#FFD903"){
-				   midwcss = midwcss + Math.pow(sensorlist[i][1] - midmean, 2);		   
+			     if(sensorlist[i][2] == 0){
+				   wcss[0] = wcss[0] != undefined ? wcss[0] + Math.pow(sensorlist[i][1] - means[0], 2) : Math.pow(sensorlist[i][1] - means[0], 2);		   
+				 }else if(sensorlist[i][2] == 1){
+				   wcss[1] = wcss[1] != undefined ? wcss[1] + Math.pow(sensorlist[i][1] - means[1], 2) : Math.pow(sensorlist[i][1] - means[1], 2) ;		   
 				 }else{
-				   highwcss = highwcss + Math.pow(sensorlist[i][1] - highmean, 2);			   
+				   wcss[2] = wcss[2] != undefined ? wcss[2] + Math.pow(sensorlist[i][1] - means[2], 2) : Math.pow(sensorlist[i][1] - means[2], 2) ;			   
 				 }
 			   }
-			   updateDisplay();
-			   drawChart();
+			   updateDisplay(3);
+			   drawChart(3);
 			}
 		};
 		xhttp.open("GET", "/api/sensors/at-location/" + id.toString(), true);
