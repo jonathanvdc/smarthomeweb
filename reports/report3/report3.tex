@@ -43,7 +43,7 @@ schrijven naar de database.
 integration}. Dit omvat de meer complexe methodes die data uit de database
 behandelen.
 
-\item Jonathan heeft de \textbf{aggregatie-strategie} opgesteld en ge\"implementeerd.
+\item Jonathan heeft de \textbf{aggregatiestrategie} opgesteld en ge\"implementeerd.
 
 \item Mauris heeft het \textbf{verwijderen van outliers} ge\"implementeerd.
 
@@ -233,6 +233,11 @@ We ondersteunen \emph{compaction} tot \emph{tier} 3. Maandgegevens verwijderen l
 \emph{Compaction} wordt tot uitvoering gebracht door middel van de REST API. Voor de command-line wordt zo'n request naar de server verstuurd door het \texttt{compact.py} script, dat ofwel manueel kan gebruikt worden, ofwel periodisch tot uitvoering gebracht kan worden door middel van een extern programma als \texttt{cron}.
 
 \subsection{Extra functionaliteit}
+
+\subsubsection{Live \emph{measurement} updates}
+
+Elke getoonde grafiek heeft een \emph{refresh rate} van één minuut, waarop deze de data opnieuw opvraagt zodat nieuwe metingen automatisch in de grafiek verschijnen, zonder dat expliciet de interactie van de gebruiker nodig is.
+Dankzij de aggregatiestrategie, die moeiteloos rekening houdt met nieuwe metingen, verloopt dit erg vlot: voor de \emph{client} is dit volledig transparant, voor de \emph{server} is het een gewone \emph{request}.
 
 \subsubsection{JavaScript API}
 
