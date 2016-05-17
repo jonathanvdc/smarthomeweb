@@ -514,7 +514,9 @@ else
                     x.push([i, results[i]]);
                 }
                 x.sort(function(a, b) {
-                    return a[1] < b[1] ? 1 : -1;
+                    // Somehow, a[1] is an array of three elements. We are only
+                    // interested in the first element.
+                    return b[1][0] - a[1][0];
                 });
 
                 for (var i = 0; i < x.length; ++i) {

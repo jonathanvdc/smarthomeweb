@@ -196,7 +196,7 @@ AutofitRange = function(sensorId, startTime, endTime, maxMeasurements) {
     // This function is part of the public API.
     this.getTotalUsageAsync = function() {
         var url = "/api/autofit/total/" + urlPathEncode();
-        return $.get(url);
+        return GraphHelpers.requestDataAsync(url);
     };
 
     // Retrieves this sensor's measurements.
